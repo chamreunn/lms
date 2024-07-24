@@ -1,11 +1,10 @@
 <?php
-// Define your base URL
-$base_url = '/elms'; // Set your base URL if your application is located under a subdirectory
-
 // Check if a session is active before starting a new one
 if (session_status() === PHP_SESSION_NONE) {
     session_start(); // Start or resume session
 }
+// Define your base URL
+$base_url = '/elms'; // Set your base URL if your application is located under a subdirectory
 
 // Include necessary controllers
 require_once 'src/controllers/AuthController.php';
