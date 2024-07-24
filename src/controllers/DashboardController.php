@@ -59,11 +59,19 @@ class DashboardController
                     $lateModel = new LateModel();
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
+                    $countRequestModel = new LeaveRequest();
+                    $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
+                    $gettoday = $countRequestModel->getTodayLeaveById($_SESSION['user_id']);
                     require 'src/views/dashboard/user.php';
                     break;
                 case 'Deputy Head Of Office':
                     $leaveRequestModel = new DepDepartLeave();
                     $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
+                    $lateModel = new LateModel();
+                    $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
+                    $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
+                    $countRequestModel = new LeaveRequest();
+                    $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
                     require 'src/views/dashboard/office_manager.php';
                     break;
                 case 'Head Of Department':

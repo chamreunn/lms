@@ -124,7 +124,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                 <td><?= $getlate['reasons'] ?></td>
                                 <td><?= $getlate['created_at'] ?></td>
                                 <td>
-                                    <a href="" onclick="printContents()" class="icon me-2 edit-btn text-danger" data-bs-toggle="tooltip" title="Print" data-bs-target="#edit<?= $getlate['id'] ?>">
+                                    <a href="#" onclick="printContents(<?= $getlate['id'] ?>)" class="icon me-2 edit-btn text-danger" data-bs-toggle="tooltip" title="Print" data-bs-target="#edit<?= $getlate['id'] ?>">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                             <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
@@ -132,7 +132,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                             <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
                                         </svg>
                                     </a>
-                                    <a href="#" onclick="Export2Words('page-content', 'word-content.docx');" class="icon me-2 edit-btn" data-bs-toggle="tooltip" title="Export to word">
+                                    <a href="#" onclick="Export2Word('page-contents<?= $getlate['id'] ?>', 'word-content<?= $getlate['id'] ?>');" class="icon me-2 edit-btn" data-bs-toggle="tooltip" title="Export to Word">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-download">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                             <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
@@ -143,8 +143,8 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                 </td>
                             </tr>
 
-                            <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
-                                <div id="page-contents" class="card invoice-preview-card" style="height: 100vh">
+                            <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4" hidden>
+                                <div id="page-contents<?= $getlate['id'] ?>" class="card invoice-preview-card" style="height: 100vh">
                                     <div class="card-body">
                                         <div class="page-container hidden-on-narrow">
                                             <div class="pdf-page size-a4">
@@ -155,8 +155,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                                 </div>
                                                 <div class="from">
                                                     <div class="mb-xl-0 mb-4">
-                                                        <div class="for" style="font-family: khmer mef2; font-size:20px; position: relative;
-                                    color: #2F5496;">
+                                                        <div class="for" style="font-family: khmer mef2; font-size:20px; position: relative; color: #2F5496;">
                                                             <span class="company-logo">
                                                                 <img src="public/img/icons/brands/logo2.png" class="mb-3" style="width: 150px; padding-left: 30px" />
                                                             </span>
@@ -197,25 +196,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </div>
     </div>
 </div>
-
-<script>
-    function printContents() {
-        // Get the content of the div to print
-        var contents = document.getElementById('page-contents').innerHTML;
-
-        // Create a new window with the content
-        var
-            printWindow = window.open('none');
-        printWindow.document.open();
-        // printWindow.document.write('<!DOCTYPE html><html><head><title></title></head><body>');
-        printWindow.document.write(contents);
-        // printWindow.document.write('</body></html>');
-        printWindow.document.close();
-
-        // Print the window
-        printWindow.print();
-    }
-</script>
 
 <!-- Create office Modal -->
 <div class="modal modal-blur fade" id="create" tabindex="-1" position="dialog" aria-hidden="true">
@@ -291,6 +271,64 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <!-- Include Flatpickr Khmer locale -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/km.js"></script>
+
+<script>
+    // Function to print the contents
+    function printContents(id) {
+        var printContent = document.getElementById('page-contents' + id).innerHTML;
+        var originalContent = document.body.innerHTML;
+
+        document.body.innerHTML = printContent;
+        window.print();
+        document.body.innerHTML = originalContent;
+    }
+
+    // Function to export the table data to a Word document
+    function Export2Word(elementId, filename = '') {
+        var preHtml = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office'
+              xmlns:w='urn:schemas-microsoft-com:office:word'
+              xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+            <meta charset='utf-8'>
+            <title>Export HTML To Doc</title>
+            <style>
+                body { font-family: Arial, sans-serif; }
+            </style>
+        </head>
+        <body>`;
+        var postHtml = `</body></html>`;
+        var html = preHtml + document.getElementById(elementId).innerHTML + postHtml;
+
+        var blob = new Blob(['\ufeff', html], {
+            type: 'application/msword'
+        });
+
+        // Create a download link element
+        var downloadLink = document.createElement("a");
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            // Create a link to the file
+            var url = URL.createObjectURL(blob);
+            downloadLink.href = url;
+
+            // Setting the file name
+            downloadLink.download = filename;
+
+            // Triggering the function
+            downloadLink.click();
+
+            // Clean up the URL object after download
+            URL.revokeObjectURL(url);
+        }
+
+        document.body.removeChild(downloadLink);
+    }
+</script>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         // Initialize TomSelect

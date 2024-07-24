@@ -13,10 +13,10 @@ class LeaveRequest
         $this->pdo = $pdo;
     }
 
-    public function create($user_id, $leave_type_id, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment)
+    public function create($user_id, $leave_type_id, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment, $signature)
     {
-        $stmt = $this->pdo->prepare('INSERT INTO leave_requests (user_id, leave_type_id, leave_type, start_date, end_date, remarks, num_date, attachment, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())');
-        $stmt->execute([$user_id, $leave_type_id, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment, 'Pending']);
+        $stmt = $this->pdo->prepare('INSERT INTO leave_requests (user_id, leave_type_id, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())');
+        $stmt->execute([$user_id, $leave_type_id, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment, $signature, 'Pending']);
     }
 
     public function getRequestsByUserId($user_id)
@@ -29,6 +29,32 @@ class LeaveRequest
         );
         $stmt->execute([$user_id]);
         return $stmt->fetchAll();
+    }
+
+    public function getTodayLeaveById($user_id)
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT lr.*, lt.name as leave_type_name, lt.duration, lt.color 
+         FROM leave_requests lr
+         JOIN leave_types lt ON lr.leave_type_id = lt.id
+         WHERE lr.user_id = ?
+         AND lr.status = "Approved"
+         AND CURRENT_DATE BETWEEN lr.start_date AND lr.end_date'
+        );
+        $stmt->execute([$user_id]);
+        return $stmt->fetchAll();
+    }
+
+
+    public function countRequestsByUserId($user_id)
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT COUNT(*) as request_count 
+         FROM leave_requests 
+         WHERE user_id = ?'
+        );
+        $stmt->execute([$user_id]);
+        return $stmt->fetch()['request_count'];
     }
 
     public function getLeaveRequestById($request_id)

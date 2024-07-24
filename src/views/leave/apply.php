@@ -130,25 +130,77 @@ require_once 'src/controllers/LeavetypeController.php';
                         </div>
                         <div class="drop-zone-text fw-bold">ចុចដើម្បីជ្រើសរើសឯកសារ ឬចុចដំណើរទាក់ទង</div>
                     </div>
-                    <input type="file" class="form-control" id="attachment" name="attachment" style="display: none;">
+                    <input type="file" class="form-control" id="attachment" name="attachment" accept=".docx,.pdf" style="display: none;">
+                </div>
+                <div class="mb-3">
+                    <label for="signature" class="form-label">ហត្ថលេខា<span class="text-danger mx-1 fw-bold">*</span>
+                        <span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-signature">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M3 17c3.333 -3.333 5 -6 5 -8c0 -3 -1 -3 -2 -3s-2.032 1.085 -2 3c.034 2.048 1.658 4.877 2.5 6c1.5 2 2.5 2.5 3.5 1l2 -3c.333 2.667 1.333 4 3 4c.53 0 2.639 -2 3 -2c.517 0 1.517 .667 3 2" />
+                            </svg>
+                        </span>
+                    </label>
+                    <div id="signatureDropZone" class="dropzone text-center cursor-pointer rounded-3 border">
+                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file-invoice mb-3">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                <path d="M9 7l1 0" />
+                                <path d="M9 13l6 0" />
+                                <path d="M13 17l2 0" />
+                            </svg>
+                        </div>
+                        <div class="drop-zone-text fw-bold">ចុចដើម្បីជ្រើសរើសហត្ថលេខា</div>
+                    </div>
+                    <input type="file" class="form-control" id="signature" name="signature" accept="image/png" style="display: none;" required>
                 </div>
             </div>
         </div>
         <div class="card-footer text-end rounded-3">
             <button type="submit" class="btn btn-primary">
-                បង្កើតសំណើ
-                <span class="input-icon mx-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-send">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M10 14l11 -11" />
-                        <path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" />
-                    </svg>
-                </span>
+                <span>បង្កើតសំណើ</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-send mx-1">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M10 14l11 -11" />
+                    <path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" />
+                </svg>
             </button>
         </div>
     </form>
 </div>
 <?php include('src/common/footer.php'); ?>
+<style>
+    .dropzone {
+        position: relative;
+        width: 100%;
+        height: 150px;
+        border: 2px dashed #ccc;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: border-color 0.3s ease;
+    }
+
+    .dropzone.drop-zone-over {
+        border-color: #007bff;
+    }
+
+    .dropzone img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .drop-zone-text {
+        font-weight: bold;
+        text-align: center;
+    }
+</style>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         // Initialize TomSelect
@@ -214,45 +266,57 @@ require_once 'src/controllers/LeavetypeController.php';
 <!-- attachment drag&drop  -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const dropZone = document.getElementById("attachmentDropZone");
-        const fileInput = document.getElementById("attachment");
+        function setupDropZone(dropZoneId, fileInputId, isImagePreview) {
+            const dropZone = document.getElementById(dropZoneId);
+            const fileInput = document.getElementById(fileInputId);
 
-        dropZone.addEventListener("dragover", function(e) {
-            e.preventDefault();
-            dropZone.classList.add("drop-zone-over");
-        });
+            dropZone.addEventListener("dragover", function(e) {
+                e.preventDefault();
+                dropZone.classList.add("drop-zone-over");
+            });
 
-        dropZone.addEventListener("dragleave", function(e) {
-            e.preventDefault();
-            dropZone.classList.remove("drop-zone-over");
-        });
+            dropZone.addEventListener("dragleave", function(e) {
+                e.preventDefault();
+                dropZone.classList.remove("drop-zone-over");
+            });
 
-        dropZone.addEventListener("drop", function(e) {
-            e.preventDefault();
-            dropZone.classList.remove("drop-zone-over");
+            dropZone.addEventListener("drop", function(e) {
+                e.preventDefault();
+                dropZone.classList.remove("drop-zone-over");
 
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                fileInput.files = files;
-                // Optionally update UI to show the selected files
-                const fileName = files[0].name; // Display file name or other UI updates
-                dropZone.innerHTML = `Selected File: ${fileName}`;
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    updateDropZoneUI(dropZone, files[0], isImagePreview);
+                }
+            });
+
+            dropZone.addEventListener("click", function() {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener("change", function() {
+                const files = fileInput.files;
+                if (files.length > 0) {
+                    updateDropZoneUI(dropZone, files[0], isImagePreview);
+                }
+            });
+        }
+
+        function updateDropZoneUI(dropZone, file, isImagePreview) {
+            const fileName = file.name;
+            if (isImagePreview && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    dropZone.innerHTML = `<img src="${e.target.result}" alt="${fileName}" class="img-fluid rounded">`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                dropZone.querySelector(".drop-zone-text").innerHTML = `Selected File: ${fileName}`;
             }
-        });
+        }
 
-        // Handle clicks on drop zone to trigger file input click
-        dropZone.addEventListener("click", function() {
-            fileInput.click();
-        });
-
-        // Update file input when files are selected via input
-        fileInput.addEventListener("change", function() {
-            const files = fileInput.files;
-            if (files.length > 0) {
-                // Optionally update UI to show the selected files
-                const fileName = files[0].name; // Display file name or other UI updates
-                dropZone.innerHTML = `Selected File: ${fileName}`;
-            }
-        });
+        setupDropZone("attachmentDropZone", "attachment", false);
+        setupDropZone("signatureDropZone", "signature", true);
     });
 </script>

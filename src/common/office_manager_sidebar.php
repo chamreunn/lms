@@ -19,7 +19,7 @@
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item dropdown <?= ($current_page == 'apply-leave' || $current_page == 'overtime' || $current_page == 'rejected') ? 'active' : '' ?>">
+                    <li class="nav-item dropdown <?= ($current_page == 'apply-leave' || $current_page == 'late_in_request' || $current_page == 'late_out_request') ? 'active' : '' ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-text-plus">
@@ -53,18 +53,32 @@
                                         </span>
                                         ច្បាប់ឈប់សម្រាក
                                     </a>
-                                    <a class="dropdown-item <?= ($current_page == 'approved') ? 'active' : '' ?>" href="/elms/approved">
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item <?= ($current_page == 'late_in_request') ? 'active' : '' ?>" href="/elms/late_in_request">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-question">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-up">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M20.975 11.33a9 9 0 1 0 -5.717 9.06" />
-                                                <path d="M12 7v5l2 2" />
-                                                <path d="M19 22v.01" />
-                                                <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
+                                                <path d="M20.983 12.548a9 9 0 1 0 -8.45 8.436" />
+                                                <path d="M19 22v-6" />
+                                                <path d="M22 19l-3 -3l-3 3" />
+                                                <path d="M12 7v5l2.5 2.5" />
                                             </svg>
                                         </span>
-                                        លិខិតចេញ​ ចូលយឺត
+                                        លិខិតចូលយឺត
                                     </a>
+                                    <a class="dropdown-item <?= ($current_page == 'late_out_request') ? 'active' : '' ?>" href="/elms/late_out_request">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-share">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M20.943 13.016a9 9 0 1 0 -8.915 7.984" />
+                                                <path d="M16 22l5 -5" />
+                                                <path d="M21 21.5v-4.5h-4.5" />
+                                                <path d="M12 7v5l2 2" />
+                                            </svg>
+                                        </span>
+                                        លិខិតចេញយឺត
+                                    </a>
+                                    <div class="dropdown-divider"></div>
                                     <a class="dropdown-item <?= ($current_page == 'rejected') ? 'active' : '' ?>" href="/elms/rejected">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-repeat">
@@ -79,6 +93,51 @@
                                             </svg>
                                         </span>
                                         បេសកកម្ម
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown <?= ($current_page == 'overtimein' || $current_page == 'overtimeout') ? 'active' : '' ?>">
+                        <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-layout-bottombar-collapse">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M20 6v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2z" />
+                                    <path d="M20 15h-16" />
+                                    <path d="M14 8l-2 2l-2 -2" />
+                                </svg>
+                            </span>
+                            <span class="nav-link-title">
+                                លិខិតយឺត
+                            </span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item <?= ($current_page == 'overtimein') ? 'active' : '' ?>" href="/elms/overtimein">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-up">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M20.983 12.548a9 9 0 1 0 -8.45 8.436" />
+                                                <path d="M19 22v-6" />
+                                                <path d="M22 19l-3 -3l-3 3" />
+                                                <path d="M12 7v5l2.5 2.5" />
+                                            </svg>
+                                        </span>
+                                        លិខិតចូលយឺត
+                                    </a>
+                                    <a class="dropdown-item <?= ($current_page == 'overtimeout') ? 'active' : '' ?>" href="/elms/overtimeout">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-share">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M20.943 13.016a9 9 0 1 0 -8.915 7.984" />
+                                                <path d="M16 22l5 -5" />
+                                                <path d="M21 21.5v-4.5h-4.5" />
+                                                <path d="M12 7v5l2 2" />
+                                            </svg>
+                                        </span>
+                                        លិខិតចេញយឺត
                                     </a>
                                 </div>
                             </div>
@@ -166,22 +225,6 @@
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item <?= ($current_page == 'overtimes') ? 'active' : '' ?>">
-                        <a class="nav-link" href="/elms/overtimes">
-                            <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-question">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M20.975 11.33a9 9 0 1 0 -5.717 9.06" />
-                                    <path d="M12 7v5l2 2" />
-                                    <path d="M19 22v.01" />
-                                    <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
-                                </svg>
-                            </span>
-                            <span class="nav-link-title">
-                                លិខិតចេញ​​ និងចូលយឺត
-                            </span>
-                        </a>
-                    </li>
                     <li class="nav-item <?= ($current_page == 'missions') ? 'active' : '' ?>">
                         <a class="nav-link" href="/elms/missions">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -225,20 +268,6 @@
                         </a>
                     </li>
                 </ul>
-                <div class="my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-first order-md-last">
-                    <form action="./" method="get" autocomplete="off" novalidate>
-                        <div class="input-icon">
-                            <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <circle cx="10" cy="10" r="7" />
-                                    <line x1="21" y1="21" x2="15" y2="15" />
-                                </svg>
-                            </span>
-                            <input type="text" value="" class="form-control" placeholder="Search…" aria-label="Search in website">
-                        </div>
-                    </form>
-                </div>
             </div>
         </div>
     </div>

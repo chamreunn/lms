@@ -45,11 +45,16 @@ class LateModel
     public function getOvertimeOut($user_id)
     {
         $stmt = $this->pdo->prepare('
-        SELECT * 
-        FROM late_in_out 
-        WHERE user_id = ? AND late_out IS NOT NULL 
-        ORDER BY created_at DESC
-    ');
+            SELECT late_in_out.*, users.khmer_name, departments.name AS department_name, 
+                   offices.name AS office_name, positions.name AS position_name
+            FROM late_in_out
+            JOIN users ON late_in_out.user_id = users.id
+            LEFT JOIN departments ON users.department_id = departments.id
+            LEFT JOIN offices ON users.office_id = offices.id
+            LEFT JOIN positions ON users.position_id = positions.id
+            WHERE late_in_out.user_id = ? AND late_in_out.late_out IS NOT NULL
+            ORDER BY late_in_out.created_at DESC
+        ');
         $stmt->execute([$user_id]);
         return $stmt->fetchAll();
     }

@@ -40,6 +40,42 @@ ob_start();
 <?php
 $pageheader = ob_get_clean();
 include('src/common/header.php');
+function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
+{
+    $days = [
+        'Mon' => 'ច័ន្ទ',
+        'Tue' => 'អង្គារ',
+        'Wed' => 'ពុធ',
+        'Thu' => 'ព្រហស្បតិ៍',
+        'Fri' => 'សុក្រ',
+        'Sat' => 'សៅរ៍',
+        'Sun' => 'អាទិត្យ'
+    ];
+    $months = [
+        'January' => 'មករា',
+        'February' => 'កុម្ភៈ',
+        'March' => 'មីនា',
+        'April' => 'មេសា',
+        'May' => 'ឧសភា',
+        'June' => 'មិថុនា',
+        'July' => 'កក្កដា',
+        'August' => 'សីហា',
+        'September' => 'កញ្ញា',
+        'October' => 'តុលា',
+        'November' => 'វិច្ឆិកា',
+        'December' => 'ធ្នូ'
+    ];
+
+    $translatedDay = $days[date('D', strtotime($date))];
+    $translatedMonth = $months[date('F', strtotime($date))];
+    $translatedDate = str_replace(
+        [date('D', strtotime($date)), date('F', strtotime($date))],
+        [$translatedDay, $translatedMonth],
+        date($format, strtotime($date))
+    );
+
+    return $translatedDate;
+}
 ?>
 <!-- display office  -->
 <div class="col-12">
@@ -87,16 +123,65 @@ include('src/common/header.php');
                                 <td><?= $getlate['reasons'] ?></td>
                                 <td><?= $getlate['created_at'] ?></td>
                                 <td>
-                                    <a href="#" class="icon me-2 edit-btn" data-bs-toggle="modal" data-bs-target="#edit<?= $getlate['id'] ?>">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-edit">
+                                    <a href="#" onclick="printContents(<?= $getlate['id'] ?>)" class="icon me-2 edit-btn text-danger" data-bs-toggle="tooltip" title="Print" data-bs-target="#edit<?= $getlate['id'] ?>">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                            <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                                            <path d="M16 5l3 3" />
+                                            <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
+                                            <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" />
+                                            <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
+                                        </svg>
+                                    </a>
+                                    <a href="#" onclick="Export2Word('page-contents<?= $getlate['id'] ?>', 'word-content<?= $getlate['id'] ?>');" class="icon me-2 edit-btn" data-bs-toggle="tooltip" title="Export to Word">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-download">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+                                            <path d="M7 11l5 5l5 -5" />
+                                            <path d="M12 4l0 12" />
                                         </svg>
                                     </a>
                                 </td>
                             </tr>
+                            <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4" hidden>
+                                <div id="page-contents<?= $getlate['id'] ?>" class="card invoice-preview-card" style="height: 100vh">
+                                    <div class="card-body">
+                                        <div class="page-container hidden-on-narrow">
+                                            <div class="pdf-page size-a4">
+                                                <div class="pdf-header">
+                                                    <center class="invoice-number" style="font-family: khmer mef2;color: #2F5496;font-size: 20px; margin-top: -5px;">ព្រះរាជាណាចក្រកម្ពុជា<br>
+                                                        ជាតិ សាសនា ព្រះមហាក្សត្រ
+                                                    </center>
+                                                </div>
+                                                <div class="from">
+                                                    <div class="mb-xl-0 mb-4">
+                                                        <div class="for" style="font-family: khmer mef2; font-size:20px; position: relative; color: #2F5496;">
+                                                            <span class="company-logo">
+                                                                <img src="public/img/icons/brands/logo2.png" class="mb-3" style="width: 150px; padding-left: 30px" />
+                                                            </span>
+                                                            <p style="font-size: 14px;">អាជ្ញាធរសេវាហិរញ្ញវត្ថុមិនមែនធនាគារ</p>
+                                                            <p style="font-size: 14px; text-indent: 40px; top: 0; line-height:30px;">អង្គភាពសវនកម្មផ្ទៃក្នុង <br>
+                                                            <p style="font-size: 14px; text-indent: 25px;">លេខ:.......................អ.ស.ផ.</p>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <center style="text-align: center; font-family: khmer mef2; font-size: 19px;" class="mb-3">
+                                                        ពាក្យស្នើសុំបញ្ជាក់ពិការចេញពីបំពេញការងារយឺតយ៉ាវ
+                                                    </center>
+                                                    <p style="font-family: khmer mef1; font-size:18px; line-height: 30px; text-align:justify; text-indent: 50px;">
+                                                        ខ្ញុំបាទ / នាងខ្ញុំឈ្មោះ <span class="fw-bold"><?= $getlate['khmer_name'] ?></span> មានតួនាទីជា <span class="fw-bold"><?= $getlate['position_name'] ?></span> នៃ <span class="fw-bold"><?= $getlate['department_name'] ?></span> បានមកបំពេញការងារយឺតពេលកំណត់នៅថ្ងៃទី <span class="fw-bold"><?= date('d', strtotime($getlate['date'])) ?> ខែ <span class="fw-bold"><?= translateDateToKhmer($getlate['date'], 'F') ?> ឆ្នាំ <span class="fw-bold"><?= date('Y', strtotime($getlate['date'])) ?>
+                                                                </span> វេលាម៉ោង <span class="fw-bold"><?= $getlate['late_in'] . "នាទី" ?></span> ហើយខ្ញុំសូមបញ្ជាក់ពីមូលហេតុដែលខ្ញុំបាទ/នាងខ្ញុំមកបំពេញការងារយឺតយ៉ាវដោយមូលហេតុ <span class="fw-bolder"><?= $getlate['reasons'] ?></span>។ដូចនេះសូមមន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមានខ្ញុំបាទ/នាងខ្ញុំក្នុងបញ្ជីវត្តមានរបស់មន្ត្រីនៃអង្គភាពសវនកម្មផ្ទៃក្នុងនៃ <span class="fw-bolder">អ.ស.ហ.</span>នៅថ្ងៃទី <span class="fw-bold"><?= date('d', strtotime($getlate['date'])) ?> ខែ <span class="fw-bold"><?= translateDateToKhmer($getlate['date'], 'F') ?> ឆ្នាំ <span class="fw-bold"><?= date('Y', strtotime($getlate['date'])) ?> គឺតាមមូលហេតុខាងលើនេះ។
+                                                    </p>
+                                                    <p style="font-family: khmer mef1; font-size:18px; text-align:justify; text-indent: 50px;">
+                                                        សូម <b>មន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមាន</b> ពិនិត្យ និងចាត់ចែងតាមការគួរ
+                                                    </p>
+                                                    <p style="font-family: khmer mef1; font-size:18px; text-align:justify; text-indent: 50px;">
+                                                        សូម <b>មន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមាន</b> ទទួលនូវការរាប់អានពីខ្ញុំ។
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </tbody>
@@ -205,6 +290,62 @@ include('src/common/header.php');
             locale: 'km' // Set locale to Khmer for time as well
         });
     });
+</script>
+<script>
+    // Function to print the contents
+    function printContents(id) {
+        var printContent = document.getElementById('page-contents' + id).innerHTML;
+        var originalContent = document.body.innerHTML;
+
+        document.body.innerHTML = printContent;
+        window.print();
+        document.body.innerHTML = originalContent;
+    }
+
+    // Function to export the table data to a Word document
+    function Export2Word(elementId, filename = '') {
+        var preHtml = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office'
+              xmlns:w='urn:schemas-microsoft-com:office:word'
+              xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+            <meta charset='utf-8'>
+            <title>Export HTML To Doc</title>
+            <style>
+                body { font-family: Arial, sans-serif; }
+            </style>
+        </head>
+        <body>`;
+        var postHtml = `</body></html>`;
+        var html = preHtml + document.getElementById(elementId).innerHTML + postHtml;
+
+        var blob = new Blob(['\ufeff', html], {
+            type: 'application/msword'
+        });
+
+        // Create a download link element
+        var downloadLink = document.createElement("a");
+        document.body.appendChild(downloadLink);
+
+        if (navigator.msSaveOrOpenBlob) {
+            navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            // Create a link to the file
+            var url = URL.createObjectURL(blob);
+            downloadLink.href = url;
+
+            // Setting the file name
+            downloadLink.download = filename;
+
+            // Triggering the function
+            downloadLink.click();
+
+            // Clean up the URL object after download
+            URL.revokeObjectURL(url);
+        }
+
+        document.body.removeChild(downloadLink);
+    }
 </script>
 <style>
     /* Hide the default pagination controls */

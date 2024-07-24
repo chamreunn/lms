@@ -24,7 +24,7 @@ $totalPages = isset($data['totalPages']) ? $data['totalPages'] : 1;
             <div class="col">
                 <!-- Page pre-title -->
                 <div class="page-pretitle mb-1">
-                    <div id="real-time-clock"></div>
+
                 </div>
                 <h2 class="page-title">
                     <?php echo htmlspecialchars($title ?? ""); ?>
@@ -115,6 +115,30 @@ $totalPages = isset($data['totalPages']) ? $data['totalPages'] : 1;
         </div>
     </div>
 </div>
+<?php if ($gettoday) : ?>
+    <div class="row row-cards mb-3">
+        <div class="col-md-6 col-lg-12">
+            <div class="card shadow-lg bg-success-lt">
+                <div class="card-stamp">
+                    <div class="card-stamp-icon bg-yellow">
+                        <!-- Download SVG icon from http://tabler-icons.io/i/bell -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"></path>
+                            <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">
+                        <div id="real-time-clock"></div>
+                    </h3>
+                    <p class="text-secondary">អ្នកមានច្បាប់ថ្ងៃនេះ</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
 
 <div class="row row-card mb-3">
     <div class="col-12 mb-3">
@@ -142,7 +166,7 @@ $totalPages = isset($data['totalPages']) ? $data['totalPages'] : 1;
                                     ច្បាប់ឈប់សម្រាកទាំងអស់
                                 </div>
                                 <div class="text-primary fw-bolder">
-                                    <?= $count."ច្បាប់" ?>
+                                    <?= $getcountrequestbyid . "ច្បាប់" ?>
                                 </div>
                             </div>
                         </div>

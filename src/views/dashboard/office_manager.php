@@ -140,7 +140,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         <div class="row row-cards">
             <!-- All Leave Requests Card -->
             <div class="col-sm-6 col-lg-3">
-                <div class="card card-sm">
+                <a href="/elms/leave-requests" class="card card-sm">
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-auto">
@@ -157,21 +157,21 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                 </span>
                             </div>
                             <div class="col">
-                                <div class="font-weight-medium">
+                                <div class="font-weight-medium mx-0">
                                     ច្បាប់ឈប់សម្រាកទាំងអស់
                                 </div>
-                                <div class="text-secondary">
-                                    <?= $count ?>
+                                <div class="text-primary fw-bolder">
+                                    <?= $getcountrequestbyid . "ច្បាប់" ?>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
 
             <!-- Late Letters Card -->
             <div class="col-sm-6 col-lg-3">
-                <div class="card card-sm">
+                <a href="/elms/overtimein" class="card card-sm">
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-auto">
@@ -187,20 +187,20 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                             </div>
                             <div class="col">
                                 <div class="font-weight-medium">
-                                    លិខិតចេញ និងចូលយឺត
+                                    លិខិតចូលយឺត
                                 </div>
-                                <div class="text-secondary">
-                                    32 shipped
+                                <div class="text-green fw-bolder">
+                                    <?= $getovertimeincounts . "លិខិត" ?? "" ?>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
 
             <!-- Missions Card -->
             <div class="col-sm-6 col-lg-3">
-                <div class="card card-sm">
+                <a href="/elms/overtimeout" class="card card-sm">
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-auto">
@@ -219,20 +219,20 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                             </div>
                             <div class="col">
                                 <div class="font-weight-medium">
-                                    បេសកម្ម
+                                    លិខិតចេញយឺត
                                 </div>
-                                <div class="text-secondary">
-                                    16 today
+                                <div class="text-warning fw-bolder">
+                                    <?= $getovertimeoutcounts . "លិខិត" ?? "" ?>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
 
             <!-- Likes Card -->
             <div class="col-sm-6 col-lg-3">
-                <div class="card card-sm">
+                <a href="/elms/mission" class="card card-sm">
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-auto">
@@ -249,15 +249,15 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                             </div>
                             <div class="col">
                                 <div class="font-weight-medium">
-                                    ច្បាប់ថ្ងៃនេះ
+                                    បេសកកម្ម
                                 </div>
-                                <div class="text-secondary">
-                                    12
+                                <div class="text-indigo fw-bolder">
+
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
     </div>
@@ -595,11 +595,11 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                                     </tr>
                                                     <tr>
                                                         <th scope="row"><i class="bi bi-calendar-event-fill"></i> ចាប់ពី</th>
-                                                        <td><?= translateDateToKhmer(htmlspecialchars($getuserapprove['start_date']),'D, j F Y') ?></td>
+                                                        <td><?= translateDateToKhmer(htmlspecialchars($getuserapprove['start_date']), 'D, j F Y') ?></td>
                                                     </tr>
                                                     <tr>
                                                         <th scope="row"><i class="bi bi-calendar-x-fill"></i> ដល់</th>
-                                                        <td><?= translateDateToKhmer(htmlspecialchars($getuserapprove['end_date']),'D, j F Y') ?></td>
+                                                        <td><?= translateDateToKhmer(htmlspecialchars($getuserapprove['end_date']), 'D, j F Y') ?></td>
                                                     </tr>
                                                     <tr>
                                                         <th scope="row"><i class="bi bi-info-circle-fill"></i> មូលហេតុ</th>

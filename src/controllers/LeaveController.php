@@ -13,16 +13,74 @@ class LeaveController
             $start_date = $_POST['start_date'];
             $end_date = $_POST['end_date'];
             $remarks = $_POST['remarks'];
-            $attachment = $_FILES['attachment']['name'];
 
-            // Handle file upload
-            if ($attachment) {
-                move_uploaded_file($_FILES['attachment']['tmp_name'], 'public/uploads/leave_attachments/' . $attachment);
+            // Handle file upload for attachment
+            $attachment = $_FILES['attachment'];
+            $attachment_name = $attachment['name'];
+            $attachment_tmp_name = $attachment['tmp_name'];
+            $attachment_error = $attachment['error'];
+            $attachment_size = $attachment['size'];
+            $allowed_attachment_extensions = ['docx', 'pdf'];
+
+            if ($attachment_name) {
+                $attachment_ext = strtolower(pathinfo($attachment_name, PATHINFO_EXTENSION));
+                if (in_array($attachment_ext, $allowed_attachment_extensions) && $attachment_error === UPLOAD_ERR_OK) {
+                    // Check file size (e.g., limit to 2MB)
+                    if ($attachment_size <= 2097152) {
+                        move_uploaded_file($attachment_tmp_name, 'public/uploads/leave_attachments/' . $attachment_name);
+                    } else {
+                        $_SESSION['error'] = [
+                            'title' => "File Error",
+                            'message' => "Attachment file size exceeds 2MB limit."
+                        ];
+                        header("Location: /elms/apply-leave");
+                        exit();
+                    }
+                } else {
+                    $_SESSION['error'] = [
+                        'title' => "File Error",
+                        'message' => "Invalid attachment file type or upload error."
+                    ];
+                    header("Location: /elms/apply-leave");
+                    exit();
+                }
+            }
+
+            // Handle file upload for signature
+            $signature = $_FILES['signature'];
+            $signature_name = $signature['name'];
+            $signature_tmp_name = $signature['tmp_name'];
+            $signature_error = $signature['error'];
+            $signature_size = $signature['size'];
+            $allowed_signature_extensions = ['png'];
+
+            if ($signature_name) {
+                $signature_ext = strtolower(pathinfo($signature_name, PATHINFO_EXTENSION));
+                if (in_array($signature_ext, $allowed_signature_extensions) && $signature_error === UPLOAD_ERR_OK) {
+                    // Check file size (e.g., limit to 1MB)
+                    if ($signature_size <= 1048576) {
+                        move_uploaded_file($signature_tmp_name, 'public/uploads/signatures/' . $signature_name);
+                    } else {
+                        $_SESSION['error'] = [
+                            'title' => "File Error",
+                            'message' => "Signature file size exceeds 1MB limit."
+                        ];
+                        header("Location: /elms/apply-leave");
+                        exit();
+                    }
+                } else {
+                    $_SESSION['error'] = [
+                        'title' => "File Error",
+                        'message' => "Invalid signature file type or upload error."
+                    ];
+                    header("Location: /elms/apply-leave");
+                    exit();
+                }
             }
 
             // Fetch leave type details including duration from database
             $leaveTypeModel = new Leavetype();
-            $leaveType = $leaveTypeModel->getLeaveTypeById($leave_type_id); // Adjust this method according to your implementation
+            $leaveType = $leaveTypeModel->getLeaveTypeById($leave_type_id);
 
             if (!$leaveType) {
                 // Handle error if leave type id does not exist
@@ -34,7 +92,7 @@ class LeaveController
                 exit();
             }
 
-            $leave_type_duration = $leaveType['duration']; // Assuming 'duration' is the column name in your leave_types table
+            $leave_type_duration = $leaveType['duration'];
 
             // Calculate duration in business days between start_date and end_date
             $datetime_start = new DateTime($start_date);
@@ -45,8 +103,8 @@ class LeaveController
             if ($duration_days > $leave_type_duration) {
                 // Handle error if duration exceeds leave type duration
                 $_SESSION['error'] = [
-                    'title' => "រយៈពេល",
-                    'message' => "អ្នកមិនអាចស្នើច្បាប់ឈប់សម្រាកបានទេ។ ប្រភេទច្បាប់នេះមានរៈពេល " . $leave_type_duration . "ថ្ងៃ"
+                    'title' => "Duration Error",
+                    'message' => "You cannot request leave exceeding the type's duration of " . $leave_type_duration . " days."
                 ];
                 header("Location: /elms/apply-leave");
                 exit();
@@ -54,10 +112,9 @@ class LeaveController
 
             // Create leave request
             $leaveRequestModel = new LeaveRequest();
-            $leaveRequestModel->create($user_id, $leave_type_id, $leaveType['name'], $start_date, $end_date, $remarks, $duration_days, $attachment);
+            $leaveRequestModel->create($user_id, $leave_type_id, $leaveType['name'], $start_date, $end_date, $remarks, $duration_days, $attachment_name, $signature_name);
 
-            // Notify manager
-            // Here you would implement the notification logic
+            // Notify manager (Implement notification logic here)
 
             $_SESSION['success'] = [
                 'title' => "ច្បាប់ឈប់សម្រាក",
@@ -69,6 +126,7 @@ class LeaveController
             require 'src/views/leave/apply.php';
         }
     }
+
     private function calculateBusinessDays(DateTime $start_date, DateTime $end_date)
     {
         $business_days = 0;

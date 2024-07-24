@@ -258,10 +258,26 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                     មិនមានឯកសារភ្ជាប់!
                                 </h3>
                             </div>
-                        <?php elseif ($request['attachment']) : ?>
-                            <a href="public/uploads/leave_attachments/<?= $request['attachment'] ?>" target="_blank">View</a>
+                        <?php else : ?>
+                            <div class="card">
+                                <div class="card-body d-flex align-items-center">
+                                    <div class="me-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-file">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                            <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h5 class="card-title mb-1">Attached Document</h5>
+                                        <p class="card-text mb-2"><?= htmlspecialchars($request['attachment']) ?></p>
+                                        <a href="public/uploads/leave_attachments/<?= htmlspecialchars($request['attachment']) ?>" class="btn btn-primary" target="_blank">View Document</a>
+                                    </div>
+                                </div>
+                            </div>
                         <?php endif; ?>
                     </div>
+
                     <div class="tab-pane" id="tabs-activity-7" role="tabpanel">
                         <?php if (empty($request['approvals'])) : ?>
                             <div class="empty text-center">
