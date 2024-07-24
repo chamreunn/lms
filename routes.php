@@ -1,5 +1,4 @@
 <?php
-
 // Define your base URL
 $base_url = '/elms'; // Set your base URL if your application is located under a subdirectory
 
@@ -22,6 +21,7 @@ require_once 'src/controllers/HeadOfficeLeaveController.php';
 require_once 'src/controllers/DepDepartController.php';
 require_once 'src/controllers/HeadDepartController.php';
 require_once 'src/controllers/DepUnit1Controller.php';
+require_once 'src/controllers/LateController.php';
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
@@ -176,6 +176,91 @@ switch ($uri) {
             $controller = new RoleController();
             $controller->index();
             require 'src/views/roles/roles.php';
+        });
+        break;
+    case $base_url . '/documents':
+        checkSessionAndExecute(function () {
+            $controller = new LateController();
+            $controller->index();
+        });
+        break;
+    case $base_url . '/late_in_request':
+        checkSessionAndExecute(function () {
+            $controller = new LateController();
+            $controller->requestLateIn();
+        });
+        break;
+    case $base_url . '/late_out_request':
+        checkSessionAndExecute(function () {
+            $controller = new LateController();
+            $controller->requestLateOut();
+        });
+        break;
+    case $base_url . '/overtimein':
+        checkSessionAndExecute(function () {
+            $controller = new LateController();
+            $controller->overtimein();
+        });
+        break;
+    case $base_url . '/overtimeout':
+        checkSessionAndExecute(function () {
+            $controller = new LateController();
+            $controller->overtimeout();
+        });
+        break;
+    case $base_url . '/create_late':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
+                $controller = new LateController();
+                $controller->store($_POST['name'], $_POST['color']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
+        });
+        break;
+    case $base_url . '/apply_latein':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
+                $controller = new LateController();
+                $controller->createLateIn($_POST['date'], $_POST['time'], $_POST['reason']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
+        });
+        break;
+    case $base_url . '/apply_lateout':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
+                $controller = new LateController();
+                $controller->createLateOut($_POST['date'], $_POST['time'], $_POST['reason']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
+        });
+        break;
+    case $base_url . '/update_late':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
+                $controller = new LateController();
+                $controller->update($_POST['id'], $_POST['name'], $_POST['color']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
+        });
+        break;
+    case $base_url . '/delete_latein':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
+                $controller = new LateController();
+                $controller->delete($_POST['id']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
         });
         break;
     case $base_url . '/user_index':

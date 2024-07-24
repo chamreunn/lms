@@ -172,13 +172,13 @@ class HeadDepartController
         $deleteLeaveRequest = new LeaveRequest();
         if ($deleteLeaveRequest->cancelLeaveRequest($id, $status)) {
             $_SESSION['success'] = [
-                'title' => "លុបសំណើច្បាប់",
-                'message' => "លុបសំណើច្បាប់បានជោគជ័យ។"
+                'title' => "បោះបង់ច្បាប់ឈប់សម្រាក",
+                'message' => "បានបោះបង់។"
             ];
         } else {
             $_SESSION['error'] = [
-                'title' => "លុបសំណើច្បាប់",
-                'message' => "មិនអាចលុបសំណើច្បាប់នេះបានទេ។"
+                'title' => "បោះបង់ច្បាប់ឈប់សម្រាក",
+                'message' => "មិនអាចបោះបង់បានទេ។"
             ];
         }
         header("Location: /elms/dashboard");

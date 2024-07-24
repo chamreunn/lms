@@ -19,16 +19,17 @@
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item dropdown <?= ($current_page == 'pending' || $current_page == 'approved' || $current_page == 'rejected') ? 'active' : '' ?>">
+                    <li class="nav-item dropdown <?= ($current_page == 'depdepartmentpending' || $current_page == 'depdepartmentapproved' || $current_page == 'rejected') ? 'active' : '' ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-text-plus">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3" />
-                                    <line x1="12" y1="12" x2="20 7.5" />
-                                    <line x1="12" y1="12" x2="12 21" />
-                                    <line x1="12" y1="12" x2="4 7.5" />
-                                    <line x1="16 5.25" x2="8 9.75" />
+                                    <path d="M19 10h-14" />
+                                    <path d="M5 6h14" />
+                                    <path d="M14 14h-9" />
+                                    <path d="M5 18h6" />
+                                    <path d="M18 15v6" />
+                                    <path d="M15 18h6" />
                                 </svg>
                             </span>
                             <span class="nav-link-title">
@@ -38,14 +39,75 @@
                         <div class="dropdown-menu">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
-                                    <a class="dropdown-item <?= ($current_page == 'pending') ? 'active' : '' ?>" href="/elms/pending">
-                                        ច្បាប់រង់ចាំអនុម័ត
+                                    <a class="dropdown-item <?= ($current_page == 'depdepartmentpending') ? 'active' : '' ?>" href="/elms/depdepartmentpending">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+                                                <path d="M16 3v4" />
+                                                <path d="M8 3v4" />
+                                                <path d="M4 11h16" />
+                                                <path d="M19 22v.01" />
+                                                <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
+                                            </svg>
+                                        </span>
+                                        កំពុងរង់ចាំ
                                     </a>
-                                    <a class="dropdown-item <?= ($current_page == 'approved') ? 'active' : '' ?>" href="/elms/approved">
-                                        ច្បាប់ដែលបានអនុម័ត
+                                    <a class="dropdown-item <?= ($current_page == 'depdepartmentapproved') ? 'active' : '' ?>" href="/elms/depdepartmentapproved">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+                                                <path d="M16 3v4" />
+                                                <path d="M8 3v4" />
+                                                <path d="M4 11h16" />
+                                                <path d="M19 22v.01" />
+                                                <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
+                                            </svg>
+                                        </span>
+                                        បានអនុម័ត
                                     </a>
                                     <a class="dropdown-item <?= ($current_page == 'rejected') ? 'active' : '' ?>" href="/elms/rejected">
-                                        ច្បាប់មិនអនុម័ត
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-question">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M20.975 11.33a9 9 0 1 0 -5.717 9.06" />
+                                                <path d="M12 7v5l2 2" />
+                                                <path d="M19 22v.01" />
+                                                <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
+                                            </svg>
+                                        </span>
+                                        មិនអនុម័ត
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item <?= ($current_page == 'depdepartmentapproved') ? 'active' : '' ?>" href="/elms/depdepartmentapproved">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-search">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M11.5 21h-5.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4.5" />
+                                                <path d="M16 3v4" />
+                                                <path d="M8 3v4" />
+                                                <path d="M4 11h16" />
+                                                <path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                                                <path d="M20.2 20.2l1.8 1.8" />
+                                            </svg>
+                                        </span>
+                                        លិខិតចេញ​ និងចូលយឺត
+                                    </a>
+                                    <a class="dropdown-item <?= ($current_page == 'rejected') ? 'active' : '' ?>" href="/elms/rejected">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-repeat">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3" />
+                                                <path d="M16 3v4" />
+                                                <path d="M8 3v4" />
+                                                <path d="M4 11h12" />
+                                                <path d="M20 14l2 2h-3" />
+                                                <path d="M20 18l2 -2" />
+                                                <path d="M19 16a3 3 0 1 0 2 5.236" />
+                                            </svg>
+                                        </span>
+                                        បេសកកម្ម
                                     </a>
                                 </div>
                             </div>
@@ -88,7 +150,7 @@
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item dropdown <?= in_array($current_page, ['user_index', 'department', 'office', 'leavetype', 'roles', 'positions']) ? 'active' : '' ?>">
+                    <li class="nav-item dropdown <?= in_array($current_page, ['user_index', 'department', 'office', 'leavetype', 'roles', 'positions','documents']) ? 'active' : '' ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-extra" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-adjustments-horizontal">
@@ -130,6 +192,9 @@
                                     </a>
                                     <a class="dropdown-item <?= ($current_page == 'positions') ? 'active' : '' ?>" href="/elms/positions">
                                         តួនាទី
+                                    </a>
+                                    <a class="dropdown-item <?= ($current_page == 'documents') ? 'active' : '' ?>" href="/elms/documents">
+                                        លិខិត
                                     </a>
                                 </div>
                             </div>

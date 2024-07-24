@@ -595,11 +595,11 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                                     </tr>
                                                     <tr>
                                                         <th scope="row"><i class="bi bi-calendar-event-fill"></i> ចាប់ពី</th>
-                                                        <td><?= htmlspecialchars($getuserapprove['start_date']) ?></td>
+                                                        <td><?= translateDateToKhmer(htmlspecialchars($getuserapprove['start_date']),'D, j F Y') ?></td>
                                                     </tr>
                                                     <tr>
                                                         <th scope="row"><i class="bi bi-calendar-x-fill"></i> ដល់</th>
-                                                        <td><?= htmlspecialchars($getuserapprove['end_date']) ?></td>
+                                                        <td><?= translateDateToKhmer(htmlspecialchars($getuserapprove['end_date']),'D, j F Y') ?></td>
                                                     </tr>
                                                     <tr>
                                                         <th scope="row"><i class="bi bi-info-circle-fill"></i> មូលហេតុ</th>

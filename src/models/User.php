@@ -78,6 +78,18 @@ class User
         }
     }
 
+    public function getUserById($user_id)
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT u.*, m.email AS manager_email
+             FROM users u
+             LEFT JOIN users m ON u.office_id = m.office_id AND m.position_id = (SELECT doffice_id FROM offices WHERE id = u.office_id)
+             WHERE u.id = ?'
+        );
+        $stmt->execute([$user_id]);
+        return $stmt->fetch();
+    }
+
     public function getAllUsers()
     {
         $query = "

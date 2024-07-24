@@ -2879,7 +2879,7 @@ progress {
     display: block;
     width: 100%;
     padding: .4375rem .75rem;
-    font-family: -apple-system,'Khmer-mef1', sans-serif;
+    font-family: -apple-system, 'Khmer-mef1', sans-serif;
     font-size: .875rem;
     font-weight: 400;
     line-height: 1.4285714286;
@@ -3201,21 +3201,24 @@ textarea.form-control-lg {
 }
 
 .form-check-input {
-    width: 1rem;
-    height: 1rem;
-    margin-top: .2142857143rem;
+    --tblr-form-check-bg: var(--tblr-bg-forms);
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: .0892857143rem;
     vertical-align: top;
-    background-color: var(--tblr-bg-forms);
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: var(--tblr-form-check-bg);
+    background-image: var(--tblr-form-check-bg-image);
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
     border: var(--tblr-border-width) var(--tblr-border-style) var(--tblr-border-color-translucent);
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
     -webkit-print-color-adjust: exact;
     color-adjust: exact;
-    print-color-adjust: exact
+    print-color-adjust: exact;
 }
 
 .form-check-input[type=checkbox] {

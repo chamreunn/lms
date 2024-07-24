@@ -14,16 +14,16 @@ class LeaveController
             $end_date = $_POST['end_date'];
             $remarks = $_POST['remarks'];
             $attachment = $_FILES['attachment']['name'];
-
+    
             // Handle file upload
             if ($attachment) {
                 move_uploaded_file($_FILES['attachment']['tmp_name'], 'public/uploads/leave_attachments/' . $attachment);
             }
-
+    
             // Fetch leave type details including duration from database
             $leaveTypeModel = new Leavetype();
             $leaveType = $leaveTypeModel->getLeaveTypeById($leave_type_id); // Adjust this method according to your implementation
-
+    
             if (!$leaveType) {
                 // Handle error if leave type id does not exist
                 $_SESSION['error'] = [
@@ -33,14 +33,14 @@ class LeaveController
                 header("Location: /elms/apply-leave");
                 exit();
             }
-
+    
             $leave_type_duration = $leaveType['duration']; // Assuming 'duration' is the column name in your leave_types table
-
+    
             // Calculate duration in business days between start_date and end_date
             $datetime_start = new DateTime($start_date);
             $datetime_end = new DateTime($end_date);
             $duration_days = $this->calculateBusinessDays($datetime_start, $datetime_end);
-
+    
             // Compare duration_days with leave_type_duration
             if ($duration_days > $leave_type_duration) {
                 // Handle error if duration exceeds leave type duration
@@ -51,24 +51,45 @@ class LeaveController
                 header("Location: /elms/apply-leave");
                 exit();
             }
-
+    
             // Create leave request
             $leaveRequestModel = new LeaveRequest();
             $leaveRequestModel->create($user_id, $leave_type_id, $leaveType['name'], $start_date, $end_date, $remarks, $duration_days, $attachment);
-
-            // Notify manager
-            // Here you would implement the notification logic
-
+    
+            // Notify manager via email
+            $userModel = new User();
+            $user = $userModel->getUserById($user_id); // Assuming getUserById fetches user details including manager email
+            $manager_email = $user['manager_email'];
+    
+            $subject = "New Leave Request from " . $user['khmer_name'];
+            $message = "
+                <h3>New Leave Request</h3>
+                <p><strong>User:</strong> " . $user['khmer_name'] . "</p>
+                <p><strong>Leave Type:</strong> " . $leaveType['name'] . "</p>
+                <p><strong>Start Date:</strong> " . $start_date . "</p>
+                <p><strong>End Date:</strong> " . $end_date . "</p>
+                <p><strong>Remarks:</strong> " . $remarks . "</p>
+                <p><strong>Duration:</strong> " . $duration_days . " days</p>
+            ";
+    
+            // Send email (using PHP's mail function as an example, you can use PHPMailer for more robust functionality)
+            $headers = "MIME-Version: 1.0" . "\r\n";
+            $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+            $headers .= "From: noreply@yourdomain.com" . "\r\n";
+    
+            mail($manager_email, $subject, $message, $headers);
+    
             $_SESSION['success'] = [
                 'title' => "ច្បាប់ឈប់សម្រាក",
-                'message' => "សំណើត្រូវបានបង្កើតដោយជោគជ័យ។"
+                'message' => "សំណើត្រូវបានបង្កើតដោយជោគជ័យ។" . $manager_email
             ];
-            header("Location: /elms/apply-leave");
+            header("Location: /elms/leave-requests");
             exit();
         } else {
             require 'src/views/leave/apply.php';
         }
     }
+
     private function calculateBusinessDays(DateTime $start_date, DateTime $end_date)
     {
         $business_days = 0;

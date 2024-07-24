@@ -271,23 +271,57 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                 <p class="empty-title">មិនមានការអនុម័តទេ!</p>
                             </div>
                         <?php else : ?>
-                            <div class="list-group">
+                            <div class="list-group bg-light rounded-3 p-2 pb-0 border">
                                 <?php foreach ($request['approvals'] as $approval) : ?>
-                                    <div class="list-group-item list-group-item-action flex-column align-items-start mb-2">
-                                        <div class="d-flex w-100 justify-content-between">
-                                            <h5 class="mb-1"><?= $approval['approver_role'] ?></h5>
-                                            <small><?= translateDateToKhmer($approval['updated_at'], 'D F j, Y h:i A') ?></small>
+                                    <a type="button" class="list-group-item list-group-item-action flex-column align-items-start mb-2 rounded-3" data-bs-toggle="modal" data-bs-target="#approvalModal<?= $approval['id'] ?>" data-approval='<?= json_encode($approval) ?>'>
+                                        <div class="d-flex w-100 justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <img src="<?= $approval['profile'] ?>" class="avatar rounded-circle me-3" alt="">
+                                                <div class="">
+                                                    <h5 class="mb-0"><?= $approval['approver_name'] ?></h5>
+                                                    <small class="badge mb-2 <?= $approval['position_color'] ?>"><?= $approval['position_name'] ?></small><br>
+                                                    <small class="text-muted">អនុម័តនៅ : <?= translateDateToKhmer($approval['updated_at'], 'D F j, Y h:i A') ?></small>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <span class="badge 
+                        <?= $approval['status'] == 'Pending' ? 'bg-warning' : '' ?>
+                        <?= $approval['status'] == 'Approved' ? 'bg-success' : '' ?>
+                        <?= $approval['status'] == 'Rejected' ? 'bg-danger' : '' ?>
+                        <?= $approval['status'] == 'Cancelled' ? 'bg-secondary' : '' ?>">
+                                                    <i class="status-icon <?= $approval['status'] == 'Pending' ? 'bi bi-clock' : '' ?>
+                            <?= $approval['status'] == 'Approved' ? 'bi bi-check-circle' : '' ?>
+                            <?= $approval['status'] == 'Rejected' ? 'bi bi-x-circle' : '' ?>
+                            <?= $approval['status'] == 'Cancelled' ? 'bi bi-slash-circle' : '' ?>"></i>
+                                                    <?= $approval['status'] ?>
+                                                </span>
+                                            </div>
                                         </div>
-                                        <p class="mb-1">
-                                            <span class="badge 
-                            <?= $approval['status'] == 'Pending' ? 'bg-warning' : '' ?>
-                            <?= $approval['status'] == 'Approved' ? 'bg-success' : '' ?>
-                            <?= $approval['status'] == 'Rejected' ? 'bg-danger' : '' ?>
-                            <?= $approval['status'] == 'Cancelled' ? 'bg-secondary' : '' ?>">
-                                                <?= $approval['status'] ?>
-                                            </span>
-                                        </p>
-                                        <p class="mb-0"><?= $approval['remarks'] ?></p>
+                                    </a>
+
+                                    <!-- Modal Template -->
+                                    <div class="modal modal-blur fade" id="approvalModal<?= $approval['id'] ?>" tabindex="-1" aria-labelledby="approvalModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="approvalModalLabel">Approval Details</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <img src="<?= $approval['profile'] ?>" id="modalProfileImage" class="avatar rounded-circle me-3" alt="">
+                                                        <div class="w-100">
+                                                            <h5 class="mb-0"><?= $approval['approver_name'] ?></h5>
+                                                            <small class="text-muted">អនុម័តនៅ : <?= translateDateToKhmer($approval['updated_at'], 'D, j F Y h:i A') ?></small><br>
+                                                            <textarea name="remarks" style="resize: none;" class="form-control mt-2" disabled><?= $approval['remarks'] ?? "មិនមានមតិយោបល់" ?></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer bg-light">
+                                                    <button type="button" class="btn" data-bs-dismiss="modal">បោះបង់</button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
@@ -298,7 +332,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </div>
     </div>
 
-    <div class="card-footer rounded-bottom-3">
+    <div class="card-footer rounded-bottom">
         <div class="row justify-content-end">
             <div class="col-lg-2">
                 <?php if ($request['status'] !== 'Cancelled') { ?>

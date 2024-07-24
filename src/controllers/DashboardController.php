@@ -1,5 +1,6 @@
 <?php
 require_once 'src/models/LeaveRequest.php';
+require_once 'src/models/LateModel.php';
 
 class DashboardController
 {
@@ -55,6 +56,9 @@ class DashboardController
                 case 'User':
                     $leaveRequestModel = new LeaveApproval();
                     $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
+                    $lateModel = new LateModel();
+                    $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
+                    $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
                     require 'src/views/dashboard/user.php';
                     break;
                 case 'Deputy Head Of Office':

@@ -7,11 +7,11 @@ class LeaveRequest
     private $pdo;
     private $table_name = "leave_requests";
 
-    public function __construct() {
+    public function __construct()
+    {
         global $pdo;
         $this->pdo = $pdo;
     }
-
 
     public function create($user_id, $leave_type_id, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment)
     {
@@ -49,7 +49,14 @@ class LeaveRequest
 
     public function getAllLeaves()
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM leave_requests WHERE status = ?');
+        $stmt = $this->pdo->prepare(
+            'SELECT lr.*, 
+                u.khmer_name AS user_name, 
+                u.profile_picture AS profile
+         FROM leave_requests lr
+         JOIN users u ON lr.user_id = u.id
+         WHERE lr.status = ?'
+        );
         $stmt->execute(['approved']);
         return $stmt->fetchAll();
     }
@@ -134,13 +141,22 @@ class LeaveRequest
 
     public function getApprovalsByLeaveRequestId($leave_request_id)
     {
+        // Query to get the approval details along with approver's information and position details
         $stmt = $this->pdo->prepare(
-            'SELECT a.*, u.khmer_name as approver_name
+            'SELECT a.*, 
+                u.khmer_name AS approver_name, 
+                u.profile_picture AS profile,
+                p.name AS position_name,
+                p.color AS position_color,
+                (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
          FROM leave_approvals a
          JOIN users u ON a.approver_id = u.id
+         JOIN positions p ON u.position_id = p.id
          WHERE a.leave_request_id = ?'
         );
-        $stmt->execute([$leave_request_id]);
+        // Execute the query with the leave request ID parameter
+        $stmt->execute([$leave_request_id, $leave_request_id]);
+        // Return the fetched results
         return $stmt->fetchAll();
     }
 
@@ -150,7 +166,8 @@ class LeaveRequest
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         return $stmt->execute();
     }
-    public function cancelLeaveRequest($id,$status)
+
+    public function cancelLeaveRequest($id, $status)
     {
         $stmt = $this->pdo->prepare("UPDATE leave_requests SET status = :status WHERE id = :id");
         $stmt->bindParam(':status', $status, PDO::PARAM_INT);
