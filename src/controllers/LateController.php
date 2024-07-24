@@ -30,7 +30,7 @@ class LateController
     public function store($name, $color)
     {
         global $pdo;
-        $lateModel = new LateModel($pdo);
+        $lateModel = new LateModel();
         $lateModel->createLate($name, $color);
 
         $_SESSION['success'] = [
