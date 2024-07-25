@@ -79,6 +79,18 @@ $totalPages = isset($data['totalPages']) ? $data['totalPages'] : 1;
                                         </a>
                                         <a class="dropdown-item <?= ($current_page == 'late_out_request') ? 'active' : '' ?>" href="/elms/late_out_request">
                                             <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-plus">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M20.984 12.535a9 9 0 1 0 -8.468 8.45" />
+                                                    <path d="M16 19h6" />
+                                                    <path d="M19 16v6" />
+                                                    <path d="M12 7v5l3 3" />
+                                                </svg>
+                                            </span>
+                                            លិខិតចេញយឺត
+                                        </a>
+                                        <a class="dropdown-item <?= ($current_page == 'late_out_request') ? 'active' : '' ?>" href="/elms/late_out_request">
+                                            <span class="nav-link-icon d-md-none d-lg-inline-block">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-share">
                                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                     <path d="M20.943 13.016a9 9 0 1 0 -8.915 7.984" />
@@ -87,7 +99,7 @@ $totalPages = isset($data['totalPages']) ? $data['totalPages'] : 1;
                                                     <path d="M12 7v5l2 2" />
                                                 </svg>
                                             </span>
-                                            លិខិតចេញយឺត
+                                            លិខិតចេញមុន
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item <?= ($current_page == 'rejected') ? 'active' : '' ?>" href="/elms/rejected">
@@ -118,7 +130,7 @@ $totalPages = isset($data['totalPages']) ? $data['totalPages'] : 1;
 <?php if ($gettoday) : ?>
     <div class="row row-cards mb-3">
         <div class="col-md-6 col-lg-12">
-            <div class="card shadow-lg bg-success-lt">
+            <div class="card bg-success-lt">
                 <div class="card-stamp">
                     <div class="card-stamp-icon bg-yellow">
                         <!-- Download SVG icon from http://tabler-icons.io/i/bell -->

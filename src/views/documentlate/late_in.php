@@ -75,7 +75,7 @@ include('src/common/header.php');
                                 <path d="M15 21v-6" />
                             </svg>
                         </span>
-                        <input type="text" autocomplete="off" value="<?= htmlspecialchars($_POST['time'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="ម៉ោង" class="form-control" id="time" name="time">
+                        <input type="text" autocomplete="off" value="09:00" placeholder="ម៉ោង" class="form-control" id="time" name="time">
                     </div>
                 </div>
                 <div class="col-12 mb-3">
@@ -110,14 +110,17 @@ include('src/common/header.php');
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         // Initialize TomSelect
-        flatpickr("#date", {
-            dateFormat: "Y-m-d",
-            allowInput: true,
-            defaultDate: new Date(),
-            monthSelectorType: "static",
-            nextArrow: '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 6 15 12 9 18" /></svg>',
-            prevArrow: '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="15 6 9 12 15 18" /></svg>',
-            locale: 'km' // Set locale to Khmer
+        new Litepicker({
+            element: document.getElementById("date"),
+            singleMode: true,
+            format: "HH:MM",
+            lang: 'kh', // Set language to Khmer
+            buttonText: {
+                previousMonth: `<!-- Download SVG icon from http://tabler-icons.io/i/chevron-left -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="15 6 9 12 15 18" /></svg>`,
+                nextMonth: `<!-- Download SVG icon from http://tabler-icons.io/i/chevron-right -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 6 15 12 9 18" /></svg>`,
+            }
         });
 
         // Initialize Flatpickr for time input

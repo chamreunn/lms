@@ -137,7 +137,7 @@ class LeaveApproval
                 $office_id,         // Office ID
                 $department_id,     // Department ID
                 'User', // Roles
-                'មន្ត្រីលក្ខខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', // Position names
+                'មន្ត្រីលក្ខខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', // Position names
                 $approver_id        // Exclude the approver's own requests
             ]);
 

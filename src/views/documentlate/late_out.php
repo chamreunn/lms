@@ -48,7 +48,7 @@ include('src/common/header.php');
         <div class="card-body">
             <div class="row mb-3">
                 <div class="col-lg-6 mb-3">
-                    <label for="start_date" class="form-label">កាលបរិច្ឆេទចាប់ពី<span class="text-danger mx-1 fw-bold">*</span></label>
+                    <label for="start_date" class="form-label">កាលបរិច្ឆេទ<span class="text-danger mx-1 fw-bold">*</span></label>
                     <div class="input-icon">
                         <span class="input-icon-addon">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -64,7 +64,7 @@ include('src/common/header.php');
                     </div>
                 </div>
                 <div class="col-lg-6 mb-3">
-                    <label for="end_date" class="form-label">ដល់កាលបរិច្ឆេទ<span class="text-danger mx-1 fw-bold">*</span></label>
+                    <label for="end_date" class="form-label">ម៉ោង<span class="text-danger mx-1 fw-bold">*</span></label>
                     <div class="input-icon">
                         <span class="input-icon-addon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-12">
@@ -75,7 +75,7 @@ include('src/common/header.php');
                                 <path d="M15 21v-6" />
                             </svg>
                         </span>
-                        <input type="text" autocomplete="off" value="5:00 PM" placeholder="ម៉ោង" class="form-control" id="time" name="time">
+                        <input type="text" autocomplete="off" value="5:30 PM" placeholder="ម៉ោង" class="form-control" id="time" name="time">
                     </div>
                 </div>
                 <div class="col-12 mb-3">

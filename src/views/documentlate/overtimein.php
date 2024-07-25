@@ -235,7 +235,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                     <path d="M15 21v-6" />
                                 </svg>
                             </span>
-                            <input type="text" autocomplete="off" value="<?= htmlspecialchars($_POST['time'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="ម៉ោង" class="form-control" id="time" name="time">
+                            <input type="text" autocomplete="off" value="09:00" placeholder="ម៉ោង" class="form-control" id="time" name="time">
                         </div>
                     </div>
                     <div class="mb-3">

@@ -44,7 +44,7 @@ class AuthController
 
                     $userModel->logLoginTrace($user['id'], $_SERVER['REMOTE_ADDR']);
 
-                    header('Location: /elms/dashboard');
+                    header('Location: dashboard');
                     exit;
                 }
             } else {

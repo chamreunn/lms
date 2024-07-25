@@ -55,6 +55,7 @@ $currentPage = max(1, min($currentPage, $totalPages)); // Ensure the current pag
 // Calculate the starting index of the requests to display
 $startIndex = ($currentPage - 1) * $requestsPerPage;
 $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
+
 function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 {
     $days = [

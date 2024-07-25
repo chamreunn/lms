@@ -140,7 +140,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         <div class="row row-cards">
             <!-- All Leave Requests Card -->
             <div class="col-sm-6 col-lg-3">
-                <a href="/elms/leave-requests" class="card card-sm">
+                <a href="/elms/leave-requests" class="card card-sm card-links card-link-rotate">
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-auto">
@@ -171,7 +171,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 
             <!-- Late Letters Card -->
             <div class="col-sm-6 col-lg-3">
-                <a href="/elms/overtimein" class="card card-sm">
+                <a href="/elms/overtimein" class="card card-sm card-links card-link-rotate">
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-auto">
@@ -200,7 +200,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 
             <!-- Missions Card -->
             <div class="col-sm-6 col-lg-3">
-                <a href="/elms/overtimeout" class="card card-sm">
+                <a href="/elms/overtimeout" class="card card-sm card-links card-link-rotate">
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-auto">
@@ -232,7 +232,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 
             <!-- Likes Card -->
             <div class="col-sm-6 col-lg-3">
-                <a href="/elms/mission" class="card card-sm">
+                <a href="/elms/mission" class="card card-sm card-links card-link-rotate">
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-auto">
