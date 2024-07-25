@@ -8,8 +8,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Define the base URL based on the hosting environment
-$base_url = '/elms';
+// Determine the base URL dynamically
+$base_url = dirname($_SERVER['SCRIPT_NAME']);
 
 // Include necessary controllers
 require_once 'src/controllers/AuthController.php';
@@ -30,21 +30,13 @@ require_once 'src/controllers/LateController.php';
 // Parse the requested URI
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// Check the base URL and request URI
-if (strpos($uri, $base_url) !== 0) {
-    header("HTTP/1.0 404 Not Found");
-    require 'src/views/errors/404.php';
-    exit();
-}
-
 // Function to handle session checks and execution
 function checkSessionAndExecute($callback)
 {
-    global $base_url;
     if (isset($_SESSION['user_id'])) {
         $callback();
     } else {
-        header("Location: $base_url/login");
+        header("Location: /login");
         exit();
     }
 }
@@ -53,7 +45,7 @@ function checkSessionAndExecute($callback)
 $routes = [
     '/' => function() { (new AuthController())->login(); },
     '/login' => function() { (new AuthController())->login(); },
-    '/logout' => function() { session_destroy(); header("Location: /elms/login"); exit(); },
+    '/logout' => function() { session_destroy(); header("Location: /login"); exit(); },
     '/apply-leave' => function() { checkSessionAndExecute(fn() => (new LeaveController())->apply()); },
     '/leave-requests' => function() { checkSessionAndExecute(fn() => (new LeaveController())->viewRequests()); },
     '/pending' => function() { checkSessionAndExecute(fn() => (new LeaveController())->approve()); },
