@@ -5,6 +5,12 @@ class AuthController
 {
     public function login()
     {
+        // Check if the user is already logged in
+        if (isset($_SESSION['user_id'])) {
+            header('Location: dashboard'); // Redirect to the dashboard or another appropriate page
+            exit;
+        }
+
         $error = '';
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {

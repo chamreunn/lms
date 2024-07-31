@@ -94,7 +94,7 @@ class LeaveController
             $leaveRequestId = $leaveRequestModel->create($user_id, $leave_type_id, $leaveType['name'], $start_date, $end_date, $remarks, $duration_days, $attachment_name, $signature_name);
 
             // Send email notification
-            if (!$this->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks)) {
+            if (!$this->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
                 $_SESSION['error'] = [
                     'title' => "Email Error",
                     'message' => "Notification email could not be sent. Please try again."
@@ -187,7 +187,128 @@ class LeaveController
     //     error_log("Telegram message sent successfully.");
     // }
 
-    private function sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks)
+    private function sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType)
+    {
+        $mail = new PHPMailer(true);
+
+        try {
+            // Enable SMTP debugging
+            $mail->SMTPDebug = 2; // Or set to 3 for more verbose output
+            $mail->Debugoutput = function ($str, $level) {
+                error_log("SMTP Debug level $level; message: $str");
+            };
+
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host       = 'smtp.gmail.com'; // SMTP server to send through
+            $mail->SMTPAuth   = true;
+            $mail->Username   = 'pothhchamreun@gmail.com'; // SMTP username
+            $mail->Password   = 'kyph nvwd ncpa gyzi'; // SMTP password
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = 587;
+
+            // Set charset to UTF-8 for Unicode support
+            $mail->CharSet = 'UTF-8';
+
+            // Format dates
+            $start_date_formatted = (new DateTime($start_date))->format('j F, Y');
+            $end_date_formatted = (new DateTime($end_date))->format('j F, Y');
+
+            //Recipients
+            $mail->setFrom('no-reply@example.com', 'NO REPLY');
+            $mail->addAddress($managerEmail);
+
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = 'Leave Request Notification';
+            $body = "
+            <html>
+            <head>
+                <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'>
+                <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet'>
+                <style>
+                    .profile-img {
+                        width: 100px;
+                        height: 100px;
+                        border-radius: 50%;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        border: 1px solid #e2e2e2;
+                        border-radius: 10px;
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                    }
+                    .header {
+                        background-color: #007bff;
+                        color: white;
+                        padding: 10px;
+                        border-radius: 10px 10px 0 0;
+                    }
+                    .icon {
+                        vertical-align: middle;
+                        margin-right: 10px;
+                    }
+                    .content {
+                        padding: 20px;
+                        background-color: #f9f9f9;
+                    }
+                    .btn {
+                        display: inline-block;
+                        padding: 10px 20px;
+                        margin-top: 10px;
+                        color: white;
+                        background-color: #007bff;
+                        text-decoration: none;
+                        border-radius: 5px;
+                    }
+                    .footer {
+                        padding: 10px;
+                        text-align: center;
+                        background-color: #f1f1f1;
+                        border-radius: 0 0 10px 10px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h4><img src='https://img.icons8.com/ios-filled/50/ffffff/approval.png' class='icon' alt='Leave Request' /> Leave Request Notification</h4>
+                    </div>
+                    <div class='content'>
+                        <p>$message</p>
+                        <p><strong>រយៈពេល :</strong> $duration_days ថ្ងៃ</p>
+                        <p><strong>ប្រភេទច្បាប់ :</strong> $leaveType</p>
+                        <p><strong>ចាប់ពីថ្ងៃ :</strong> $start_date_formatted</p>
+                        <p><strong>ដល់ថ្ងៃ​ :</strong> $end_date_formatted</p>
+                        <p><strong>មូលហេតុ :</strong> $remarks</p>
+                        <a href='http://localhost/elms/view-leave-detail?leave_id={$leaveRequestId}' class='btn'>ចុចទីនេះ</a>
+                    </div>
+                    <div class='footer'>
+                        <p>&copy; " . date("Y") . " Leave Management System. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ";
+
+            $mail->Body = $body;
+
+            if ($mail->send()) {
+                error_log("Email sent successfully to $managerEmail");
+                return true;
+            } else {
+                error_log("Email failed to send to $managerEmail: " . $mail->ErrorInfo);
+                return false;
+            }
+        } catch (Exception $e) {
+            error_log("Email Error: {$mail->ErrorInfo}");
+            return false;
+        }
+    }
+
+    private function sendEmailNotificationToHOffice($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks)
     {
         $mail = new PHPMailer(true);
 
@@ -306,8 +427,6 @@ class LeaveController
             return false;
         }
     }
-
-
     private function handleFileUpload($file, $allowed_extensions, $max_size, $upload_path)
     {
         $file_name = $file['name'];
@@ -421,14 +540,14 @@ class LeaveController
             $senderProfileImageUrl = 'http://yourdomain.com/uploads/profile_images/' . $_SESSION['user_profile'];
 
             // Send email notification
-            // if (!$this->sendEmailNotification($managerEmail, $message, $request_id, $senderProfileImageUrl)) {
-            //     $_SESSION['error'] = [
-            //         'title' => "Email Error",
-            //         'message' => "Notification email could not be sent. Please try again."
-            //     ];
-            //     header("Location: /elms/apply-leave");
-            //     exit();
-            // }
+            if (!$this->sendEmailNotificationToHOffice($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks)) {
+                $_SESSION['error'] = [
+                    'title' => "Email Error",
+                    'message' => "Notification email could not be sent. Please try again."
+                ];
+                header("Location: /elms/apply-leave");
+                exit();
+            }
 
             // Create notification
             $notificationModel = new Notification();
