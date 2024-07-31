@@ -1,4 +1,6 @@
-<?php $current_page = basename($_SERVER['REQUEST_URI']); ?>
+<?php
+$current_page = basename($_SERVER['REQUEST_URI']);
+?>
 <div class="navbar-expand-md">
     <div class="collapse navbar-collapse" id="navbar-menu">
         <div class="navbar navbar-light">
@@ -158,6 +160,9 @@
                             </span>
                             <span class="nav-link-title">
                                 សំណើច្បាប់
+                                <?php if ($requestscount > 0) : ?>
+                                    <span class="badge bg-red text-red-fg ms-2"><?= $requestscount; ?></span>
+                                <?php endif; ?>
                             </span>
                         </a>
                         <div class="dropdown-menu">
@@ -175,7 +180,10 @@
                                                 <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
                                             </svg>
                                         </span>
-                                        កំពុងរង់ចាំ
+                                        <span>កំពុងរង់ចាំ</span>
+                                        <?php if ($requestscount > 0) : ?>
+                                            <span class="badge bg-red text-red-fg ms-auto"><?= $requestscount; ?></span>
+                                        <?php endif; ?>
                                     </a>
                                     <a class="dropdown-item <?= ($current_page == 'approved') ? 'active' : '' ?>" href="/elms/approved">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">

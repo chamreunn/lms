@@ -22,6 +22,7 @@
     <link href="public/dist/css/tabler-payments.min.css?1668287865" rel="stylesheet" />
     <link href="public/dist/css/tabler-vendors.min.css?1668287865" rel="stylesheet" />
     <link href="public/dist/css/demo.min.css?1668287865" rel="stylesheet" />
+    <link href="public/dist/libs/animate/animate.css?1668287865" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
     <style>
         body {
@@ -35,7 +36,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            height: 100vh;
             background: url('public/img/backgrounds/blue2.jpg') center center/cover no-repeat;
             filter: blur(8px);
             z-index: -2;
@@ -120,7 +121,6 @@
             font-family: 'Khmer MEF1', sans-serif;
         }
     </style>
-
 </head>
 <?php include ('src/common/alert.php'); ?>
 <body class="border-top-wide border-primary d-flex flex-column">
@@ -139,7 +139,7 @@
             <div class="row align-items-center g-4">
                 <div class="col-lg">
                     <div class="container-tight">
-                        <div class="card card-md rounded-4 shadow-xl">
+                        <div class="card card-md rounded">
                             <div class="card-body">
                                 <div class="text-center mb-1">
                                     <a href="." class="navbar-brand navbar-brand-autodark"><img src="public/img/icons/brands/logo2.png" height="80" alt=""></a>

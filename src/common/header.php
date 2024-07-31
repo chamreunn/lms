@@ -8,8 +8,8 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: /elms/login");
     exit();
 }
-
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -27,12 +27,8 @@ if (!isset($_SESSION['user_id'])) {
     <link href="public/dist/css/tabler-vendors.min.css?1668287865" rel="stylesheet" />
     <link href="public/dist/css/demo.min.css?1668287865" rel="stylesheet" />
     <link href="public/dist/libs/animate/animate.css?1668287865" rel="stylesheet" />
-
     <link href="public/dist/libs/litepicker/dist/css/plugins/multiselect.js.css?1668287865" rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
-
-    <!-- JavaScript -->
     <style>
         .sortable:hover {
             cursor: pointer;
@@ -40,8 +36,6 @@ if (!isset($_SESSION['user_id'])) {
         }
     </style>
 </head>
-
-<?php include('src/common/alert.php') ?>
 
 <body>
     <script src="public/dist/js/demo-theme.min.js?1668287865"></script>
@@ -63,6 +57,8 @@ if (!isset($_SESSION['user_id'])) {
                             include('user_sidebar.php');
                             break;
                         case 'Deputy Head Of Office':
+                            $leaveRequestModel = new LeaveApproval();
+                            $requestscount = $leaveRequestModel->countPendingRequestsForApprover($_SESSION['user_id']);
                             include('office_manager_sidebar.php');
                             break;
                         case 'Head Of Office':
@@ -89,6 +85,10 @@ if (!isset($_SESSION['user_id'])) {
             }
             ?>
         </div>
+
+        <!-- Include Alert -->
+        <?php include('src/common/alert.php'); ?>
+
         <div class="page-wrapper">
             <!-- Page header -->
             <?php echo $pageheader ?? "" ?>

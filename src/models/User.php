@@ -1,5 +1,4 @@
 <?php
-
 require_once 'config/database.php';
 
 class User
@@ -122,6 +121,30 @@ class User
 
         $stmt = $this->pdo->prepare("SELECT users.*, positions.name AS position_name FROM users JOIN positions ON users.position_id = positions.id WHERE users.id = :id");
         $stmt->execute(['id' => $id]);
+        return $stmt->fetch();
+    }
+
+    public function getdOffice()
+    {
+        $stmt = $this->pdo->prepare("
+        SELECT users.*, offices.name AS office_name, offices.doffice_id, users.email AS demail, users.phone_number AS dnumber
+        FROM users 
+        JOIN offices ON users.id = offices.doffice_id
+        WHERE offices.id = :id
+    ");
+        $stmt->execute(['id' => $_SESSION['officeId']]);
+        return $stmt->fetch();
+    }
+
+    public function gethOffice()
+    {
+        $stmt = $this->pdo->prepare("
+        SELECT users.*, offices.name AS office_name, offices.hoffice_id, users.email AS hemail, users.phone_number AS hnumber
+        FROM users 
+        JOIN offices ON users.id = offices.hoffice_id
+        WHERE offices.id = :id
+    ");
+        $stmt->execute(['id' => $_SESSION['officeId']]);
         return $stmt->fetch();
     }
 }

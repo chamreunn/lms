@@ -134,7 +134,29 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </div>
     </div>
 </div>
-
+<!-- alert leave count  -->
+<?php if ($requestscount > 0) : ?>
+    <div class="col">
+        <div class="alert alert-info alert-dismissible" role="alert">
+            <div class="d-flex">
+                <div>
+                    <!-- Download SVG icon from http://tabler-icons.io/i/info-circle -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon alert-icon">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
+                        <path d="M12 9h.01"></path>
+                        <path d="M11 12h1v4h1"></path>
+                    </svg>
+                </div>
+                <div>
+                    អ្នកមានច្បាប់ដែលមិនទាន់អនុម័តចំនួន <span class="text-danger fw-bolder"><?= $requestscount ?></span>
+                </div>
+            </div>
+            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+        </div>
+    </div>
+<?php endif; ?>
+<!-- end alert leave count  -->
 <div class="row row-card mb-3">
     <div class="col-12 mb-3">
         <div class="row row-cards">
@@ -698,4 +720,49 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
             singleMode: true,
         });
     });
+</script>
+<!-- timezone  -->
+<script>
+    function updateDateTime() {
+        const clockElement = document.getElementById('real-time-clock');
+        const currentTime = new Date();
+
+        // Define Khmer arrays for days of the week and months.
+        const daysOfWeek = ['អាទិត្យ', 'ច័ន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍'];
+        const dayOfWeek = daysOfWeek[currentTime.getDay()];
+
+        const months = ['មករា', 'កុម្ភៈ', 'មិនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
+        const month = months[currentTime.getMonth()];
+
+        const day = currentTime.getDate();
+        const year = currentTime.getFullYear();
+
+        // Calculate and format hours, minutes, seconds, and time of day in Khmer.
+        let hours = currentTime.getHours();
+        let period;
+
+        if (hours >= 5 && hours < 12) {
+            period = 'ព្រឹក'; // Khmer for AM (morning)
+        } else if (hours >= 12 && hours < 17) {
+            period = 'រសៀល'; // Khmer for afternoon
+        } else if (hours >= 17 && hours < 20) {
+            period = 'ល្ងាច'; // Khmer for evening
+        } else {
+            period = 'យប់'; // Khmer for night
+        }
+
+        hours = hours % 12 || 12;
+        const minutes = currentTime.getMinutes().toString().padStart(2, '0');
+        const seconds = currentTime.getSeconds().toString().padStart(2, '0');
+
+        // Construct the date and time string in the desired Khmer format.
+        const dateTimeString = `${dayOfWeek}, ${day} ${month} ${year} ${hours}:${minutes}:${seconds} ${period}`;
+        clockElement.textContent = dateTimeString;
+    }
+
+    // Update the date and time every second (1000 milliseconds).
+    setInterval(updateDateTime, 1000);
+
+    // Initial update.
+    updateDateTime();
 </script>

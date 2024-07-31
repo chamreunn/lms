@@ -1,16 +1,9 @@
 <IfModule mod_rewrite.c>
-    RewriteEngine On
-    # Adjust the RewriteBase to match the directory on the server
-    RewriteBase /elms/
+RewriteEngine On
 
-    # Check if mod_rewrite is enabled
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
+# Rewrite all requests to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
 
-    # Redirect to index.php with query string appended
-    RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
-
-# Handle PHP error logging for troubleshooting
-php_flag display_errors on
-php_value error_reporting 32767

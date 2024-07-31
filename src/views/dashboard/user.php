@@ -279,7 +279,7 @@ $totalPages = isset($data['totalPages']) ? $data['totalPages'] : 1;
         </div>
     </div>
 
-    <div class="col-sm-12 col-lg-12 mb-3">
+    <div class="col-sm-12 col-lg-8 mb-3">
         <div class="card h-100">
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h3 class="card-title">ច្បាប់ឈប់សម្រាកទាំងអស់</h3>
@@ -517,6 +517,84 @@ $totalPages = isset($data['totalPages']) ? $data['totalPages'] : 1;
                     });
                 });
             </script>
+        </div>
+    </div>
+    
+    <div class="col-sm-12 col-lg-4 mb-3">
+        <div class="card h-100">
+            <h3 class="card-header">ច្បាប់របស់សមាជិក |<small class="mx-1 text-primary" id="real-time-clock"></small></h3>
+            <div class="card-body">
+                <div class="list-group">
+                    <?php if (empty($getuserapproves)) : ?>
+                        <div class="d-flex flex-column align-items-center justify-content-center text-center">
+                            <img src="public/img/icons/svgs/empty.svg" alt="No data" class="w-75">
+                            <p class="empty-text">មិនមានការឈប់សម្រាក</p>
+                        </div>
+                    <?php else : ?>
+                        <?php foreach ($getuserapproves as $getuserapprove) : ?>
+                            <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#detailsModal<?= $getuserapprove['id'] ?>">
+                                <div class="d-flex align-items-center">
+                                    <img src="<?= $getuserapprove['profile'] ?>" class="avatar me-3 rounded-circle" alt="Profile picture">
+                                    <div class="flex-grow-1">
+                                        <h5 class="name mb-1"><?= htmlspecialchars($getuserapprove['khmer_name']) ?></h5>
+                                        <small class="date text-muted mb-1"><?= translateDateToKhmer($getuserapprove['start_date'], 'j') . " ដល់ " . translateDateToKhmer($getuserapprove['end_date'], 'j F Y') ?></small>
+                                    </div>
+                                    <span class="badge <?= $getuserapprove['status'] == 'Pending' ? 'bg-warning-lt' : '' ?>
+                                    <?= $getuserapprove['status'] == 'Approved' ? 'badge-outline text-success' : '' ?>
+                                    <?= $getuserapprove['status'] == 'Rejected' ? 'badge-outline text-danger' : '' ?>
+                                    <?= $getuserapprove['status'] == 'Cancelled' ? 'badge-outline text-secondary' : '' ?>">
+                                        <?= htmlspecialchars($getuserapprove['status']) ?>
+                                    </span>
+                                </div>
+                            </a>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="detailsModal<?= $getuserapprove['id'] ?>" tabindex="-1" aria-labelledby="detailsModalLabel<?= $getuserapprove['id'] ?>" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="detailsModalLabel<?= $getuserapprove['id'] ?>">
+                                                <?= htmlspecialchars($getuserapprove['khmer_name']) ?>'s Leave Details
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <table class="table">
+                                                <tbody>
+                                                    <tr>
+                                                        <th scope="row"><i class="bi bi-person-fill"></i> ឈ្មោះមន្ត្រី</th>
+                                                        <td><?= htmlspecialchars($getuserapprove['khmer_name']) ?></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="row"><i class="bi bi-person-fill"></i> ប្រភេទច្បាប់</th>
+                                                        <td><span class="badge <?= htmlspecialchars($getuserapprove['leavetype_color']) ?>"><?= htmlspecialchars($getuserapprove['leave_type']) ?></span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="row"><i class="bi bi-calendar-event-fill"></i> ចាប់ពី</th>
+                                                        <td><?= translateDateToKhmer(htmlspecialchars($getuserapprove['start_date']), 'D, j F Y') ?></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="row"><i class="bi bi-calendar-x-fill"></i> ដល់</th>
+                                                        <td><?= translateDateToKhmer(htmlspecialchars($getuserapprove['end_date']), 'D, j F Y') ?></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="row"><i class="bi bi-info-circle-fill"></i> មូលហេតុ</th>
+                                                        <td><?= htmlspecialchars($getuserapprove['remarks']) ?></td>
+                                                    </tr>
+                                                    <!-- Add additional details here -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn" data-bs-dismiss="modal">បោះបង់</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
     </div>
 </div>

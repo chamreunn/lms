@@ -3884,7 +3884,7 @@ textarea.form-control.is-invalid {
 
 .btn {
     --tblr-btn-padding-x: 1rem;
-    --tblr-btn-padding-y: 0.4375rem;
+    --tblr-btn-padding-y: 0.5625rem;
     --tblr-btn-font-family: 'Khmer-mef1', sans-serif;
     --tblr-btn-font-size: 0.875rem;
     --tblr-btn-font-weight: var(--tblr-font-weight-medium);

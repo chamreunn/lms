@@ -150,7 +150,7 @@
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item dropdown <?= in_array($current_page, ['user_index', 'department', 'office', 'leavetype', 'roles', 'positions','documents']) ? 'active' : '' ?>">
+                    <li class="nav-item dropdown <?= in_array($current_page, ['user_index', 'department_index', 'office', 'leavetype', 'roles', 'positions','documents']) ? 'active' : '' ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-extra" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-adjustments-horizontal">
@@ -176,10 +176,10 @@
                                     <a class="dropdown-item <?= ($current_page == 'user_index') ? 'active' : '' ?>" href="user_index">
                                         គណនីមន្ត្រី
                                     </a>
-                                    <a class="dropdown-item <?= ($current_page == 'department') ? 'active' : '' ?>" href="department">
+                                    <a class="dropdown-item <?= ($current_page == 'department_index') ? 'active' : '' ?>" href="/elms/department_index">
                                         នាយកដ្ឋាន
                                     </a>
-                                    <a class="dropdown-item <?= ($current_page == 'office') ? 'active' : '' ?>" href="/elms/office">
+                                    <a class="dropdown-item <?= ($current_page == 'office') ? 'active' : '' ?>" href="/office">
                                         ការិយាល័យ
                                     </a>
                                     <a class="dropdown-item <?= ($current_page == 'leavetype') ? 'active' : '' ?>" href="/elms/leavetype">

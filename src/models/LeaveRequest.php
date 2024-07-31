@@ -13,10 +13,39 @@ class LeaveRequest
         $this->pdo = $pdo;
     }
 
-    public function create($user_id, $leave_type_id, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment, $signature)
-    {
-        $stmt = $this->pdo->prepare('INSERT INTO leave_requests (user_id, leave_type_id, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())');
-        $stmt->execute([$user_id, $leave_type_id, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment, $signature, 'Pending']);
+    public function create(
+        $user_id,
+        $leave_type_id,
+        $leave_type_name,
+        $start_date,
+        $end_date,
+        $remarks,
+        $duration_days,
+        $attachment,
+        $signature
+    ): int {
+        // Prepare and execute the SQL statement
+        $stmt = $this->pdo->prepare('
+            INSERT INTO leave_requests 
+            (user_id, leave_type_id, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        ');
+
+        $stmt->execute([
+            $user_id,
+            $leave_type_id,
+            $leave_type_name,
+            $start_date,
+            $end_date,
+            $remarks,
+            $duration_days,
+            $attachment,
+            $signature,
+            'Pending'
+        ]);
+
+        // Return the ID of the newly created leave request
+        return $this->pdo->lastInsertId();
     }
 
     public function getRequestsByUserId($user_id)
@@ -28,6 +57,20 @@ class LeaveRequest
              WHERE lr.user_id = ?'
         );
         $stmt->execute([$user_id]);
+        return $stmt->fetchAll();
+    }
+
+    public function getLeaveByUser($user_id)
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT lr.*, lt.name as leave_type_name, lt.duration, lt.color, 
+                u.khmer_name,u.profile_picture AS profile
+         FROM leave_requests lr
+         JOIN leave_types lt ON lr.leave_type_id = lt.id
+         JOIN users u ON lr.user_id = u.id
+         WHERE lr.user_id = ? AND lr.status != ? ORDER BY lr.id'
+        );
+        $stmt->execute([$user_id, 'Approved']);
         return $stmt->fetchAll();
     }
 
@@ -91,7 +134,7 @@ class LeaveRequest
     {
         $stmt = $this->pdo->prepare(
             'SELECT lr.*, lt.name as leave_type_name, lt.duration, lt.color,
-                deputy.khmer_name as deputy_head_name
+                deputy.khmer_name as deputy_head_name, user_request.phone_number
          FROM leave_requests lr
          JOIN leave_types lt ON lr.leave_type_id = lt.id
          JOIN users user_request ON lr.user_id = user_request.id

@@ -10,7 +10,7 @@ class LeaveApproval
         $this->pdo = $pdo;
     }
 
-    public function submitApproval($leave_request_id, $approver_id, $status, $remarks)
+    public function submitApproval($leave_request_id, $approver_id, $status, $remarks, $signaturePath)
     {
         // Fetch the role of the approver
         $stmt = $this->pdo->prepare(
@@ -23,12 +23,12 @@ class LeaveApproval
             throw new Exception("Invalid approver ID: $approver_id");
         }
 
-        // Insert the approval record
+        // Insert the approval record with the signature
         $stmt = $this->pdo->prepare(
-            'INSERT INTO leave_approvals (leave_request_id, approver_id, status, remarks, updated_at)
-            VALUES (?, ?, ?, ?, NOW())'
+            'INSERT INTO leave_approvals (leave_request_id, approver_id, status, remarks, signature, updated_at)
+            VALUES (?, ?, ?, ?, ?, NOW())'
         );
-        $stmt->execute([$leave_request_id, $approver_id, $status, $remarks]);
+        $stmt->execute([$leave_request_id, $approver_id, $status, $remarks, $signaturePath]);
 
         // Update leave request status based on the approval chain
         $this->updateLeaveRequestStatus($leave_request_id, $status);
@@ -98,6 +98,40 @@ class LeaveApproval
             return $stmt->fetchAll();
         } else {
             return [];
+        }
+    }
+    
+    public function countPendingRequestsForApprover($approver_id)
+    {
+        // Get the approver's office and department
+        $stmt = $this->pdo->prepare('SELECT office_id, department_id FROM users WHERE id = ?');
+        $stmt->execute([$approver_id]);
+        $approver = $stmt->fetch();
+
+        if ($approver) {
+            $office_id = $approver['office_id'];
+            $department_id = $approver['department_id'];
+
+            // Query to count pending requests for users in the same office or department as the approver
+            // and who have the specified positions, including additional user details
+            $stmt = $this->pdo->prepare('
+            SELECT COUNT(*) as pending_count
+            FROM leave_requests lr 
+            JOIN users u ON lr.user_id = u.id 
+            JOIN positions p ON u.position_id = p.id 
+            JOIN leave_types lt ON lr.leave_type_id = lt.id
+            WHERE lr.dhead_office = ? 
+            AND u.office_id = ? 
+            AND u.department_id = ?
+            AND u.role = ? 
+            AND p.name IN (?, ?) 
+            AND lr.user_id != ?
+        ');
+            $stmt->execute(['Pending', $office_id, $department_id, 'User', 'មន្ត្រីលក្ខខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', $approver_id]);
+            $result = $stmt->fetch();
+            return $result['pending_count'];
+        } else {
+            return 0;
         }
     }
 

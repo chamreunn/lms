@@ -1,0 +1,79 @@
+﻿
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+          xmlns:w="urn:schemas-microsoft-com:office:word" 
+          xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+        <meta charset="utf-8">
+        <title>Export HTML To Doc</title>
+        <style>
+            @page {
+                size: A4;
+                margin: 5mm;
+            }
+            .page-container {
+                width: 100%;
+                height: 100%;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+            .pdf-header {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            .company-logo img {
+                width: 150px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="page-container">
+            <div class="pdf-header">
+                <div class="company-logo">
+                    <img src="public/img/icons/brands/logo2.png" />
+                </div>
+                <div>
+                    ព្រះរាជាណាចក្រកម្ពុជា<br>
+                    ជាតិ សាសនា ព្រះមហាក្សត្រ
+                </div>
+            </div>
+    
+                                    <div class="card-body">
+                                        <div class="page-container hidden-on-narrow">
+                                            <div class="pdf-page size-a4">
+                                                <div class="pdf-header">
+                                                    <center class="invoice-number" style="font-family: khmer mef2;color: #2F5496;font-size: 20px; margin-top: -5px;">ព្រះរាជាណាចក្រកម្ពុជា<br>
+                                                        ជាតិ សាសនា ព្រះមហាក្សត្រ
+                                                    </center>
+                                                </div>
+                                                <div class="from">
+                                                    <div class="mb-xl-0 mb-4">
+                                                        <div class="for" style="font-family: khmer mef2; font-size:20px; position: relative; color: #2F5496;">
+                                                            <span class="company-logo">
+                                                                <img src="public/img/icons/brands/logo2.png" class="mb-3" style="width: 150px; padding-left: 30px">
+                                                            </span>
+                                                            <p style="font-size: 14px;">អាជ្ញាធរសេវាហិរញ្ញវត្ថុមិនមែនធនាគារ</p>
+                                                            <p style="font-size: 14px; text-indent: 40px; top: 0; line-height:30px;">អង្គភាពសវនកម្មផ្ទៃក្នុង <br>
+                                                            </p><p style="font-size: 14px; text-indent: 25px;">លេខ:.......................អ.ស.ផ.</p>
+                                                            <p></p>
+                                                        </div>
+                                                    </div>
+                                                    <center style="text-align: center; font-family: khmer mef2; font-size: 19px;" class="mb-3">
+                                                        ពាក្យស្នើសុំបញ្ជាក់ពិការចូលបំពេញការងារយឺតយ៉ាវ
+                                                    </center>
+                                                    <p style="font-family: khmer mef1; font-size:18px; line-height: 30px; text-align:justify; text-indent: 50px;">
+                                                        ខ្ញុំបាទ / នាងខ្ញុំឈ្មោះ <span class="fw-bold">លោក ជា ច័ន្ទបូរី</span> មានតួនាទីជា <span class="fw-bold">មន្ត្រីលក្ខខន្តិកៈ</span> នៃ <span class="fw-bold">នាយកដ្ឋានកិច្ចការទូទៅ</span> បានមកបំពេញការងារយឺតពេលកំណត់នៅថ្ងៃទី <span class="fw-bold">24 ខែ <span class="fw-bold">កក្កដា ឆ្នាំ <span class="fw-bold">2024                                                                </span> វេលាម៉ោង <span class="fw-bold">07:00:00នាទី</span> ហើយខ្ញុំសូមបញ្ជាក់ពីមូលហេតុដែលខ្ញុំបាទ/នាងខ្ញុំមកបំពេញការងារយឺតយ៉ាវដោយមូលហេតុ <span class="fw-bolder">sadf</span>។ដូចនេះសូមមន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមានខ្ញុំបាទ/នាងខ្ញុំក្នុងបញ្ជីវត្តមានរបស់មន្ត្រីនៃអង្គភាពសវនកម្មផ្ទៃក្នុងនៃ <span class="fw-bolder">អ.ស.ហ.</span>នៅថ្ងៃទី <span class="fw-bold">24 ខែ <span class="fw-bold">កក្កដា ឆ្នាំ <span class="fw-bold">2024 គឺតាមមូលហេតុខាងលើនេះ។
+                                                    </span></span></span></span></span></p>
+                                                    <p style="font-family: khmer mef1; font-size:18px; text-align:justify; text-indent: 50px;">
+                                                        សូម <b>មន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមាន</b> ពិនិត្យ និងចាត់ចែងតាមការគួរ
+                                                    </p>
+                                                    <p style="font-family: khmer mef1; font-size:18px; text-align:justify; text-indent: 50px;">
+                                                        សូម <b>មន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមាន</b> ទទួលនូវការរាប់អានពីខ្ញុំ។
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                
+        </div>
+    </body>
+    </html>

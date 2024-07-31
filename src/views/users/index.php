@@ -302,11 +302,11 @@ include('src/common/header.php');
                         </div>
 
                         <div class="modal-footer bg-light border-top">
-                            <div class="w-100 mt-3">
+                            <div class="w-100">
                                 <div class="row">
                                     <div class="col">
                                         <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                        <button type="button" class="btn w-100 w-100" data-bs-dismiss="modal">បោះបង់</button>
+                                        <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
                                     </div>
                                     <div class="col">
                                         <button type="submit" class="btn btn-primary ms-auto w-100">រក្សាទុក</button>

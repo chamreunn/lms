@@ -1,6 +1,7 @@
 <?php
 require_once 'src/models/LeaveRequest.php';
 require_once 'src/models/LateModel.php';
+require_once 'src/models/Notification.php';
 
 class DashboardController
 {
@@ -43,7 +44,7 @@ class DashboardController
             $offset = ($page - 1) * $limit;
 
             // Fetch paginated leave requests and total count
-            $leaves = $this->leaveRequestModel->getPaginatedRequestsByUserId($_SESSION['user_id'], $limit, $offset);
+            $leaves = $this->leaveRequestModel->getLeaveByUser($_SESSION['user_id']);
             $totalRequests = $this->leaveRequestModel->getTotalRequestsByUserId($_SESSION['user_id']);
             $totalPages = ceil($totalRequests / $limit);
 
@@ -62,6 +63,8 @@ class DashboardController
                     $countRequestModel = new LeaveRequest();
                     $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
                     $gettoday = $countRequestModel->getTodayLeaveById($_SESSION['user_id']);
+                    $notification = new Notification();
+                    $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
                     require 'src/views/dashboard/user.php';
                     break;
                 case 'Deputy Head Of Office':
@@ -72,6 +75,8 @@ class DashboardController
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
                     $countRequestModel = new LeaveRequest();
                     $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
+                    $notification = new Notification();
+                    $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
                     require 'src/views/dashboard/office_manager.php';
                     break;
                 case 'Head Of Department':
