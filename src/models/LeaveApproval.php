@@ -26,12 +26,25 @@ class LeaveApproval
         // Insert the approval record with the signature
         $stmt = $this->pdo->prepare(
             'INSERT INTO leave_approvals (leave_request_id, approver_id, status, remarks, signature, updated_at)
-            VALUES (?, ?, ?, ?, ?, NOW())'
+        VALUES (?, ?, ?, ?, ?, NOW())'
         );
         $stmt->execute([$leave_request_id, $approver_id, $status, $remarks, $signaturePath]);
 
+        // Get the updated_at timestamp
+        $stmt = $this->pdo->prepare(
+            'SELECT updated_at FROM leave_approvals WHERE leave_request_id = ? AND approver_id = ? ORDER BY updated_at DESC LIMIT 1'
+        );
+        $stmt->execute([$leave_request_id, $approver_id]);
+        $updatedAt = $stmt->fetchColumn();
+
+        if ($updatedAt === false) {
+            throw new Exception("Unable to fetch updated_at timestamp for approval.");
+        }
+
         // Update leave request status based on the approval chain
         $this->updateLeaveRequestStatus($leave_request_id, $status);
+
+        return $updatedAt; // Return the updated_at timestamp
     }
 
     private function updateLeaveRequestStatus($leave_request_id, $latestStatus)
@@ -82,7 +95,7 @@ class LeaveApproval
             // Query to get pending requests for users in the same office or department as the approver
             // and who have the specified positions, including additional user details
             $stmt = $this->pdo->prepare('
-            SELECT lr.*, u.email, u.profile_picture AS profile, u.khmer_name, lt.color
+            SELECT lr.*, u.email, u.profile_picture AS profile, u.khmer_name, lt.color, lt.name AS leavetype
             FROM leave_requests lr 
             JOIN users u ON lr.user_id = u.id 
             JOIN positions p ON u.position_id = p.id 
@@ -100,7 +113,7 @@ class LeaveApproval
             return [];
         }
     }
-    
+
     public function countPendingRequestsForApprover($approver_id)
     {
         // Get the approver's office and department

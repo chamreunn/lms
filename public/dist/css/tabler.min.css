@@ -2878,20 +2878,21 @@ progress {
 .form-control {
     display: block;
     width: 100%;
-    padding: .4375rem .75rem;
-    font-family: -apple-system, 'Khmer-mef1', sans-serif;
+    padding: .5625rem .75rem;
+    font-family: var(--tblr-font-sans-serif);
     font-size: .875rem;
     font-weight: 400;
     line-height: 1.4285714286;
-    color: inherit;
-    background-color: var(--tblr-bg-forms);
-    background-clip: padding-box;
-    border: var(--tblr-border-width) solid var(--tblr-border-color);
+    color: var(--tblr-body-color);
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+    background-color: var(--tblr-bg-forms);
+    background-clip: padding-box;
+    border: var(--tblr-border-width) solid var(--tblr-border-color);
     border-radius: var(--tblr-border-radius);
-    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out
+    box-shadow: var(--tblr-box-shadow-input);
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out
 }
 
 @media (prefers-reduced-motion:reduce) {
@@ -3113,8 +3114,8 @@ textarea.form-control-lg {
 .form-select {
     display: block;
     width: 100%;
-    padding: .4375rem 2.25rem .4375rem .75rem;
-    -moz-padding-start: calc(.75rem - 3px);
+    padding: .5625rem .75rem;
+    /* -moz-padding-start: calc(.75rem - 3px); */
     font-family: var(--tblr-font-sans-serif);
     font-size: .875rem;
     font-weight: 400;
@@ -22066,7 +22067,7 @@ textarea[cols] {
     display: block;
     min-width: calc(1.4285714286em + .875rem + calc(var(--tblr-border-width) * 2));
     margin: 0;
-    padding: .4375rem .75rem;
+    padding: .5625rem .75rem;
     font-size: .875rem;
     line-height: 1.4285714286;
     color: var(--tblr-muted);

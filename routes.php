@@ -21,6 +21,8 @@ require_once 'src/controllers/DepDepartController.php';
 require_once 'src/controllers/HeadDepartController.php';
 require_once 'src/controllers/DepUnit1Controller.php';
 require_once 'src/controllers/LateController.php';
+require_once 'src/controllers/SettingController.php';
+require_once 'src/controllers/MissionController.php';
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
@@ -43,7 +45,11 @@ switch ($uri) {
     case $base_url . '/leave-requests':
         checkSessionAndExecute(function () {
             $controller = new LeaveController();
-            $controller->viewRequests();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->viewRequestsWithFilters();
+            } else {
+                $controller->viewRequests();
+            }
         });
         break;
     case $base_url . '/pending':
@@ -158,9 +164,33 @@ switch ($uri) {
             }
         });
         break;
+    case $base_url . '/my-account':
+        checkSessionAndExecute(function () {
+            $controller = new SettingController();
+            $controller->index();
+        });
+        break;
+    case $base_url . '/change-profile-picture':
+        checkSessionAndExecute(function () {
+            $controller = new SettingController();
+            $controller->updateProfilePicture();
+        });
+        break;
+    case $base_url . '/reset-profile-picture':
+        checkSessionAndExecute(function () {
+            $controller = new SettingController();
+            $controller->resetProfilePicture();
+        });
+        break;
     case $base_url . '/notifications':
         checkSessionAndExecute(function () {
             $controller = new NotificationController();
+            $controller->index();
+        });
+        break;
+    case $base_url . '/mission':
+        checkSessionAndExecute(function () {
+            $controller = new MissionController();
             $controller->index();
         });
         break;

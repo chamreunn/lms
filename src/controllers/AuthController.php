@@ -18,6 +18,7 @@ class AuthController
             $password = htmlspecialchars($_POST['password']);
 
             if ($email && $password) {
+                
                 $userModel = new User();
                 $user = $userModel->findByEmail($email);
 
@@ -50,7 +51,7 @@ class AuthController
 
                     $userModel->logLoginTrace($user['id'], $_SERVER['REMOTE_ADDR']);
 
-                    header('Location: dashboard');
+                    header('Location: /elms/dashboard');
                     exit;
                 }
             } else {

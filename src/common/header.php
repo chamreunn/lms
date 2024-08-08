@@ -8,6 +8,8 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: /elms/login");
     exit();
 }
+
+require_once 'src/controllers/LeavetypeController.php';
 ?>
 
 <!DOCTYPE html>

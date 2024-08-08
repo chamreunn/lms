@@ -24,6 +24,13 @@ class User
         $stmt->execute([$userId, $ipAddress]);
     }
 
+    function logUserActivity($userId, $action, $details = null)
+    {
+        // Assuming you have a PDO connection $pdo
+        $stmt = $this->pdo->prepare('INSERT INTO user_activity_log (user_id, action, timestamp, details, ip_address) VALUES (?, ?, NOW(), ?, ?)');
+        $stmt->execute([$userId, $action, $details, $_SERVER['REMOTE_ADDR']]);
+    }
+
     public function create($data)
     {
         // Password hashing
@@ -89,6 +96,12 @@ class User
         return $stmt->fetch();
     }
 
+    public function updateProfilePicture($userId, $profilePicturePath)
+    {
+        $stmt = $this->pdo->prepare("UPDATE users SET profile_picture = ? WHERE id = ?");
+        return $stmt->execute([$profilePicturePath, $userId]);
+    }
+
     public function getAllUsers()
     {
         $query = "
@@ -127,7 +140,7 @@ class User
     public function getdOffice()
     {
         $stmt = $this->pdo->prepare("
-        SELECT users.*, offices.name AS office_name, offices.doffice_id, users.email AS demail, users.phone_number AS dnumber
+        SELECT users.*, offices.name AS office_name, offices.doffice_id, users.email AS demail, users.phone_number AS dnumber, users.khmer_name AS dkhmer_name
         FROM users 
         JOIN offices ON users.id = offices.doffice_id
         WHERE offices.id = :id

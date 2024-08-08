@@ -22,6 +22,7 @@ class LeaveController
             $end_date = $_POST['end_date'];
             $remarks = $_POST['remarks'];
             $message = $_SESSION['user_khmer_name'] . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
+            $activity =  "បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
             // Handle file upload for attachment
             $attachment_name = $this->handleFileUpload($_FILES['attachment'], ['docx', 'pdf'], 2097152, 'public/uploads/leave_attachments/');
@@ -53,7 +54,7 @@ class LeaveController
                     'title' => "Leave Type Error",
                     'message' => "Invalid leave type selected."
                 ];
-                header("Location: /elms/apply-leave");
+                header("Location: /elms/dashboard");
                 exit();
             }
 
@@ -70,7 +71,7 @@ class LeaveController
                     'title' => "រយៈពេល",
                     'message' => "ប្រភេទច្បាប់ឈប់សម្រាកនេះមានរយៈពេល " . $leave_type_duration . " ថ្ងៃ។ សូមពិនិត្យមើលប្រភេទច្បាប់ដែលអ្នកបានជ្រើសរើសម្តងទៀត"
                 ];
-                header("Location: /elms/apply-leave");
+                header("Location: /elms/dashboard");
                 exit();
             }
 
@@ -87,13 +88,14 @@ class LeaveController
 
             $managerEmail = $userDoffice['demail'];
             $managerNumber = $userDoffice['dnumber'];
-            $senderProfileImageUrl = 'http://yourdomain.com/uploads/profile_images/' . $_SESSION['user_profile']; // Adjust the path as needed
+            $senderProfileImageUrl = 'public/img/icons/brands/logo2.png'; // Adjust the path as needed
 
             // Create leave request
             $leaveRequestModel = new LeaveRequest();
             $leaveRequestId = $leaveRequestModel->create($user_id, $leave_type_id, $leaveType['name'], $start_date, $end_date, $remarks, $duration_days, $attachment_name, $signature_name);
 
-            // Send email notification
+            $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
+            // Send email notification 
             if (!$this->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
                 $_SESSION['error'] = [
                     'title' => "Email Error",
@@ -116,8 +118,8 @@ class LeaveController
             $notificationModel->createNotification($userDoffice['doffice_id'], $user_id, $leaveRequestId, $message);
 
             $_SESSION['success'] = [
-                'title' => "ច្បាប់ឈប់សម្រាក",
-                'message' => "សំណើត្រូវបានបង្កើតដោយជោគជ័យ។"
+                'title' => "ជោគជ័យ",
+                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $userDoffice['dkhmer_name']
             ];
             header("Location: /elms/leave-requests");
             exit();
@@ -274,7 +276,7 @@ class LeaveController
             <body>
                 <div class='container'>
                     <div class='header'>
-                        <h4><img src='https://img.icons8.com/ios-filled/50/ffffff/approval.png' class='icon' alt='Leave Request' /> Leave Request Notification</h4>
+                        <h4><img src='http://localhost/elms/public/img/icons/brands/logo2.png' class='icon' alt='Leave Request' /> Leave Request Notification</h4>
                     </div>
                     <div class='content'>
                         <p>$message</p>
@@ -308,7 +310,7 @@ class LeaveController
         }
     }
 
-    private function sendEmailNotificationToHOffice($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks)
+    private function sendEmailNotificationToHOffice($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)
     {
         $mail = new PHPMailer(true);
 
@@ -334,8 +336,9 @@ class LeaveController
             // Format dates
             $start_date_formatted = (new DateTime($start_date))->format('j F, Y');
             $end_date_formatted = (new DateTime($end_date))->format('j F, Y');
+            $updated_at_formatted = (new DateTime($updatedAt))->format('j F, Y H:i:s');
 
-            //Recipients
+            // Recipients
             $mail->setFrom('no-reply@example.com', 'NO REPLY');
             $mail->addAddress($managerEmail);
 
@@ -395,14 +398,22 @@ class LeaveController
             <body>
                 <div class='container'>
                     <div class='header'>
-                        <h4><img src='https://img.icons8.com/ios-filled/50/ffffff/approval.png' class='icon' alt='Leave Request' /> Leave Request Notification</h4>
+                        <h4>
+                            <img src='http://localhost/elms/public/img/icons/brands/logo2.png' class='icon' alt='Leave Request' /> 
+                            Leave Request Notification
+                        </h4>
                     </div>
                     <div class='content'>
-                        <p>$message</p>
+                        <p>$username</p>
+                        <p><strong>រយៈពេល :</strong> $duration_days ថ្ងៃ</p>
+                        <p><strong>ប្រភេទច្បាប់ :</strong> $leaveType</p>
                         <p><strong>ចាប់ពីថ្ងៃ :</strong> $start_date_formatted</p>
                         <p><strong>ដល់ថ្ងៃ​ :</strong> $end_date_formatted</p>
-                        <p><strong>រយៈពេល :</strong> $duration_days ថ្ងៃ</p>
-                        <p><strong>មូលហេតុ :</strong> $remarks</p>
+                        <p><strong>មូលហេតុ :</strong> $uremarks</p>
+                        <hr>
+                        <p>$message</p>"
+                . (!empty($remarks) ? "<p><strong>មតិយោបល់ :</strong> $remarks</p>" : "") . "
+                        <p><strong>បានអនុម័តនៅថ្ងៃ:</strong> $updated_at_formatted</p>
                         <a href='http://localhost/elms/view-leave-detail?leave_id={$leaveRequestId}' class='btn'>ចុចទីនេះ</a>
                     </div>
                     <div class='footer'>
@@ -411,8 +422,7 @@ class LeaveController
                 </div>
             </body>
             </html>
-        ";
-
+            ";
             $mail->Body = $body;
 
             if ($mail->send()) {
@@ -427,6 +437,7 @@ class LeaveController
             return false;
         }
     }
+
     private function handleFileUpload($file, $allowed_extensions, $max_size, $upload_path)
     {
         $file_name = $file['name'];
@@ -434,29 +445,50 @@ class LeaveController
         $file_error = $file['error'];
         $file_size = $file['size'];
 
-        if ($file_name) {
-            $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-            if (in_array($file_ext, $allowed_extensions) && $file_error === UPLOAD_ERR_OK) {
-                if ($file_size <= $max_size) {
-                    move_uploaded_file($file_tmp_name, $upload_path . $file_name);
-                    return $file_name;
-                } else {
-                    $_SESSION['error'] = [
-                        'title' => "File Error",
-                        'message' => "Attachment file size exceeds the limit."
-                    ];
-                    return false;
-                }
-            } else {
-                $_SESSION['error'] = [
-                    'title' => "File Error",
-                    'message' => "Invalid attachment file type or upload error."
-                ];
-                return false;
-            }
+        if ($file_error === UPLOAD_ERR_NO_FILE) {
+            // No file was uploaded
+            return null;
         }
-        return null;
+
+        if ($file_error !== UPLOAD_ERR_OK) {
+            $_SESSION['error'] = [
+                'title' => "File Error",
+                'message' => "An error occurred during the file upload."
+            ];
+            return false;
+        }
+
+        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+        if (!in_array($file_ext, $allowed_extensions)) {
+            $_SESSION['error'] = [
+                'title' => "File Error",
+                'message' => "Invalid attachment file type."
+            ];
+            return false;
+        }
+
+        if ($file_size > $max_size) {
+            $_SESSION['error'] = [
+                'title' => "File Error",
+                'message' => "Attachment file size exceeds the limit."
+            ];
+            return false;
+        }
+
+        $unique_file_name = uniqid('', true) . '.' . $file_ext;
+        $destination = $upload_path . $unique_file_name;
+
+        if (move_uploaded_file($file_tmp_name, $destination)) {
+            return $unique_file_name;
+        } else {
+            $_SESSION['error'] = [
+                'title' => "File Error",
+                'message' => "Failed to move the uploaded file."
+            ];
+            return false;
+        }
     }
+
     private function calculateBusinessDays(DateTime $start_date, DateTime $end_date)
     {
         $business_days = 0;
@@ -477,6 +509,22 @@ class LeaveController
     {
         $leaveRequestModel = new LeaveRequest();
         $requests = $leaveRequestModel->getRequestsByUserId($_SESSION['user_id']);
+
+        require 'src/views/leave/requests.php';
+    }
+
+    public function viewRequestsWithFilters()
+    {
+        $leaveRequestModel = new LeaveRequest();
+        $user_id = $_SESSION['user_id'];
+
+        $filters = [
+            'start_date' => $_POST['start_date'] ?? null,
+            'end_date' => $_POST['end_date'] ?? null,
+            'status' => $_POST['status'] ?? null,
+        ];
+
+        $requests = $leaveRequestModel->getRequestsByFilters($user_id, $filters);
 
         require 'src/views/leave/requests.php';
     }
@@ -505,9 +553,16 @@ class LeaveController
             $request_id = $_POST['request_id'];
             $status = $_POST['status'];
             $remarks = $_POST['remarks'];
+            $uremarks = $_POST['uremarks'];
+            $uname = $_POST['uname'];
+            $leaveType = $_POST['leaveType'];
             $user_id = $_POST['user_id']; // ID of the user who applied for leave
+            $start_date = $_POST['start_date'];
+            $end_date = $_POST['end_date'];
+            $duration_days = $_POST['duration'];
             $approver_id = $_SESSION['user_id'];
             $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
+            $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
             // Handle file upload for manager's signature
             $signaturePath = $this->handleFileUpload($_FILES['manager_signature'], ['png'], 1048576, 'public/uploads/signatures/');
@@ -521,8 +576,8 @@ class LeaveController
             }
 
             // Create approval record
-            $leaveApprovalModel = new LeaveApproval();
-            $leaveApprovalModel->submitApproval($request_id, $approver_id, $status, $remarks, $signaturePath);
+            $leaveApproval = new LeaveApproval();
+            $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks, $signaturePath);
 
             // Fetch office details
             $userModel = new User();
@@ -537,10 +592,9 @@ class LeaveController
             }
 
             $managerEmail = $userHoffice['hemail'];
-            $senderProfileImageUrl = 'http://yourdomain.com/uploads/profile_images/' . $_SESSION['user_profile'];
 
             // Send email notification
-            if (!$this->sendEmailNotificationToHOffice($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks)) {
+            if (!$this->sendEmailNotificationToHOffice($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
                 $_SESSION['error'] = [
                     'title' => "Email Error",
                     'message' => "Notification email could not be sent. Please try again."
@@ -597,7 +651,7 @@ class LeaveController
                 'message' => "មិនអាចលុបសំណើច្បាប់នេះបានទេ។"
             ];
         }
-        header("Location: /elms/dashboard");
+        header("Location: /elms/leave-requests");
         exit();
     }
 
@@ -615,7 +669,7 @@ class LeaveController
                 'message' => "មិនអាចលុបសំណើច្បាប់នេះបានទេ។"
             ];
         }
-        header("Location: /elms/dashboard");
+        header("Location: /elms/leave-requests");
         exit();
     }
 }

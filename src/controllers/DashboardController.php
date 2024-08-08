@@ -65,6 +65,8 @@ class DashboardController
                     $gettoday = $countRequestModel->getTodayLeaveById($_SESSION['user_id']);
                     $notification = new Notification();
                     $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
+                    $leavetypes = new Leavetype();
+                    $leavetype = $leavetypes->getLeaveTypeById($_SESSION['user_id']);
                     require 'src/views/dashboard/user.php';
                     break;
                 case 'Deputy Head Of Office':

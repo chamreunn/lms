@@ -176,10 +176,10 @@
                                     <a class="dropdown-item <?= ($current_page == 'user_index') ? 'active' : '' ?>" href="user_index">
                                         គណនីមន្ត្រី
                                     </a>
-                                    <a class="dropdown-item <?= ($current_page == 'department_index') ? 'active' : '' ?>" href="/elms/department_index">
+                                    <a class="dropdown-item <?= ($current_page == 'department_index') ? 'active' : '' ?>" href="/elms/department">
                                         នាយកដ្ឋាន
                                     </a>
-                                    <a class="dropdown-item <?= ($current_page == 'office') ? 'active' : '' ?>" href="/office">
+                                    <a class="dropdown-item <?= ($current_page == 'office') ? 'active' : '' ?>" href="/elms/office">
                                         ការិយាល័យ
                                     </a>
                                     <a class="dropdown-item <?= ($current_page == 'leavetype') ? 'active' : '' ?>" href="/elms/leavetype">
