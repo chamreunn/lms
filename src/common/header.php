@@ -8,8 +8,6 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: /elms/login");
     exit();
 }
-
-require_once 'src/controllers/LeavetypeController.php';
 ?>
 
 <!DOCTYPE html>
@@ -61,9 +59,23 @@ require_once 'src/controllers/LeavetypeController.php';
                         case 'Deputy Head Of Office':
                             $leaveRequestModel = new LeaveApproval();
                             $requestscount = $leaveRequestModel->countPendingRequestsForApprover($_SESSION['user_id']);
+                            $leaveRequestModel = new LeaveApproval();
+                            $approvedCount = $leaveRequestModel->approvedCount($_SESSION['user_id']);
+                            $leaveRequestModel = new LeaveApproval();
+                            $rejectedCount = $leaveRequestModel->rejectedCount($_SESSION['user_id']);
+                            $leaveRequestModel = new LeaveApproval();
+                            $allCount = $leaveRequestModel->allCount($_SESSION['user_id']);
                             include('office_manager_sidebar.php');
                             break;
                         case 'Head Of Office':
+                            $leaveRequestModel = new HeadOfficeLeave();
+                            $pendingCount = $leaveRequestModel->pendingCount($_SESSION['user_id']);
+                            $leaveRequestModel = new HeadOfficeLeave();
+                            $approvedCount = $leaveRequestModel->approvedCount($_SESSION['user_id']);
+                            $leaveRequestModel = new HeadOfficeLeave();
+                            $rejectedCount = $leaveRequestModel->rejectedCount($_SESSION['user_id']);
+                            $leaveRequestModel = new HeadOfficeLeave();
+                            $allCount = $leaveRequestModel->allCount($_SESSION['user_id']);
                             include('head_office_manager_sidebar.php');
                             break;
                         case 'Deputy Head Of Department':

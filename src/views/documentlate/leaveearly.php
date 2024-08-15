@@ -1,5 +1,5 @@
 <?php
-$title = "លិខិតចេញយឺត";
+$title = "លិខិតចេញមុន";
 ob_start();
 ?>
 <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
@@ -22,7 +22,7 @@ ob_start();
                 <div class="btn-list">
                     <div class="d-flex">
                         <!-- <input type="search" class="form-control d-inline-block w-9 me-3" placeholder="ស្វែងរកនាយកដ្ឋាន…" id="customSearch" /> -->
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#create" class="btn btn-primary d-none d-sm-inline-block">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#apply-leaveearly" class="btn btn-primary d-none d-sm-inline-block">
                             <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -31,7 +31,7 @@ ob_start();
                             </svg>
                             បន្ថែមថ្មី
                         </a>
-                        <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#create" aria-expanded="false">
+                        <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#apply-leaveearly" aria-expanded="false">
                             <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -93,7 +93,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </div>
 
         <div class="card-body border-bottom">
-            <form class="mb-0" action="/elms/overtimeout" method="POST">
+            <form class="mb-0" action="/elms/leaveearly" method="POST">
                 <div class="row align-items-center">
                     <div class="col-lg-4 mb-3">
                         <div class="input-icon">
@@ -131,7 +131,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                         </button>
                     </div>
                     <div class="col mb-3">
-                        <a href="/elms/overtimeout" type="reset" class="btn w-100 btn-danger">
+                        <a href="/elms/leaveearly" type="reset" class="btn w-100 btn-danger">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-rotate-clockwise">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M4.05 11a8 8 0 1 1 .5 4m-.5 5v-5h5" />
@@ -150,7 +150,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                         <th></th>
                         <th>កាលបរិច្ឆេទយឺត</th>
                         <th>ម៉ោង</th>
-                        <th>រយៈពេលយឺត</th>
+                        <th>រយៈពេល</th>
                         <th>មូលហេតុ</th>
                         <th>ស្នើនៅ</th>
                         <th>ស្ថានភាព</th>
@@ -158,11 +158,11 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (empty($getovertimeout)) : ?>
+                    <?php if (empty($getleaveearly)) : ?>
                         <tr>
                             <td colspan="8" class="text-center">
                                 <img src="public/img/icons/svgs/empty.svg" alt="">
-                                <p>មិនទាន់មានការិយាល័យនៅឡើយ។ សូមបង្កើតដោយចុចប៊ូតុងខាងក្រោយ ឬស្តាំដៃខាងលើ</p>
+                                <p>មិនទាន់មានការស្នើ។ សូមបង្កើតដោយចុចប៊ូតុងខាងក្រោយ ឬស្តាំដៃខាងលើ</p>
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#create" class="btn btn-primary">
                                     <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -175,7 +175,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                             </td>
                         </tr>
                     <?php else : ?>
-                        <?php foreach ($getovertimeout as $getlate) : ?>
+                        <?php foreach ($getleaveearly as $getlate) : ?>
                             <tr>
                                 <td>
                                     <div class="d-flex">
@@ -187,7 +187,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                     </div>
                                 </td>
                                 <td><?= $getlate['date'] ?></td>
-                                <td><?= $getlate['late_out'] ?></td>
+                                <td><?= $getlate['leave_early'] ?></td>
                                 <td><?= $getlate['late'] ?>នាទី</td>
                                 <td><?= $getlate['reasons'] ?></td>
                                 <td><?= $getlate['created_at'] ?></td>
@@ -328,18 +328,19 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </div>
     </div>
 </div>
-<!-- Create office Modal -->
-<div class="modal modal-blur fade" id="create" tabindex="-1" position="dialog" aria-hidden="true">
+
+<!-- Modal Apply Leave Early  -->
+<div class="modal modal-blur fade" id="apply-leaveearly" tabindex="-1" position="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" position="document">
         <div class="modal-content">
-            <form action="/elms/apply_lateout" method="POST">
+            <form action="/elms/apply_leaveearly" method="POST">
                 <div class="modal-header">
                     <h5 class="modal-title">បង្កើតលិខិតថ្មី</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="start_date" class="form-label">កាលបរិច្ឆេទ<span class="text-danger mx-1 fw-bold">*</span></label>
+                        <label for="leftbefore" class="form-label">កាលបរិច្ឆេទ<span class="text-danger mx-1 fw-bold">*</span></label>
                         <div class="input-icon">
                             <span class="input-icon-addon">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -351,11 +352,11 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                     <rect x="8" y="15" width="2" height="2"></rect>
                                 </svg>
                             </span>
-                            <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទចាប់ពី" class="form-control date-picker" name="date">
+                            <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទ" class="form-control date-picker" id="leftbefore" name="date">
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="end_date" class="form-label">ម៉ោង<span class="text-danger mx-1 fw-bold">*</span></label>
+                        <label class="form-label">ម៉ោង<span class="text-danger mx-1 fw-bold">*</span></label>
                         <div class="input-icon">
                             <span class="input-icon-addon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-12">
@@ -366,7 +367,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                     <path d="M15 21v-6" />
                                 </svg>
                             </span>
-                            <input type="text" autocomplete="off" value="17:30" placeholder="ម៉ោង" class="form-control time-picker" id="time" name="time">
+                            <input type="text" autocomplete="off" value="16:00" placeholder="ម៉ោង" class="form-control time-picker" id="time" name="time">
                         </div>
                     </div>
                     <div class="mb-3">

@@ -90,7 +90,7 @@ include('src/common/header.php');
 <div class="col-12">
     <div class="card rounded-3">
         <div class="card-header">
-            <h3 class="card-title">Invoices</h3>
+            <h3 class="card-title"><?= $title ?></h3>
         </div>
         <div class="table-responsive">
             <table id="officeTable" class="table card-table table-vcenter text-nowrap datatable">

@@ -94,183 +94,157 @@ ob_start();
             <div class="col-auto ms-auto d-print-none">
                 <div class="btn-list">
                     <div class="d-flex">
-                        <!-- <input type="search" class="form-control d-inline-block w-9 me-3" placeholder="ស្វែងរកនាយកដ្ឋាន…" id="customSearch" /> -->
-                        <div class="dropdown">
-                            <a class="btn btn-primary dropdown-toggle d-none d-sm-inline-block" href="/elms/apply-leave" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-plus">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5" />
-                                    <path d="M16 3v4" />
-                                    <path d="M8 3v4" />
-                                    <path d="M4 11h16" />
-                                    <path d="M16 19h6" />
-                                    <path d="M19 16v6" />
-                                </svg>
-                                <span>បង្កើតសំណើ</span>
-                            </a>
-                            <div class="dropdown-menu">
-                                <div class="dropdown-menu-columns">
-                                    <div class="dropdown-menu-column">
-                                        <a data-bs-toggle="modal" data-bs-target="#apply-leave" class="dropdown-item" href="/elms/apply-leave">
-                                            <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
-                                                    <path d="M16 3v4" />
-                                                    <path d="M8 3v4" />
-                                                    <path d="M4 11h16" />
-                                                    <path d="M19 22v.01" />
-                                                    <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
-                                                </svg>
-                                            </span>
-                                            ច្បាប់ឈប់សម្រាក
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a data-bs-toggle="modal" data-bs-target="#apply-late-in" class="dropdown-item" href="/elms/late_in_request">
-                                            <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-up">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M20.983 12.548a9 9 0 1 0 -8.45 8.436" />
-                                                    <path d="M19 22v-6" />
-                                                    <path d="M22 19l-3 -3l-3 3" />
-                                                    <path d="M12 7v5l2.5 2.5" />
-                                                </svg>
-                                            </span>
-                                            លិខិតចូលយឺត
-                                        </a>
-                                        <a data-bs-toggle="modal" data-bs-target="#apply-late-out" class="dropdown-item" href="/elms/late_out_request">
-                                            <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-plus">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M20.984 12.535a9 9 0 1 0 -8.468 8.45" />
-                                                    <path d="M16 19h6" />
-                                                    <path d="M19 16v6" />
-                                                    <path d="M12 7v5l3 3" />
-                                                </svg>
-                                            </span>
-                                            លិខិតចេញយឺត
-                                        </a>
-                                        <a data-bs-toggle="modal" data-bs-target="#apply-left-before" class="dropdown-item" href="/elms/late_out_request">
-                                            <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-share">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M20.943 13.016a9 9 0 1 0 -8.915 7.984" />
-                                                    <path d="M16 22l5 -5" />
-                                                    <path d="M21 21.5v-4.5h-4.5" />
-                                                    <path d="M12 7v5l2 2" />
-                                                </svg>
-                                            </span>
-                                            លិខិតចេញមុន
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a data-bs-toggle="modal" data-bs-target="#apply-mission" class="dropdown-item" href="/elms/rejected">
-                                            <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-repeat">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3" />
-                                                    <path d="M16 3v4" />
-                                                    <path d="M8 3v4" />
-                                                    <path d="M4 11h12" />
-                                                    <path d="M20 14l2 2h-3" />
-                                                    <path d="M20 18l2 -2" />
-                                                    <path d="M19 16a3 3 0 1 0 2 5.236" />
-                                                </svg>
-                                            </span>
-                                            បេសកកម្ម
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="dropdown">
-                            <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="dropdown" aria-expanded="false">
-                                <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg>
-                            </a>
-                            <div class="dropdown-menu">
-                                <div class="dropdown-menu-columns">
-                                    <div class="dropdown-menu-column">
-                                        <a data-bs-toggle="modal" data-bs-target="#apply-leave" class="dropdown-item" href="/elms/apply-leave">
-                                            <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
-                                                    <path d="M16 3v4" />
-                                                    <path d="M8 3v4" />
-                                                    <path d="M4 11h16" />
-                                                    <path d="M19 22v.01" />
-                                                    <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
-                                                </svg>
-                                            </span>
-                                            ច្បាប់ឈប់សម្រាក
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a data-bs-toggle="modal" data-bs-target="#apply-late-in" class="dropdown-item" href="/elms/late_in_request">
-                                            <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-up">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M20.983 12.548a9 9 0 1 0 -8.45 8.436" />
-                                                    <path d="M19 22v-6" />
-                                                    <path d="M22 19l-3 -3l-3 3" />
-                                                    <path d="M12 7v5l2.5 2.5" />
-                                                </svg>
-                                            </span>
-                                            លិខិតចូលយឺត
-                                        </a>
-                                        <a data-bs-toggle="modal" data-bs-target="#apply-late-out" class="dropdown-item" href="/elms/late_out_request">
-                                            <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-plus">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M20.984 12.535a9 9 0 1 0 -8.468 8.45" />
-                                                    <path d="M16 19h6" />
-                                                    <path d="M19 16v6" />
-                                                    <path d="M12 7v5l3 3" />
-                                                </svg>
-                                            </span>
-                                            លិខិតចេញយឺត
-                                        </a>
-                                        <a data-bs-toggle="modal" data-bs-target="#apply-left-before" class="dropdown-item" href="/elms/late_out_request">
-                                            <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-share">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M20.943 13.016a9 9 0 1 0 -8.915 7.984" />
-                                                    <path d="M16 22l5 -5" />
-                                                    <path d="M21 21.5v-4.5h-4.5" />
-                                                    <path d="M12 7v5l2 2" />
-                                                </svg>
-                                            </span>
-                                            លិខិតចេញមុន
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a data-bs-toggle="modal" data-bs-target="#apply-mission" class="dropdown-item" href="/elms/rejected">
-                                            <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-repeat">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3" />
-                                                    <path d="M16 3v4" />
-                                                    <path d="M8 3v4" />
-                                                    <path d="M4 11h12" />
-                                                    <path d="M20 14l2 2h-3" />
-                                                    <path d="M20 18l2 -2" />
-                                                    <path d="M19 16a3 3 0 1 0 2 5.236" />
-                                                </svg>
-                                            </span>
-                                            បេសកកម្ម
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <a class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#apply-leave">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-plus">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5" />
+                                <path d="M16 3v4" />
+                                <path d="M8 3v4" />
+                                <path d="M4 11h16" />
+                                <path d="M16 19h6" />
+                                <path d="M19 16v6" />
+                            </svg>
+                            <span>បង្កើតសំណើច្បាប់</span>
+                        </a>
+                        <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#apply-leave">
+                            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal Apply Leave -->
+<div class="modal modal-blur fade" id="apply-leave" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><strong>បង្កើតសំណើ</strong></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/elms/apply-leave" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="leave_type" class="form-label fw-bold">ប្រភេទច្បាប់<span class="text-danger mx-1 fw-bold">*</span></label>
+                            <select class="form-select" id="leave_type" name="leave_type_id" required>
+                                <option value="">ជ្រើសរើសប្រភេទច្បាប់</option>
+                                <?php foreach ($leavetypes as $leavetype) : ?>
+                                    <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>" data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>' <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
+                                        <?= $leavetype['name'] ?> (<?= $leavetype['duration'] ?>ថ្ងៃ)
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <input type="hidden" id="leave_type_name" name="leave_type_name" value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-lg-6 mb-3">
+                                <label for="start_date" class="form-label fw-bold">កាលបរិច្ឆេទចាប់ពី<span class="text-danger mx-1 fw-bold">*</span></label>
+                                <div class="input-icon">
+                                    <span class="input-icon-addon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <rect x="4" y="5" width="16" height="16" rx="2"></rect>
+                                            <line x1="16" y1="3" x2="16" y2="7"></line>
+                                            <line x1="8" y1="3" x2="8" y2="7"></line>
+                                            <line x1="4" y1="11" x2="20" y2="11"></line>
+                                            <rect x="8" y="15" width="2" height="2"></rect>
+                                        </svg>
+                                    </span>
+                                    <input type="text" autocomplete="off" value="<?= htmlspecialchars($_POST['start_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="កាលបរិច្ឆេទចាប់ពី" class="form-control date-picker" id="lstart_date" name="start_date" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 mb-3">
+                                <label for="end_date" class="form-label fw-bold">ដល់កាលបរិច្ឆេទ<span class="text-danger mx-1 fw-bold">*</span></label>
+                                <div class="input-icon">
+                                    <span class="input-icon-addon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <rect x="4" y="5" width="16" height="16" rx="2"></rect>
+                                            <line x1="16" y1="3" x2="16" y2="7"></line>
+                                            <line x1="8" y1="3" x2="8" y2="7"></line>
+                                            <line x1="4" y1="11" x2="20" y2="11"></line>
+                                            <rect x="8" y="15" width="2" height="2"></rect>
+                                        </svg>
+                                    </span>
+                                    <input type="text" autocomplete="off" value="<?= htmlspecialchars($_POST['end_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="ដល់កាលបរិច្ឆេទ" class="form-control date-picker" id="lend_date" name="end_date" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 mb-3">
+                                <label for="reason" class="form-label fw-bold">មូលហេតុ<span class="text-danger mx-1 fw-bold">*</span></label>
+                                <div class="input-icon">
+                                    <!-- <span class="input-icon-addon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-message">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M8 9h8" />
+                                                <path d="M8 13h6" />
+                                                <path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" />
+                                            </svg>
+                                        </span> -->
+                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" rows="5" class="form-control" id="remarks" name="remarks" required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-1">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="signature" onchange="toggleFileInput(this, 'signatureFile')" checked>
+                                    <label class="form-check-label cursor-pointer" for="signature">
+                                        ហត្ថលេខា<span class="text-red fw-bold mx-1">*</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-3" id="signatureFile">
+                                <label id="displayName" for="signature_file" class="btn w-100 text-start p-3 flex-column text-muted bg-light">
+                                    <span class="p-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-signature mx-0">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M3 17c3.333 -3.333 5 -6 5 -8c0 -3 -1 -3 -2 -3s-2.032 1.085 -2 3c.034 2.048 1.658 4.877 2.5 6c1.5 2 2.5 2.5 3.5 1l2 -3c.333 2.667 1.333 4 3 4c.53 0 2.639 -2 3 -2c.517 0 1.517 .667 3 2" />
+                                        </svg>
+                                    </span>
+                                    <span>ហត្ថលេខា</span>
+                                </label>
+                                <input type="file" name="signature" id="signature_file" accept="image/png" required hidden onchange="displayFileName('signature_file', 'displayName')" />
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="attachment" onchange="toggleFileInput(this, 'attachmentFile')">
+                                    <label class="form-check-label cursor-pointer" for="attachment">
+                                        ឯកសារភ្ជាប់
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-3" id="attachmentFile" style="display: none;">
+                                <label id="attachmentDisplayName" for="attachment_file" class="btn w-100 text-start p-3 bg-light">
+                                    ឯកសារភ្ជាប់
+                                </label>
+                                <input type="file" name="attachment" id="attachment_file" class="form-control" hidden onchange="displayFileName('attachment_file', 'attachmentDisplayName')" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-bs-dismiss="modal">បោះបង់</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span>បង្កើតសំណើ</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-send mx-1">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M10 14l11 -11" />
+                            <path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" />
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <?php
 $pageheader = ob_get_clean();
 include('src/common/header.php');
@@ -313,7 +287,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                 <path d="M12 15v3"></path>
                             </svg>
                         </span>
-                        <input class="form-control" placeholder="កាលបរិច្ឆេទចាប់ពី" type="text" name="start_date" id="start_date" autocomplete="off" />
+                        <input class="form-control date-picker" placeholder="កាលបរិច្ឆេទចាប់ពី" type="text" name="start_date" id="start_date" autocomplete="off" />
                     </div>
                 </div>
                 <div class="col-lg-3 mb-3">
@@ -329,7 +303,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                 <path d="M12 15v3"></path>
                             </svg>
                         </span>
-                        <input class="form-control" placeholder="ដល់កាលបរិច្ឆេទ" type="text" name="end_date" id="date" autocomplete="off" />
+                        <input class="form-control date-picker" placeholder="ដល់កាលបរិច្ឆេទ" type="text" name="end_date" id="leave_end_date" autocomplete="off" />
                     </div>
                 </div>
                 <div class="col-lg-3 mb-3">
@@ -383,176 +357,26 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                         <td colspan="7" class="text-center">
                             <img src="public/img/icons/svgs/empty.svg" alt="">
                             <p>មិនទាន់មានសំណើនៅឡើយ។ សូមបង្កើតដោយចុចប៊ូតុងខាងក្រោម ឬស្តាំដៃខាងលើ</p>
-                            <div class="dropdown">
-                                <a class="btn btn-primary dropdown-toggle d-none d-sm-inline-block" href="/elms/apply-leave" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-plus">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5" />
-                                        <path d="M16 3v4" />
-                                        <path d="M8 3v4" />
-                                        <path d="M4 11h16" />
-                                        <path d="M16 19h6" />
-                                        <path d="M19 16v6" />
-                                    </svg>
-                                    <span>បង្កើតសំណើ</span>
-                                </a>
-                                <div class="dropdown-menu">
-                                    <div class="dropdown-menu-columns">
-                                        <div class="dropdown-menu-column">
-                                            <a data-bs-toggle="modal" data-bs-target="#apply-leave" class="dropdown-item" href="/elms/apply-leave">
-                                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
-                                                        <path d="M16 3v4" />
-                                                        <path d="M8 3v4" />
-                                                        <path d="M4 11h16" />
-                                                        <path d="M19 22v.01" />
-                                                        <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
-                                                    </svg>
-                                                </span>
-                                                ច្បាប់ឈប់សម្រាក
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a data-bs-toggle="modal" data-bs-target="#apply-late-in" class="dropdown-item" href="/elms/late_in_request">
-                                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-up">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M20.983 12.548a9 9 0 1 0 -8.45 8.436" />
-                                                        <path d="M19 22v-6" />
-                                                        <path d="M22 19l-3 -3l-3 3" />
-                                                        <path d="M12 7v5l2.5 2.5" />
-                                                    </svg>
-                                                </span>
-                                                លិខិតចូលយឺត
-                                            </a>
-                                            <a data-bs-toggle="modal" data-bs-target="#apply-late-out" class="dropdown-item" href="/elms/late_out_request">
-                                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-plus">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M20.984 12.535a9 9 0 1 0 -8.468 8.45" />
-                                                        <path d="M16 19h6" />
-                                                        <path d="M19 16v6" />
-                                                        <path d="M12 7v5l3 3" />
-                                                    </svg>
-                                                </span>
-                                                លិខិតចេញយឺត
-                                            </a>
-                                            <a data-bs-toggle="modal" data-bs-target="#apply-left-before" class="dropdown-item" href="/elms/late_out_request">
-                                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-share">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M20.943 13.016a9 9 0 1 0 -8.915 7.984" />
-                                                        <path d="M16 22l5 -5" />
-                                                        <path d="M21 21.5v-4.5h-4.5" />
-                                                        <path d="M12 7v5l2 2" />
-                                                    </svg>
-                                                </span>
-                                                លិខិតចេញមុន
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a data-bs-toggle="modal" data-bs-target="#apply-mission" class="dropdown-item" href="/elms/rejected">
-                                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-repeat">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3" />
-                                                        <path d="M16 3v4" />
-                                                        <path d="M8 3v4" />
-                                                        <path d="M4 11h12" />
-                                                        <path d="M20 14l2 2h-3" />
-                                                        <path d="M20 18l2 -2" />
-                                                        <path d="M19 16a3 3 0 1 0 2 5.236" />
-                                                    </svg>
-                                                </span>
-                                                បេសកកម្ម
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="dropdown">
-                                <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                    </svg>
-                                </a>
-                                <div class="dropdown-menu">
-                                    <div class="dropdown-menu-columns">
-                                        <div class="dropdown-menu-column">
-                                            <a data-bs-toggle="modal" data-bs-target="#apply-leave" class="dropdown-item" href="/elms/apply-leave">
-                                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
-                                                        <path d="M16 3v4" />
-                                                        <path d="M8 3v4" />
-                                                        <path d="M4 11h16" />
-                                                        <path d="M19 22v.01" />
-                                                        <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
-                                                    </svg>
-                                                </span>
-                                                ច្បាប់ឈប់សម្រាក
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a data-bs-toggle="modal" data-bs-target="#apply-late-in" class="dropdown-item" href="/elms/late_in_request">
-                                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-up">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M20.983 12.548a9 9 0 1 0 -8.45 8.436" />
-                                                        <path d="M19 22v-6" />
-                                                        <path d="M22 19l-3 -3l-3 3" />
-                                                        <path d="M12 7v5l2.5 2.5" />
-                                                    </svg>
-                                                </span>
-                                                លិខិតចូលយឺត
-                                            </a>
-                                            <a data-bs-toggle="modal" data-bs-target="#apply-late-out" class="dropdown-item" href="/elms/late_out_request">
-                                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-plus">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M20.984 12.535a9 9 0 1 0 -8.468 8.45" />
-                                                        <path d="M16 19h6" />
-                                                        <path d="M19 16v6" />
-                                                        <path d="M12 7v5l3 3" />
-                                                    </svg>
-                                                </span>
-                                                លិខិតចេញយឺត
-                                            </a>
-                                            <a data-bs-toggle="modal" data-bs-target="#apply-left-before" class="dropdown-item" href="/elms/late_out_request">
-                                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-share">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M20.943 13.016a9 9 0 1 0 -8.915 7.984" />
-                                                        <path d="M16 22l5 -5" />
-                                                        <path d="M21 21.5v-4.5h-4.5" />
-                                                        <path d="M12 7v5l2 2" />
-                                                    </svg>
-                                                </span>
-                                                លិខិតចេញមុន
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a data-bs-toggle="modal" data-bs-target="#apply-mission" class="dropdown-item" href="/elms/rejected">
-                                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-repeat">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3" />
-                                                        <path d="M16 3v4" />
-                                                        <path d="M8 3v4" />
-                                                        <path d="M4 11h12" />
-                                                        <path d="M20 14l2 2h-3" />
-                                                        <path d="M20 18l2 -2" />
-                                                        <path d="M19 16a3 3 0 1 0 2 5.236" />
-                                                    </svg>
-                                                </span>
-                                                បេសកកម្ម
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <a class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#apply-leave">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-plus">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5" />
+                                    <path d="M16 3v4" />
+                                    <path d="M8 3v4" />
+                                    <path d="M4 11h16" />
+                                    <path d="M16 19h6" />
+                                    <path d="M19 16v6" />
+                                </svg>
+                                <span>បង្កើតសំណើច្បាប់</span>
+                            </a>
+                            <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#apply-leave">
+                                <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                            </a>
                         </td>
                     </tr>
                 <?php else : ?>
@@ -613,14 +437,12 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                         </svg>
                                     </a>
                                 <?php endif; ?>
-                                <a href="#" class="d-sm-none" title="លុប" data-bs-toggle="collapse" data-bs-target="#collapseRequest<?= $request['id'] ?>" aria-expanded="false" aria-controls="collapseRequest<?= $request['id'] ?>">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon text-danger" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <a href="#" class="d-sm-none" title="បង្ហាញបន្ថែម" data-bs-toggle="collapse" data-bs-target="#collapseRequest<?= $request['id'] ?>" aria-expanded="false" aria-controls="collapseRequest<?= $request['id'] ?>">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-dots">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M4 7l16 0" />
-                                        <path d="M10 11l0 6" />
-                                        <path d="M14 11l0 6" />
-                                        <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                        <path d="M9 7l0 -3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1l0 3" />
+                                        <path d="M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                        <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                                        <path d="M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
                                     </svg>
                                 </a>
                             </td>
@@ -745,77 +567,78 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                 </div>
                             </div>
                         </div>
-
-                        <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4" hidden>
-                            <div id="page-contents<?= $request['id'] ?>" class="card invoice-preview-card" style="height: 100vh">
-                                <div class="card-body">
-                                    <div class="page-container hidden-on-narrow">
-                                        <div class="pdf-page size-a4">
-                                            <div class="pdf-header">
-                                                <center class="invoice-number" style="font-family: khmer mef2;color: #2F5496;font-size: 20px; margin-top: -2px;">ព្រះរាជាណាចក្រកម្ពុជា<br>
-                                                    ជាតិ សាសនា ព្រះមហាក្សត្រ
-                                                </center>
-                                            </div>
-                                            <div class="page-body">
-                                                <div class="mb-xl-0 mb-2">
-                                                    <div class="for" style="font-family: khmer mef2; margin-top: -20px; font-size:20px; position: relative; color: #2F5496;">
-                                                        <span class="company-logo">
-                                                            <img src="public/img/icons/brands/logo2.png" class="mb-3" style="width: 168px; padding-left: 50px" />
-                                                        </span>
-                                                        <p style="font-size: 14px; margin-bottom: 0;">អាជ្ញាធរសេវាហិរញ្ញវត្ថុមិនមែនធនាគារ</p>
-                                                        <p style="font-size: 14px; text-indent: 40px; margin-bottom: 0; padding-bottom: 0; line-height:30px;">អង្គភាពសវនកម្មផ្ទៃក្នុង <br>
-                                                        <p style="font-size: 14px; text-indent: 25px;">លេខ:.......................អ.ស.ផ.</p>
-                                                        </p>
-                                                    </div>
+                        <?php if ($request['status'] == 'Approved') : ?>
+                            <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4" hidden>
+                                <div id="page-contents<?= $request['id'] ?>" class="card invoice-preview-card" style="height: 100vh">
+                                    <div class="card-body">
+                                        <div class="page-container hidden-on-narrow">
+                                            <div class="pdf-page size-a4">
+                                                <div class="pdf-header">
+                                                    <center class="invoice-number" style="font-family: khmer mef2;color: #2F5496;font-size: 20px; margin-top: -2px;">ព្រះរាជាណាចក្រកម្ពុជា<br>
+                                                        ជាតិ សាសនា ព្រះមហាក្សត្រ
+                                                    </center>
                                                 </div>
-                                                <center style="text-align: center; font-family: khmer mef2; font-size: 19px; margin-top: -50px" class="mb-3">
-                                                    សូមគោរពជូន
-                                                </center>
-                                                <center style="text-align: center; font-family: khmer mef2; font-size: 19px;" class="mb-3">
-                                                    លោកប្រធាន<?= $request['department_name'] ?>
-                                                </center>
-                                                <p style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align:justify; text-indent: 50px;"><strong class="h3">កម្មវត្ថុ៖</strong> សំណើសុំច្បាប់ឈប់សម្រាកចំនួន <?= translateDateToKhmer($request['num_date'], 'd') ?>ថ្ងៃ ដោយគិតចាប់ពីថ្ងៃទី <?= translateDateToKhmer($request['start_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['start_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['start_date'], 'Y') ?> ដល់ថ្ងៃទី <?= translateDateToKhmer($request['end_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['end_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['end_date'], 'Y') ?></p>
-                                                <p style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align:justify; text-indent: 50px;"><strong class="h3">មូលហេតុ៖</strong> <?= $request['remarks'] ?> ។</p>
-                                                <p style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align:justify; text-indent: 50px;">
-                                                    តបតាមកម្មវត្ថុខាងលើ ខ្ញុំសូមគោរពជម្រាបជូន លោកប្រធាននាយកដ្ឋាន មេត្តាជ្រាបដ៏ខ្ពង់ខ្ពស់ថា៖ខ្ញុំបាទ/ នាងខ្ញុំឈ្មោះ<?= $request['user_name'] ?>កើតថ្ងៃទី <?= translateDateToKhmer($request['dob'], 'd') ?> ខែ <?= translateDateToKhmer($request['dob'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['dob'], 'Y') ?> មានតួនាទីជា <?= $request['position_name'] ?> នៃ <?= $request['office_name'] ?> នៃ <?= $request['department_name'] ?> ខ្ញុំសូមគោរពស្នើសុំការអនុញ្ញាតច្បាប់ចំនួន <?= translateDateToKhmer($request['num_date'], 'd') ?>ថ្ងៃ ដោយគិតចាប់ពីថ្ងៃទី <?= translateDateToKhmer($request['start_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['start_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['start_date'], 'Y') ?> ដល់ថ្ងៃទី <?= translateDateToKhmer($request['end_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['end_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['end_date'], 'Y') ?>
-                                                    ដូចមូលហេតុ និងកាលបរិច្ឆេទក្នុងកម្មវត្ថុខាងលើ។
-                                                </p>
-                                                <p style="font-family: khmer mef1; font-size:16px; text-align:justify; text-indent: 50px;">
-                                                    សេចក្តីដូចបានជម្រាបជូនខាងលើ សូម លោកប្រធាននាយកដ្ឋាន មេត្តាពិនិត្យ និងសម្រេចអនុញ្ញាតច្បាប់ដោយក្តីអនុគ្រោះ។
-                                                </p>
-                                                <p style="font-family: khmer mef1; font-size:16px; text-align:justify; text-indent: 50px;">
-                                                    សូម <b>លោកប្រធាននាយកដ្ឋាន </b> មេត្តាទទួលនូវការគោរពដ៏ខ្ពង់ខ្ពស់អំពីខ្ញុំ ។
-                                                </p>
-                                                <div class="row">
-                                                    <?php foreach ($request['hoffice'] as $approval) : ?>
-                                                        <div class="col" style="font-family: khmer mef1; font-size:16px; line-height: 30px; text-align:justify; text-align:center;">
-                                                            <p style="margin-bottom: 0;">គួរឯកភាព, គោរពស្នើសុំការសម្រេចពី</p>
-                                                            <p style="margin-bottom: 0;">លោកប្រធានការិយាល័យ</p>
-                                                            <p style="margin-bottom: 5px;">រាជធានីភ្នំពេញ ថ្ងៃទី <?= translateDateToKhmer($approval['updated_at'], 'd') ?> ខែ <?= translateDateToKhmer($approval['updated_at'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'], 'Y') ?></p>
-                                                            <h3 style="margin-bottom: 0;"><?= $request['office_name'] ?></h3>
-                                                            <h3 class="mb-3">ប្រធាន</h3>
-                                                            <img style="width: 200px;" src="public/uploads/signatures/<?= $approval['signature'] ?>" class="mb-3"></img>
-                                                            <h3 class="mb-0"><?= $approval['approver_name'] ?></h3>
+                                                <div class="page-body">
+                                                    <div class="mb-xl-0 mb-2">
+                                                        <div class="for" style="font-family: khmer mef2; margin-top: -20px; font-size:20px; position: relative; color: #2F5496;">
+                                                            <span class="company-logo">
+                                                                <img src="public/img/icons/brands/logo2.png" class="mb-3" style="width: 168px; padding-left: 50px" />
+                                                            </span>
+                                                            <p style="font-size: 14px; margin-bottom: 0;">អាជ្ញាធរសេវាហិរញ្ញវត្ថុមិនមែនធនាគារ</p>
+                                                            <p style="font-size: 14px; text-indent: 40px; margin-bottom: 0; padding-bottom: 0; line-height:30px;">អង្គភាពសវនកម្មផ្ទៃក្នុង <br>
+                                                            <p style="font-size: 14px; text-indent: 25px;">លេខ:.......................អ.ស.ផ.</p>
+                                                            </p>
                                                         </div>
-                                                    <?php endforeach; ?>
-                                                    <div class="col" style="font-family: khmer mef1; font-size:18px; line-height: 30px; text-align:justify; text-align:center;">
-                                                        <p style="margin-bottom: 0;">រាជធានីភ្នំពេញ ថ្ងៃទី <?= translateDateToKhmer($approval['created_at'], 'd') ?> ខែ <?= translateDateToKhmer($approval['created_at'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($approval['created_at'], 'Y') ?></p>
-                                                        <h3 class="mb-3">មន្ត្រីជំនាញ</h3>
-                                                        <img style="width: 200px;" src="public/uploads/signatures/<?= $request['signature'] ?>" class="mb-3"></img>
-                                                        <h3 class="mb-0"><?= $request['user_name'] ?></h3>
                                                     </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col">
-                                                        <?php foreach ($request['hdepartment'] as $approval) : ?>
-                                                            <div class="col ms-auto" style="font-family: khmer mef1; font-size:18px; line-height: 30px; text-align:justify; text-align:center;">
-                                                                <p style="margin-bottom: 0;">ឯកភាពតាមសំណើ</p>
+                                                    <center style="text-align: center; font-family: khmer mef2; font-size: 19px; margin-top: -50px" class="mb-3">
+                                                        សូមគោរពជូន
+                                                    </center>
+                                                    <center style="text-align: center; font-family: khmer mef2; font-size: 19px;" class="mb-3">
+                                                        លោកប្រធាន<?= $request['department_name'] ?>
+                                                    </center>
+                                                    <p style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align:justify; text-indent: 50px;"><strong class="h3">កម្មវត្ថុ៖</strong> សំណើសុំច្បាប់ឈប់សម្រាកចំនួន <?= translateDateToKhmer($request['num_date'], 'd') ?>ថ្ងៃ ដោយគិតចាប់ពីថ្ងៃទី <?= translateDateToKhmer($request['start_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['start_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['start_date'], 'Y') ?> ដល់ថ្ងៃទី <?= translateDateToKhmer($request['end_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['end_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['end_date'], 'Y') ?></p>
+                                                    <p style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align:justify; text-indent: 50px;"><strong class="h3">មូលហេតុ៖</strong> <?= $request['remarks'] ?> ។</p>
+                                                    <p style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align:justify; text-indent: 50px;">
+                                                        តបតាមកម្មវត្ថុខាងលើ ខ្ញុំសូមគោរពជម្រាបជូន លោកប្រធាននាយកដ្ឋាន មេត្តាជ្រាបដ៏ខ្ពង់ខ្ពស់ថា៖ខ្ញុំបាទ/ នាងខ្ញុំឈ្មោះ<?= $request['user_name'] ?>កើតថ្ងៃទី <?= translateDateToKhmer($request['dob'], 'd') ?> ខែ <?= translateDateToKhmer($request['dob'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['dob'], 'Y') ?> មានតួនាទីជា <?= $request['position_name'] ?> នៃ <?= $request['office_name'] ?> នៃ <?= $request['department_name'] ?> ខ្ញុំសូមគោរពស្នើសុំការអនុញ្ញាតច្បាប់ចំនួន <?= translateDateToKhmer($request['num_date'], 'd') ?>ថ្ងៃ ដោយគិតចាប់ពីថ្ងៃទី <?= translateDateToKhmer($request['start_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['start_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['start_date'], 'Y') ?> ដល់ថ្ងៃទី <?= translateDateToKhmer($request['end_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['end_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['end_date'], 'Y') ?>
+                                                        ដូចមូលហេតុ និងកាលបរិច្ឆេទក្នុងកម្មវត្ថុខាងលើ។
+                                                    </p>
+                                                    <p style="font-family: khmer mef1; font-size:16px; text-align:justify; text-indent: 50px;">
+                                                        សេចក្តីដូចបានជម្រាបជូនខាងលើ សូម លោកប្រធាននាយកដ្ឋាន មេត្តាពិនិត្យ និងសម្រេចអនុញ្ញាតច្បាប់ដោយក្តីអនុគ្រោះ។
+                                                    </p>
+                                                    <p style="font-family: khmer mef1; font-size:16px; text-align:justify; text-indent: 50px;">
+                                                        សូម <b>លោកប្រធាននាយកដ្ឋាន </b> មេត្តាទទួលនូវការគោរពដ៏ខ្ពង់ខ្ពស់អំពីខ្ញុំ ។
+                                                    </p>
+                                                    <div class="row">
+                                                        <?php foreach ($request['hoffice'] as $approval) : ?>
+                                                            <div class="col" style="font-family: khmer mef1; font-size:16px; line-height: 30px; text-align:justify; text-align:center;">
+                                                                <p style="margin-bottom: 0;">គួរឯកភាព, គោរពស្នើសុំការសម្រេចពី</p>
+                                                                <p style="margin-bottom: 0;">លោកប្រធានការិយាល័យ</p>
                                                                 <p style="margin-bottom: 5px;">រាជធានីភ្នំពេញ ថ្ងៃទី <?= translateDateToKhmer($approval['updated_at'], 'd') ?> ខែ <?= translateDateToKhmer($approval['updated_at'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'], 'Y') ?></p>
-                                                                <h3 class="mb-3">ប្រធាននាយកដ្ឋាន</h3>
-                                                                <img style="width: 200px;" src="public/uploads/signatures/<?= $approval['signature'] ?>" class="mb-3" />
+                                                                <h3 style="margin-bottom: 0;"><?= $request['office_name'] ?></h3>
+                                                                <h3 class="mb-3">ប្រធាន</h3>
+                                                                <img style="width: 200px;" src="public/uploads/signatures/<?= $approval['signature'] ?>" class="mb-3"></img>
                                                                 <h3 class="mb-0"><?= $approval['approver_name'] ?></h3>
                                                             </div>
                                                         <?php endforeach; ?>
+                                                        <div class="col" style="font-family: khmer mef1; font-size:18px; line-height: 30px; text-align:justify; text-align:center;">
+                                                            <p style="margin-bottom: 0;">រាជធានីភ្នំពេញ ថ្ងៃទី <?= translateDateToKhmer($approval['created_at'], 'd') ?> ខែ <?= translateDateToKhmer($approval['created_at'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($approval['created_at'], 'Y') ?></p>
+                                                            <h3 class="mb-3">មន្ត្រីជំនាញ</h3>
+                                                            <img style="width: 200px;" src="public/uploads/signatures/<?= $request['signature'] ?>" class="mb-3"></img>
+                                                            <h3 class="mb-0"><?= $request['user_name'] ?></h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <?php foreach ($request['hdepartment'] as $approval) : ?>
+                                                                <div class="col ms-auto" style="font-family: khmer mef1; font-size:18px; line-height: 30px; text-align:justify; text-align:center;">
+                                                                    <p style="margin-bottom: 0;">ឯកភាពតាមសំណើ</p>
+                                                                    <p style="margin-bottom: 5px;">រាជធានីភ្នំពេញ ថ្ងៃទី <?= translateDateToKhmer($approval['updated_at'], 'd') ?> ខែ <?= translateDateToKhmer($approval['updated_at'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'], 'Y') ?></p>
+                                                                    <h3 class="mb-3">ប្រធាននាយកដ្ឋាន</h3>
+                                                                    <img style="width: 200px;" src="public/uploads/signatures/<?= $approval['signature'] ?>" class="mb-3" />
+                                                                    <h3 class="mb-0"><?= $approval['approver_name'] ?></h3>
+                                                                </div>
+                                                            <?php endforeach; ?>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -823,8 +646,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
+                        <?php endif; ?>
                         <!-- delete  -->
                         <div class="modal modal-blur fade" id="deleteModal<?= htmlspecialchars($request['id']) ?>" tabindex="-1" role="dialog" aria-hidden="true">
                             <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
@@ -944,6 +766,57 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
         }));
     });
     // @formatter:on
+</script>
+
+<script>
+    function convertToKhmerNumerals(num) {
+        const khmerNumerals = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩'];
+        return num.toString().split('').map(digit => khmerNumerals[digit]).join('');
+    }
+
+    function updateDateTime() {
+        const clockElement = document.getElementById('real-time-clock');
+        const currentTime = new Date();
+
+        // Define Khmer arrays for days of the week and months.
+        const daysOfWeek = ['អាទិត្យ', 'ច័ន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍'];
+        const dayOfWeek = daysOfWeek[currentTime.getDay()];
+
+        const months = ['មករា', 'កុម្ភៈ', 'មិនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
+        const month = months[currentTime.getMonth()];
+
+        const day = convertToKhmerNumerals(currentTime.getDate());
+        const year = convertToKhmerNumerals(currentTime.getFullYear());
+
+        // Calculate and format hours, minutes, seconds, and time of day in Khmer.
+        let hours = currentTime.getHours();
+        let period;
+
+        if (hours >= 5 && hours < 12) {
+            period = 'ព្រឹក'; // Khmer for AM (morning)
+        } else if (hours >= 12 && hours < 17) {
+            period = 'រសៀល'; // Khmer for afternoon
+        } else if (hours >= 17 && hours < 20) {
+            period = 'ល្ងាច'; // Khmer for evening
+        } else {
+            period = 'យប់'; // Khmer for night
+        }
+
+        hours = hours % 12 || 12;
+        const khmerHours = convertToKhmerNumerals(hours);
+        const khmerMinutes = convertToKhmerNumerals(currentTime.getMinutes().toString().padStart(2, '0'));
+        const khmerSeconds = convertToKhmerNumerals(currentTime.getSeconds().toString().padStart(2, '0'));
+
+        // Construct the date and time string in the desired Khmer format.
+        const dateTimeString = `${dayOfWeek}, ${day} ${month} ${year} ${khmerHours}:${khmerMinutes}:${khmerSeconds} ${period}`;
+        clockElement.textContent = dateTimeString;
+    }
+
+    // Update the date and time every second (1000 milliseconds).
+    setInterval(updateDateTime, 1000);
+
+    // Initial update.
+    updateDateTime();
 </script>
 
 <script>

@@ -23,6 +23,7 @@ require_once 'src/controllers/DepUnit1Controller.php';
 require_once 'src/controllers/LateController.php';
 require_once 'src/controllers/SettingController.php';
 require_once 'src/controllers/MissionController.php';
+require_once 'src/controllers/DepOfficeController.php';
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
@@ -42,6 +43,18 @@ switch ($uri) {
             $controller->apply();
         });
         break;
+    case $base_url . '/dof-apply-leave':
+        checkSessionAndExecute(function () {
+            $controller = new DepOfficeController();
+            $controller->apply();
+        });
+        break;
+    case $base_url . '/hof-apply-leave':
+        checkSessionAndExecute(function () {
+            $controller = new HeadOfficeLeaveController();
+            $controller->apply();
+        });
+        break;
     case $base_url . '/leave-requests':
         checkSessionAndExecute(function () {
             $controller = new LeaveController();
@@ -58,13 +71,15 @@ switch ($uri) {
             $controller->approve();
         });
         break;
+
     case $base_url . '/headofficepending':
         checkSessionAndExecute(function () {
             $controller = new HeadOfficeLeaveController();
             $controller->approve();
         });
         break;
-    case $base_url . '/headofficeapproved':
+
+    case $base_url . '/headofficeapproval':
         checkSessionAndExecute(function () {
             $controller = new HeadOfficeLeaveController();
             $controller->approved();
@@ -76,12 +91,14 @@ switch ($uri) {
             $controller->approve();
         });
         break;
+
     case $base_url . '/depdepartmentapproved':
         checkSessionAndExecute(function () {
             $controller = new DepDepartController();
             $controller->approved();
         });
         break;
+
     case $base_url . '/headdepartmentpending':
         checkSessionAndExecute(function () {
             $controller = new HeadDepartController();
@@ -170,6 +187,24 @@ switch ($uri) {
             $controller->index();
         });
         break;
+    case $base_url . '/activity':
+        checkSessionAndExecute(function () {
+            $controller = new SettingController();
+            $controller->activity();
+        });
+        break;
+    case $base_url . '/markasread':
+        checkSessionAndExecute(function () {
+            $controller = new NotificationController();
+            $controller->markasread();
+        });
+        break;
+    case $base_url . '/notifyAlls':
+        checkSessionAndExecute(function () {
+            $controller = new NotificationController();
+            $controller->viewAllNotify();
+        });
+        break;
     case $base_url . '/change-profile-picture':
         checkSessionAndExecute(function () {
             $controller = new SettingController();
@@ -188,10 +223,49 @@ switch ($uri) {
             $controller->index();
         });
         break;
+    case $base_url . '/notificationDetail':
+        checkSessionAndExecute(function () {
+            if (isset($_GET['id'])) {
+                $id = $_GET['id'];
+                $controller = new NotificationController();
+                $controller->viewDetail($id);
+            } else {
+                // Handle the case where 'id' is not present in the URL
+                echo "Notification ID is missing.";
+            }
+        });
+        break;
     case $base_url . '/mission':
         checkSessionAndExecute(function () {
             $controller = new MissionController();
-            $controller->index();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->viewMissionWithFilters();
+            } else {
+                $controller->index();
+            }
+        });
+        break;
+    case $base_url . '/apply-mission':
+        checkSessionAndExecute(function () {
+            $controller = new MissionController();
+            $controller->create();
+        });
+        break;
+    case $base_url . '/update-mission':
+        checkSessionAndExecute(function () {
+            $controller = new MissionController();
+            $controller->update($_POST['mission_id']);
+        });
+        break;
+    case $base_url . '/delete-mission':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
+                $controller = new MissionController();
+                $controller->delete($_POST['id']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
         });
         break;
     case $base_url . '/dashboard':
@@ -228,13 +302,31 @@ switch ($uri) {
     case $base_url . '/overtimein':
         checkSessionAndExecute(function () {
             $controller = new LateController();
-            $controller->overtimein();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->viewOvertimeInWithFilters();
+            } else {
+                $controller->overtimein();
+            }
         });
         break;
     case $base_url . '/overtimeout':
         checkSessionAndExecute(function () {
             $controller = new LateController();
-            $controller->overtimeout();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->viewoverTimeOutWithFilters();
+            } else {
+                $controller->overtimeout();
+            }
+        });
+        break;
+    case $base_url . '/leaveearly':
+        checkSessionAndExecute(function () {
+            $controller = new LateController();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->viewLeaveEarlyWithFilters();
+            } else {
+                $controller->leaveearly();
+            }
         });
         break;
     case $base_url . '/create_late':
@@ -264,6 +356,17 @@ switch ($uri) {
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
                 $controller = new LateController();
                 $controller->createLateOut($_POST['date'], $_POST['time'], $_POST['reason']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
+        });
+        break;
+    case $base_url . '/apply_leaveearly':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
+                $controller = new LateController();
+                $controller->createLeaveEarly($_POST['date'], $_POST['time'], $_POST['reason']);
             } else {
                 header("Location: /elms/login");
                 exit();

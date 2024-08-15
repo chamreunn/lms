@@ -17,7 +17,20 @@ class Department
 
     public function read()
     {
-        $query = "SELECT * FROM " . $this->table_name . " ORDER BY created_at DESC";
+        $query = "
+            SELECT 
+                d.*, 
+                d.name AS department_name, 
+                u1.khmer_name AS head_khmer_name, 
+                u1.id AS head_id, 
+                u2.khmer_name AS deputy_head_khmer_name, 
+                u2.id AS deputy_head_id 
+            FROM departments d
+            LEFT JOIN users u1 ON d.hdepartment_id = u1.id
+            LEFT JOIN users u2 ON d.ddepartment_id = u2.id
+            ORDER BY d.created_at DESC
+        ";
+
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
         return $stmt;
@@ -43,7 +56,7 @@ class Department
         }
         return false;
     }
-    
+
     public function exists($name)
     {
         $query = "SELECT COUNT(*) FROM " . $this->table_name . " WHERE name = :name";

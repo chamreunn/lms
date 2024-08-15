@@ -29,6 +29,7 @@ class User
         // Assuming you have a PDO connection $pdo
         $stmt = $this->pdo->prepare('INSERT INTO user_activity_log (user_id, action, timestamp, details, ip_address) VALUES (?, ?, NOW(), ?, ?)');
         $stmt->execute([$userId, $action, $details, $_SERVER['REMOTE_ADDR']]);
+        return true;
     }
 
     public function create($data)
@@ -149,15 +150,42 @@ class User
         return $stmt->fetch();
     }
 
+    public function getdOfficeAdminEmail()
+    {
+        $stmt = $this->pdo->prepare("
+        SELECT users.email AS demail, users.phone_number AS dnumber, users.khmer_name AS dkhmer_name
+        FROM users
+        JOIN offices ON users.office_id = offices.id AND offices.name = 'ការិយាល័យរដ្ឋបាល និងហិរញ្ញវត្ថុ'
+        JOIN departments ON users.department_id = departments.id AND departments.name = 'នាយកដ្ឋានកិច្ចការទូទៅ'
+        JOIN positions ON users.position_id = positions.id AND positions.name = 'អនុប្រធានការិយាល័យ'
+    ");
+
+        $stmt->execute();
+
+        return $stmt->fetch();
+    }
+
     public function gethOffice()
     {
         $stmt = $this->pdo->prepare("
-        SELECT users.*, offices.name AS office_name, offices.hoffice_id, users.email AS hemail, users.phone_number AS hnumber
+        SELECT users.*, offices.name AS office_name, offices.hoffice_id, users.email AS hemail, users.phone_number AS hnumber, users.khmer_name AS hkhmer_name
         FROM users 
         JOIN offices ON users.id = offices.hoffice_id
         WHERE offices.id = :id
     ");
         $stmt->execute(['id' => $_SESSION['officeId']]);
+        return $stmt->fetch();
+    }
+
+    public function getDDepart()
+    {
+        $stmt = $this->pdo->prepare("
+        SELECT users.*, departments.name AS department_name, departments.ddepartment_id, users.email AS demail, users.phone_number AS dnumber, users.khmer_name AS dkhmer_name
+        FROM users 
+        JOIN departments ON users.id = departments.ddepartment_id
+        WHERE departments.id = :id
+    ");
+        $stmt->execute(['id' => $_SESSION['departmentId']]);
         return $stmt->fetch();
     }
 }

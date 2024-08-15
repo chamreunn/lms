@@ -29,15 +29,8 @@ include('src/common/header.php');
             <div class="card-body">
                 <h4 class="subheader">គណនីរបស់ខ្ញុំ</h4>
                 <div class="list-group list-group-transparent">
-                    <a href="./settings.html" class="list-group-item list-group-item-action d-flex align-items-center active">គណនីរបស់ខ្ញុំ</a>
-                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">My Notifications</a>
-                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">Connected Apps</a>
-                    <a href="./settings-plan.html" class="list-group-item list-group-item-action d-flex align-items-center">Plans</a>
-                    <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">Billing & Invoices</a>
-                </div>
-                <h4 class="subheader mt-4">Experience</h4>
-                <div class="list-group list-group-transparent">
-                    <a href="#" class="list-group-item list-group-item-action">Give Feedback</a>
+                    <a href="/elms/my-account" class="list-group-item list-group-item-action d-flex align-items-center active">គណនីរបស់ខ្ញុំ</a>
+                    <a href="/elms/activity" class="list-group-item list-group-item-action d-flex align-items-center">សកម្មភព</a>
                 </div>
             </div>
         </div>
@@ -88,7 +81,7 @@ include('src/common/header.php');
                                         <div class="col-auto">
                                             <span class="avatar avatar-xl mb-3" style="background-image: url('<?= htmlspecialchars($myaccounts['profile_picture']) ?>')" ;></span>
                                         </div>
-                                        <p class="mb-0">តើអ្នកប្រាកដទេថានិងលុបលុបរូបភាពនេះ?</p>
+                                        <p class="mb-0">តើអ្នកប្រាកដទេថានិងលុបរូបភាពនេះ?</p>
                                     </div>
                                     <div class="modal-footer bg-light border-top">
                                         <div class="w-100">
@@ -108,59 +101,53 @@ include('src/common/header.php');
                     </div>
                 </div>
 
-                <h3 class="card-title mt-4">Business Profile</h3>
-                <div class="row g-3">
+                <div class="row g-3 mt-3">
                     <div class="col-md">
-                        <div class="form-label">Business Name</div>
-                        <input type="text" class="form-control" value="Tabler">
+                        <div class="form-label fw-bold">ឈ្មោះមន្ត្រី</div>
+                        <input type="text" class="form-control" value="<?= htmlspecialchars($myaccounts['khmer_name']) ?>" disabled>
                     </div>
                     <div class="col-md">
-                        <div class="form-label">Business ID</div>
-                        <input type="text" class="form-control" value="560afc32">
+                        <div class="form-label fw-bold">USERNAME</div>
+                        <input type="text" class="form-control" value="<?= htmlspecialchars($myaccounts['username']) ?>" disabled>
                     </div>
                     <div class="col-md">
-                        <div class="form-label">Location</div>
-                        <input type="text" class="form-control" value="Peimei, China">
+                        <div class="form-label fw-bold">ភេទ</div>
+                        <input type="text" class="form-control" value="<?= htmlspecialchars($myaccounts['gender']) ?>" disabled>
                     </div>
                 </div>
-                <h3 class="card-title mt-4">Email</h3>
-                <p class="card-subtitle">This contact will be shown to others publicly, so choose it carefully.</p>
+                <div class="row g-3 mt-3">
+                    <div class="col-md">
+                        <div class="form-label fw-bold">តួនាទី</div>
+                        <input type="text" class="form-control" value="<?= $_SESSION['position'] ?>" disabled>
+                    </div>
+                    <div class="col-md">
+                        <div class="form-label">នាយកដ្ឋាន</div>
+                        <input type="text" class="form-control" value="<?= $myaccounts['department_name'] ?>" disabled>
+                    </div>
+                    <div class="col-md">
+                        <div class="form-label">ការិយាល័យ</div>
+                        <input type="text" class="form-control" value="<?= $myaccounts['office_name'] ?>" disabled>
+                    </div>
+                </div>
+                <h3 class="card-title mt-4">អាសយដ្ឋានអ៊ីម៉ែល</h3>
+                <p class="card-subtitle">សូមពិនិត្យអាសយដ្ឋានអ៊ីម៉ែលអោយបានត្រឹមត្រូវ។​ ការស្នើសុំច្បាប់ ការដាក់លិខិតផ្សេងៗនិងត្រូវបានផ្ញើទៅកាន់អាសយដ្ឋានអ៊ីម៉ែលរបស់អ្នក។</p>
                 <div>
                     <div class="row g-2">
-                        <div class="col-auto">
-                            <input type="text" class="form-control w-auto" value="paweluna@howstuffworks.com">
+                        <div class="col-10">
+                            <input type="text" class="form-control" value="<?= htmlspecialchars($myaccounts['email']) ?>" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;" disabled>
                         </div>
-                        <div class="col-auto"><a href="#" class="btn">
-                                Change
-                            </a></div>
+                        <div class="col-2">
+                            <a href="#" class="btn btn-red w-100">
+                                <span>ផ្លាស់ប្តូរ</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
-                <h3 class="card-title mt-4">Password</h3>
-                <p class="card-subtitle">You can set a permanent password if you don't want to use temporary login codes.</p>
+                <h3 class="card-title mt-4">ពាក្យសម្ងាត់</h3>
+                <p class="card-subtitle">សូមប្រើប្រាស់ពាក្យសម្ងាត់ដែលមានសុវត្ថិភាពខ្ពស់។ ត្រូវមានអក្សរធំ អក្សរតូច លេខ និងសញ្ញាជាដើម។</p>
                 <div>
-                    <a href="#" class="btn">
-                        Set new password
-                    </a>
-                </div>
-                <h3 class="card-title mt-4">Public profile</h3>
-                <p class="card-subtitle">Making your profile public means that anyone on the Dashkit network will be able to find
-                    you.</p>
-                <div>
-                    <label class="form-check form-switch form-switch-lg">
-                        <input class="form-check-input" type="checkbox">
-                        <span class="form-check-label form-check-label-on">You're currently visible</span>
-                        <span class="form-check-label form-check-label-off">You're
-                            currently invisible</span>
-                    </label>
-                </div>
-            </div>
-            <div class="card-footer bg-transparent mt-auto">
-                <div class="btn-list justify-content-end">
-                    <a href="#" class="btn">
-                        Cancel
-                    </a>
-                    <a href="#" class="btn btn-primary">
-                        Submit
+                    <a href="#" class="btn btn-red">
+                        ផ្លាស់ប្តូរពាក្យសម្ងាត់ថ្មី
                     </a>
                 </div>
             </div>

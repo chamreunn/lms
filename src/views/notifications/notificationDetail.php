@@ -39,7 +39,7 @@ function convertToKhmerNumber($number)
     <h2 class="mb-0">សារជូនដំណឹង</h2>
 </div>
 <div class="card-body">
-    <?php if (empty($notification)) : ?>
+    <?php if (empty($notifications)) : ?>
         <div class="d-flex flex-column justify-content-center align-items-center" style="min-height: 150px;">
             <img src="public/img/icons/svgs/empty.svg" alt="No data" class="mb-0" style="max-width: 350px;">
             <span class="text-muted mb-3">មិនមានសារជូនដំណឹង</span>
@@ -72,15 +72,13 @@ function convertToKhmerNumber($number)
                                     <img class="avatar" src="<?= $notification['profile_picture'] ?>" alt="" style="object-fit: cover;">
                                 </div>
                                 <div class="col text-truncate">
-                                    <a href="/elms/notificationDetail?id=<?= $notification['id'] ?>" class="text-body d-block h4"><?= $notification['khmer_name'] ?></a>
-                                    <div class="d-block text-secondary text-truncate mt-n1 mx-0">
+                                    <a href="#" class="text-body d-block h4"><?= $notification['khmer_name'] ?></a>
+                                    <div class="d-block text-secondary text-truncate mt-n1">
                                         <?= $notification['message'] ?>
                                     </div>
-                                    <small class="text-muted fw-bold"><?= $notification['created_at'] ?></small>
                                 </div>
                                 <div class="col-auto">
-                                    <a href="#" class="list-group-item-actions">
-                                        <!-- Download SVG icon from http://tabler-icons.io/i/star -->
+                                    <a href="notificationDetail.php?id=<?= $notification['id'] ?>" class="list-group-item-actions">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-right">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                             <path d="M9 6l6 6l-6 6" />
@@ -95,5 +93,6 @@ function convertToKhmerNumber($number)
         </ul>
     <?php endif; ?>
 </div>
+
 
 <?php include('src/common/footer.php'); ?>

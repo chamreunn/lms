@@ -87,6 +87,8 @@ include('src/common/header.php');
                     <tr>
                         <th></th>
                         <th>ឈ្មោះនាយកដ្ឋាន</th>
+                        <th>ប្រធាននាយកដ្ឋាន</th>
+                        <th>អនុប្រធាននាយកដ្ឋាន</th>
                         <th>ថ្ងៃបង្កើត</th>
                         <th>ថ្ងៃកែប្រែ</th>
                         <th>សកម្មភាព</th>
@@ -114,6 +116,8 @@ include('src/common/header.php');
                             <tr>
                                 <td><?= $department['id'] ?></td>
                                 <td><?= $department['name'] ?></td>
+                                <td><?= $department['head_khmer_name'] ?></td>
+                                <td><?= $department['deputy_head_khmer_name'] ?></td>
                                 <td><?= $department['created_at'] ?></td>
                                 <td><?= $department['updated_at'] ?></td>
                                 <td>
@@ -171,7 +175,7 @@ include('src/common/header.php');
                     </div>
                 </div>
                 <div class="modal-footer bg-light border-top">
-                    <div class="w-100 mt-3">
+                    <div class="w-100">
                         <div class="row">
                             <div class="col">
                                 <button type="button" class="btn me-auto w-100" data-bs-dismiss="modal">បិទ</button>
@@ -239,7 +243,7 @@ include('src/common/header.php');
             <div class="modal-status bg-danger"></div>
             <form action="/elms/department" method="post">
                 <div class="modal-footer bg-light border-top">
-                    <div class="w-100 mt-3">
+                    <div class="w-100">
                         <div class="row">
                             <div class="col">
                                 <input type="hidden" name="id" id="delete-id">

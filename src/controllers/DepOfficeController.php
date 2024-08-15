@@ -8,7 +8,7 @@ require_once 'src/vendor/autoload.php'; // Ensure PHPMailer is autoloaded
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-class LeaveController
+class DepOfficeController
 {
     public function apply()
     {
@@ -76,8 +76,8 @@ class LeaveController
             }
 
             // Fetch the user's office details
-            $userDoffice = $userModel->getdOffice();
-            if (!is_array($userDoffice) || !isset($userDoffice['doffice_id'])) {
+            $userDoffice = $userModel->gethOffice();
+            if (!is_array($userDoffice) || !isset($userDoffice['hoffice_id'])) {
                 $_SESSION['error'] = [
                     'title' => "Office Error",
                     'message' => "Unable to find office details. Please contact support."
@@ -86,8 +86,8 @@ class LeaveController
                 exit();
             }
 
-            $managerEmail = $userDoffice['demail'];
-            $managerNumber = $userDoffice['dnumber'];
+            $managerEmail = $userDoffice['hemail'];
+            $managerNumber = $userDoffice['hnumber'];
             $senderProfileImageUrl = 'public/img/icons/brands/logo2.png'; // Adjust the path as needed
 
             // Create leave request
@@ -115,11 +115,11 @@ class LeaveController
             }
             // Create notification for the user
             $notificationModel = new Notification();
-            $notificationModel->createNotification($userDoffice['doffice_id'], $user_id, $leaveRequestId, $message);
+            $notificationModel->createNotification($userDoffice['hoffice_id'], $user_id, $leaveRequestId, $message);
 
             $_SESSION['success'] = [
                 'title' => "ជោគជ័យ",
-                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $userDoffice['dkhmer_name']
+                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $userDoffice['hemail']
             ];
             header("Location: /elms/leave-requests");
             exit();

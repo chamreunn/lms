@@ -45,6 +45,8 @@ class AuthController
                     $_SESSION['user_profile'] = $user['profile_picture'];
                     $_SESSION['role'] = $user['role'];
                     $_SESSION['officeId'] = $user['office_id'];
+                    $_SESSION['departmentId'] = $user['department_id'];
+                    $_SESSION['positionId'] = $user['position_id'];
                     // Fetch position_name and store it in session
                     $position = $userModel->getUserByPosition($user['id']);
                     $_SESSION['position'] = $position['position_name'];
@@ -61,7 +63,6 @@ class AuthController
                 ];
             }
         }
-
         require 'src/views/auth/login.php';
     }
 }

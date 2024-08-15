@@ -1,14 +1,27 @@
 <?php
-require_once 'src/models/User.php';
+require_once 'src/models/SettingModel.php';
 
 class SettingController
 {
     public function index()
     {
-        $settingModel = new User();
+        $settingModel = new SettingModel();
         $myaccounts = $settingModel->getUserById($_SESSION['user_id']);
 
         require 'src/views/settings/myaccount.php';
+    }
+
+    public function activity()
+    {
+        $settingModel = new SettingModel();
+        $activities = $settingModel->getUserActivity($_SESSION['user_id']);
+
+        // Format timestamps using the timeAgo function
+        foreach ($activities as &$activity) {
+            $activity['created_at'] = $settingModel->timeAgo($activity['created_at']);
+        }
+
+        require 'src/views/settings/activity.php';
     }
 
     public function updateProfilePicture()

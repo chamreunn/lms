@@ -44,39 +44,68 @@ $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']
                             <path d="M9 17v1a3 3 0 0 0 6 0v-1" />
                         </svg>
                         <?php foreach ($getnotifications as $notification) : ?>
-                            <span class="<?= $notification['status'] == 'unread' ? 'badge bg-red' : '' ?> d-block"></span>
+                            <?php if ($notification['status'] == 'unread') : ?>
+                                <span class="badge bg-red d-block"></span>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     </a>
                     <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
                         <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Last updates</h3>
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h3 class="card-title text-primary mb-0">សារជូនដំណឹង</h3>
+                                <div class="ms-auto">
+                                    <?php if (!empty($getnotifications)) : ?>
+                                        <form action="/elms/markasread" method="POST">
+                                            <input type="hidden" name="status" value="read">
+                                            <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?>"> <!-- Use session user_id directly -->
+                                            <button type="submit" class="nav-link px-0 btn btn-link p-0" data-bs-toggle="tooltip" title="Mark All As Read" style="border: none; background: none;">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-align-justified">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M4 6l16 0" />
+                                                    <path d="M4 12l16 0" />
+                                                    <path d="M4 18l12 0" />
+                                                </svg>
+                                                <?php foreach ($getnotifications as $notification) : ?>
+                                                    <?php if ($notification['status'] == 'unread') : ?>
+                                                        <span class="badge bg-red d-block"></span>
+                                                        <?php break; ?>
+                                                    <?php endif; ?>
+                                                <?php endforeach; ?>
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-                            <div class="list-group list-group-flush list-group-hoverable">
-                                <?php if (!empty($getnotifications)) : ?>
-                                    <?php foreach ($getnotifications as $notification) : ?>
-                                        <div class="list-group-item <?= $notification['status'] == 'unread' ? 'bg-indigo-lt' : '' ?>">
-                                            <div class="row align-items-center">
-                                                <div class="col-auto">
-                                                    <span class="status-dot <?= $notification['status'] == 'unread' ? 'status-dot-animated bg-red' : '' ?> d-block"></span>
-                                                </div>
-                                                <div class="col text-truncate">
-                                                    <a href="notificationDetail.php?id=<?= $notification['id'] ?>" class="text-body d-block">
-                                                        <?= $notification['message'] ?? "No message available" ?>
-                                                    </a>
-                                                    <div class="d-block text-muted text-truncate mt-n1">
-                                                        <?= date('D F j Y H:i:s', strtotime($notification['created_at'])) ?>
+                            <div class="card-body p-0">
+                                <div class="list-group list-group-flush list-group-hoverable">
+                                    <?php if (!empty($getnotifications)) : ?>
+                                        <?php foreach ($getnotifications as $notification) : ?>
+                                            <div class="list-group-item <?= $notification['status'] == 'unread' ? 'bg-grey' : 'bg-light' ?>">
+                                                <div class="row align-items-center">
+                                                    <div class="col-auto">
+                                                        <span class="status-dot <?= $notification['status'] == 'unread' ? 'status-dot-animated bg-red' : 'bg-green' ?> d-block"></span>
+                                                    </div>
+                                                    <div class="col text-truncate">
+                                                        <a href="notificationDetail.php?id=<?= $notification['id'] ?>" class="text-body d-block">
+                                                            <?= $notification['message'] ?? "No message available" ?>
+                                                        </a>
+                                                        <small class="d-block text-muted text-truncate mt-n1">
+                                                            <?= $notification['created_at'] ?>
+                                                        </small>
                                                     </div>
                                                 </div>
                                             </div>
+                                        <?php endforeach; ?>
+                                    <?php else : ?>
+                                        <div class="list-group-item d-flex flex-column justify-content-center align-items-center" style="min-height: 150px;">
+                                            <img src="public/img/icons/svgs/empty.svg" alt="No data" class="mb-0" style="max-width: 350px;">
+                                            <span class="text-muted mb-3">មិនមានសារជូនដំណឹង</span>
                                         </div>
-                                    <?php endforeach; ?>
-                                <?php else : ?>
-                                    <div class="list-group-item d-flex flex-column justify-content-center align-items-center" style="min-height: 150px;">
-                                        <img src="public/img/icons/svgs/empty.svg" alt="No data" class="mb-0" style="max-width: 350px;">
-                                        <span class="text-muted mb-3">មិនមានសារជូនដំណឹង</span>
-                                    </div>
-                                <?php endif; ?>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <a type="button" href="/elms/notifications" class="btn btn-md w-100">មើលទាំងអស់</a>
                             </div>
                         </div>
                     </div>

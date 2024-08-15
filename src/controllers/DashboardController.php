@@ -79,19 +79,50 @@ class DashboardController
                     $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
                     $notification = new Notification();
                     $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
+                    $leavetypeModel = new Leavetype();
+                    $leavetypes = $leavetypeModel->getAllLeavetypes();
                     require 'src/views/dashboard/office_manager.php';
                     break;
-                case 'Head Of Department':
-                    require 'src/views/dashboard/head_department.php';
-                    break;
                 case 'Head Of Office':
-                    $leaveRequestModel = new LeaveApproval();
+                    $leaveRequestModel = new HeadOfficeLeave();
                     $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
+                    $lateModel = new LateModel();
+                    $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
+                    $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
+                    $countRequestModel = new LeaveRequest();
+                    $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
+                    $notification = new Notification();
+                    $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
+                    $leavetypeModel = new Leavetype();
+                    $leavetypes = $leavetypeModel->getAllLeavetypes();
                     require 'src/views/dashboard/head_office_manager.php';
                     break;
-                case 'Deputy Head Of Department':
-                    $leaveRequestModel = new DepDepartLeave();
+                case 'Head Of Department':
+                    $leaveRequestModel = new HeadOfficeLeave();
                     $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
+                    $lateModel = new LateModel();
+                    $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
+                    $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
+                    $countRequestModel = new LeaveRequest();
+                    $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
+                    $notification = new Notification();
+                    $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
+                    $leavetypeModel = new Leavetype();
+                    $leavetypes = $leavetypeModel->getAllLeavetypes();
+                    require 'src/views/dashboard/head_department.php';
+                    break;
+                case 'Deputy Head Of Department':
+                    $leaveRequestModel = new HeadOfficeLeave();
+                    $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
+                    $lateModel = new LateModel();
+                    $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
+                    $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
+                    $countRequestModel = new LeaveRequest();
+                    $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
+                    $notification = new Notification();
+                    $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
+                    $leavetypeModel = new Leavetype();
+                    $leavetypes = $leavetypeModel->getAllLeavetypes();
                     require 'src/views/dashboard/deputy_department.php';
                     break;
                 case 'Deputy Of Unit 1':
