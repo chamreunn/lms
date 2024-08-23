@@ -13,14 +13,10 @@ class UserController
 
     public function index()
     {
-        // Create an instance of the User class
         $userController = new User();
+        $users = $userController->getAllUserApi($_SESSION['token']);
 
-        // Retrieve all users
-        $users = $userController->getAllUsers();
-
-        // Return the list of users
-        return $users;
+        require 'src/views/users/index.php';
     }
 
     public function create()

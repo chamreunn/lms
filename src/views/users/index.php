@@ -13,9 +13,6 @@ if (!isset($_SESSION['user_id'])) {
 ob_start();
 $title = "បង្កើតគណនី";
 include('create_user_modal.php');
-require_once 'src/controllers/UserController.php';
-$userController = new UserController();
-$users = $userController->index();
 ?>
 <!-- Page header -->
 <div class="page-header d-print-none">
@@ -54,27 +51,35 @@ $users = $userController->index();
 $pageheader = ob_get_clean();
 include('src/common/header.php');
 ?>
+
 <div class="row row-cards">
-    <?php foreach ($users as $user) : ?>
+    <?php foreach ($users['data'] as $key => $value) : ?>
         <div class="col-md-6 col-lg-3">
             <div class="card rounded-3 shadow-sm">
                 <div class="card-body p-4 text-center">
-                    <span class="avatar avatar-xl mb-3 avatar-rounded" style="background-image: url(<?= $user['profile_picture'] ?? "default_image.svg" ?>); object-fit: cover;"></span>
-                    <h3 class="m-0 mb-1"><a href="#"><?= htmlspecialchars($user['khmer_name'] ?? '') ?></a></h3>
-                    <div class="text-muted"><?= htmlspecialchars($user['office_name'] ?? $user['department_name'] ?? '') ?></div>
-                    <div class="mt-3">
-                        <span class="badge <?= $user['position_color'] ?? '' ?>"><?= htmlspecialchars($user['position_name'] ?? '') ?></span>
+                    <span class="avatar avatar-xl mb-3" style="background-image: url(https://hrms.iauoffsa.us/images/<?= $value['image'] ?? "default_image.svg" ?>); object-fit: cover;"></span>
+                    <h3 class="m-0 mb-1">
+                        <form action="<?= '/elms/view_detail' ?>" method="POST" style="display: inline;">
+                            <input type="hidden" name="user_id" value="<?= $value['id'] ?>">
+                            <a href="<?= '/elms/view_detail?user_id=' . urlencode($value['id']) ?>">
+                                <?= htmlspecialchars($value['lastNameKh'] . " " . $value['firstNameKh'] ?? '') ?>
+                            </a>
+                        </form>
+                    </h3>
+                    <div class="mb-2">
+                        <span class="badge <?= $value['position_color'] ?? '' ?>"><?php echo htmlspecialchars($value['role']); ?></span>
                     </div>
-                    <div class="mt-3">
-                        <?php if ($user['status'] === 'Inactive') : ?>
-                            <span class="badge bg-secondary-lt"><?= htmlspecialchars($user['status'] ?? '') ?></span>
+                    <div class="text-muted mb-2"><?= htmlspecialchars($value['office_name'] ?? $value['department_name'] ?? '') ?></div>
+                    <div class="mb-0">
+                        <?php if ($value['active'] === '1') : ?>
+                            <span class="badge bg-success-lt"><?= "Active" ?></span>
                         <?php else : ?>
-                            <span class="badge bg-success-lt"><?= htmlspecialchars($user['status'] ?? '') ?></span>
+                            <span class="badge bg-secondary-lt"><?= "Inactive" ?></span>
                         <?php endif; ?>
                     </div>
                 </div>
                 <div class="d-flex">
-                    <a href="#" class="card-btn" data-bs-toggle="modal" data-bs-target="#modal-edit-user-<?= $user['id'] ?>">
+                    <a href="#" class="card-btn" data-bs-toggle="modal" data-bs-target="#modal-edit-user-<?= $value['id'] ?>">
                         <!-- Download SVG icon from http://tabler-icons.io/i/edit -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -84,7 +89,7 @@ include('src/common/header.php');
                         </svg>
                         កែប្រែ
                     </a>
-                    <a href="#" class="card-btn text-danger" data-bs-toggle="modal" data-bs-target="#modal-delete-user-<?= $user['id'] ?>">
+                    <a href="#" class="card-btn text-danger" data-bs-toggle="modal" data-bs-target="#modal-delete-user-<?= $value['id'] ?>">
                         <!-- Download SVG icon from http://tabler-icons.io/i/trash -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
                             <path stroke="none" d="M0 0h24H24H0z" fill="none" />
@@ -100,7 +105,7 @@ include('src/common/header.php');
             </div>
         </div>
 
-        <div class="modal modal-blur fade" id="modal-edit-user-<?= $user['id'] ?>" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal modal-blur fade" id="modal-edit-user-<?= $value['id'] ?>" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <form action="/elms/edit_user" method="POST" enctype="multipart/form-data">
@@ -112,9 +117,9 @@ include('src/common/header.php');
                             <div class="row align-items-center justify-content-center">
                                 <div class="col-auto">
                                     <div class="avatar avatar-upload rounded">
-                                        <img id="avatar-preview-<?= $user['id'] ?>" src="<?= $user['profile_picture'] ?>" alt="Avatar" class="rounded" width="50" height="50">
-                                        <input type="file" name="eavatar-upload" id="avatar-upload-<?= $user['id'] ?>" class="d-none" accept="image/*">
-                                        <label for="avatar-upload-<?= $user['id'] ?>" class="avatar-upload-button d-flex flex-column align-items-center justify-content-center">
+                                        <img id="avatar-preview-<?= $value['id'] ?>" src="https://hrms.iauoffsa.us/images/<?= $value['image'] ?>" alt="Avatar" class="rounded" width="50" height="50">
+                                        <input type="file" name="eavatar-upload" id="avatar-upload-<?= $value['id'] ?>" class="d-none" accept="image/*">
+                                        <label for="avatar-upload-<?= $value['id'] ?>" class="avatar-upload-button d-flex flex-column align-items-center justify-content-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                                 <path d="M12 5l0 14"></path>
@@ -138,7 +143,7 @@ include('src/common/header.php');
                                                 <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
                                             </svg>
                                         </span>
-                                        <input type="text" name="ekhmer_name" class="form-control" value="<?= $user['khmer_name'] ?>">
+                                        <input type="text" name="ekhmer_name" class="form-control" value="<?= $value['lastNameKh'] ." ". $value['firstNameKh'] ?>">
                                     </div>
                                 </div>
 
@@ -153,7 +158,7 @@ include('src/common/header.php');
                                                 <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
                                             </svg>
                                         </span>
-                                        <input type="text" name="eenglish_name" class="form-control" value="<?= $user['english_name'] ?>">
+                                        <input type="text" name="eenglish_name" class="form-control" value="<?= $value['engName'] ?>">
                                     </div>
                                 </div>
 
@@ -168,7 +173,7 @@ include('src/common/header.php');
                                                 <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
                                             </svg>
                                         </span>
-                                        <input type="text" name="eusername" class="form-control" value="<?= $user['username'] ?>">
+                                        <input type="text" name="eusername" class="form-control" value="<?= $value['engName'] ?>">
                                     </div>
                                 </div>
                             </div>
@@ -184,14 +189,14 @@ include('src/common/header.php');
                                                 <path d="M3 7l9 6l9 -6" />
                                             </svg>
                                         </span>
-                                        <input type="email" name="eemail" class="form-control" value="<?= $user['email'] ?>">
+                                        <input type="email" name="eemail" class="form-control" value="<?= $value['email'] ?>">
                                     </div>
                                 </div>
 
                                 <div class="col-lg-4 col-sm-12 mb-3">
                                     <label class="form-label">ភេទ<span class="text-danger mx-1 fw-bold">*</span></label>
-                                    <select class="form-select" id="eselect-gender-<?= $user['id'] ?>" name="egender">
-                                        <option selected value="<?= $user['gender'] ?>"><?= $user['gender'] ?></option>
+                                    <select class="form-select" id="eselect-gender-<?= $value['id'] ?>" name="egender">
+                                        <option selected value="<?= $value['gender'] ?>"><?= $value['gender'] ?></option>
                                         <option value="ប្រុស">ប្រុស</option>
                                         <option value="ស្រី">ស្រី</option>
                                     </select>
@@ -199,8 +204,8 @@ include('src/common/header.php');
 
                                 <div class="col-lg-4 col-sm-12 mb-3">
                                     <label class="form-label">ស្ថានភាពសកម្ម<span class="text-danger mx-1 fw-bold">*</span></label>
-                                    <select class="form-select" id="eselect-status-<?= $user['id'] ?>" name="estatus">
-                                        <option selected value="<?= $user['status'] ?>"><?= $user['status'] ?></option>
+                                    <select class="form-select" id="eselect-status-<?= $value['id'] ?>" name="estatus">
+                                        <option selected value="<?= $value['active'] ?>"><?= $value['active'] ?></option>
                                         <option value="Active">Active</option>
                                         <option value="Inactive">Inactive</option>
                                     </select>
@@ -217,24 +222,7 @@ include('src/common/header.php');
                                                 <path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" />
                                             </svg>
                                         </span>
-                                        <input type="text" name="ephone" class="form-control" value="<?= $user['phone_number'] ?>">
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-4 col-sm-12 mb-3">
-                                    <label class="form-label">ថ្ងៃខែឆ្នាំកំណើត<span class="text-danger mx-1 fw-bold">*</span></label>
-                                    <div class="input-icon">
-                                        <span class="input-icon-addon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                <rect x="4" y="5" width="16" height="16" rx="2"></rect>
-                                                <line x1="16" y1="3" x2="16" y2="7"></line>
-                                                <line x1="8" y1="3" x2="8" y2="7"></line>
-                                                <line x1="4" y1="11" x2="20" y2="11"></line>
-                                                <rect x="8" y="15" width="2" height="2"></rect>
-                                            </svg>
-                                        </span>
-                                        <input type="text" name="edob" class="form-control" autocomplete="off" id="edob-datepicker-<?= $user['id'] ?>" value="<?= $user['date_of_birth'] ?>">
+                                        <input type="text" name="ephone" class="form-control" value="<?= $value['phoneNumber'] ?>">
                                     </div>
                                 </div>
                             </div>
@@ -242,8 +230,8 @@ include('src/common/header.php');
                             <div class="row">
                                 <div class="col-lg-3 col-sm-12 mb-3">
                                     <label class="form-label">នាយកដ្ឋាន<span class="text-danger mx-1 fw-bold">*</span></label>
-                                    <select class="form-select" name="edepartment" id="eselect-department-<?= $user['id'] ?>" required>
-                                        <option selected value="<?= $user['department_id'] ?>"><?= $user['department_name'] ?></option>
+                                    <select class="form-select" name="edepartment" id="eselect-department-<?= $value['id'] ?>" required>
+                                        <option selected value="<?= $value['department_id'] ?>"><?= $value['department_name'] ?></option>
                                         <?php foreach ($departments as $department) : ?>
                                             <option value="<?= $department['id'] ?>"><?= $department['name'] ?></option>
                                         <?php endforeach; ?>
@@ -251,8 +239,8 @@ include('src/common/header.php');
                                 </div>
                                 <div class="col-lg-3 col-sm-12 mb-3">
                                     <label class="form-label">ការិយាល័យ</label>
-                                    <select class="form-select" name="eoffice" id="eselect-office-<?= $user['id'] ?>">
-                                        <option selected value="<?= $user['office_id'] ?>"><?= $user['office_name'] ?></option>
+                                    <select class="form-select" name="eoffice" id="eselect-office-<?= $value['id'] ?>">
+                                        <option selected value="<?= $value['office_id'] ?>"><?= $value['office_name'] ?></option>
                                         <?php foreach ($offices as $office) : ?>
                                             <option value="<?= $office['id'] ?>"><?= $office['name'] ?></option>
                                         <?php endforeach; ?>
@@ -260,8 +248,8 @@ include('src/common/header.php');
                                 </div>
                                 <div class="col-lg-3 col-sm-12 mb-3">
                                     <label class="form-label">តួនាទី<span class="text-danger mx-1 fw-bold">*</span></label>
-                                    <select class="form-select" name="eposition" id="eselect-position-<?= $user['id'] ?>" required>
-                                        <option selected value="<?= $user['position_id'] ?>" data-custom-properties='&lt;span class="badge <?= $position['color'] ?>"&gt;'><?= $user['position_name'] ?></option>
+                                    <select class="form-select" name="eposition" id="eselect-position-<?= $value['id'] ?>" required>
+                                        <option selected value="<?= $value['role'] ?>" data-custom-properties='&lt;span class="badge <?= $position['color'] ?>"&gt;'><?= $value['role'] ?></option>
                                         <?php foreach ($positions as $position) : ?>
                                             <option value="<?= $position['id'] ?>" data-custom-properties='&lt;span class="badge <?= $position['color'] ?>"&gt;'>
                                                 <?= $position['name'] ?>
@@ -271,8 +259,8 @@ include('src/common/header.php');
                                 </div>
                                 <div class="col-lg-3 col-sm-12 mb-3">
                                     <label class="form-label">Roles<span class="text-danger mx-1 fw-bold">*</span></label>
-                                    <select class="form-select" name="erole" id="eselect-role-<?= $user['id'] ?>" required>
-                                        <option selected value="<?= $user['role'] ?>"><?= $user['role'] ?></option>
+                                    <select class="form-select" name="erole" id="eselect-role-<?= $value['id'] ?>" required>
+                                        <option selected value="<?= $value['role'] ?>"><?= $value['role'] ?></option>
                                         <?php foreach ($roles as $role) : ?>
                                             <option value="<?= $role['name'] ?>"><?= $role['name'] ?></option>
                                         <?php endforeach; ?>
@@ -295,7 +283,7 @@ include('src/common/header.php');
                                                 <path d="M21 16l-5 3l5 2" />
                                             </svg>
                                         </span>
-                                        <textarea class="form-control" name="eaddress"><?= $user['address'] ?></textarea>
+                                        <textarea class="form-control" name="eaddress"><?= $value['address'] ?></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -305,7 +293,7 @@ include('src/common/header.php');
                             <div class="w-100">
                                 <div class="row">
                                     <div class="col">
-                                        <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
+                                        <input type="hidden" name="user_id" value="<?= $value['id'] ?>">
                                         <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
                                     </div>
                                     <div class="col">
@@ -322,7 +310,7 @@ include('src/common/header.php');
         <!-- script for select  -->
         <script>
             document.addEventListener("DOMContentLoaded", function() {
-                new TomSelect("#eselect-gender-<?= $user['id'] ?>", {
+                new TomSelect("#eselect-gender-<?= $value['id'] ?>", {
                     copyClassesToDropdown: false,
                     dropdownClass: "dropdown-menu ts-dropdown",
                     optionClass: "dropdown-item",
@@ -343,7 +331,7 @@ include('src/common/header.php');
                     },
                 });
 
-                new TomSelect("#eselect-status-<?= $user['id'] ?>", {
+                new TomSelect("#eselect-status-<?= $value['id'] ?>", {
                     copyClassesToDropdown: false,
                     dropdownClass: "dropdown-menu ts-dropdown",
                     optionClass: "dropdown-item",
@@ -364,7 +352,7 @@ include('src/common/header.php');
                     },
                 });
 
-                new TomSelect("#eselect-department-<?= $user['id'] ?>", {
+                new TomSelect("#eselect-department-<?= $value['id'] ?>", {
                     copyClassesToDropdown: false,
                     dropdownClass: "dropdown-menu ts-dropdown",
                     optionClass: "dropdown-item",
@@ -385,7 +373,7 @@ include('src/common/header.php');
                     },
                 });
 
-                new TomSelect("#eselect-office-<?= $user['id'] ?>", {
+                new TomSelect("#eselect-office-<?= $value['id'] ?>", {
                     copyClassesToDropdown: false,
                     dropdownClass: "dropdown-menu ts-dropdown",
                     optionClass: "dropdown-item",
@@ -406,7 +394,7 @@ include('src/common/header.php');
                     },
                 });
 
-                new TomSelect("#eselect-position-<?= $user['id'] ?>", {
+                new TomSelect("#eselect-position-<?= $value['id'] ?>", {
                     copyClassesToDropdown: false,
                     dropdownClass: "dropdown-menu ts-dropdown",
                     optionClass: "dropdown-item",
@@ -427,7 +415,7 @@ include('src/common/header.php');
                     },
                 });
 
-                new TomSelect("#eselect-role-<?= $user['id'] ?>", {
+                new TomSelect("#eselect-role-<?= $value['id'] ?>", {
                     copyClassesToDropdown: false,
                     dropdownClass: "dropdown-menu ts-dropdown",
                     optionClass: "dropdown-item",
@@ -450,7 +438,7 @@ include('src/common/header.php');
 
                 // Initialize Litepicker for date of birth
                 var edobPicker = new Litepicker({
-                    element: document.getElementById("edob-datepicker-<?= $user['id'] ?>"),
+                    element: document.getElementById("edob-datepicker-<?= $value['id'] ?>"),
                     singleMode: true,
                     format: "YYYY-MM-DD",
                     buttonText: {
@@ -462,8 +450,8 @@ include('src/common/header.php');
                 });
                 // change profile 
                 document.addEventListener('DOMContentLoaded', function() {
-                    const avatarUploadInput = document.getElementById('avatar-upload-<?= $user['id'] ?>');
-                    const avatarPreview = document.getElementById('avatar-preview-<?= $user['id'] ?>');
+                    const avatarUploadInput = document.getElementById('avatar-upload-<?= $value['id'] ?>');
+                    const avatarPreview = document.getElementById('avatar-preview-<?= $value['id'] ?>');
 
                     avatarUploadInput.addEventListener('change', function() {
                         const file = this.files[0];
@@ -483,13 +471,13 @@ include('src/common/header.php');
         </script>
 
         <!-- Delete User Modal -->
-        <div class="modal modal-blur fade" id="modal-delete-user-<?= $user['id'] ?>" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal modal-blur fade" id="modal-delete-user-<?= $value['id'] ?>" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-status bg-danger"></div>
                     <form action="/elms/delete_user" method="POST">
                         <div class="modal-body text-center py-4 mb-0">
-                            <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
+                            <input type="hidden" name="user_id" value="<?= $value['id'] ?>">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                 <path d="M12 9v4"></path>
@@ -497,7 +485,7 @@ include('src/common/header.php');
                                 <path d="M12 16h.01"></path>
                             </svg>
                             <h5 class="modal-title">លុបគណនី</h5>
-                            <p>តើអ្នកប្រាកដទេថានិងលុបគណនី <span class="text-danger fw-bold"><?= htmlspecialchars($user['khmer_name']) ?></span> នេះ?</p>
+                            <p>តើអ្នកប្រាកដទេថានិងលុបគណនី <span class="text-danger fw-bold"><?= htmlspecialchars($value['khmer_name']) ?></span> នេះ?</p>
                         </div>
                         <div class="modal-footer bg-light border-top">
                             <div class="w-100 mt-3">
@@ -528,6 +516,7 @@ include('src/common/header.php');
         </a>
     </div>
 </div>
+
 <!-- pagination  -->
 <div class="d-flex mt-4">
     <ul class="pagination ms-auto">

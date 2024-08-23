@@ -94,7 +94,7 @@ class LeaveController
             $leaveRequestModel = new LeaveRequest();
             $leaveRequestId = $leaveRequestModel->create($user_id, $leave_type_id, $leaveType['name'], $start_date, $end_date, $remarks, $duration_days, $attachment_name, $signature_name);
 
-            $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
+            
             // Send email notification 
             if (!$this->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
                 $_SESSION['error'] = [
@@ -116,6 +116,7 @@ class LeaveController
             // Create notification for the user
             $notificationModel = new Notification();
             $notificationModel->createNotification($userDoffice['doffice_id'], $user_id, $leaveRequestId, $message);
+            $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
 
             $_SESSION['success'] = [
                 'title' => "ជោគជ័យ",
@@ -608,6 +609,11 @@ class LeaveController
             // Create notification
             $notificationModel = new Notification();
             $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
+            // Create Activity
+            $userModel = new User();
+            $userId = $_SESSION['user_id'];
+            $activity = "បាន " . $status . "ច្បាប់ឈប់សម្រាក " . $uname;
+            $userModel->logUserActivity($userId, $activity, $_SERVER['REMOTE_ADDR']);
 
             $_SESSION['success'] = [
                 'title' => "សំណើច្បាប់",

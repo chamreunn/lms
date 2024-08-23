@@ -77,7 +77,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     </div>
 </div>
 <!-- alert leave count  -->
-<?php if (!empty($pendingCount)) : ?>
+<?php if (!empty($requestscount)) : ?>
     <div class="col">
         <div class="alert alert-info alert-dismissible mb-3" role="alert">
             <div class="d-flex">
@@ -90,8 +90,8 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                         <path d="M11 12h1v4h1"></path>
                     </svg>
                 </div>
-                <a href="/elms/headofficepending">
-                    អ្នកមានច្បាប់ដែលមិនទាន់អនុម័តចំនួន <strong class="badge bg-red text-red-fg ms-2 fw-bolder"><?= $pendingCount ?></strong>
+                <a href="/elms/depdepartmentpending">
+                    អ្នកមានច្បាប់ដែលមិនទាន់អនុម័តចំនួន <strong class="badge bg-red text-red-fg ms-2 fw-bolder"><?= $requestscount ?></strong>
                 </a>
             </div>
             <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
@@ -392,7 +392,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                 <h5 class="modal-title"><strong>បង្កើតសំណើ</strong></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="POST" action="/elms/hof-apply-leave" enctype="multipart/form-data">
+            <form method="POST" action="/elms/ddep-apply-leave" enctype="multipart/form-data">
                 <div class="modal-body">
                     <div class="card-body">
                         <div class="mb-3">

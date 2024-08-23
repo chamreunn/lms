@@ -51,6 +51,9 @@ if (!isset($_SESSION['user_id'])) {
                     $role = $_SESSION['role'];
                     switch ($role) {
                         case 'Admin':
+                            $adminModel = new AdminModel();
+                            $getPendingCounts = $adminModel->getLateinCount();
+                            $latesToday = $adminModel->getLateCountToday();
                             include('admin_sidebar.php');
                             break;
                         case 'User':
@@ -70,22 +73,32 @@ if (!isset($_SESSION['user_id'])) {
                         case 'Head Of Office':
                             $leaveRequestModel = new HeadOfficeLeave();
                             $pendingCount = $leaveRequestModel->pendingCount($_SESSION['user_id']);
-                            $leaveRequestModel = new HeadOfficeLeave();
                             $approvedCount = $leaveRequestModel->approvedCount($_SESSION['user_id']);
-                            $leaveRequestModel = new HeadOfficeLeave();
                             $rejectedCount = $leaveRequestModel->rejectedCount($_SESSION['user_id']);
-                            $leaveRequestModel = new HeadOfficeLeave();
                             $allCount = $leaveRequestModel->allCount($_SESSION['user_id']);
                             include('head_office_manager_sidebar.php');
                             break;
                         case 'Deputy Head Of Department':
+                            $leaveRequestModel = new DepDepartLeave();
+                            $requestscount = $leaveRequestModel->countPendingRequestsForApprover($_SESSION['user_id']);
+                            $approvedCount = $leaveRequestModel->countApprovedRequestsForApprover($_SESSION['user_id']);
+                            $rejectedCount = $leaveRequestModel->countRejectedRequestsForApprover($_SESSION['user_id']);
                             include('deputy_department_sidebar.php');
                             break;
                         case 'Head Of Department':
+                            $leaveRequestModel = new HeadDepartLeave();
+                            $pendingCount = $leaveRequestModel->pendingCount($_SESSION['user_id']);
+                            $approvedCount = $leaveRequestModel->approvedCount($_SESSION['user_id']);
+                            $rejectedCount = $leaveRequestModel->rejectedCount($_SESSION['user_id']);
+                            $leavetypeModel = new Leavetype();
+                            $leavetypes = $leavetypeModel->getAllLeavetypes();
                             include('head_department_sidebar.php');
                             break;
                         case 'Deputy Of Unit 1':
-                            include('deputy_unit_sidebar.php');
+                            include('deputy_unit_sidebar_1.php');
+                            break;
+                        case 'Deputy Of Unit 2':
+                            include('deputy_unit_sidebar_2.php');
                             break;
                         default:
                             // For any unexpected role, include a default sidebar

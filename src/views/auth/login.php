@@ -154,7 +154,7 @@
                                         <label class="form-label">
                                             ពាក្យសម្ងាត់<span class="text-danger fw-bold mx-1">*</span>
                                             <span class="form-label-description">
-                                                <a class="mef1" href="public/forgot-password.html" style="font-family: 'Khmer MEF1'">ភ្លេចពាក្យសម្ងាត់ ?</a>
+                                                <a class="mef1" href="/elms/forgot-password" style="font-family: 'Khmer MEF1'">ភ្លេចពាក្យសម្ងាត់ ?</a>
                                             </span>
                                         </label>
                                         <div class="input-group input-group-flat">

@@ -2,7 +2,7 @@
 
 require_once 'config/database.php';
 
-class LeaveRequest
+class DepHeadOfficeModel
 {
     private $pdo;
     private $table_name = "leave_requests";
@@ -27,8 +27,8 @@ class LeaveRequest
         // Prepare and execute the SQL statement
         $stmt = $this->pdo->prepare('
             INSERT INTO leave_requests 
-            (user_id, leave_type_id, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, created_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            (user_id, leave_type_id, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, dhead_office, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ');
 
         $stmt->execute([
@@ -41,7 +41,8 @@ class LeaveRequest
             $duration_days,
             $attachment,
             $signature,
-            'Pending'
+            'Pending',
+            'Approved'
         ]);
 
         // Return the ID of the newly created leave request
@@ -59,16 +60,19 @@ class LeaveRequest
                 u.khmer_name as user_name, 
                 u.date_of_birth as dob, 
                 u.email as user_email, 
+                u.office_id, 
                 u.department_id, 
                 u.position_id, 
                 u.profile_picture as user_profile,
                 d.name as department_name,
-                p.name as position_name
+                p.name as position_name,
+                o.name as office_name
          FROM leave_requests lr
          JOIN leave_types lt ON lr.leave_type_id = lt.id
          JOIN users u ON lr.user_id = u.id
          JOIN departments d ON u.department_id = d.id
          JOIN positions p ON u.position_id = p.id
+         JOIN offices o ON u.office_id = o.id
          WHERE lr.user_id = ?'
         );
         $stmt->execute([$user_id]);
@@ -81,7 +85,6 @@ class LeaveRequest
             $result['approvals'] = $this->getApprovalsByLeaveRequestId($result['id']);
             $result['doffice'] = $this->getDOfficePositions($result['id']);
             $result['hoffice'] = $this->getHOfficePositions($result['id']);
-            $result['ddepartment'] = $this->getDDepartmentPositions($result['id']);
             $result['hdepartment'] = $this->getHDepartmentPositions($result['id']);
             $result['dunit'] = $this->getDUnitPositions($result['id']);
             $result['unit'] = $this->getUnitPositions($result['id']);
@@ -379,29 +382,6 @@ class LeaveRequest
         return $stmt->fetchAll();
     }
 
-    public function getDDepartmentPositions($leave_request_id)
-    {
-        // Query to get the approval details along with approver's information, position details, and signature
-        $stmt = $this->pdo->prepare(
-            'SELECT a.*, 
-            u.khmer_name AS approver_name, 
-            u.profile_picture AS profile,
-            p.name AS position_name,
-            p.color AS position_color,
-            a.signature,  -- Include the signature column
-            (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
-        FROM leave_approvals a
-        JOIN users u ON a.approver_id = u.id
-        JOIN positions p ON u.position_id = p.id
-        WHERE a.leave_request_id = ?
-        AND p.name = ?'  // Filter by the specific position name
-        );
-        // Execute the query with the leave request ID parameter and the position name
-        $stmt->execute([$leave_request_id, $leave_request_id, 'អនុប្រធាននាយកដ្ឋាន']);
-        // Return the fetched results
-        return $stmt->fetchAll();
-    }
-
     public function getHDepartmentPositions($leave_request_id)
     {
         // Query to get the approval details along with approver's information, position details, and signature
@@ -447,7 +427,7 @@ class LeaveRequest
         // Return the fetched results
         return $stmt->fetchAll();
     }
-
+    
     public function getUnitPositions($leave_request_id)
     {
         // Query to get the approval details along with approver's information, position details, and signature

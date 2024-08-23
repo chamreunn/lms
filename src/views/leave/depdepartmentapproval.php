@@ -8,7 +8,7 @@ ob_start();
         <div class="row g-2 align-items-center">
             <div class="col">
                 <!-- Page pre-title -->
-                <div class="page-pretitle mx-1">
+                <div class="page-pretitle">
                     ទំព័រដើម
                 </div>
                 <h2 class="page-title">
@@ -40,6 +40,7 @@ ob_start();
         </div>
     </div>
 </div>
+
 <?php
 $pageheader = ob_get_clean();
 include('src/common/header.php');
@@ -80,235 +81,276 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     return $translatedDate;
 }
 ?>
-<div class="card rounded-3">
-    <div class="card-header border-bottom">
-        <h2 class="mb-0">
-            <span class="icon mb-3">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-clock">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M10.5 21h-4.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3" />
-                    <path d="M16 3v4" />
-                    <path d="M8 3v4" />
-                    <path d="M4 11h10" />
-                    <path d="M18 18m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-                    <path d="M18 16.5v1.5l.5 .5" />
-                </svg>
-            </span>
-            <span class="mb-0">
-                <?= $title ?>
-            </span>
-        </h2>
-    </div>
-    <div class="card-body">
-        <div class="list-group">
-            <?php if (empty($requests)) : ?>
-                <div class="d-flex align-items-center justify-content-center">
-                    <div class="text-center">
-                        <img src="public/img/icons/svgs/empty.svg" alt="">
-                        <h4>មិនមានសំណើច្បាប់ឈប់សម្រាក!</h4>
-                    </div>
+<?php if (empty($requests)) : ?>
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-center">
+                <div class="text-center">
+                    <img src="public/img/icons/svgs/empty.svg" alt="">
+                    <h4>មិនមានសំណើច្បាប់ឈប់សម្រាក!</h4>
                 </div>
-            <?php else : ?>
-                <?php foreach ($requests as $request) : ?>
-                    <p class="mb-2 text-muted fw-bold"><?= translateDateToKhmer($request['created_at'], 'D, j F Y h:i A') ?></p>
-                    <a href="#" class="list-group-item list-group-item-action rounded-4 mb-2" data-bs-toggle="modal" data-bs-target="#modalview<?= $request['id'] ?>" data-request-id="<?= $request['id'] ?>">
-                        <div class="d-flex w-100 justify-content-between">
+            </div>
+        </div>
+    </div>
+<?php else : ?>
+    <div class="row">
+        <?php foreach ($requests as $request) : ?>
+            <div class="col-md-6 col-lg-3 mb-3">
+                <div class="card h-100 p-0 border">
+                    <div class="card-body p-3">
+                        <div class="ribbon bg-red" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif"><?= $request['status'] ?></div>
+                        <div class="d-flex w-100 justify-content-between mb-2">
                             <div class="d-flex align-items-center">
                                 <div class="me-3">
                                     <img class="avatar rounded-circle" style="object-fit: cover;" src="<?= $request['profile'] ?>" alt="">
                                 </div>
                                 <div class="d-flex flex-column">
-                                    <h3 class="mb-1"><?= $request['khmer_name'] ?><span class="badge mx-3 <?= $request['status'] == 'Pending' ? 'badge bg-warning-lt' : '' ?>
-                                        <?= $request['status'] == 'Approved' ? 'badge bg-success-lt' : '' ?>
-                                        <?= $request['status'] == 'Rejected' ? 'badge bg-danger-lt' : '' ?>
-                                        <?= $request['status'] == 'Cancelled' ? 'badge bg-secondary-lt' : '' ?>">
-                                            <?= $request['status'] ?>
-                                        </span>
-                                    </h3>
-                                    <p class="mb-1">មូលហេតុ : <?= $request['remarks'] ?></p>
-                                    <p class="mb-0">ប្រភេទច្បាប់ : <span class="badge <?= $request['color'] ?>"><?= $request['leave_type'] ?></span></p>
+                                    <div class="mb-2">
+                                        <h4 class="mb-1 text-primary"><?= $request['khmer_name'] ?></h4>
+                                        <small class="fw-bolder"><?= translateDateToKhmer($request['created_at'], 'j F Y h:i A') ?></small>
+                                    </div>
                                 </div>
                             </div>
-                            <small class="text-primary"><?= translateDateToKhmer($request['start_date'], 'D, j F Y') ?> - <?= translateDateToKhmer($request['end_date'],'D, j F Y') ?></small>
                         </div>
-                    </a>
-
-                    <!-- Modal for Leave Request Details -->
-                    <div class="modal modal-blur fade" id="modalview<?= $request['id'] ?>" tabindex="-1" aria-labelledby="requestDetailModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content">
-                                <form action="/elms/depdepartmentpending" method="POST">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="requestDetailModalLabel">
-                                            <?= $title ?>
-                                            <span class="badge mx-2 <?= $request['status'] == 'Pending' ? 'badge bg-warning-lt' : '' ?>
-                                        <?= $request['status'] == 'Approved' ? 'badge bg-success-lt' : '' ?>
-                                        <?= $request['status'] == 'Rejected' ? 'badge bg-danger-lt' : '' ?>
-                                        <?= $request['status'] == 'Cancelled' ? 'badge bg-secondary-lt' : '' ?>">
-                                                <?= $request['status'] ?>
-                                            </span>
-                                        </h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body mb-0">
-                                        <div class="row">
-                                            <div class="mb-3 row">
-                                                <label class="col-sm-4 col-form-label">ឈ្មោះមន្ត្រី :</label>
-                                                <div class="col-sm-8">
-                                                    <div class="input-icon">
-                                                        <span class="input-icon-addon">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-edit">
-                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
-                                                                <path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" />
-                                                                <path d="M18.42 15.61a2.1 2.1 0 0 1 2.97 2.97l-3.39 3.42h-3v-3l3.42 -3.39z" />
-                                                            </svg>
-                                                        </span>
-                                                        <input type="text" class="form-control" value="<?= $request['khmer_name'] ?>" disabled>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="mb-3 row">
-                                                <label class="col-sm-4 form-label">ប្រភេទច្បាប់ :</label>
-                                                <div class="col-sm-8">
-                                                    <div class="badge <?= $request['color'] ?>"><?= $request['leave_type'] ?></div>
-                                                </div>
-                                            </div>
-                                            <div class="mb-3 row">
-                                                <label class="col-sm-4 col-form-label">ចាប់ពីកាលបរិច្ឆេទ :</label>
-                                                <div class="col-sm-8">
-                                                    <div class="input-icon">
-                                                        <span class="input-icon-addon">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
-                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
-                                                                <path d="M16 3v4" />
-                                                                <path d="M8 3v4" />
-                                                                <path d="M4 11h16" />
-                                                                <path d="M7 14h.013" />
-                                                                <path d="M10.01 14h.005" />
-                                                                <path d="M13.01 14h.005" />
-                                                                <path d="M16.015 14h.005" />
-                                                                <path d="M13.015 17h.005" />
-                                                                <path d="M7.01 17h.005" />
-                                                                <path d="M10.01 17h.005" />
-                                                            </svg>
-                                                        </span>
-                                                        <input type="text" class="form-control" value="<?= translateDateToKhmer($request['start_date'],'D, j F Y') ?>" disabled>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="mb-3 row">
-                                                <label class="col-sm-4 col-form-label">ដល់កាលបរិច្ឆេទ :</label>
-                                                <div class="col-sm-8">
-                                                    <div class="input-icon">
-                                                        <span class="input-icon-addon">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
-                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
-                                                                <path d="M16 3v4" />
-                                                                <path d="M8 3v4" />
-                                                                <path d="M4 11h16" />
-                                                                <path d="M7 14h.013" />
-                                                                <path d="M10.01 14h.005" />
-                                                                <path d="M13.01 14h.005" />
-                                                                <path d="M16.015 14h.005" />
-                                                                <path d="M13.015 17h.005" />
-                                                                <path d="M7.01 17h.005" />
-                                                                <path d="M10.01 17h.005" />
-                                                            </svg>
-                                                        </span>
-                                                        <input type="text" class="form-control" value="<?= translateDateToKhmer($request['end_date'],'D, j F Y') ?>" disabled>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="mb-3 row">
-                                                <label class="col-sm-4 col-form-label">រយៈពេល​ :</label>
-                                                <div class="col-sm-8">
-                                                    <div class="input-icon">
-                                                        <span class="input-icon-addon">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-stats">
-                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
-                                                                <path d="M18 14v4h4" />
-                                                                <path d="M18 18m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-                                                                <path d="M15 3v4" />
-                                                                <path d="M7 3v4" />
-                                                                <path d="M3 11h16" />
-                                                            </svg>
-                                                        </span>
-                                                        <input type="text" class="form-control" value="<?= $request['num_date'] ?>ថ្ងៃ" disabled>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <label class="col-sm-4 col-form-label">មូលហេតុ :</label>
-                                                <div class="col-sm-8">
-                                                    <div class="input-icon">
-                                                        <span class="input-icon-addon">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-message">
-                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                <path d="M8 9h8" />
-                                                                <path d="M8 13h6" />
-                                                                <path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" />
-                                                            </svg>
-                                                        </span>
-                                                        <textarea type="text" class="form-control overflow-hidden" style="resize: none;" disabled><?= $request['remarks'] ?></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- Leave request details will be loaded here dynamically -->
-                                    </div>
-                                    <div class="modal-body mb-2">
-                                        <div class="row">
-                                            <?php if ($request['attachment']) : ?>
-                                                <a href="public/uploads/leave_attachments/<?= $request['attachment'] ?>" target="_blank">View</a>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="card-body rounded-2 bg-light border">
-                                            <div class="row">
-                                                <label class="col-sm-4 col-form-label">មតិយោបល់ :</label>
-                                                <div class="col-sm-12">
-                                                    <div class="input-icon">
-                                                        <span class="input-icon-addon">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-message">
-                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                <path d="M8 9h8" />
-                                                                <path d="M8 13h6" />
-                                                                <path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" />
-                                                            </svg>
-                                                        </span>
-                                                        <textarea type="text" name="remarks" placeholder="មតិយោបល់" class="form-control overflow-hidden" style="resize: none;"></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <label class="col-sm-4 col-form-label">ស្ថានភាព<span class="text-danger fw-bold mx-1">*</span></label>
-                                                <div class="col-sm-12">
-                                                    <select name="status" id="select-status" class="form-control form-select" required>
-                                                        <option selected="" disabled data-custom-properties='&lt;span class="badge bg-warning-lt"'><?= $request['status'] ?></option>
-                                                        <option value="Approved" data-custom-properties='&lt;span class="badge bg-success-lt"'>Approved</option>
-                                                        <option value="Rejected" data-custom-properties='&lt;span class="badge bg-danger-lt"'>Rejected</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
-                                        </div>
-                                    </div>
-                                    <div class="card-footer d-flex justify-content-end">
-                                        <button type="button" class="btn w-25 me-2" data-bs-dismiss="modal">បោះបង់</button>
-                                        <button type="submit" class="btn btn-primary w-25" data-bs-dismiss="modal">បញ្ជូន</button>
-                                    </div>
-                                </form>
+                        <div class="p-2">
+                            <div class="text-primary mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
+                                    <path d="M16 3v4" />
+                                    <path d="M8 3v4" />
+                                    <path d="M4 11h16" />
+                                    <path d="M7 14h.013" />
+                                    <path d="M10.01 14h.005" />
+                                    <path d="M13.01 14h.005" />
+                                    <path d="M16.015 14h.005" />
+                                    <path d="M13.015 17h.005" />
+                                    <path d="M7.01 17h.005" />
+                                    <path d="M10.01 17h.005" />
+                                </svg>
+                                <strong>រយៈពេល : </strong><?= $request['num_date'] ?>ថ្ងៃ
+                            </div>
+                            <div class="text-primary mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-briefcase-2">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M3 9a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9z" />
+                                    <path d="M8 7v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2" />
+                                </svg>
+                                <strong>ប្រភេទច្បាប់ : </strong><?= $request['leavetype'] ?>
+                            </div>
+                            <div class="text-primary mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-event">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
+                                    <path d="M16 3l0 4" />
+                                    <path d="M8 3l0 4" />
+                                    <path d="M4 11l16 0" />
+                                    <path d="M8 15h2v2h-2z" />
+                                </svg>
+                                <strong>កាលបរិច្ឆេទចាប់ពី : </strong><?= translateDateToKhmer($request['start_date'], 'j F, Y') ?>
+                            </div>
+                            <div class="text-primary mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-event">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
+                                    <path d="M16 3l0 4" />
+                                    <path d="M8 3l0 4" />
+                                    <path d="M4 11l16 0" />
+                                    <path d="M8 15h2v2h-2z" />
+                                </svg>
+                                <strong>ដល់កាលបរិច្ឆេទ : </strong><?= translateDateToKhmer($request['end_date'], 'j F, Y') ?>
+                            </div>
+                            <?php if ($request['attachment'] > 0) : ?>
+                                <div class="text-primary mb-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-paperclip">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5" />
+                                    </svg>
+                                    <strong>ឯកសារភ្ជាប់ : </strong><a target="_blank" href="public/uploads/leave_attachments/<?= $request['attachment'] ?>">ចុចទីនេះ</a>
+                                </div>
+                            <?php endif; ?>
+                            <div class="text-primary">
+                                <label for="" class="form-label"><strong>មូលហេតុ</strong></label>
+                                <textarea style="resize: none;" name="" class="form-control" id="" disabled><?= $request['remarks'] ?></textarea>
                             </div>
                         </div>
                     </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </div>
+                    <div class="card-footer">
+                        <div class="row">
+                            <div class="col">
+                                <a href="#" class="btn btn-outline-success w-100" data-bs-toggle="modal" data-bs-target="#approved<?= $request['id'] ?>" data-request-id="<?= $request['id'] ?>" data-bs-toggle="tooltip" data-bs-placement="top" title="Approve">
+                                    <i class="fas fa-check"></i> អនុម័ត
+                                </a>
+                            </div>
+                            <div class="col">
+                                <a href="#" class="btn btn-outline-danger w-100" data-bs-toggle="modal" data-bs-target="#rejected<?= $request['id'] ?>" data-request-id="<?= $request['id'] ?>" data-bs-toggle="tooltip" data-bs-placement="top" title="Reject">
+                                    <i class="fas fa-times"></i> មិនអនុម័ត
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- approved modal -->
+            <div class="modal modal-blur fade" id="approved<?= $request['id'] ?>" tabindex="-1" aria-modal="true" role="dialog">
+                <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <div class="modal-status bg-success"></div>
+                        <form action="/elms/depdepartmentpending" method="POST" enctype="multipart/form-data">
+                            <div class="modal-body text-center py-4">
+                                <!-- Download SVG icon from http://tabler-icons.io/i/circle-check -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon mb-2 text-green icon-lg">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
+                                    <path d="M9 12l2 2l4 -4"></path>
+                                </svg>
+                                <h3 class="text-success fw-bolder">អនុម័ត</h3>
+                                <div class="text-secondary mb-3">សូមចុច <span class="text-success fw-bolder">បន្ត</span> ដើម្បីអនុម័តច្បាប់ឈប់សម្រាកនេះ។</div>
+                                <a class="btn text-green w-100" data-bs-toggle="collapse" href="#approved" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-message">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M18 3a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-4.724l-4.762 2.857a1 1 0 0 1 -1.508 -.743l-.006 -.114v-2h-1a4 4 0 0 1 -3.995 -3.8l-.005 -.2v-8a4 4 0 0 1 4 -4zm-4 9h-6a1 1 0 0 0 0 2h6a1 1 0 0 0 0 -2m2 -4h-8a1 1 0 1 0 0 2h8a1 1 0 0 0 0 -2" />
+                                    </svg>
+                                    <span>មតិយោបល់</span>
+                                </a>
+                                <div class="collapse collapse-multiple mt-3" id="approved">
+                                    <input name="remarks" class="form-control" list="datalistOptions" placeholder="សូមបញ្ចូលមតិយោបល់...">
+                                    <datalist id="datalistOptions">
+                                        <option value="អាចឈប់សម្រាកបាន"></option>
+                                        <option value="United Arab Emirates"></option>
+                                        <option value="Afghanistan"></option>
+                                        <option value="Antigua"></option>
+                                        <option value="Anguilla"></option>
+                                        <option value="Armenia"></option>
+                                        <option value="Angolan"></option>
+                                        <option value="Antarctica"></option>
+                                        <option value="Argentina"></option>
+                                        <option value="American Samoa"></option>
+                                    </datalist>
+                                </div>
+                                <div class="mt-3">
+                                    <label id="file-name<?= $request['id'] ?>" for="upload-signature<?= $request['id'] ?>" class="btn w-100 text-start">ហត្ថលេខា<span class="text-red fw-bold mx-1">*</span></label>
+                                    <input type="file" name="manager_signature" id="upload-signature<?= $request['id'] ?>" accept="image/png" hidden onchange="displayFileName(<?= $request['id'] ?>)" required />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
+                                <input type="hidden" name="status" value="Approved">
+                                <input type="hidden" name="uname" value="<?= $request['khmer_name'] ?>">
+                                <input type="hidden" name="leaveType" value="<?= $request['leavetype'] ?>">
+                                <input type="hidden" name="user_id" value="<?= $request['user_id'] ?>">
+                                <input type="hidden" name="start_date" value="<?= $request['start_date'] ?>">
+                                <input type="hidden" name="end_date" value="<?= $request['end_date'] ?>">
+                                <input type="hidden" name="duration" value="<?= $request['num_date'] ?>">
+                                <input type="hidden" name="uremarks" value="<?= $request['remarks'] ?>">
+                                <div class="w-100">
+                                    <div class="row">
+                                        <div class="col">
+                                            <a href="#" class="btn w-100" data-bs-dismiss="modal">
+                                                បោះបង់
+                                            </a>
+                                        </div>
+                                        <div class="col">
+                                            <button type="submit" class="btn btn-success w-100">
+                                                បន្ត
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- rejected modal  -->
+            <div class="modal modal-blur fade" id="rejected<?= $request['id'] ?>" tabindex="-1" aria-modal="true" role="dialog">
+                <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <div class="modal-status bg-danger"></div>
+                        <form action="/elms/pending" method="POST" enctype="multipart/form-data">
+                            <div class="modal-body text-center py-4">
+                                <!-- Download SVG icon from http://tabler-icons.io/i/circle-check -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M12 9v4"></path>
+                                    <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"></path>
+                                    <path d="M12 16h.01"></path>
+                                </svg>
+                                <h3 class="text-danger fw-bolder">មិនអនុម័ត</h3>
+                                <div class="text-secondary mb-3">សូមចុច <span class="text-danger fw-bolder">បន្ត</span> ដើម្បីមិនអនុម័តច្បាប់ឈប់សម្រាកនេះ។</div>
+                                <a class="btn text-red w-100" data-bs-toggle="collapse" href="#rejected" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-message">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M18 3a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-4.724l-4.762 2.857a1 1 0 0 1 -1.508 -.743l-.006 -.114v-2h-1a4 4 0 0 1 -3.995 -3.8l-.005 -.2v-8a4 4 0 0 1 4 -4zm-4 9h-6a1 1 0 0 0 0 2h6a1 1 0 0 0 0 -2m2 -4h-8a1 1 0 1 0 0 2h8a1 1 0 0 0 0 -2" />
+                                    </svg>
+                                    <span>មតិយោបល់</span>
+                                </a>
+                                <div class="collapse collapse-multiple mt-3" id="rejected">
+                                    <input name="remarks" class="form-control" list="datalistOptions" placeholder="សូមបញ្ចូលមតិយោបល់...">
+                                    <datalist id="datalistOptions">
+                                        <option value="Andorra">
+                                        </option>
+                                        <option value="United Arab Emirates">
+                                        </option>
+                                        <option value="Afghanistan">
+                                        </option>
+                                        <option value="Antigua">
+                                        </option>
+                                        <option value="Anguilla">
+                                        </option>
+                                        <option value="Armenia">
+                                        </option>
+                                        <option value="Angolan">
+                                        </option>
+                                        <option value="Antarctica">
+                                        </option>
+                                        <option value="Argentina">
+                                        </option>
+                                        <option value="American Samoa">
+                                        </option>
+                                    </datalist>
+                                </div>
+                                <div class="mt-3" hidden>
+                                    <label id="file-name<?= $request['id'] ?>" for="upload-signature<?= $request['id'] ?>" class="btn w-100 text-start">ហត្ថលេខា<span class="text-red fw-bold mx-1">*</span></label>
+                                    <input type="file" name="manager_signature" id="upload-signature<?= $request['id'] ?>" accept="image/png" hidden onchange="displayFileName(<?= $request['id'] ?>)" />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
+                                <input type="hidden" name="status" value="Rejected">
+                                <input type="hidden" name="uname" value="<?= $request['khmer_name'] ?>">
+                                <input type="hidden" name="leaveType" value="<?= $request['leavetype'] ?>">
+                                <input type="hidden" name="user_id" value="<?= $request['user_id'] ?>">
+                                <input type="hidden" name="start_date" value="<?= $request['start_date'] ?>">
+                                <input type="hidden" name="end_date" value="<?= $request['end_date'] ?>">
+                                <input type="hidden" name="duration" value="<?= $request['num_date'] ?>">
+                                <input type="hidden" name="uremarks" value="<?= $request['remarks'] ?>">
+                                <div class="w-100">
+                                    <div class="row">
+                                        <div class="col">
+                                            <a href="#" class="btn w-100" data-bs-dismiss="modal">
+                                                បោះបង់
+                                            </a>
+                                        </div>
+                                        <div class="col">
+                                            <button type="submit" class="btn btn-success w-100">
+                                                បន្ត
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
     </div>
-</div>
+<?php endif; ?>
 <?php include('src/common/footer.php'); ?>
 <script>
     // @formatter:off

@@ -89,7 +89,7 @@ class HeadOfficeLeaveController
             $senderProfileImageUrl = 'public/img/icons/brands/logo2.png'; // Adjust the path as needed
 
             // Create leave request
-            $leaveRequestModel = new LeaveRequest();
+            $leaveRequestModel = new HeadOfficeLeave();
             $leaveRequestId = $leaveRequestModel->create($user_id, $leave_type_id, $leaveType['name'], $start_date, $end_date, $remarks, $duration_days, $attachment_name, $signature_name);
 
             $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
@@ -531,24 +531,80 @@ class HeadOfficeLeaveController
     public function approve()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Retrieve POST data
             $request_id = $_POST['request_id'];
             $status = $_POST['status'];
             $remarks = $_POST['remarks'];
+            $uremarks = $_POST['uremarks'];
+            $uname = $_POST['uname'];
+            $leaveType = $_POST['leaveType'];
+            $user_id = $_POST['user_id']; // ID of the user who applied for leave
+            $start_date = $_POST['start_date'];
+            $end_date = $_POST['end_date'];
+            $duration_days = $_POST['duration'];
             $approver_id = $_SESSION['user_id'];
+            $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
+            $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
-            $leaveRequestModel = new HeadOfficeLeave();
-            $leaveRequestModel->submitApproval($request_id, $approver_id, $status, $remarks);
+            // Handle file upload for manager's signature
+            $signaturePath = $this->handleFileUpload($_FILES['manager_signature'], ['png'], 1048576, 'public/uploads/signatures/');
+            if ($signaturePath === false) {
+                $_SESSION['error'] = [
+                    'title' => "ហត្ថលេខា",
+                    'message' => "មិនអាចបញ្ចូលហត្ថលេខាបានទេ។​ សូមព្យាយាមម្តងទៀត"
+                ];
+                header('location: /elms/headofficepending');
+                exit();
+            }
 
-            // Notify employee
-            // Here you would implement the notification logic
+            // Create approval record
+            $leaveApproval = new HeadOfficeLeave();
+            $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks, $signaturePath);
+
+            // Fetch office details
+            $userModel = new User();
+            $userHoffice = $userModel->getDDepart();
+            if (!is_array($userHoffice) || !isset($userHoffice['ddepartment_id'])) {
+                $_SESSION['error'] = [
+                    'title' => "Office Error",
+                    'message' => "Unable to find office details. Please contact support."
+                ];
+                header('location: /elms/headofficepending');
+                exit();
+            }
+
+            $managerEmail = $userHoffice['demail'];
+
+            // Send email notification
+            if (!$this->sendEmailNotificationToHOffice($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
+                $_SESSION['error'] = [
+                    'title' => "Email Error",
+                    'message' => "Notification email could not be sent. Please try again."
+                ];
+                header('location: /elms/headofficepending');
+                exit();
+            }
+
+            // Create notification
+            $notificationModel = new Notification();
+            $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
+            // Create Activity
+            $userModel = new User();
+            $userId = $_SESSION['user_id'];
+            $activity = "បាន " . $status . "ច្បាប់ឈប់សម្រាក " . $uname;
+            $userModel->logUserActivity($userId, $activity, $_SERVER['REMOTE_ADDR']);
+
             $_SESSION['success'] = [
                 'title' => "សំណើច្បាប់",
-                'message' => "សំណើច្បាប់ត្រូវបាន " . $status
+                'message' => "សំណើច្បាប់ត្រូវបាន " . $status . $managerEmail
             ];
             header('location: /elms/headofficepending');
+            exit();
         } else {
             $leaveRequestModel = new HeadOfficeLeave();
             $requests = $leaveRequestModel->getPendingRequestsForApprover($_SESSION['user_id']);
+            $leavetypeModel = new Leavetype();
+            $leavetypes = $leavetypeModel->getAllLeavetypes();
 
             require 'src/views/leave/headofficeapproval.php';
         }

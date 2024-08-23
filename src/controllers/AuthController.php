@@ -11,58 +11,73 @@ class AuthController
             exit;
         }
 
-        $error = '';
-
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
             $password = htmlspecialchars($_POST['password']);
 
             if ($email && $password) {
-                
                 $userModel = new User();
-                $user = $userModel->findByEmail($email);
+                $authResult = $userModel->authenticateUser($email, $password);
 
-                if (!$user) {
+                if (!$authResult || $authResult['http_code'] !== 200) {
                     $_SESSION['error'] = [
-                        'title' => "អាសយដ្ឋានអ៊ីមែល",
-                        'message' => "អាសយដ្ឋានអ៊ីមែលមិនត្រឹមត្រូវ"
+                        'title' => "Authentication Error",
+                        'message' => "Invalid email or password"
                     ];
-                } elseif (!password_verify($password, $user['password_hash'])) {
-                    $_SESSION['error'] = [
-                        'title' => "ពាក្យសម្ងាត់",
-                        'message' => "ពាក្យសម្ងាត់មិនត្រឹមត្រូវ"
-                    ];
-                } elseif ($user['status'] === 'Inactive') {
-                    // Pass user data to block page
-                    $_SESSION['blocked_user'] = true;
-                    $_SESSION['user_khmer_name'] = $user['khmer_name']; // Example: Pass user name for display
-                    $_SESSION['user_profile'] = $user['profile_picture'];
-                    require 'src/views/errors/block_page.php';
-                    exit;
                 } else {
-                    $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['user_khmer_name'] = $user['khmer_name'];
-                    $_SESSION['user_profile'] = $user['profile_picture'];
-                    $_SESSION['role'] = $user['role'];
-                    $_SESSION['officeId'] = $user['office_id'];
-                    $_SESSION['departmentId'] = $user['department_id'];
-                    $_SESSION['positionId'] = $user['position_id'];
-                    // Fetch position_name and store it in session
-                    $position = $userModel->getUserByPosition($user['id']);
-                    $_SESSION['position'] = $position['position_name'];
+                    $user = $authResult['user'];
+                    $token = $authResult['token'];
 
-                    $userModel->logLoginTrace($user['id'], $_SERVER['REMOTE_ADDR']);
+                    if ($user['status'] === 'Inactive') {
+                        $_SESSION['blocked_user'] = true;
+                        $_SESSION['user_khmer_name'] = $user['khmer_name'];
+                        $_SESSION['user_profile'] = $user['profile_picture'];
+                        require 'src/views/errors/block_page.php';
+                        exit;
+                    } else {
+                        // Store user data and token in session
+                        $_SESSION['user_id'] = $user['id'];
+                        $_SESSION['email'] = $user['email'];
+                        $_SESSION['user_khmer_name'] = $user['lastNameKh'] . ' ' . $user['firstNameKh'];
+                        $_SESSION['user_eng_name'] = $user['engName'];
+                        $_SESSION['user_profile'] = 'https://hrms.iauoffsa.us/images/' . $user['image'];
+                        // user role ftor redirec to dashboard 
+                        $_SESSION['role'] = $user['roleLeave'];
+                        $_SESSION['officeId'] = $user['officeId'];
+                        $_SESSION['departmentId'] = $user['departmentId'];
+                        // $_SESSION['positionId'] = $user['positionId'];
+                        $_SESSION['token'] = $token; // Store the token
 
-                    header('Location: /elms/dashboard');
-                    exit;
+                        // Fetch position_name and store it in session
+                        $position = $userModel->getRoleApi($user['roleId'], $token);
+                        $_SESSION['position'] = $position['data']['roleNameKh'];
+
+                        // get department api 
+                        $department = $userModel->getDepartmentApi($user['departmentId'], $token);
+                        $_SESSION['departmentName'] = $department['data']['departmentNameKh'];
+                        // get office api 
+                        $department = $userModel->getOfficeApi($user['officeId'], $token);
+                        $_SESSION['officeName'] = $department['data']['officeNameKh'];
+
+                        // Log the login trace
+                        $userModel->logLoginTrace($user['id'], $_SERVER['REMOTE_ADDR']);
+
+                        header('Location: /elms/dashboard');
+                        exit;
+                    }
                 }
             } else {
                 $_SESSION['error'] = [
-                    'title' => "ការវាយបញ្ចូលមិនត្រឹមត្រូវ",
-                    'message' => "សូមវាយបញ្ចូលអាសយដ្ឋានអ៊ីមែល និងពាក្យសម្ងាត់"
+                    'title' => "អ៊ីម៉ែល និងពាក្យសម្ងាត់",
+                    'message' => "សូមបញ្ចូលអាសយដ្ឋានអ៊ីម៉ែល និងពាក្យសម្ងាត់។"
                 ];
             }
         }
         require 'src/views/auth/login.php';
+    }
+
+    public function forgotPassword()
+    {
+        require 'src/view/auth/forgot-password.php';
     }
 }

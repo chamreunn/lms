@@ -24,6 +24,7 @@ require_once 'src/controllers/LateController.php';
 require_once 'src/controllers/SettingController.php';
 require_once 'src/controllers/MissionController.php';
 require_once 'src/controllers/DepOfficeController.php';
+require_once 'src/controllers/AdminController.php';
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
@@ -37,6 +38,10 @@ switch ($uri) {
         session_destroy();
         header("Location: $base_url/login");
         exit();
+    case $base_url . '/forgot-password':
+        $controller = new AuthController();
+        $controller->forgotPassword();
+        break;
     case $base_url . '/apply-leave':
         checkSessionAndExecute(function () {
             $controller = new LeaveController();
@@ -55,6 +60,18 @@ switch ($uri) {
             $controller->apply();
         });
         break;
+    case $base_url . '/ddep-apply-leave':
+        checkSessionAndExecute(function () {
+            $controller = new DepDepartController();
+            $controller->apply();
+        });
+        break;
+    case $base_url . '/hod-apply-leave':
+        checkSessionAndExecute(function () {
+            $controller = new HeadDepartController();
+            $controller->apply();
+        });
+        break;
     case $base_url . '/leave-requests':
         checkSessionAndExecute(function () {
             $controller = new LeaveController();
@@ -63,6 +80,18 @@ switch ($uri) {
             } else {
                 $controller->viewRequests();
             }
+        });
+        break;
+    case $base_url . '/adminpending':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->getPendingLate();
+        });
+        break;
+    case $base_url . '/adminapprovelate':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->approved();
         });
         break;
     case $base_url . '/pending':
@@ -78,7 +107,6 @@ switch ($uri) {
             $controller->approve();
         });
         break;
-
     case $base_url . '/headofficeapproval':
         checkSessionAndExecute(function () {
             $controller = new HeadOfficeLeaveController();
@@ -91,15 +119,13 @@ switch ($uri) {
             $controller->approve();
         });
         break;
-
     case $base_url . '/depdepartmentapproved':
         checkSessionAndExecute(function () {
             $controller = new DepDepartController();
             $controller->approved();
         });
         break;
-
-    case $base_url . '/headdepartmentpending':
+    case $base_url . '/headdepartpending':
         checkSessionAndExecute(function () {
             $controller = new HeadDepartController();
             $controller->approve();
@@ -185,6 +211,12 @@ switch ($uri) {
         checkSessionAndExecute(function () {
             $controller = new SettingController();
             $controller->index();
+        });
+        break;
+    case $base_url . '/view_detail':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->viewDetail();
         });
         break;
     case $base_url . '/activity':
@@ -399,7 +431,6 @@ switch ($uri) {
         checkSessionAndExecute(function () {
             $userController = new UserController();
             $userController->index();
-            include 'src/views/users/index.php';
         });
         break;
     case $base_url . '/create_user':

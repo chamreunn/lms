@@ -279,13 +279,14 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </div>
     </div>
 </div>
+
 <div class="d-flex mb-3">
     <h3 class="mb-0">បង្កើតសំណើ</h3>
 </div>
 
 <div class="row row-card mb-3">
     <div class="col-lg-3 mb-3">
-        <a href="" data-bs-toggle="modal" data-bs-target="#apply-leave" class="card card-link card-link-pop text-primary p-5 d-flex align-items-center justify-content-center">
+        <a href="" data-bs-toggle="modal" data-bs-target="#office-apply-leave" class="card card-link card-link-pop text-primary p-5 d-flex align-items-center justify-content-center">
             <div class="avatar mb-3 bg-primary-lt">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />

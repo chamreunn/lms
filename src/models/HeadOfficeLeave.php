@@ -24,8 +24,8 @@ class HeadOfficeLeave
         // Prepare and execute the SQL statement
         $stmt = $this->pdo->prepare('
             INSERT INTO leave_requests 
-            (user_id, leave_type_id, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, created_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            (user_id, leave_type_id, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, head_office, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ');
 
         $stmt->execute([
@@ -38,7 +38,8 @@ class HeadOfficeLeave
             $duration_days,
             $attachment,
             $signature,
-            'Pending'
+            'Pending',
+            'Approved'
         ]);
 
         // Return the ID of the newly created leave request
@@ -63,7 +64,7 @@ class HeadOfficeLeave
                 JOIN users u ON lr.user_id = u.id
                 JOIN positions p ON u.position_id = p.id
                 JOIN leave_types lt ON lr.leave_type_id = lt.id
-                WHERE lr.dhead_office IN (?, ? ,?) 
+                WHERE lr.dhead_office IN (?, ?) 
                 AND lr.head_office = ?
                 AND (u.office_id = ? OR u.department_id = ?)
                 AND u.role IN (?, ?)
@@ -75,12 +76,14 @@ class HeadOfficeLeave
             $stmt->execute([
                 'Approved',
                 'Rejected',
-                'Pending',
                 'Pending',         // Status to filter
                 $office_id,         // Office ID
                 $department_id,     // Department ID
-                'User', 'Deputy Head Of Office', // Roles
-                'មន្ត្រីលក្ខខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', // Position names
+                'User',
+                'Deputy Head Of Office', // Roles
+                'មន្ត្រីលក្ខខន្តិកៈ',
+                'ភ្នាក់ងាររដ្ឋបាល',
+                'អនុប្រធានការិយាល័យ', // Position names
                 $approver_id        // Exclude the approver's own requests
             ]);
 
@@ -90,7 +93,7 @@ class HeadOfficeLeave
         }
     }
 
-    public function submitApproval($leave_request_id, $approver_id, $status, $remarks)
+    public function submitApproval($leave_request_id, $approver_id, $status, $remarks, $signaturePath)
     {
         // Fetch the role of the approver
         $stmt = $this->pdo->prepare(
@@ -103,15 +106,28 @@ class HeadOfficeLeave
             throw new Exception("Invalid approver ID: $approver_id");
         }
 
-        // Insert the approval record
+        // Insert the approval record with the signature
         $stmt = $this->pdo->prepare(
-            'INSERT INTO leave_approvals (leave_request_id, approver_id, status, remarks, updated_at)
-            VALUES (?, ?, ?, ?, NOW())'
+            'INSERT INTO leave_approvals (leave_request_id, approver_id, status, remarks, signature, updated_at)
+        VALUES (?, ?, ?, ?, ?, NOW())'
         );
-        $stmt->execute([$leave_request_id, $approver_id, $status, $remarks]);
+        $stmt->execute([$leave_request_id, $approver_id, $status, $remarks, $signaturePath]);
+
+        // Get the updated_at timestamp
+        $stmt = $this->pdo->prepare(
+            'SELECT updated_at FROM leave_approvals WHERE leave_request_id = ? AND approver_id = ? ORDER BY updated_at DESC LIMIT 1'
+        );
+        $stmt->execute([$leave_request_id, $approver_id]);
+        $updatedAt = $stmt->fetchColumn();
+
+        if ($updatedAt === false) {
+            throw new Exception("Unable to fetch updated_at timestamp for approval.");
+        }
 
         // Update leave request status based on the approval chain
         $this->updateLeaveRequestStatus($leave_request_id, $status);
+
+        return $updatedAt; // Return the updated_at timestamp
     }
 
     private function updateLeaveRequestStatus($leave_request_id, $latestStatus)
@@ -166,7 +182,7 @@ class HeadOfficeLeave
             JOIN users u ON lr.user_id = u.id
             JOIN positions p ON u.position_id = p.id
             JOIN leave_types lt ON lr.leave_type_id = lt.id
-            WHERE lr.dhead_office IN (?, ?, ?) 
+            WHERE lr.dhead_office IN (?, ?) 
             AND lr.head_office = ?
             AND (u.office_id = ? OR u.department_id = ?)
             AND u.role IN (?, ?)
@@ -178,12 +194,14 @@ class HeadOfficeLeave
             $stmt->execute([
                 'Approved',
                 'Rejected',
-                'Pending',
                 'Pending',          // Status to filter
                 $office_id,         // Office ID
                 $department_id,     // Department ID
-                'User', 'Deputy Head Of Office', // Roles
-                'មន្ត្រីលក្ខខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', // Position names
+                'User',
+                'Deputy Head Of Office', // Roles
+                'មន្ត្រីលក្ខខន្តិកៈ',
+                'ភ្នាក់ងាររដ្ឋបាល',
+                'អនុប្រធានការិយាល័យ', // Position names
                 $approver_id        // Exclude the approver's own requests
             ]);
 
@@ -211,7 +229,7 @@ class HeadOfficeLeave
             JOIN users u ON lr.user_id = u.id
             JOIN positions p ON u.position_id = p.id
             JOIN leave_types lt ON lr.leave_type_id = lt.id
-            WHERE lr.dhead_office IN (?, ?, ?) 
+            WHERE lr.dhead_office IN (?, ?) 
             AND lr.head_office = ?
             AND (u.office_id = ? OR u.department_id = ?)
             AND u.role IN (?, ?)
@@ -223,12 +241,14 @@ class HeadOfficeLeave
             $stmt->execute([
                 'Approved',
                 'Rejected',
-                'Pending',
                 'Approved',          // Status to filter
                 $office_id,         // Office ID
                 $department_id,     // Department ID
-                'User', 'Deputy Head Of Office', // Roles
-                'មន្ត្រីលក្ខខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', // Position names
+                'User',
+                'Deputy Head Of Office', // Roles
+                'មន្ត្រីលក្ខខន្តិកៈ',
+                'ភ្នាក់ងាររដ្ឋបាល',
+                'អនុប្រធានការិយាល័យ', // Position names
                 $approver_id        // Exclude the approver's own requests
             ]);
 
@@ -256,7 +276,7 @@ class HeadOfficeLeave
             JOIN users u ON lr.user_id = u.id
             JOIN positions p ON u.position_id = p.id
             JOIN leave_types lt ON lr.leave_type_id = lt.id
-            WHERE lr.dhead_office IN (?, ?, ?) 
+            WHERE lr.dhead_office IN (?, ?) 
             AND lr.head_office = ?
             AND (u.office_id = ? OR u.department_id = ?)
             AND u.role IN (?, ?)
@@ -268,12 +288,14 @@ class HeadOfficeLeave
             $stmt->execute([
                 'Approved',
                 'Rejected',
-                'Pending',
                 'Rejected',          // Status to filter
                 $office_id,         // Office ID
                 $department_id,     // Department ID
-                'User', 'Deputy Head Of Office', // Roles
-                'មន្ត្រីលក្ខខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', // Position names
+                'User',
+                'Deputy Head Of Office', // Roles
+                'មន្ត្រីលក្ខខន្តិកៈ',
+                'ភ្នាក់ងាររដ្ឋបាល',
+                'អនុប្រធានការិយាល័យ', // Position names
                 $approver_id        // Exclude the approver's own requests
             ]);
 
@@ -319,8 +341,11 @@ class HeadOfficeLeave
                 'Pending',          // Status to filter
                 $office_id,         // Office ID
                 $department_id,     // Department ID
-                'User', 'Deputy Head Of Office', // Roles
-                'មន្ត្រីលក្ខខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', // Position names
+                'User',
+                'Deputy Head Of Office', // Roles
+                'មន្ត្រីលក្ខខន្តិកៈ',
+                'ភ្នាក់ងាររដ្ឋបាល',
+                'អនុប្រធានការិយាល័យ', // Position names
                 $approver_id        // Exclude the approver's own requests
             ]);
 
@@ -365,8 +390,11 @@ class HeadOfficeLeave
                 'Approved',         // dhead_department status
                 $office_id,         // Office ID
                 $department_id,     // Department ID
-                'User', 'Deputy Head Of Office',           // Role
-                'មន្ត្រីលក្ខខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', // Position names
+                'User',
+                'Deputy Head Of Office',           // Role
+                'មន្ត្រីលក្ខខន្តិកៈ',
+                'ភ្នាក់ងាររដ្ឋបាល',
+                'អនុប្រធានការិយាល័យ', // Position names
                 $approver_id        // Exclude the approver's own requests
             ]);
 

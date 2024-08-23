@@ -128,6 +128,9 @@
                             </span>
                             <span class="nav-link-title">
                                 សំណើច្បាប់
+                                <?php if (!empty($requestscount)) : ?>
+                                    <span class="badge bg-red text-red-fg ms-2"><?= $requestscount; ?></span>
+                                <?php endif; ?>
                             </span>
                         </a>
                         <div class="dropdown-menu">
@@ -146,6 +149,9 @@
                                             </svg>
                                         </span>
                                         កំពុងរង់ចាំ
+                                        <?php if (!empty($requestscount)) : ?>
+                                            <span class="badge bg-red text-red-fg ms-2"><?= $requestscount; ?></span>
+                                        <?php endif; ?>
                                     </a>
                                     <a class="dropdown-item <?= ($current_page == 'depdepartmentapproved') ? 'active' : '' ?>" href="/elms/depdepartmentapproved">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -160,6 +166,9 @@
                                             </svg>
                                         </span>
                                         បានអនុម័ត
+                                        <?php if ($approvedCount > 0) : ?>
+                                            <span class="badge bg-red text-red-fg ms-auto"><?= $approvedCount; ?></span>
+                                        <?php endif; ?>
                                     </a>
                                     <a class="dropdown-item <?= ($current_page == 'rejected') ? 'active' : '' ?>" href="/elms/rejected">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">

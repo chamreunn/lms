@@ -18,13 +18,72 @@ class User
         return $stmt->fetch();
     }
 
+    public function authenticateUser($email, $password)
+    {
+        $url = 'https://hrms.iauoffsa.us/api/login';
+        $data = json_encode(['email' => $email, 'password' => $password]);
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($data)
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+        // Ignore SSL certificate verification (only for development)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        // Debugging output
+        // echo "<pre>";
+        // echo "Request URL: $url\n";
+        // echo "Request Data: " . print_r($data, true) . "\n";
+        // echo "HTTP Code: $httpCode\n";
+        // echo "CURL Error: $error\n";
+        // echo "Response: $response\n";
+        // echo "</pre>";
+
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return null;
+        }
+
+        $responseData = json_decode($response, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return null;
+        }
+
+        if ($httpCode === 200 && isset($responseData['user'], $responseData['token'])) {
+            return [
+                'http_code' => $httpCode,
+                'user' => $responseData['user'],
+                'token' => $responseData['token']
+            ];
+        } else {
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            return [
+                'http_code' => $httpCode,
+                'response' => $responseData
+            ];
+        }
+    }
+
     public function logLoginTrace($userId, $ipAddress)
     {
         $stmt = $this->pdo->prepare('INSERT INTO login_traces (user_id, login_time, ip_address) VALUES (?, NOW(), ?)');
         $stmt->execute([$userId, $ipAddress]);
     }
 
-    function logUserActivity($userId, $action, $details = null)
+    public function logUserActivity($userId, $action, $details = null)
     {
         // Assuming you have a PDO connection $pdo
         $stmt = $this->pdo->prepare('INSERT INTO user_activity_log (user_id, action, timestamp, details, ip_address) VALUES (?, ?, NOW(), ?, ?)');
@@ -133,7 +192,230 @@ class User
             $id = $_SESSION['user_id'];
         }
 
-        $stmt = $this->pdo->prepare("SELECT users.*, positions.name AS position_name FROM users JOIN positions ON users.position_id = positions.id WHERE users.id = :id");
+        $stmt = $this->pdo->prepare("
+        SELECT users.*, positions.name AS position_name, positions.color AS color 
+        FROM users 
+        JOIN positions ON users.position_id = positions.id 
+        WHERE users.id = :id
+    ");
+        $stmt->execute(['id' => $id]);
+        $result = $stmt->fetch();
+
+        if ($result && !empty($result['position_name'])) {
+            return $result;
+        } else {
+            // Position is not valid, handle the error
+            $_SESSION['error'] = [
+                'title' => "Position Error",
+                'message' => "The user's position is not valid or does not exist"
+            ];
+            header('Location: /elms/error'); // Redirect to an error page or handle it appropriately
+            exit;
+        }
+    }
+
+    public function getAllUserApi($token)
+    {
+        $url = 'https://hrms.iauoffsa.us/api/v1/users/';
+
+        // Initialize cURL session
+        $ch = curl_init($url);
+
+        // Set cURL options
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Authorization: Bearer ' . $token
+        ));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+
+        // Execute cURL request
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+
+        // Close the cURL session
+        curl_close($ch);
+
+        // Check for cURL errors
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            echo "CURL Error: $error";
+            return null;
+        }
+
+        // Decode the JSON response
+        $responseData = json_decode($response, true);
+
+        // Handle JSON decoding errors
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            echo "JSON Decode Error: " . json_last_error_msg();
+            return null;
+        }
+
+        // Check if the response is successful and contains the expected data
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            $users = $responseData['data'];
+            $usersWithRoles = [];
+
+            // Fetch role information for each user
+            foreach ($users as $user) {
+                $roleResponse = $this->getRoleApi($user['roleId'], $token);
+                $user['role'] = ($roleResponse && $roleResponse['http_code'] === 200) ? $roleResponse['data']['roleNameKh'] : 'Unknown';
+                $usersWithRoles[] = $user;
+            }
+
+            return [
+                'http_code' => $httpCode,
+                'data' => $usersWithRoles,
+            ];
+        } else {
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            echo "Unexpected API Response: " . print_r($responseData, true);
+            return [
+                'http_code' => $httpCode,
+                'response' => $responseData
+            ];
+        }
+    }
+
+    public function getRoleApi($id, $token)
+    {
+        $url = 'https://hrms.iauoffsa.us/api/v1/roles/' . $id;
+
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Authorization: Bearer ' . $token
+        ));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return null;
+        }
+
+        $responseData = json_decode($response, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return null;
+        }
+
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            return [
+                'http_code' => $httpCode,
+                'data' => $responseData['data'],
+            ];
+        } else {
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            return [
+                'http_code' => $httpCode,
+                'response' => $responseData
+            ];
+        }
+    }
+
+    public function getOfficeApi($id, $token)
+    {
+        $url = 'https://hrms.iauoffsa.us/api/v1/offices/' . $id;
+
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Authorization: Bearer ' . $token
+        ));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return null;
+        }
+
+        $responseData = json_decode($response, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return null;
+        }
+
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            return [
+                'http_code' => $httpCode,
+                'data' => $responseData['data'],
+            ];
+        } else {
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            return [
+                'http_code' => $httpCode,
+                'response' => $responseData
+            ];
+        }
+    }
+
+    public function getDepartmentApi($id, $token)
+    {
+        $url = 'https://hrms.iauoffsa.us/api/v1/departments/' . $id;
+
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Authorization: Bearer ' . $token
+        ));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return null;
+        }
+
+        $responseData = json_decode($response, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return null;
+        }
+
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            return [
+                'http_code' => $httpCode,
+                'data' => $responseData['data'],
+            ];
+        } else {
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            return [
+                'http_code' => $httpCode,
+                'response' => $responseData
+            ];
+        }
+    }
+
+    public function getUserByDepartment($id = null)
+    {
+        if ($id === null) {
+            // Assuming $_SESSION['user_id'] is set and contains the user ID
+            $id = $_SESSION['user_id'];
+        }
+
+        $stmt = $this->pdo->prepare("SELECT users.*, departments.name AS department_name FROM users JOIN departments ON users.department_id = departments.id WHERE users.id = :id");
         $stmt->execute(['id' => $id]);
         return $stmt->fetch();
     }
@@ -187,5 +469,35 @@ class User
     ");
         $stmt->execute(['id' => $_SESSION['departmentId']]);
         return $stmt->fetch();
+    }
+
+    public function getHDepart()
+    {
+        $stmt = $this->pdo->prepare("
+        SELECT users.*, departments.name AS department_name, departments.hdepartment_id, users.email AS hemail, users.phone_number AS hnumber, users.khmer_name AS hkhmer_name
+        FROM users 
+        JOIN departments ON users.id = departments.hdepartment_id
+        WHERE departments.id = :id
+    ");
+        $stmt->execute(['id' => $_SESSION['departmentId']]);
+        return $stmt->fetch();
+    }
+
+    public function getDUnit_1()
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE role = :role");
+        $stmt->execute(['role' => "Deputy Of Unit 1"]);
+
+        // Fetch the first user with the role "Deputy Of Unit 2"
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getDUnit_2()
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE role = :role");
+        $stmt->execute(['role' => "Deputy Of Unit 2"]);
+
+        // Fetch the first user with the role "Deputy Of Unit 2"
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }

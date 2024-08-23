@@ -91,7 +91,7 @@ class DepOfficeController
             $senderProfileImageUrl = 'public/img/icons/brands/logo2.png'; // Adjust the path as needed
 
             // Create leave request
-            $leaveRequestModel = new LeaveRequest();
+            $leaveRequestModel = new DepHeadOfficeModel();
             $leaveRequestId = $leaveRequestModel->create($user_id, $leave_type_id, $leaveType['name'], $start_date, $end_date, $remarks, $duration_days, $attachment_name, $signature_name);
 
             $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);

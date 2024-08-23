@@ -229,7 +229,7 @@ ob_start();
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer bg-light">
                     <button type="button" class="btn" data-bs-dismiss="modal">បោះបង់</button>
                     <button type="submit" class="btn btn-primary">
                         <span>បង្កើតសំណើ</span>
@@ -427,16 +427,6 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                         <path d="M9 7l0 -3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1l0 3" />
                                     </svg>
                                 </a>
-                                <?php if ($request['status'] == 'Approved') : ?>
-                                    <a href="#" title="ទាញយក" data-bs-placement="right" class="icon delete-btn text-success" data-bs-toggle="modal" data-bs-target="#download<?= htmlspecialchars($request['id']) ?>">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-download">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
-                                            <path d="M7 11l5 5l5 -5" />
-                                            <path d="M12 4l0 12" />
-                                        </svg>
-                                    </a>
-                                <?php endif; ?>
                                 <a href="#" class="d-sm-none" title="បង្ហាញបន្ថែម" data-bs-toggle="collapse" data-bs-target="#collapseRequest<?= $request['id'] ?>" aria-expanded="false" aria-controls="collapseRequest<?= $request['id'] ?>">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-dots">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -489,164 +479,6 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                             </td>
                         </tr>
 
-                        <!-- download  -->
-                        <div class="modal modal-blur fade" id="download<?= htmlspecialchars($request['id']) ?>" tabindex="-1" role="dialog" aria-hidden="true">
-                            <div class="modal-dialog modal-md modal-dialog-centered" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h4 class="modal-title mb-0">ទាញយក</h4>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="mb-3 mt-0">
-                                            <label class="form-label fw-bolder">ឈ្មោះរបាយការណ៍<span class="text-danger fw-bold mx-1">*</span></label>
-                                            <input type="text" class="form-control" name="filename" value="ច្បាប់ឈប់សម្រាក">
-                                        </div>
-                                        <label class="form-label fw-bolder">ទាញយកជា<span class="text-danger fw-bold mx-1">*</span></label>
-                                        <div class="form-selectgroup-boxes row">
-                                            <div class="col-lg-12 mb-3">
-                                                <label class="form-selectgroup-item">
-                                                    <input type="radio" name="report-type" value="<?= $request['id'] ?>" class="form-selectgroup-input" checked="">
-                                                    <span class="form-selectgroup-label d-flex align-items-center p-3">
-                                                        <span class="me-3">
-                                                            <span class="form-selectgroup-check"></span>
-                                                        </span>
-                                                        <span class="form-selectgroup-label-content">
-                                                            <span class="form-selectgroup-title strong mb-1" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file-word">
-                                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                                                    <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2" />
-                                                                    <path d="M9 12l1.333 5l1.667 -4l1.667 4l1.333 -5" />
-                                                                </svg>
-                                                                <span class="mx-1">WORD</span>
-                                                            </span>
-                                                            <span class="d-block text-secondary"></span>
-                                                        </span>
-                                                    </span>
-                                                </label>
-                                            </div>
-                                            <div class="col-lg-12">
-                                                <label class="form-selectgroup-item">
-                                                    <input type="radio" name="report-type" value="<?= $request['id'] ?>" class="form-selectgroup-input">
-                                                    <span class="form-selectgroup-label d-flex align-items-center p-3">
-                                                        <span class="me-3">
-                                                            <span class="form-selectgroup-check"></span>
-                                                        </span>
-                                                        <span class="form-selectgroup-label-content">
-                                                            <span class="form-selectgroup-title strong mb-1" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file-type-pdf">
-                                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                                                    <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />
-                                                                    <path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" />
-                                                                    <path d="M17 18h2" />
-                                                                    <path d="M20 15h-3v6" />
-                                                                    <path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z" />
-                                                                </svg>
-                                                                <span class="mx-1">PDF</span>
-                                                            </span>
-                                                            <span class="d-block text-secondary"></span>
-                                                        </span>
-                                                    </span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer bg-light border-top">
-                                        <div class="w-100">
-                                            <div class="row">
-                                                <div class="col">
-                                                    <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
-                                                </div>
-                                                <div class="col">
-                                                    <button type="submit" class="btn btn-danger ms-auto w-100">ទាញយក</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <?php if ($request['status'] == 'Approved') : ?>
-                            <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4" hidden>
-                                <div id="page-contents<?= $request['id'] ?>" class="card invoice-preview-card" style="height: 100vh">
-                                    <div class="card-body">
-                                        <div class="page-container hidden-on-narrow">
-                                            <div class="pdf-page size-a4">
-                                                <div class="pdf-header">
-                                                    <center class="invoice-number" style="font-family: khmer mef2;color: #2F5496;font-size: 20px; margin-top: -2px;">ព្រះរាជាណាចក្រកម្ពុជា<br>
-                                                        ជាតិ សាសនា ព្រះមហាក្សត្រ
-                                                    </center>
-                                                </div>
-                                                <div class="page-body">
-                                                    <div class="mb-xl-0 mb-2">
-                                                        <div class="for" style="font-family: khmer mef2; margin-top: -20px; font-size:20px; position: relative; color: #2F5496;">
-                                                            <span class="company-logo">
-                                                                <img src="public/img/icons/brands/logo2.png" class="mb-3" style="width: 168px; padding-left: 50px" />
-                                                            </span>
-                                                            <p style="font-size: 14px; margin-bottom: 0;">អាជ្ញាធរសេវាហិរញ្ញវត្ថុមិនមែនធនាគារ</p>
-                                                            <p style="font-size: 14px; text-indent: 40px; margin-bottom: 0; padding-bottom: 0; line-height:30px;">អង្គភាពសវនកម្មផ្ទៃក្នុង <br>
-                                                            <p style="font-size: 14px; text-indent: 25px;">លេខ:.......................អ.ស.ផ.</p>
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <center style="text-align: center; font-family: khmer mef2; font-size: 19px; margin-top: -50px" class="mb-3">
-                                                        សូមគោរពជូន
-                                                    </center>
-                                                    <center style="text-align: center; font-family: khmer mef2; font-size: 19px;" class="mb-3">
-                                                        លោកប្រធាន<?= $request['department_name'] ?>
-                                                    </center>
-                                                    <p style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align:justify; text-indent: 50px;"><strong class="h3">កម្មវត្ថុ៖</strong> សំណើសុំច្បាប់ឈប់សម្រាកចំនួន <?= translateDateToKhmer($request['num_date'], 'd') ?>ថ្ងៃ ដោយគិតចាប់ពីថ្ងៃទី <?= translateDateToKhmer($request['start_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['start_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['start_date'], 'Y') ?> ដល់ថ្ងៃទី <?= translateDateToKhmer($request['end_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['end_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['end_date'], 'Y') ?></p>
-                                                    <p style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align:justify; text-indent: 50px;"><strong class="h3">មូលហេតុ៖</strong> <?= $request['remarks'] ?> ។</p>
-                                                    <p style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align:justify; text-indent: 50px;">
-                                                        តបតាមកម្មវត្ថុខាងលើ ខ្ញុំសូមគោរពជម្រាបជូន លោកប្រធាននាយកដ្ឋាន មេត្តាជ្រាបដ៏ខ្ពង់ខ្ពស់ថា៖ខ្ញុំបាទ/ នាងខ្ញុំឈ្មោះ<?= $request['user_name'] ?>កើតថ្ងៃទី <?= translateDateToKhmer($request['dob'], 'd') ?> ខែ <?= translateDateToKhmer($request['dob'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['dob'], 'Y') ?> មានតួនាទីជា <?= $request['position_name'] ?> នៃ <?= $request['office_name'] ?> នៃ <?= $request['department_name'] ?> ខ្ញុំសូមគោរពស្នើសុំការអនុញ្ញាតច្បាប់ចំនួន <?= translateDateToKhmer($request['num_date'], 'd') ?>ថ្ងៃ ដោយគិតចាប់ពីថ្ងៃទី <?= translateDateToKhmer($request['start_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['start_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['start_date'], 'Y') ?> ដល់ថ្ងៃទី <?= translateDateToKhmer($request['end_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['end_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['end_date'], 'Y') ?>
-                                                        ដូចមូលហេតុ និងកាលបរិច្ឆេទក្នុងកម្មវត្ថុខាងលើ។
-                                                    </p>
-                                                    <p style="font-family: khmer mef1; font-size:16px; text-align:justify; text-indent: 50px;">
-                                                        សេចក្តីដូចបានជម្រាបជូនខាងលើ សូម លោកប្រធាននាយកដ្ឋាន មេត្តាពិនិត្យ និងសម្រេចអនុញ្ញាតច្បាប់ដោយក្តីអនុគ្រោះ។
-                                                    </p>
-                                                    <p style="font-family: khmer mef1; font-size:16px; text-align:justify; text-indent: 50px;">
-                                                        សូម <b>លោកប្រធាននាយកដ្ឋាន </b> មេត្តាទទួលនូវការគោរពដ៏ខ្ពង់ខ្ពស់អំពីខ្ញុំ ។
-                                                    </p>
-                                                    <div class="row">
-                                                        <?php foreach ($request['hoffice'] as $approval) : ?>
-                                                            <div class="col" style="font-family: khmer mef1; font-size:16px; line-height: 30px; text-align:justify; text-align:center;">
-                                                                <p style="margin-bottom: 0;">គួរឯកភាព, គោរពស្នើសុំការសម្រេចពី</p>
-                                                                <p style="margin-bottom: 0;">លោកប្រធានការិយាល័យ</p>
-                                                                <p style="margin-bottom: 5px;">រាជធានីភ្នំពេញ ថ្ងៃទី <?= translateDateToKhmer($approval['updated_at'], 'd') ?> ខែ <?= translateDateToKhmer($approval['updated_at'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'], 'Y') ?></p>
-                                                                <h3 style="margin-bottom: 0;"><?= $request['office_name'] ?></h3>
-                                                                <h3 class="mb-3">ប្រធាន</h3>
-                                                                <img style="width: 200px;" src="public/uploads/signatures/<?= $approval['signature'] ?>" class="mb-3"></img>
-                                                                <h3 class="mb-0"><?= $approval['approver_name'] ?></h3>
-                                                            </div>
-                                                        <?php endforeach; ?>
-                                                        <div class="col" style="font-family: khmer mef1; font-size:18px; line-height: 30px; text-align:justify; text-align:center;">
-                                                            <p style="margin-bottom: 0;">រាជធានីភ្នំពេញ ថ្ងៃទី <?= translateDateToKhmer($approval['created_at'], 'd') ?> ខែ <?= translateDateToKhmer($approval['created_at'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($approval['created_at'], 'Y') ?></p>
-                                                            <h3 class="mb-3">មន្ត្រីជំនាញ</h3>
-                                                            <img style="width: 200px;" src="public/uploads/signatures/<?= $request['signature'] ?>" class="mb-3"></img>
-                                                            <h3 class="mb-0"><?= $request['user_name'] ?></h3>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col">
-                                                            <?php foreach ($request['hdepartment'] as $approval) : ?>
-                                                                <div class="col ms-auto" style="font-family: khmer mef1; font-size:18px; line-height: 30px; text-align:justify; text-align:center;">
-                                                                    <p style="margin-bottom: 0;">ឯកភាពតាមសំណើ</p>
-                                                                    <p style="margin-bottom: 5px;">រាជធានីភ្នំពេញ ថ្ងៃទី <?= translateDateToKhmer($approval['updated_at'], 'd') ?> ខែ <?= translateDateToKhmer($approval['updated_at'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'], 'Y') ?></p>
-                                                                    <h3 class="mb-3">ប្រធាននាយកដ្ឋាន</h3>
-                                                                    <img style="width: 200px;" src="public/uploads/signatures/<?= $approval['signature'] ?>" class="mb-3" />
-                                                                    <h3 class="mb-0"><?= $approval['approver_name'] ?></h3>
-                                                                </div>
-                                                            <?php endforeach; ?>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endif; ?>
                         <!-- delete  -->
                         <div class="modal modal-blur fade" id="deleteModal<?= htmlspecialchars($request['id']) ?>" tabindex="-1" role="dialog" aria-hidden="true">
                             <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
@@ -664,8 +496,8 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                             <h5 class="modal-title fw-bold text-danger">លុបសំណើច្បាប់</h5>
                                             <p class="mb-0">តើអ្នកប្រាកដទេថានិងលុបសំណើច្បាប់នេះ?</p>
                                         </div>
-                                        <div class="modal-footer bg-light border-top">
-                                            <div class="w-100 mt-3">
+                                        <div class="modal-footer bg-light">
+                                            <div class="w-100">
                                                 <div class="row">
                                                     <div class="col">
                                                         <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
@@ -685,6 +517,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
             </tbody>
         </table>
     </div>
+    
     <div class="card-footer d-flex justify-content-end rounded-3">
         <ul class="pagination mb-0">
             <!-- Previous Page Link -->
