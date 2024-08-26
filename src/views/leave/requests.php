@@ -347,6 +347,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                     <th class="d-none d-sm-table-cell">ចាប់ពីកាលបរិច្ឆេទ</th>
                     <th class="d-none d-sm-table-cell">ដល់កាលបរិច្ឆេទ</th>
                     <th class="d-none d-sm-table-cell">រយៈពេល</th>
+                    <th class="d-none d-sm-table-cell">ស្ថានភាព</th>
                     <th class="d-none d-sm-table-cell">មូលហេតុ</th>
                     <th>សកម្មភាព</th>
                 </tr>
@@ -384,19 +385,12 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                         <tr>
                             <td>
                                 <div class="d-flex">
-                                    <img src="<?= $request['user_profile'] ?>" class="avatar" style="object-fit: cover;" alt="">
+                                    <img src="<?= $_SESSION['user_profile'] ?>" class="avatar" style="object-fit: cover;" alt="">
                                     <div class="d-flex flex-column mx-2">
                                         <h4 class="mx-0 mb-1 text-primary">
-                                            <?= $request['user_name'] ?>
-                                            <strong class="badge
-                                    <?= $request['status'] == 'Pending' ? 'bg-warning' : '' ?>
-                                    <?= $request['status'] == 'Approved' ? 'bg-success' : '' ?>
-                                    <?= $request['status'] == 'Rejected' ? 'bg-danger' : '' ?>
-                                    <?= $request['status'] == 'Cancelled' ? 'bg-secondary' : '' ?> me-1">
-                                                <?= htmlspecialchars($request['status']) ?>
-                                            </strong>
+                                            <?= $_SESSION['user_khmer_name'] ?>
                                         </h4>
-                                        <span class="text-muted"><?= $request['user_email'] ?></span>
+                                        <span class="text-muted"><?= $_SESSION['email'] ?></span>
                                     </div>
                                 </div>
                             </td>
@@ -405,7 +399,16 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                             </td>
                             <td class="d-none d-sm-table-cell"><?= translateDateToKhmer($request['start_date'], 'D,j F Y') ?></td>
                             <td class="d-none d-sm-table-cell"><?= translateDateToKhmer($request['end_date'], 'D,j F Y') ?></td>
-                            <td class="d-none d-sm-table-cell"><?= $request['duration'] ?>ថ្ងៃ</td>
+                            <td class="d-none d-sm-table-cell"><?= $request['num_date'] ?>ថ្ងៃ</td>
+                            <td class="d-none d-sm-table-cell">
+                                <strong class="badge
+                                    <?= $request['status'] == 'Pending' ? 'bg-warning-lt' : '' ?>
+                                    <?= $request['status'] == 'Approved' ? 'bg-success-lt' : '' ?>
+                                    <?= $request['status'] == 'Rejected' ? 'bg-danger-lt' : '' ?>
+                                    <?= $request['status'] == 'Cancelled' ? 'bg-secondary-lt' : '' ?> me-1">
+                                    <?= htmlspecialchars($request['status']) ?>
+                                </strong>
+                            </td>
                             <td class="d-none d-sm-table-cell">
                                 <span class="text-truncate" data-bs-placement="top" data-bs-toggle="tooltip" title="<?= htmlspecialchars($request['remarks']) ?>"><?= htmlspecialchars($request['remarks']) ?></span>
                             </td>
@@ -517,7 +520,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
             </tbody>
         </table>
     </div>
-    
+
     <div class="card-footer d-flex justify-content-end rounded-3">
         <ul class="pagination mb-0">
             <!-- Previous Page Link -->

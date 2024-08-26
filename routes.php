@@ -97,7 +97,7 @@ switch ($uri) {
     case $base_url . '/pending':
         checkSessionAndExecute(function () {
             $controller = new LeaveController();
-            $controller->approve();
+            $controller->pending();
         });
         break;
 

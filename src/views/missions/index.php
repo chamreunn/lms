@@ -221,12 +221,12 @@ include('src/common/header.php');
                         <tr>
                             <td>
                                 <div class="d-flex">
-                                    <img src="<?= $mission['profile_picture'] ?>" class="avatar" style="object-fit: cover;" alt="">
+                                    <img src="<?= $_SESSION['user_profile'] ?>" class="avatar" style="object-fit: cover;" alt="">
                                     <div class="d-flex flex-column mx-2">
                                         <h4 class="mx-0 mb-1 text-primary">
-                                            <?= $mission['khmer_name'] ?>
+                                            <?= $_SESSION['user_khmer_name'] ?>
                                         </h4>
-                                        <span class="text-muted"><?= $mission['email'] ?></span>
+                                        <span class="text-muted"><?= $_SESSION['email'] ?></span>
                                     </div>
                                 </div>
                             </td>

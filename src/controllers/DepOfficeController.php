@@ -4,6 +4,7 @@ require_once 'src/models/LeaveApproval.php';
 require_once 'src/models/Leavetype.php';
 require_once 'src/models/User.php';
 require_once 'src/models/Notification.php';
+require_once 'src/models/DepHeadOfficeModel.php';
 require_once 'src/vendor/autoload.php'; // Ensure PHPMailer is autoloaded
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -16,13 +17,19 @@ class DepOfficeController
 
             $userModel = new User();
 
+            // Fetch session details
             $user_id = $_SESSION['user_id'];
+            $position = $_SESSION['position'];
+            $office = $_SESSION['officeName'];
+            $department = $_SESSION['departmentName'];
+
+            // Retrieve POST data
             $leave_type_id = $_POST['leave_type_id'];
             $start_date = $_POST['start_date'];
             $end_date = $_POST['end_date'];
             $remarks = $_POST['remarks'];
             $message = $_SESSION['user_khmer_name'] . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
-            $activity =  "បានស្នើសុំច្បាប់ឈប់សម្រាក។";
+            $activity = "បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
             // Handle file upload for attachment
             $attachment_name = $this->handleFileUpload($_FILES['attachment'], ['docx', 'pdf'], 2097152, 'public/uploads/leave_attachments/');
@@ -46,7 +53,7 @@ class DepOfficeController
                 exit();
             }
 
-            // Fetch leave type details including duration from database
+            // Fetch leave type details
             $leaveTypeModel = new Leavetype();
             $leaveType = $leaveTypeModel->getLeaveTypeById($leave_type_id);
             if (!$leaveType) {
@@ -75,9 +82,10 @@ class DepOfficeController
                 exit();
             }
 
-            // Fetch the user's office details
-            $userDoffice = $userModel->gethOffice();
-            if (!is_array($userDoffice) || !isset($userDoffice['hoffice_id'])) {
+            // Fetch the user's office details using API
+            $userHoffice = $userModel->getEmailLeaderHOApi($_SESSION['user_id'], $_SESSION['token']);
+            if (!$userHoffice || $userHoffice['http_code'] !== 200 || empty($userHoffice['emails'])) {
+                error_log("API Response: " . print_r($userHoffice, true));
                 $_SESSION['error'] = [
                     'title' => "Office Error",
                     'message' => "Unable to find office details. Please contact support."
@@ -86,24 +94,31 @@ class DepOfficeController
                 exit();
             }
 
-            $managerEmail = $userDoffice['hemail'];
-            $managerNumber = $userDoffice['hnumber'];
-            $senderProfileImageUrl = 'public/img/icons/brands/logo2.png'; // Adjust the path as needed
+            // Convert emails array to string if necessary
+            $managerEmail = $userHoffice['emails'];
+            if (is_array($managerEmail)) {
+                $managerEmail = implode(',', $managerEmail); // Convert array to comma-separated string
+            }
 
             // Create leave request
             $leaveRequestModel = new DepHeadOfficeModel();
-            $leaveRequestId = $leaveRequestModel->create($user_id, $leave_type_id, $leaveType['name'], $start_date, $end_date, $remarks, $duration_days, $attachment_name, $signature_name);
+            $leaveRequestId = $leaveRequestModel->create(
+                $user_id,
+                $leave_type_id,
+                $position,
+                $office,
+                $department,
+                $leaveType['name'],
+                $start_date,
+                $end_date,
+                $remarks,
+                $duration_days,
+                $attachment_name,
+                $signature_name
+            );
 
+            // Log the user's activity
             $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
-            // Send email notification 
-            if (!$this->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
-                $_SESSION['error'] = [
-                    'title' => "Email Error",
-                    'message' => "Notification email could not be sent. Please try again."
-                ];
-                header("Location: /elms/apply-leave");
-                exit();
-            }
 
             if (!$leaveRequestId) {
                 $_SESSION['error'] = [
@@ -113,13 +128,24 @@ class DepOfficeController
                 header("Location: /elms/apply-leave");
                 exit();
             }
+
+            // Send email notification
+            if (!$this->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
+                $_SESSION['error'] = [
+                    'title' => "Email Error",
+                    'message' => "Notification email could not be sent. Please try again."
+                ];
+                header("Location: /elms/apply-leave");
+                exit();
+            }
+
             // Create notification for the user
             $notificationModel = new Notification();
-            $notificationModel->createNotification($userDoffice['hoffice_id'], $user_id, $leaveRequestId, $message);
+            $notificationModel->createNotification($userHoffice['ids'], $user_id, $leaveRequestId, $message);
 
             $_SESSION['success'] = [
                 'title' => "ជោគជ័យ",
-                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $userDoffice['hemail']
+                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
             ];
             header("Location: /elms/leave-requests");
             exit();
@@ -583,7 +609,7 @@ class DepOfficeController
 
             // Fetch office details
             $userModel = new User();
-            $userHoffice = $userModel->gethOffice();
+            $userHoffice = $userModel->getEmailLeaderHOApi($_SESSION['user_id'], $_SESSION['token']);
             if (!is_array($userHoffice) || !isset($userHoffice['hoffice_id'])) {
                 $_SESSION['error'] = [
                     'title' => "Office Error",
@@ -617,7 +643,7 @@ class DepOfficeController
             exit();
         } else {
             $leaveApprovalModel = new LeaveApproval();
-            $requests = $leaveApprovalModel->getPendingRequestsForApprover($_SESSION['user_id']);
+            $requests = $leaveApprovalModel->getPending($_SESSION['user_id']);
             $leavetypeModel = new Leavetype();
             $leavetypes = $leavetypeModel->getAllLeavetypes();
 

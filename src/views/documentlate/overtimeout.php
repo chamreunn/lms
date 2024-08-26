@@ -179,10 +179,12 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                             <tr>
                                 <td>
                                     <div class="d-flex">
-                                        <img src="<?= $getlate['profile'] ?>" class="avatar" style="object-fit: cover;" alt="">
+                                        <img src="<?= $_SESSION['user_profile'] ?>" class="avatar" style="object-fit: cover;" alt="">
                                         <div class="d-flex flex-column mx-2">
-                                            <h4 class="mx-0 mb-1 text-primary"><?= $getlate['khmer_name'] ?></h4>
-                                            <span class="text-muted"><?= $getlate['email'] ?></span>
+                                            <h4 class="mx-0 mb-1 text-primary">
+                                                <?= $_SESSION['user_khmer_name'] ?>
+                                            </h4>
+                                            <span class="text-muted"><?= $_SESSION['email'] ?></span>
                                         </div>
                                     </div>
                                 </td>

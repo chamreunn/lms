@@ -563,7 +563,7 @@ class HeadOfficeLeaveController
 
             // Fetch office details
             $userModel = new User();
-            $userHoffice = $userModel->getDDepart();
+            $userHoffice = $userModel->getEmailLeaderDDApi($_SESSION['user_id'], $_SESSION['token']);
             if (!is_array($userHoffice) || !isset($userHoffice['ddepartment_id'])) {
                 $_SESSION['error'] = [
                     'title' => "Office Error",
@@ -602,7 +602,7 @@ class HeadOfficeLeaveController
             exit();
         } else {
             $leaveRequestModel = new HeadOfficeLeave();
-            $requests = $leaveRequestModel->getPendingRequestsForApprover($_SESSION['user_id']);
+            $requests = $leaveRequestModel->getAllLeaveRequests();
             $leavetypeModel = new Leavetype();
             $leavetypes = $leavetypeModel->getAllLeavetypes();
 

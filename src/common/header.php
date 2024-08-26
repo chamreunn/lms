@@ -61,13 +61,9 @@ if (!isset($_SESSION['user_id'])) {
                             break;
                         case 'Deputy Head Of Office':
                             $leaveRequestModel = new LeaveApproval();
-                            $requestscount = $leaveRequestModel->countPendingRequestsForApprover($_SESSION['user_id']);
-                            $leaveRequestModel = new LeaveApproval();
-                            $approvedCount = $leaveRequestModel->approvedCount($_SESSION['user_id']);
-                            $leaveRequestModel = new LeaveApproval();
-                            $rejectedCount = $leaveRequestModel->rejectedCount($_SESSION['user_id']);
-                            $leaveRequestModel = new LeaveApproval();
-                            $allCount = $leaveRequestModel->allCount($_SESSION['user_id']);
+                            $requestscount = $leaveRequestModel->countPendingRequestsForApprover();
+                            $approvedCount = $leaveRequestModel->approvedCount();
+                            $rejectedCount = $leaveRequestModel->rejectedCount();
                             include('office_manager_sidebar.php');
                             break;
                         case 'Head Of Office':

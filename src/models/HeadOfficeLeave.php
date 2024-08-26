@@ -93,6 +93,61 @@ class HeadOfficeLeave
         }
     }
 
+    public function getAllLeaveRequests()
+    {
+        // Fetch all leave requests from the database
+        $stmt = $this->pdo->prepare('SELECT * FROM leave_requests 
+        WHERE  dhead_office IN (?, ?, ?)
+        AND position IN (?, ?, ?)
+        AND office = ?
+        AND department = ?
+        AND user_id != ?
+        ');
+        $stmt->execute(['Pending', 'Approved' ,'Rejected' ,'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល','អនុប្រធានការិយាល័យ', $_SESSION['officeName'], $_SESSION['departmentName'], $_SESSION['user_id']]);
+        $leaveRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Initialize UserModel
+        $userModel = new User();
+
+        // Fetch user data for each leave request using the API
+        foreach ($leaveRequests as &$request) {
+            // Get user data from API
+            $userApiResponse = $userModel->getUserByIdApi($request['user_id'], $_SESSION['token']);
+
+            // Debug: Log the API response for each user
+            error_log("API Response for User ID " . $request['user_id'] . ": " . print_r($userApiResponse, true));
+
+            // Check if the API response is successful
+            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data']) && !empty($userApiResponse['data'])) {
+                $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+                // Add user information to the leave request
+                $request['user_name'] = $user['lastNameKh'] . " " . $user['firstNameKh'] ?? 'Unknown';
+                $request['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $request['user_email'] = $user['email'] ?? 'Unknown';
+                $request['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $request['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $request['profile'] = $user['image'] ?? 'default-profile.png'; // Use a default profile image if none exists
+            } else {
+                // Handle cases where the API call fails or returns no data
+                $request['user_name'] = 'Unknown';
+                $request['dob'] = 'Unknown';
+                $request['user_email'] = 'Unknown';
+                $request['department_name'] = 'Unknown';
+                $request['position_name'] = 'Unknown';
+                $request['profile'] = 'default-profile.png'; // Use a default profile image if API fails
+
+                // Debug: Log the API failure case
+                error_log("API call failed for User ID " . $request['user_id'] . ". Setting default values.");
+            }
+        }
+
+        // Debug: Log the final leave requests array
+        error_log("Final leave requests data: " . print_r($leaveRequests, true));
+
+        return $leaveRequests; // Return the modified leave requests
+    }
+
     public function submitApproval($leave_request_id, $approver_id, $status, $remarks, $signaturePath)
     {
         // Fetch the role of the approver

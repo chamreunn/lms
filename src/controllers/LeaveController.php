@@ -17,6 +17,10 @@ class LeaveController
             $userModel = new User();
 
             $user_id = $_SESSION['user_id'];
+            $position = $_SESSION['position'];
+            $office = $_SESSION['officeName'];
+            $department = $_SESSION['departmentName'];
+
             $leave_type_id = $_POST['leave_type_id'];
             $start_date = $_POST['start_date'];
             $end_date = $_POST['end_date'];
@@ -76,8 +80,10 @@ class LeaveController
             }
 
             // Fetch the user's office details
-            $userDoffice = $userModel->getdOffice();
-            if (!is_array($userDoffice) || !isset($userDoffice['doffice_id'])) {
+            $userDoffice = $userModel->getEmailLeaderDOApi($user_id, $_SESSION['token']);
+
+            if (!$userDoffice || $userDoffice['http_code'] !== 200 || empty($userDoffice['emails'])) {
+                error_log("API Response: " . print_r($userDoffice, true));
                 $_SESSION['error'] = [
                     'title' => "Office Error",
                     'message' => "Unable to find office details. Please contact support."
@@ -86,16 +92,18 @@ class LeaveController
                 exit();
             }
 
-            $managerEmail = $userDoffice['demail'];
-            $managerNumber = $userDoffice['dnumber'];
-            $senderProfileImageUrl = 'public/img/icons/brands/logo2.png'; // Adjust the path as needed
+            $managerEmail = $userDoffice['emails'];
+
+            // Convert array to comma-separated string if necessary
+            if (is_array($managerEmail)) {
+                $managerEmail = implode(',', $managerEmail);
+            }
 
             // Create leave request
             $leaveRequestModel = new LeaveRequest();
-            $leaveRequestId = $leaveRequestModel->create($user_id, $leave_type_id, $leaveType['name'], $start_date, $end_date, $remarks, $duration_days, $attachment_name, $signature_name);
+            $leaveRequestId = $leaveRequestModel->create($user_id, $leave_type_id, $position, $office, $department, $leaveType['name'], $start_date, $end_date, $remarks, $duration_days, $attachment_name, $signature_name);
 
-            
-            // Send email notification 
+            // Send email notification
             if (!$this->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
                 $_SESSION['error'] = [
                     'title' => "Email Error",
@@ -113,14 +121,15 @@ class LeaveController
                 header("Location: /elms/apply-leave");
                 exit();
             }
+
             // Create notification for the user
             $notificationModel = new Notification();
-            $notificationModel->createNotification($userDoffice['doffice_id'], $user_id, $leaveRequestId, $message);
+            $notificationModel->createNotification($userDoffice['ids'], $user_id, $leaveRequestId, $message);
             $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
 
             $_SESSION['success'] = [
                 'title' => "ជោគជ័យ",
-                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $userDoffice['dkhmer_name']
+                'message' => "កំពុងបញ្ជូនទៅកាន់ " .  $managerEmail
             ];
             header("Location: /elms/leave-requests");
             exit();
@@ -549,7 +558,7 @@ class LeaveController
         exit();
     }
 
-    public function approve()
+    public function pending()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Retrieve POST data
@@ -582,10 +591,12 @@ class LeaveController
             $leaveApproval = new LeaveApproval();
             $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks, $signaturePath);
 
-            // Fetch office details
+            // Fetch office details using API
             $userModel = new User();
-            $userHoffice = $userModel->gethOffice();
-            if (!is_array($userHoffice) || !isset($userHoffice['hoffice_id'])) {
+            $userHoffice = $userModel->getEmailLeaderHOApi($_SESSION['user_id'], $_SESSION['token']);
+
+            if (!$userHoffice || $userHoffice['http_code'] !== 200 || empty($userHoffice['emails'])) {
+                error_log("API Response: " . print_r($userHoffice, true));
                 $_SESSION['error'] = [
                     'title' => "Office Error",
                     'message' => "Unable to find office details. Please contact support."
@@ -594,7 +605,12 @@ class LeaveController
                 exit();
             }
 
-            $managerEmail = $userHoffice['hemail'];
+            // Convert emails array to string if necessary
+            $managerEmail = $userHoffice['emails'];
+
+            if (is_array($managerEmail)) {
+                $managerEmail = implode(',', $managerEmail); // Convert array to comma-separated string
+            }
 
             // Send email notification
             if (!$this->sendEmailNotificationToHOffice($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
@@ -606,24 +622,24 @@ class LeaveController
                 exit();
             }
 
-            // Create notification
+            // Create notification for the user
             $notificationModel = new Notification();
             $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
-            // Create Activity
-            $userModel = new User();
-            $userId = $_SESSION['user_id'];
-            $activity = "បាន " . $status . "ច្បាប់ឈប់សម្រាក " . $uname;
-            $userModel->logUserActivity($userId, $activity, $_SERVER['REMOTE_ADDR']);
 
+            // Log the user's activity
+            $activity = "បាន " . $status . "ច្បាប់ឈប់សម្រាក " . $uname;
+            $userModel->logUserActivity($approver_id, $activity, $_SERVER['REMOTE_ADDR']);
+
+            // Set success message and redirect to the pending page
             $_SESSION['success'] = [
                 'title' => "សំណើច្បាប់",
-                'message' => "សំណើច្បាប់ត្រូវបាន " . $status
+                'message' => "កំពុងបញ្ជូនទៅកាន់ " .  $managerEmail
             ];
             header('location: /elms/pending');
             exit();
         } else {
             $leaveApprovalModel = new LeaveApproval();
-            $requests = $leaveApprovalModel->getPendingRequestsForApprover($_SESSION['user_id']);
+            $requests = $leaveApprovalModel->getAllLeaveRequests();
             $leavetypeModel = new Leavetype();
             $leavetypes = $leavetypeModel->getAllLeavetypes();
 

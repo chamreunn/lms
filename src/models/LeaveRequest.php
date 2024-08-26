@@ -16,6 +16,9 @@ class LeaveRequest
     public function create(
         $user_id,
         $leave_type_id,
+        $position,
+        $office,
+        $department,
         $leave_type_name,
         $start_date,
         $end_date,
@@ -27,13 +30,16 @@ class LeaveRequest
         // Prepare and execute the SQL statement
         $stmt = $this->pdo->prepare('
             INSERT INTO leave_requests 
-            (user_id, leave_type_id, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, created_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            (user_id, leave_type_id, position, office, department, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ');
 
         $stmt->execute([
             $user_id,
             $leave_type_id,
+            $position,
+            $office,
+            $department,
             $leave_type_name,
             $start_date,
             $end_date,

@@ -279,6 +279,65 @@ class User
         }
     }
 
+    public function getUserByIdApi($id, $token)
+    {
+        $url = 'https://hrms.iauoffsa.us/api/v1/users/' . $id;
+
+        // Initialize cURL session
+        $ch = curl_init($url);
+
+        // Set cURL options
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Authorization: Bearer ' . $token
+        ));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+
+        // Execute cURL request
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+
+        // Close the cURL session
+        curl_close($ch);
+
+        // Check for cURL errors
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return [
+                'http_code' => 500,
+                'error' => "CURL Error: $error"
+            ];
+        }
+
+        // Decode the JSON response
+        $responseData = json_decode($response, true);
+
+        // Handle JSON decoding errors
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return [
+                'http_code' => $httpCode,
+                'error' => "JSON Decode Error: " . json_last_error_msg()
+            ];
+        }
+
+        // Check if the response is successful and contains the expected data
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            return [
+                'http_code' => $httpCode,
+                'data' => $responseData['data']
+            ];
+        } else {
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            return [
+                'http_code' => $httpCode,
+                'error' => "Unexpected API Response",
+                'response' => $responseData
+            ];
+        }
+    }
+
     public function getRoleApi($id, $token)
     {
         $url = 'https://hrms.iauoffsa.us/api/v1/roles/' . $id;
@@ -432,72 +491,237 @@ class User
         return $stmt->fetch();
     }
 
-    public function getdOfficeAdminEmail()
+    // អនុប្រធានការិយាល័យ
+    public function getEmailLeaderDOApi($id, $token)
     {
-        $stmt = $this->pdo->prepare("
-        SELECT users.email AS demail, users.phone_number AS dnumber, users.khmer_name AS dkhmer_name
-        FROM users
-        JOIN offices ON users.office_id = offices.id AND offices.name = 'ការិយាល័យរដ្ឋបាល និងហិរញ្ញវត្ថុ'
-        JOIN departments ON users.department_id = departments.id AND departments.name = 'នាយកដ្ឋានកិច្ចការទូទៅ'
-        JOIN positions ON users.position_id = positions.id AND positions.name = 'អនុប្រធានការិយាល័យ'
-    ");
+        $url = 'https://hrms.iauoffsa.us/api/v1/users/leader/contact/' . $id;
 
-        $stmt->execute();
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . $token));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
 
-        return $stmt->fetch();
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return null;
+        }
+
+        // Log the raw API response for debugging
+        error_log("API Response: " . $response);
+
+        $responseData = json_decode($response, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return null;
+        }
+
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            $leaders = $responseData['data'];
+
+            // Log the leaders data to ensure it's being received correctly
+            error_log("Leaders Data: " . print_r($leaders, true));
+
+            $emails = [];
+            $ids = [];
+            $firstNameKh = [];
+            $lastNameKh = [];
+
+            foreach ($leaders as $leader) {
+                if (isset($leader['roleName']) && $leader['roleName'] === 'អនុប្រធានការិយាល័យ') {
+                    if (isset($leader['email'])) {
+                        $emails[] = $leader['email'];
+                    }
+                    if (isset($leader['id'])) {
+                        $ids[] = $leader['id'];
+                    }
+                    if (isset($leader['firstNameKh'])) {
+                        $firstNameKh[] = $leader['firstNameKh'];
+                    }
+                    if (isset($leader['lastNameKh'])) {
+                        $lastNameKh[] = $leader['lastNameKh'];
+                    }
+                }
+            }
+
+            // Log the filtered emails and ids to check if they are found correctly
+            error_log("Filtered Emails: " . print_r($emails, true));
+            error_log("Filtered IDs: " . print_r($ids, true));
+
+            return [
+                'http_code' => $httpCode,
+                'emails' => $emails,
+                'ids' => $ids,
+                'firstNameKh' => $firstNameKh,
+                'lastNameKh' => $lastNameKh,
+            ];
+        } else {
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            return [
+                'http_code' => $httpCode,
+                'response' => $responseData
+            ];
+        }
     }
 
-    public function gethOffice()
+    // ប្រធានការិយាល័យ
+    public function getEmailLeaderHOApi($id, $token)
     {
-        $stmt = $this->pdo->prepare("
-        SELECT users.*, offices.name AS office_name, offices.hoffice_id, users.email AS hemail, users.phone_number AS hnumber, users.khmer_name AS hkhmer_name
-        FROM users 
-        JOIN offices ON users.id = offices.hoffice_id
-        WHERE offices.id = :id
-    ");
-        $stmt->execute(['id' => $_SESSION['officeId']]);
-        return $stmt->fetch();
+        $url = 'https://hrms.iauoffsa.us/api/v1/users/leader/contact/' . $id;
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . $token));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return null;
+        }
+
+        // Log the raw API response for debugging
+        error_log("API Response: " . $response);
+
+        $responseData = json_decode($response, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return null;
+        }
+
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            $leaders = $responseData['data'];
+
+            // Log the leaders data to ensure it's being received correctly
+            error_log("Leaders Data: " . print_r($leaders, true));
+
+            $emails = [];
+            $ids = [];
+            $firstNameKh = [];
+            $lastNameKh = [];
+
+            foreach ($leaders as $leader) {
+                if (isset($leader['roleName']) && $leader['roleName'] === 'ប្រធានការិយាល័យ') {
+                    if (isset($leader['email'])) {
+                        $emails[] = $leader['email'];
+                    }
+                    if (isset($leader['id'])) {
+                        $ids[] = $leader['id'];
+                    }
+                    if (isset($leader['firstNameKh'])) {
+                        $firstNameKh[] = $leader['firstNameKh'];
+                    }
+                    if (isset($leader['lastNameKh'])) {
+                        $lastNameKh[] = $leader['lastNameKh'];
+                    }
+                }
+            }
+
+            // Log the filtered emails and ids to check if they are found correctly
+            error_log("Filtered Emails: " . print_r($emails, true));
+            error_log("Filtered IDs: " . print_r($ids, true));
+
+            return [
+                'http_code' => $httpCode,
+                'emails' => $emails,
+                'ids' => $ids,
+                'firstNameKh' => $firstNameKh,
+                'lastNameKh' => $lastNameKh,
+            ];
+        } else {
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            return [
+                'http_code' => $httpCode,
+                'response' => $responseData
+            ];
+        }
     }
 
-    public function getDDepart()
+    // អនុប្រធាននាយកដ្ឋាន
+    public function getEmailLeaderDDApi($id, $token)
     {
-        $stmt = $this->pdo->prepare("
-        SELECT users.*, departments.name AS department_name, departments.ddepartment_id, users.email AS demail, users.phone_number AS dnumber, users.khmer_name AS dkhmer_name
-        FROM users 
-        JOIN departments ON users.id = departments.ddepartment_id
-        WHERE departments.id = :id
-    ");
-        $stmt->execute(['id' => $_SESSION['departmentId']]);
-        return $stmt->fetch();
-    }
+        $url = 'https://hrms.iauoffsa.us/api/v1/users/leader/contact/' . $id;
 
-    public function getHDepart()
-    {
-        $stmt = $this->pdo->prepare("
-        SELECT users.*, departments.name AS department_name, departments.hdepartment_id, users.email AS hemail, users.phone_number AS hnumber, users.khmer_name AS hkhmer_name
-        FROM users 
-        JOIN departments ON users.id = departments.hdepartment_id
-        WHERE departments.id = :id
-    ");
-        $stmt->execute(['id' => $_SESSION['departmentId']]);
-        return $stmt->fetch();
-    }
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . $token));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
 
-    public function getDUnit_1()
-    {
-        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE role = :role");
-        $stmt->execute(['role' => "Deputy Of Unit 1"]);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
 
-        // Fetch the first user with the role "Deputy Of Unit 2"
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return null;
+        }
 
-    public function getDUnit_2()
-    {
-        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE role = :role");
-        $stmt->execute(['role' => "Deputy Of Unit 2"]);
+        // Log the raw API response for debugging
+        error_log("API Response: " . $response);
 
-        // Fetch the first user with the role "Deputy Of Unit 2"
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $responseData = json_decode($response, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return null;
+        }
+
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            $leaders = $responseData['data'];
+
+            // Log the leaders data to ensure it's being received correctly
+            error_log("Leaders Data: " . print_r($leaders, true));
+
+            $emails = [];
+            $ids = [];
+            $firstNameKh = [];
+            $lastNameKh = [];
+
+            foreach ($leaders as $leader) {
+                if (isset($leader['roleName']) && $leader['roleName'] === 'អនុប្រធាននាយកដ្ឋាន') {
+                    if (isset($leader['email'])) {
+                        $emails[] = $leader['email'];
+                    }
+                    if (isset($leader['id'])) {
+                        $ids[] = $leader['id'];
+                    }
+                    if (isset($leader['firstNameKh'])) {
+                        $firstNameKh[] = $leader['firstNameKh'];
+                    }
+                    if (isset($leader['lastNameKh'])) {
+                        $lastNameKh[] = $leader['lastNameKh'];
+                    }
+                }
+            }
+
+            // Log the filtered emails and ids to check if they are found correctly
+            error_log("Filtered Emails: " . print_r($emails, true));
+            error_log("Filtered IDs: " . print_r($ids, true));
+
+            return [
+                'http_code' => $httpCode,
+                'emails' => $emails,
+                'ids' => $ids,
+                'firstNameKh' => $firstNameKh,
+                'lastNameKh' => $lastNameKh,
+            ];
+        } else {
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            return [
+                'http_code' => $httpCode,
+                'response' => $responseData
+            ];
+        }
     }
 }
