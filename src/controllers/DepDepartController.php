@@ -374,17 +374,22 @@ class DepDepartController
 
             // Fetch office details
             $userModel = new User();
-            $userHoffice = $userModel->getHDepart();
-            if (!is_array($userHoffice) || !isset($userHoffice['hdepartment_id'])) {
+
+            $userHoffice = $userModel->getEmailLeaderHDApi($_SESSION['user_id'], $_SESSION['token']);
+            if (!is_array($userHoffice) || !isset($userHoffice['ids'])) {
                 $_SESSION['error'] = [
                     'title' => "Office Error",
-                    'message' => "Unable to find office details. Please contact support."
+                    'message' => "Unable to find Department details. Please contact support."
                 ];
-                header('location: /elms/depdepartmentpending');
+                header('location: /elms/headofficepending');
                 exit();
             }
 
-            $managerEmail = $userHoffice['hemail'];
+            $managerEmail = $userHoffice['emails'];
+            if (is_array($managerEmail)) {
+                $managerEmail = implode(',', $managerEmail); // Convert array to comma-separated string
+            }
+
 
             // Send email notification
             if (!$this->sendEmailNotification($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
@@ -413,7 +418,7 @@ class DepDepartController
             exit();
         } else {
             $leaveRequestModel = new DepDepartLeave();
-            $requests = $leaveRequestModel->getPendingRequestsForApprover($_SESSION['user_id']);
+            $requests = $leaveRequestModel->getAllLeaveRequests();
             $leavetypeModel = new Leavetype();
             $leavetypes = $leavetypeModel->getAllLeavetypes();
 
@@ -454,6 +459,7 @@ class DepDepartController
         header("Location: /elms/dashboard");
         exit();
     }
+
     public function cancel($id, $status)
     {
         $deleteLeaveRequest = new LeaveRequest();

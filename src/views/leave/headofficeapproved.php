@@ -98,48 +98,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
             <h4 class="header-title mb-0 text-muted"><?= $title ?></h4>
         </div>
     </div>
-    <div class="card-header">
-        <div class="row align-items-center w-100">
-            <div class="col-sm-12 col-lg col-md mb-3">
-                <label for="" class="form-label">កាលបរិច្ឆេទចាប់ពី</label>
-                <input type="text" placeholder="កាលបរិច្ឆេទ" id="start_date" autocomplete="off" class="form-control">
-            </div>
-            <div class="col-sm-12 col-lg col-md mb-3">
-                <label for="" class="form-label">ដល់កាលបរិច្ឆេទ</label>
-                <input type="text" id="end_date" placeholder="កាលបរិច្ឆេទ" class="form-control">
-            </div>
-            <div class="col-sm-12 col-lg col-md mb-3">
-                <label for="" class="form-label">ស្ថានភាព</label>
-                <select class="form-control form-select" name="" id="select-filter">
-                    <option selected disabled>ជ្រើសរើសស្ថានភាព</option>
-                    <option value="Pending" data-custom-properties='&lt;span class="badge bg-warning"&gt;'>Pending</option>
-                    <option value="Approved" data-custom-properties='&lt;span class="badge bg-success"&gt;'>Approved</option>
-                    <option value="Rejected" data-custom-properties='&lt;span class="badge bg-danger"&gt;'>Rejected</option>
-                    <option value="Canceled" data-custom-properties='&lt;span class="badge bg-secondary"&gt;'>Canceled</option>
-                </select>
-            </div>
-            <div class="col-sm-12 col-lg col-md mb-3">
-                <button class="btn btn-outline-secondary w-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-refresh">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
-                        <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
-                    </svg>
-                    សម្អាត
-                </button>
-            </div>
-            <div class="col-sm-12 col-lg col-md mb-3">
-                <button class="btn btn-primary w-100" id="filter">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-                        <path d="M21 21l-6 -6" />
-                    </svg>
-                    ស្វែងរក
-                </button>
-            </div>
-        </div>
-    </div>
     <div class="table-responsive">
         <table class="table card-table table-vcenter text-nowrap datatable">
             <thead>
@@ -149,7 +107,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <th>ចាប់ពីកាលបរិច្ឆេទ</th>
                     <th>ដល់កាលបរិច្ឆេទ</th>
                     <th>រយៈពេល</th>
-                    <th>អនុម័តនៅ</th>
                     <th>ស្ថានភាព</th>
                     <th class="text-center">សកម្មភាព</th>
                 </tr>
@@ -174,20 +131,29 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                 <?php else : ?>
                     <?php foreach ($paginatedRequests as $request) : ?>
                         <tr>
-                            <td><?= $request['khmer_name'] ?></td>
+                            <td>
+                                <div class="d-flex">
+                                    <img src="https://hrms.iauoffsa.us/images/<?= $request['profile'] ?>" class="avatar" style="object-fit: cover;" alt="">
+                                    <div class="d-flex flex-column mx-2">
+                                        <h4 class="mx-0 mb-1 text-primary">
+                                            <?= $request['user_name'] ?>
+                                        </h4>
+                                        <span class="text-muted"> <?= $request['email'] ?></span>
+                                    </div>
+                                </div>
+                            </td>
                             <td>
                                 <div class="badge <?= $request['color'] ?>"><?= $request['leave_type'] ?></div>
                             </td>
-                            <td><?= $request['start_date'] ?></td>
+                            <td><?= translateDateToKhmer($request['start_date'], 'D j F, Y') ?></td>
                             <td><?= translateDateToKhmer($request['end_date'], 'D j F, Y') ?></td>
-                            <td><?= translateDateToKhmer($request['num_date'], 'D j F, Y') ?>ថ្ងៃ</td>
-                            <td><?= translateDateToKhmer($request['approved_at'], 'D j F, Y') ?></td>
+                            <td><?= $request['num_date']?>ថ្ងៃ</td>
                             <td>
                                 <div class="badge 
-                                        <?= $request['status'] == 'Pending' ? 'badge-outline text-warning' : '' ?>
-                                        <?= $request['status'] == 'Approved' ? 'badge-outline text-success' : '' ?>
-                                        <?= $request['status'] == 'Rejected' ? 'badge-outline text-danger' : '' ?>
-                                        <?= $request['status'] == 'Cancelled' ? 'badge-outline text-secondary' : '' ?>
+                                        <?= $request['status'] == 'Pending' ? 'badge bg-warning' : '' ?>
+                                        <?= $request['status'] == 'Approved' ? 'badge bg-success' : '' ?>
+                                        <?= $request['status'] == 'Rejected' ? 'badge bg-danger' : '' ?>
+                                        <?= $request['status'] == 'Cancelled' ? 'badge bg-secondary' : '' ?>
                                     ">
                                     <?= $request['status'] ?>
                                 </div>

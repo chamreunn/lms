@@ -355,10 +355,10 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
             <tbody>
                 <?php if (empty($paginatedRequests)) : ?>
                     <tr>
-                        <td colspan="7" class="text-center">
-                            <img src="public/img/icons/svgs/empty.svg" alt="">
+                        <td colspan="8" class="text-center">
+                            <img src="public/img/icons/svgs/empty.svg" alt="No Image">
                             <p>មិនទាន់មានសំណើនៅឡើយ។ សូមបង្កើតដោយចុចប៊ូតុងខាងក្រោម ឬស្តាំដៃខាងលើ</p>
-                            <a class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#apply-leave">
+                            <a class="btn btn-primary d-none d-sm-inline-block mb-3" data-bs-toggle="modal" data-bs-target="#apply-leave">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-plus">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                     <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5" />
@@ -370,7 +370,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                 </svg>
                                 <span>បង្កើតសំណើច្បាប់</span>
                             </a>
-                            <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#apply-leave">
+                            <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon mb-3" data-bs-toggle="modal" data-bs-target="#apply-leave">
                                 <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>

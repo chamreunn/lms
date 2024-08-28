@@ -14,7 +14,12 @@ class HeadOfficeLeaveController
 
             $userModel = new User();
 
+            // Fetch session details
             $user_id = $_SESSION['user_id'];
+            $position = $_SESSION['position'];
+            $office = $_SESSION['officeName'];
+            $department = $_SESSION['departmentName'];
+
             $leave_type_id = $_POST['leave_type_id'];
             $start_date = $_POST['start_date'];
             $end_date = $_POST['end_date'];
@@ -74,23 +79,37 @@ class HeadOfficeLeaveController
             }
 
             // Fetch the user's office details
-            $userDoffice = $userModel->getDDepart();
-            if (!is_array($userDoffice) || !isset($userDoffice['ddepartment_id'])) {
+            $userHoffice = $userModel->getEmailLeaderDDApi($_SESSION['user_id'], $_SESSION['token']);
+            if (!is_array($userHoffice) || !isset($userHoffice['ids'])) {
                 $_SESSION['error'] = [
                     'title' => "Office Error",
-                    'message' => "Unable to find office details. Please contact support."
+                    'message' => "Unable to find Department details. Please contact support."
                 ];
-                header("Location: /elms/apply-leave");
+                header('location: /elms/headofficepending');
                 exit();
             }
 
-            $managerEmail = $userDoffice['demail'];
-            $managerNumber = $userDoffice['dnumber'];
-            $senderProfileImageUrl = 'public/img/icons/brands/logo2.png'; // Adjust the path as needed
+            $managerEmail = $userHoffice['emails'];
+            if (is_array($managerEmail)) {
+                $managerEmail = implode(',', $managerEmail); // Convert array to comma-separated string
+            }
 
             // Create leave request
             $leaveRequestModel = new HeadOfficeLeave();
-            $leaveRequestId = $leaveRequestModel->create($user_id, $leave_type_id, $leaveType['name'], $start_date, $end_date, $remarks, $duration_days, $attachment_name, $signature_name);
+            $leaveRequestId = $leaveRequestModel->create(
+                    $user_id,
+                    $leave_type_id,
+                    $position,
+                    $office,
+                    $department,
+                    $leaveType['name'],
+                    $start_date,
+                    $end_date,
+                    $remarks,
+                    $duration_days,
+                    $attachment_name,
+                    $signature_name
+                );
 
             $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
             // Send email notification 
@@ -113,11 +132,11 @@ class HeadOfficeLeaveController
             }
             // Create notification for the user
             $notificationModel = new Notification();
-            $notificationModel->createNotification($userDoffice['ddepartment_id'], $user_id, $leaveRequestId, $message);
+            $notificationModel->createNotification($userHoffice['ids'], $user_id, $leaveRequestId, $message);
 
             $_SESSION['success'] = [
                 'title' => "ជោគជ័យ",
-                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $userDoffice['demail']
+                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
             ];
             header("Location: /elms/leave-requests");
             exit();
@@ -125,67 +144,6 @@ class HeadOfficeLeaveController
             require 'src/views/leave/apply.php';
         }
     }
-
-    // private function sendTelegramNotification($userChatId, $message)
-    // {
-    //     $botToken = "7138737839:AAG6VnvPWQJLBHAGt6_N4S1U59ZROruHseo"; // Replace with your bot token
-    //     $chatId = "$userChatId"; // Replace with the actual chat ID of the manager
-
-    //     // Ensure chatId is a numeric value, not a URL or string
-    //     if (!is_numeric($chatId)) {
-    //         $_SESSION['error'] = [
-    //             'title' => "Telegram Error",
-    //             'message' => "Invalid chat ID. Please check the chat ID and try again."
-    //         ];
-    //         header("Location: /elms/apply-leave");
-    //         exit();
-    //     }
-
-    //     $url = "https://api.telegram.org/bot$botToken/sendMessage?chat_id=$chatId&text=" . urlencode($message);
-
-    //     // Send the request to the Telegram API
-    //     $ch = curl_init();
-    //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    //     curl_setopt($ch, CURLOPT_URL, $url);
-
-    //     // Disable SSL verification for testing
-    //     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    //     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-
-    //     $result = curl_exec($ch);
-
-    //     if ($result === false) {
-    //         // Capture and log the cURL error
-    //         $error = curl_error($ch);
-    //         error_log("cURL error: $error");
-    //         $_SESSION['error'] = [
-    //             'title' => "Telegram Error",
-    //             'message' => "Notification could not be sent via Telegram. cURL error: $error"
-    //         ];
-    //         curl_close($ch);
-    //         header("Location: /elms/apply-leave");
-    //         exit();
-    //     }
-
-    //     curl_close($ch);
-
-    //     // Check the Telegram API response
-    //     $response = json_decode($result, true);
-    //     if ($response['ok'] !== true) {
-    //         // Capture and log the Telegram API error
-    //         $errorMessage = $response['description'] ?? 'Unknown error';
-    //         error_log("Telegram API error: $errorMessage");
-    //         $_SESSION['error'] = [
-    //             'title' => "Telegram Error",
-    //             'message' => "Notification could not be sent via Telegram. API error: $errorMessage"
-    //         ];
-    //         header("Location: /elms/apply-leave");
-    //         exit();
-    //     }
-
-    //     // Log success message for debugging
-    //     error_log("Telegram message sent successfully.");
-    // }
 
     private function sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType)
     {
@@ -527,7 +485,7 @@ class HeadOfficeLeaveController
         header('Location: /elms/requests');
         exit();
     }
-    
+
     public function approve()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -563,17 +521,21 @@ class HeadOfficeLeaveController
 
             // Fetch office details
             $userModel = new User();
+
             $userHoffice = $userModel->getEmailLeaderDDApi($_SESSION['user_id'], $_SESSION['token']);
-            if (!is_array($userHoffice) || !isset($userHoffice['ddepartment_id'])) {
+            if (!is_array($userHoffice) || !isset($userHoffice['ids'])) {
                 $_SESSION['error'] = [
                     'title' => "Office Error",
-                    'message' => "Unable to find office details. Please contact support."
+                    'message' => "Unable to find Department details. Please contact support."
                 ];
                 header('location: /elms/headofficepending');
                 exit();
             }
 
-            $managerEmail = $userHoffice['demail'];
+            $managerEmail = $userHoffice['emails'];
+            if (is_array($managerEmail)) {
+                $managerEmail = implode(',', $managerEmail); // Convert array to comma-separated string
+            }
 
             // Send email notification
             if (!$this->sendEmailNotificationToHOffice($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
@@ -588,6 +550,7 @@ class HeadOfficeLeaveController
             // Create notification
             $notificationModel = new Notification();
             $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
+
             // Create Activity
             $userModel = new User();
             $userId = $_SESSION['user_id'];
@@ -596,7 +559,7 @@ class HeadOfficeLeaveController
 
             $_SESSION['success'] = [
                 'title' => "សំណើច្បាប់",
-                'message' => "សំណើច្បាប់ត្រូវបាន " . $status . $managerEmail
+                'message' => "សំណើច្បាប់ត្រូវបានបញ្ជូនទៅកាន់ " . $managerEmail
             ];
             header('location: /elms/headofficepending');
             exit();
@@ -643,7 +606,7 @@ class HeadOfficeLeaveController
         header("Location: /elms/dashboard");
         exit();
     }
-    
+
     public function cancel($id, $status)
     {
         $deleteLeaveRequest = new LeaveRequest();

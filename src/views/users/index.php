@@ -79,7 +79,7 @@ include('src/common/header.php');
                     </div>
                 </div>
                 <div class="d-flex">
-                    <a href="#" class="card-btn" data-bs-toggle="modal" data-bs-target="#modal-edit-user-<?= $value['id'] ?>">
+                    <a href="<?= '/elms/edit_user_detail?user_id=' . urlencode($value['id']) ?>" class="card-btn" data-bs-toggle="tooltip" title="កែប្រែ">
                         <!-- Download SVG icon from http://tabler-icons.io/i/edit -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -485,7 +485,7 @@ include('src/common/header.php');
                                 <path d="M12 16h.01"></path>
                             </svg>
                             <h5 class="modal-title">លុបគណនី</h5>
-                            <p>តើអ្នកប្រាកដទេថានិងលុបគណនី <span class="text-danger fw-bold"><?= htmlspecialchars($value['khmer_name']) ?></span> នេះ?</p>
+                            <p>តើអ្នកប្រាកដទេថានិងលុបគណនី <span class="text-danger fw-bold"><?= htmlspecialchars($value['firstNameKh']) ?></span> នេះ?</p>
                         </div>
                         <div class="modal-footer bg-light border-top">
                             <div class="w-100 mt-3">

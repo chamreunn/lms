@@ -35,7 +35,26 @@ switch ($uri) {
         $controller->login();
         break;
     case $base_url . '/logout':
+        // Clear session data
+        session_unset(); // Unset all session variables
+
+        // Destroy the session
         session_destroy();
+
+        // Optionally, you might want to explicitly remove the session cookie
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
+        }
+        sleep(1);
         header("Location: $base_url/login");
         exit();
     case $base_url . '/forgot-password':
@@ -217,6 +236,30 @@ switch ($uri) {
         checkSessionAndExecute(function () {
             $controller = new AdminController();
             $controller->viewDetail();
+        });
+        break;
+    case $base_url . '/update-email':
+        checkSessionAndExecute(function () {
+            $controller = new SettingController();
+            $controller->updateEmail();
+        });
+        break;
+    case $base_url . '/update-password':
+        checkSessionAndExecute(function () {
+            $controller = new SettingController();
+            $controller->updatePassword();
+        });
+        break;
+    case $base_url . '/edit_user_detail':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->editUserDetail();
+        });
+        break;
+    case $base_url . '/setting_security':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->security();
         });
         break;
     case $base_url . '/activity':

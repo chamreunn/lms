@@ -318,89 +318,14 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
             <h3 class="card-title">បង្កើតសំណើ</h3>
         </div>
     </div>
-
-    <!-- <div class="col-sm-12 col-lg-4 mb-3">
-        <div class="card h-100">
-            <h3 class="card-header">ច្បាប់របស់សមាជិក |<small class="mx-1 text-primary" id="real-time-clock"></small></h3>
-            <div class="card-body">
-                <div class="list-group">
-                    <?php if (empty($getuserapproves)) : ?>
-                        <div class="d-flex flex-column align-items-center justify-content-center text-center">
-                            <img src="public/img/icons/svgs/empty.svg" alt="No data" class="w-75">
-                            <p class="empty-text">មិនមានការឈប់សម្រាក</p>
-                        </div>
-                    <?php else : ?>
-                        <?php foreach ($getuserapproves as $getuserapprove) : ?>
-                            <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#detailsModal<?= $getuserapprove['id'] ?>">
-                                <div class="d-flex align-items-center">
-                                    <img src="<?= $getuserapprove['profile'] ?>" class="avatar me-3 rounded-circle" alt="Profile picture">
-                                    <div class="flex-grow-1">
-                                        <h5 class="name mb-1"><?= htmlspecialchars($getuserapprove['khmer_name']) ?></h5>
-                                        <small class="date text-muted mb-1"><?= translateDateToKhmer($getuserapprove['start_date'], 'j') . " ដល់ " . translateDateToKhmer($getuserapprove['end_date'], 'j F Y') ?></small>
-                                    </div>
-                                    <span class="badge <?= $getuserapprove['status'] == 'Pending' ? 'bg-warning-lt' : '' ?>
-                                    <?= $getuserapprove['status'] == 'Approved' ? 'badge-outline text-success' : '' ?>
-                                    <?= $getuserapprove['status'] == 'Rejected' ? 'badge-outline text-danger' : '' ?>
-                                    <?= $getuserapprove['status'] == 'Cancelled' ? 'badge-outline text-secondary' : '' ?>">
-                                        <?= htmlspecialchars($getuserapprove['status']) ?>
-                                    </span>
-                                </div>
-                            </a>
-
-                            <div class="modal fade" id="detailsModal<?= $getuserapprove['id'] ?>" tabindex="-1" aria-labelledby="detailsModalLabel<?= $getuserapprove['id'] ?>" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="detailsModalLabel<?= $getuserapprove['id'] ?>">
-                                                <?= htmlspecialchars($getuserapprove['khmer_name']) ?>'s Leave Details
-                                            </h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <table class="table">
-                                                <tbody>
-                                                    <tr>
-                                                        <th scope="row"><i class="bi bi-person-fill"></i> ឈ្មោះមន្ត្រី</th>
-                                                        <td><?= htmlspecialchars($getuserapprove['khmer_name']) ?></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row"><i class="bi bi-person-fill"></i> ប្រភេទច្បាប់</th>
-                                                        <td><span class="badge <?= htmlspecialchars($getuserapprove['leavetype_color']) ?>"><?= htmlspecialchars($getuserapprove['leave_type']) ?></span></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row"><i class="bi bi-calendar-event-fill"></i> ចាប់ពី</th>
-                                                        <td><?= translateDateToKhmer(htmlspecialchars($getuserapprove['start_date']), 'D, j F Y') ?></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row"><i class="bi bi-calendar-x-fill"></i> ដល់</th>
-                                                        <td><?= translateDateToKhmer(htmlspecialchars($getuserapprove['end_date']), 'D, j F Y') ?></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row"><i class="bi bi-info-circle-fill"></i> មូលហេតុ</th>
-                                                        <td><?= htmlspecialchars($getuserapprove['remarks']) ?></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn" data-bs-dismiss="modal">បោះបង់</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-    </div> -->
 </div>
 
 <div class="row row-card mb-3">
+    <!-- Card 1 -->
     <div class="col-lg-3 mb-3">
-        <a href="" data-bs-toggle="modal" data-bs-target="#apply-leave" class="card card-link card-link-pop text-primary p-5 d-flex align-items-center justify-content-center">
-            <div class="avatar mb-3 bg-primary-lt">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
+        <a href="" data-bs-toggle="modal" data-bs-target="#apply-leave" class="card card-link card-link-pop text-primary p-5 d-flex align-items-center justify-content-center hover-shadow">
+            <div class="avatar mb-3 bg-primary-lt rounded-circle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-calendar-month">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                     <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
                     <path d="M16 3v4" />
@@ -415,16 +340,15 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <path d="M10.01 17h.005" />
                 </svg>
             </div>
-            <strong>ច្បាប់ឈប់សម្រាក</strong>
-            <span class="sr-only">Apply for leave</span>
+            <strong class="mt-2">ច្បាប់ឈប់សម្រាក</strong>
         </a>
-
     </div>
 
+    <!-- Card 2 -->
     <div class="col-lg-3 mb-3">
-        <a href="" data-bs-toggle="modal" data-bs-target="#apply-late-in" class="card card-link card-link-pop text-success p-5 d-flex align-items-center justify-content-center">
-            <div class="avatar mb-3 bg-success-lt">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-up">
+        <a href="" data-bs-toggle="modal" data-bs-target="#apply-late-in" class="card card-link card-link-pop text-success p-5 d-flex align-items-center justify-content-center hover-shadow">
+            <div class="avatar mb-3 bg-success-lt rounded-circle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-clock-up">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                     <path d="M20.983 12.548a9 9 0 1 0 -8.45 8.436" />
                     <path d="M19 22v-6" />
@@ -432,15 +356,15 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <path d="M12 7v5l2.5 2.5" />
                 </svg>
             </div>
-            <strong>លិខិតចូលយឺត</strong>
-            <span class="sr-only">Apply for late entry</span>
+            <strong class="mt-2">លិខិតចូលយឺត</strong>
         </a>
     </div>
 
+    <!-- Card 3 -->
     <div class="col-lg-3 mb-3">
-        <a href="" data-bs-toggle="modal" data-bs-target="#apply-late-out" class="card card-link card-link-pop p-5 text-warning d-flex align-items-center justify-content-center">
-            <div class="avatar mb-3 bg-warning-lt">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-repeat">
+        <a href="" data-bs-toggle="modal" data-bs-target="#apply-late-out" class="card card-link card-link-pop text-warning p-5 d-flex align-items-center justify-content-center hover-shadow">
+            <div class="avatar mb-3 bg-warning-lt rounded-circle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-calendar-repeat">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                     <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3" />
                     <path d="M16 3v4" />
@@ -451,15 +375,15 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <path d="M19 16a3 3 0 1 0 2 5.236" />
                 </svg>
             </div>
-            <strong>លិខិតចេញយឺត</strong>
-            <span class="sr-only">Apply for late exit</span>
+            <strong class="mt-2">លិខិតចេញយឺត</strong>
         </a>
     </div>
 
+    <!-- Card 4 -->
     <div class="col-lg-3 mb-3">
-        <a href="" data-bs-toggle="modal" data-bs-target="#apply-leaveearly" class="card card-link card-link-pop p-5 text-warning d-flex align-items-center justify-content-center">
-            <div class="avatar mb-3 bg-warning-lt">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-plus">
+        <a href="" data-bs-toggle="modal" data-bs-target="#apply-leaveearly" class="card card-link card-link-pop text-warning p-5 d-flex align-items-center justify-content-center hover-shadow">
+            <div class="avatar mb-3 bg-warning-lt rounded-circle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-clock-plus">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                     <path d="M20.984 12.535a9 9 0 1 0 -8.468 8.45" />
                     <path d="M16 19h6" />
@@ -467,15 +391,15 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <path d="M12 7v5l3 3" />
                 </svg>
             </div>
-            <strong>លិខិតចេញមុន</strong>
-            <span class="sr-only">Apply for early exit</span>
+            <strong class="mt-2">លិខិតចេញមុន</strong>
         </a>
     </div>
 
+    <!-- Card 5 -->
     <div class="col-lg-3 mb-3">
-        <a href="" data-bs-toggle="modal" data-bs-target="#mission" class="card card-link card-link-pop p-5 d-flex align-items-center justify-content-center text-indigo">
-            <div class="avatar mb-3 bg-indigo-lt">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
+        <a href="" data-bs-toggle="modal" data-bs-target="#mission" class="card card-link card-link-pop p-5 d-flex align-items-center justify-content-center text-indigo hover-shadow">
+            <div class="avatar mb-3 bg-indigo-lt rounded-circle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-calendar-month">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                     <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
                     <path d="M16 3v4" />
@@ -490,11 +414,11 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <path d="M10.01 17h.005" />
                 </svg>
             </div>
-            <strong>បេសកកម្ម</strong>
-            <span class="sr-only">Apply for mission</span>
+            <strong class="mt-2">បេសកកម្ម</strong>
         </a>
     </div>
 </div>
+
 
 <?php include('src/common/footer.php'); ?>
 <!-- Modal Apply Leave -->

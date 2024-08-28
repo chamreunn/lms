@@ -30,30 +30,103 @@ class AdminModel
 
     public function getUserById($user_id)
     {
-        $stmt = $this->pdo->prepare(
-            'SELECT 
-            u.*, 
-            m.email AS manager_email, 
-            o.name AS office_name, 
-            d.name AS department_name, 
-            p.name AS position_name ,
-            p.color AS pcolor
-         FROM 
-            users u
-         LEFT JOIN 
-            users m ON u.office_id = m.office_id 
-            AND m.position_id = (SELECT doffice_id FROM offices WHERE id = u.office_id)
-         LEFT JOIN 
-            offices o ON u.office_id = o.id
-         LEFT JOIN 
-            departments d ON u.department_id = d.id
-         LEFT JOIN 
-            positions p ON u.position_id = p.id
-         WHERE 
-            u.id = ?'
-        );
-        $stmt->execute([$user_id]);
-        return $stmt->fetch();
+        $userModel = new User();
+
+        // Fetch user details from API
+        $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+        // Debug: Log the API response
+        error_log("API Response for User ID " . $user_id . ": " . print_r($userApiResponse, true));
+
+        // Check if the API response is successful
+        if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+            $user = $userApiResponse['data'];
+
+            // Fetch position details from API
+            $roleApiResponse = $userModel->getRoleApi($user['roleId'], $_SESSION['token']);
+            $officeApiResponse = $userModel->getOfficeApi($user['officeId'], $_SESSION['token']);
+            $departmentApiResponse = $userModel->getDepartmentApi($user['departmentId'], $_SESSION['token']);
+
+            // Debug: Log the role API response
+            error_log("API Response for Role ID " . $user['roleId'] . ": " . print_r($roleApiResponse, true));
+            error_log("API Response for Office ID " . $user['officeId'] . ": " . print_r($officeApiResponse, true));
+            error_log("API Response for Department ID " . $user['departmentId'] . ": " . print_r($departmentApiResponse, true));
+
+            $roleName = 'Unknown';
+            $officeName = 'Unknown';
+            $departmentName = 'Unknown';
+
+            if ($roleApiResponse && $roleApiResponse['http_code'] === 200 && isset($roleApiResponse['data']) && is_array($roleApiResponse['data'])) {
+                $roleData = $roleApiResponse['data'];
+                $roleName = $roleData['roleNameKh'] ?? 'Unknown';
+            }
+
+            if ($officeApiResponse && $officeApiResponse['http_code'] === 200 && isset($officeApiResponse['data']) && is_array($officeApiResponse['data'])) {
+                $officeData = $officeApiResponse['data'];
+                $officeName = $officeData['officeNameKh'] ?? 'Unknown';
+            }
+
+            if ($departmentApiResponse && $departmentApiResponse['http_code'] === 200 && isset($departmentApiResponse['data']) && is_array($departmentApiResponse['data'])) {
+                $departmentData = $departmentApiResponse['data'];
+                $departmentName = $departmentData['departmentNameKh'] ?? 'Unknown';
+            }
+
+            // Determine gender based on the API response
+            $gender = 'Unknown';
+            if ($user['gender'] === 'f') {
+                $gender = 'ស្រី';
+            } elseif ($user['gender'] === 'm') {
+                $gender = 'ប្រុស';
+            }
+
+            $active = 'Unknow';
+            if ($user['active'] === '1'){
+                $active = 'Active';
+            }else{
+                $active = 'Inactive';
+            }
+
+            // Fetch additional user details from the API
+            $userDetails = [
+                'rolename' => $roleName,
+                'phone_number' => $user['phoneNumber'],
+                'user_name' => $user['lastNameKh'] . " " . $user['firstNameKh'],
+                'user_id' => $user['id'] ?? 'Unknown',
+                'email' => $user['email'] ?? 'Unknown',
+                'office_id' => $user['office']['id'] ?? 'Unknown',
+                'office_name' => $officeName,
+                'department_id' => $user['department']['id'] ?? 'Unknown',
+                'department_name' => $departmentName,
+                'position_name' => $user['position']['name'] ?? 'Unknown',
+                'profile_picture' => 'https://hrms.iauoffsa.us/images/' . $user['image'] ?? 'default-profile.png',
+                'date_of_birth' => $user['dateOfBirth'],
+                'gender' => $gender,
+                'user_eng_name' => $user['engName'],
+                'active' => $active,
+                'activeStatus' => $user['active'],
+                'address' => $user['pobAddress'],
+                'curaddress' => $user['currentAddress'],
+                'password' => $user['password']
+            ];
+
+            return $userDetails;
+        } else {
+            // Handle cases where the API call fails or returns no data
+            error_log("API call failed for User ID " . $user_id . ". Returning default values.");
+
+            return [
+                'rolename' => 'Unknown',
+                'user_name' => 'Unknown',
+                'user_id' => 'Unknown',
+                'email' => 'Unknown',
+                'office_id' => 'Unknown',
+                'office_name' => 'Unknown',
+                'department_id' => 'Unknown',
+                'department_name' => 'Unknown',
+                'position_name' => 'Unknown',
+                'profile_picture' => 'default-profile.png'
+            ];
+        }
     }
 
     public function getUserLeaveRequests($user_id)

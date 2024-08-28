@@ -138,67 +138,6 @@ class LeaveController
         }
     }
 
-    // private function sendTelegramNotification($userChatId, $message)
-    // {
-    //     $botToken = "7138737839:AAG6VnvPWQJLBHAGt6_N4S1U59ZROruHseo"; // Replace with your bot token
-    //     $chatId = "$userChatId"; // Replace with the actual chat ID of the manager
-
-    //     // Ensure chatId is a numeric value, not a URL or string
-    //     if (!is_numeric($chatId)) {
-    //         $_SESSION['error'] = [
-    //             'title' => "Telegram Error",
-    //             'message' => "Invalid chat ID. Please check the chat ID and try again."
-    //         ];
-    //         header("Location: /elms/apply-leave");
-    //         exit();
-    //     }
-
-    //     $url = "https://api.telegram.org/bot$botToken/sendMessage?chat_id=$chatId&text=" . urlencode($message);
-
-    //     // Send the request to the Telegram API
-    //     $ch = curl_init();
-    //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    //     curl_setopt($ch, CURLOPT_URL, $url);
-
-    //     // Disable SSL verification for testing
-    //     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    //     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-
-    //     $result = curl_exec($ch);
-
-    //     if ($result === false) {
-    //         // Capture and log the cURL error
-    //         $error = curl_error($ch);
-    //         error_log("cURL error: $error");
-    //         $_SESSION['error'] = [
-    //             'title' => "Telegram Error",
-    //             'message' => "Notification could not be sent via Telegram. cURL error: $error"
-    //         ];
-    //         curl_close($ch);
-    //         header("Location: /elms/apply-leave");
-    //         exit();
-    //     }
-
-    //     curl_close($ch);
-
-    //     // Check the Telegram API response
-    //     $response = json_decode($result, true);
-    //     if ($response['ok'] !== true) {
-    //         // Capture and log the Telegram API error
-    //         $errorMessage = $response['description'] ?? 'Unknown error';
-    //         error_log("Telegram API error: $errorMessage");
-    //         $_SESSION['error'] = [
-    //             'title' => "Telegram Error",
-    //             'message' => "Notification could not be sent via Telegram. API error: $errorMessage"
-    //         ];
-    //         header("Location: /elms/apply-leave");
-    //         exit();
-    //     }
-
-    //     // Log success message for debugging
-    //     error_log("Telegram message sent successfully.");
-    // }
-
     private function sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType)
     {
         $mail = new PHPMailer(true);

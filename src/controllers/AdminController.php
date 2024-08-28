@@ -37,6 +37,52 @@ class AdminController
         }
     }
 
+    public function editUserDetail()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+
+            // Get user_id from the query string
+            $user_id = $_GET['user_id'] ?? null;
+
+            if ($user_id) {
+                $userController = new AdminModel();
+                $userDetails = $userController->getUserById($user_id);
+                $requests = $userController->getUserLeaveRequests($user_id);
+                $getlatein = $userController->getOvertimeIn($user_id);
+                $getleavecounts = $userController->countUserApprovedLeaveRequests($user_id);
+                $getovertimeincount = $userController->getOvertimeInCount($user_id);
+
+                require 'src/views/admin/edit_user_detail.php';
+            } else {
+                // Handle the case where user_id is not provided
+                echo "User ID not provided.";
+            }
+        }
+    }
+
+    public function security()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+
+            // Get user_id from the query string
+            $user_id = $_GET['user_id'] ?? null;
+
+            if ($user_id) {
+                $userController = new AdminModel();
+                $userDetails = $userController->getUserById($user_id);
+                $requests = $userController->getUserLeaveRequests($user_id);
+                $getlatein = $userController->getOvertimeIn($user_id);
+                $getleavecounts = $userController->countUserApprovedLeaveRequests($user_id);
+                $getovertimeincount = $userController->getOvertimeInCount($user_id);
+
+                require 'src/views/settings/security.php';
+            } else {
+                // Handle the case where user_id is not provided
+                echo "User ID not provided.";
+            }
+        }
+    }
+
     public function approved()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {

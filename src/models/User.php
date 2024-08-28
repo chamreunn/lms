@@ -42,14 +42,6 @@ class User
         curl_close($ch);
 
         // Debugging output
-        // echo "<pre>";
-        // echo "Request URL: $url\n";
-        // echo "Request Data: " . print_r($data, true) . "\n";
-        // echo "HTTP Code: $httpCode\n";
-        // echo "CURL Error: $error\n";
-        // echo "Response: $response\n";
-        // echo "</pre>";
-
         if ($response === false) {
             error_log("CURL Error: $error");
             return null;
@@ -63,6 +55,7 @@ class User
         }
 
         if ($httpCode === 200 && isset($responseData['user'], $responseData['token'])) {
+            // Password is assumed to be hashed and verified internally by the API
             return [
                 'http_code' => $httpCode,
                 'user' => $responseData['user'],
@@ -279,6 +272,92 @@ class User
         }
     }
 
+
+    public function updateUserEmailApi($userId, $newEmail, $token)
+    {
+        $apiUrl = 'https://hrms.iauoffsa.us/api/v1/users/' . $userId;
+
+        $data = [
+            'email' => $newEmail,
+        ];
+
+        $jsonData = json_encode($data);
+
+        $ch = curl_init($apiUrl);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST"); // Ensure this is correct
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $token, // Using the token from the session
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+
+        // Ignore SSL certificate verification (use only for debugging)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if (curl_errno($ch)) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            return ['success' => false, 'error' => $error, 'http_code' => $httpCode, 'response' => $response];
+        }
+
+        curl_close($ch);
+
+        return [
+            'success' => $httpCode === 200, // Adjust based on API documentation
+            'http_code' => $httpCode,
+            'response' => $response
+        ];
+    }
+
+    public function updateUserPasswordApi($userId, $password, $token)
+    {
+        $apiUrl = 'https://hrms.iauoffsa.us/api/v1/users/' . $userId;
+
+        $data = [
+            'password' => $password, // Pass the hashed password
+        ];
+
+        $jsonData = json_encode($data);
+
+        $ch = curl_init($apiUrl);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST"); // Use POST or PATCH depending on the API specification
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $token, // Using the token from the session
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+
+        // Ignore SSL verification (not recommended for production)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if (curl_errno($ch)) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            return ['success' => false, 'error' => $error, 'http_code' => $httpCode, 'response' => $response];
+        }
+
+        curl_close($ch);
+
+        return [
+            'success' => $httpCode === 200, // Adjust based on API documentation
+            'http_code' => $httpCode,
+            'response' => $response
+        ];
+    }
+
+
     public function getUserByIdApi($id, $token)
     {
         $url = 'https://hrms.iauoffsa.us/api/v1/users/' . $id;
@@ -337,6 +416,7 @@ class User
             ];
         }
     }
+
 
     public function getRoleApi($id, $token)
     {
@@ -690,6 +770,84 @@ class User
 
             foreach ($leaders as $leader) {
                 if (isset($leader['roleName']) && $leader['roleName'] === 'អនុប្រធាននាយកដ្ឋាន') {
+                    if (isset($leader['email'])) {
+                        $emails[] = $leader['email'];
+                    }
+                    if (isset($leader['id'])) {
+                        $ids[] = $leader['id'];
+                    }
+                    if (isset($leader['firstNameKh'])) {
+                        $firstNameKh[] = $leader['firstNameKh'];
+                    }
+                    if (isset($leader['lastNameKh'])) {
+                        $lastNameKh[] = $leader['lastNameKh'];
+                    }
+                }
+            }
+
+            // Log the filtered emails and ids to check if they are found correctly
+            error_log("Filtered Emails: " . print_r($emails, true));
+            error_log("Filtered IDs: " . print_r($ids, true));
+
+            return [
+                'http_code' => $httpCode,
+                'emails' => $emails,
+                'ids' => $ids,
+                'firstNameKh' => $firstNameKh,
+                'lastNameKh' => $lastNameKh,
+            ];
+        } else {
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            return [
+                'http_code' => $httpCode,
+                'response' => $responseData
+            ];
+        }
+    }
+
+    // ប្រធាននាយកដ្ឋាន
+    public function getEmailLeaderHDApi($id, $token)
+    {
+        $url = 'https://hrms.iauoffsa.us/api/v1/users/leader/contact/' . $id;
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . $token));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return null;
+        }
+
+        // Log the raw API response for debugging
+        error_log("API Response: " . $response);
+
+        $responseData = json_decode($response, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return null;
+        }
+
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            $leaders = $responseData['data'];
+
+            // Log the leaders data to ensure it's being received correctly
+            error_log("Leaders Data: " . print_r($leaders, true));
+
+            $emails = [];
+            $ids = [];
+            $firstNameKh = [];
+            $lastNameKh = [];
+
+            foreach ($leaders as $leader) {
+                if (isset($leader['roleName']) && $leader['roleName'] === 'ប្រធាននាយកដ្ឋាន') {
                     if (isset($leader['email'])) {
                         $emails[] = $leader['email'];
                     }

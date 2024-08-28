@@ -12,17 +12,6 @@ class LeaveApproval
 
     public function submitApproval($leave_request_id, $approver_id, $status, $remarks, $signaturePath)
     {
-        // Fetch the role of the approver
-        $stmt = $this->pdo->prepare(
-            'SELECT role FROM users WHERE id = ?'
-        );
-        $stmt->execute([$approver_id]);
-        $approverRole = $stmt->fetchColumn();
-
-        if ($approverRole === false) {
-            throw new Exception("Invalid approver ID: $approver_id");
-        }
-
         // Insert the approval record with the signature
         $stmt = $this->pdo->prepare(
             'INSERT INTO leave_approvals (leave_request_id, approver_id, status, remarks, signature, updated_at)

@@ -1,5 +1,4 @@
 <?php
-
 require_once 'config/database.php';
 
 class LeaveRequest
@@ -56,34 +55,51 @@ class LeaveRequest
 
     public function getRequestsByUserId($user_id)
     {
-        // Prepare and execute the SQL query
+        // Prepare and execute the SQL query (remove JOINs with users, departments, and positions)
         $stmt = $this->pdo->prepare(
             'SELECT lr.*, 
-                lt.name as leave_type_name, 
-                lt.duration, 
-                lt.color, 
-                u.khmer_name as user_name, 
-                u.date_of_birth as dob, 
-                u.email as user_email, 
-                u.department_id, 
-                u.position_id, 
-                u.profile_picture as user_profile,
-                d.name as department_name,
-                p.name as position_name
+            lt.name as leave_type_name, 
+            lt.duration, 
+            lt.color
          FROM leave_requests lr
          JOIN leave_types lt ON lr.leave_type_id = lt.id
-         JOIN users u ON lr.user_id = u.id
-         JOIN departments d ON u.department_id = d.id
-         JOIN positions p ON u.position_id = p.id
          WHERE lr.user_id = ?'
         );
         $stmt->execute([$user_id]);
 
         // Fetch all results
-        $results = $stmt->fetchAll();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Add additional data to each result
+        // Initialize UserModel
+        $userModel = new User();
+
+        // Add user information and additional data to each result
         foreach ($results as &$result) {
+            // Fetch user data from API using the user_id
+            $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+            // Check if the API response is successful
+            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data']) && !empty($userApiResponse['data'])) {
+                $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+                // Add user information to the leave request
+                $result['user_name'] = $user['lastNameKh'] . " " . $user['firstNameKh'] ?? 'Unknown';
+                $result['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $result['user_email'] = $user['email'] ?? 'Unknown';
+                $result['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $result['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $result['user_profile'] = $user['image'] ?? 'default-profile.png'; // Use a default profile image if none exists
+            } else {
+                // Handle cases where the API call fails or returns no data
+                $result['user_name'] = 'Unknown';
+                $result['dob'] = 'Unknown';
+                $result['user_email'] = 'Unknown';
+                $result['department_name'] = 'Unknown';
+                $result['position_name'] = 'Unknown';
+                $result['user_profile'] = 'default-profile.png'; // Use a default profile image if API fails
+            }
+
+            // Fetch additional data using existing methods
             $result['approvals'] = $this->getApprovalsByLeaveRequestId($result['id']);
             $result['doffice'] = $this->getDOfficePositions($result['id']);
             $result['hoffice'] = $this->getHOfficePositions($result['id']);
@@ -99,27 +115,13 @@ class LeaveRequest
     // New method to get filtered requests
     public function getRequestsByFilters($user_id, $filters)
     {
-        // Base SQL query
+        // Base SQL query (remove JOINs with users, departments, positions, and offices)
         $sql = 'SELECT lr.*, 
                    lt.name as leave_type_name, 
                    lt.duration, 
-                   lt.color, 
-                   u.khmer_name as user_name, 
-                   u.date_of_birth as dob, 
-                   u.email as user_email, 
-                   u.office_id, 
-                   u.department_id, 
-                   u.position_id, 
-                   u.profile_picture as user_profile,
-                   d.name as department_name,
-                   p.name as position_name,
-                   o.name as office_name
+                   lt.color
             FROM leave_requests lr
             JOIN leave_types lt ON lr.leave_type_id = lt.id
-            JOIN users u ON lr.user_id = u.id
-            JOIN departments d ON u.department_id = d.id
-            JOIN positions p ON u.position_id = p.id
-            JOIN offices o ON u.office_id = o.id
             WHERE lr.user_id = ?';
 
         $params = [$user_id];
@@ -145,11 +147,40 @@ class LeaveRequest
         $stmt->execute($params);
 
         // Fetch all results
-        $results = $stmt->fetchAll();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Add additional data to each result
+        // Initialize UserModel
+        $userModel = new User();
+
+        // Add user information and additional data to each result
         foreach ($results as &$result) {
-            // Assuming these methods use the leave request ID to fetch additional details
+            // Fetch user data from API using the user_id from the result
+            $userApiResponse = $userModel->getUserByIdApi($result['user_id'], $_SESSION['token']);
+
+            // Check if the API response is successful
+            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data']) && !empty($userApiResponse['data'])) {
+                $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+                // Add user information to the leave request
+                $result['user_name'] = $user['lastNameKh'] . " " . $user['firstNameKh'] ?? 'Unknown';
+                $result['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $result['user_email'] = $user['email'] ?? 'Unknown';
+                $result['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $result['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $result['office_name'] = $user['office']['name'] ?? 'Unknown';
+                $result['user_profile'] = $user['image'] ?? 'default-profile.png'; // Use a default profile image if none exists
+            } else {
+                // Handle cases where the API call fails or returns no data
+                $result['user_name'] = 'Unknown';
+                $result['dob'] = 'Unknown';
+                $result['user_email'] = 'Unknown';
+                $result['department_name'] = 'Unknown';
+                $result['position_name'] = 'Unknown';
+                $result['office_name'] = 'Unknown';
+                $result['user_profile'] = 'default-profile.png'; // Use a default profile image if API fails
+            }
+
+            // Fetch additional data using existing methods
             $result['approvals'] = $this->getApprovalsByLeaveRequestId($result['id']);
             $result['doffice'] = $this->getDOfficePositions($result['id']);
             $result['hoffice'] = $this->getHOfficePositions($result['id']);

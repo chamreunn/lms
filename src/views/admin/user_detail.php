@@ -1,5 +1,5 @@
 <?php
-$title = $userDetails['khmer_name'];
+$title = $userDetails['user_name'];
 include('src/common/header.php');
 function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 {
@@ -74,7 +74,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
             <div class="col">
                 <!-- Page pre-title -->
                 <div class="page-pretitle mb-1">
-                    <div>ថ្ងៃនេះ</div>
+                    <div>ទំព័រដើម</div>
                 </div>
                 <h2 class="page-title text-primary mb-0"><?= $title ?></h2>
             </div>
@@ -89,9 +89,9 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                 <div class="d-flex align-items-center text-center mb-0">
                     <img class="avatar avatar-xl" style="object-fit: cover;" src="<?= $userDetails['profile_picture'] ?>" alt="Profile Picture">
                     <div class="col-sm-12 mx-3 mb-0 text-start">
-                        <h4 class="text-primary"><?= $userDetails['khmer_name'] ?></h4>
+                        <h4 class="text-primary"><?= $userDetails['user_name'] ?></h4>
                         <p class="text-muted"><?= $userDetails['email'] ?></p>
-                        <span class="badge <?= $userDetails['pcolor'] ?>"><?= $userDetails['position_name'] ?></span>
+                        <span class="badge bg-warning-lt"><?= $userDetails['rolename'] ?></span>
                     </div>
                 </div>
             </div>

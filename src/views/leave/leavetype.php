@@ -63,9 +63,10 @@ include('src/common/header.php');
 <div class="col-12">
     <div class="card rounded-3">
         <div class="card-header">
-            <h3 class="card-title">Invoices</h3>
+            <h3 class="card-title"><?= $title ?></h3>
         </div>
-        <div class="table-responsive">
+        <div class="d-none d-md-block">
+            <!-- Regular table for larger screens -->
             <table id="leavetypeTable" class="table card-table table-vcenter text-nowrap datatable">
                 <thead>
                     <tr>
@@ -75,15 +76,13 @@ include('src/common/header.php');
                         <th>រយៈពេល</th>
                         <th width="20">ពិពណ៌នា</th>
                         <th>តម្រូវការឯកសារភ្ជាប់</th>
-                        <th>ថ្ងៃបង្កើត</th>
-                        <th>ថ្ងៃកែប្រែ</th>
                         <th>សកម្មភាព</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($leavetypes)) : ?>
                         <tr>
-                            <td colspan="4" class="text-center">
+                            <td colspan="7" class="text-center">
                                 <img src="public/img/icons/svgs/empty.svg" alt="">
                                 <p>មិនទាន់មានប្រភេទច្បាប់ថ្មីនៅឡើយ។ សូមបង្កើតដោយចុចប៊ូតុងខាងក្រោយ ឬស្តាំដៃខាងលើ</p>
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#modal-team" class="btn btn-primary">
@@ -108,8 +107,6 @@ include('src/common/header.php');
                                 <td><?= $leavetype['duration'] ?></td>
                                 <td><?= $leavetype['description'] ?></td>
                                 <td><?= $leavetype['attachment_required'] ? 'Yes' : 'No' ?></td>
-                                <td><?= $leavetype['created_at'] ?></td>
-                                <td><?= $leavetype['updated_at'] ?></td>
                                 <td>
                                     <a href="#" class="icon me-2 edit-btn" data-id="<?= $leavetype['id'] ?>" data-name="<?= $leavetype['name'] ?>" data-duration="<?= $leavetype['duration'] ?>" data-color="<?= $leavetype['color'] ?>" data-description="<?= $leavetype['description'] ?>" data-attachment="<?= $leavetype['attachment_required'] ?>" data-bs-toggle="modal" data-bs-target="#editModal">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-edit">
@@ -136,6 +133,47 @@ include('src/common/header.php');
                 </tbody>
             </table>
         </div>
+
+        <!-- Collapsible view for small screens -->
+        <div class="accordion d-md-none" id="leaveTypeAccordion">
+            <?php if (empty($leavetypes)) : ?>
+                <div class="text-center">
+                    <img src="public/img/icons/svgs/empty.svg" alt="">
+                    <p>មិនទាន់មានប្រភេទច្បាប់ថ្មីនៅឡើយ។ សូមបង្កើតដោយចុចប៊ូតុងខាងក្រោយ ឬស្តាំដៃខាងលើ</p>
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#modal-team" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        បង្កើតប្រភេទច្បាប់ថ្មី
+                    </a>
+                </div>
+            <?php else : ?>
+                <?php foreach ($leavetypes as $key => $leavetype) : ?>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading<?= $key ?>">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?= $key ?>" aria-expanded="false" aria-controls="collapse<?= $key ?>">
+                                <?= $leavetype['name'] ?>
+                            </button>
+                        </h2>
+                        <div id="collapse<?= $key ?>" class="accordion-collapse collapse" aria-labelledby="heading<?= $key ?>" data-bs-parent="#leaveTypeAccordion">
+                            <div class="accordion-body">
+                                <p><strong>ពណ៌:</strong> <span class="badge <?= $leavetype['color'] ?>"><?= $leavetype['color'] ?></span></p>
+                                <p><strong>រយៈពេល:</strong> <?= $leavetype['duration'] ?></p>
+                                <p><strong>ពិពណ៌នា:</strong> <?= $leavetype['description'] ?></p>
+                                <p><strong>តម្រូវការឯកសារភ្ជាប់:</strong> <?= $leavetype['attachment_required'] ? 'Yes' : 'No' ?></p>
+                                <div class="d-flex">
+                                    <a href="#" class="btn btn-sm btn-primary me-2 edit-btn" data-id="<?= $leavetype['id'] ?>" data-name="<?= $leavetype['name'] ?>" data-duration="<?= $leavetype['duration'] ?>" data-color="<?= $leavetype['color'] ?>" data-description="<?= $leavetype['description'] ?>" data-attachment="<?= $leavetype['attachment_required'] ?>" data-bs-toggle="modal" data-bs-target="#editModal">Edit</a>
+                                    <a href="#" class="btn btn-sm btn-danger delete-btn" data-id="<?= $leavetype['id'] ?>" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+
         <div class="card-footer d-flex align-items-center rounded-3">
             <p class="m-0 text-secondary">Showing <span id="showing-start">1</span> to <span id="showing-end">8</span> of <span id="total-entries">16</span> entries</p>
             <ul id="custom-pagination" class="pagination m-0 ms-auto"></ul>

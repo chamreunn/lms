@@ -129,7 +129,7 @@
                             <span class="nav-link-title">
                                 សំណើច្បាប់
                                 <?php if (!empty($requestscount)) : ?>
-                                    <span class="badge bg-red text-red-fg ms-2"><?= $requestscount; ?></span>
+                                    <span class="badge bg-red text-red-fg ms-auto"><?= $requestscount; ?></span>
                                 <?php endif; ?>
                             </span>
                         </a>
@@ -150,7 +150,7 @@
                                         </span>
                                         កំពុងរង់ចាំ
                                         <?php if (!empty($requestscount)) : ?>
-                                            <span class="badge bg-red text-red-fg ms-2"><?= $requestscount; ?></span>
+                                            <span class="badge bg-red text-red-fg ms-auto"><?= $requestscount; ?></span>
                                         <?php endif; ?>
                                     </a>
                                     <a class="dropdown-item <?= ($current_page == 'depdepartmentapproved') ? 'active' : '' ?>" href="/elms/depdepartmentapproved">
