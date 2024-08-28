@@ -28,7 +28,7 @@ class AuthController
                     $user = $authResult['user'];
                     $token = $authResult['token'];
 
-                    if ($authResult['action'] === '0') {
+                    if ($user['active'] === '0') {
                         $_SESSION['blocked_user'] = true;
                         $_SESSION['user_khmer_name'] = $user['khmer_name'];
                         $_SESSION['user_profile'] = $user['profile_picture'];
