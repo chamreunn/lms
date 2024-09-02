@@ -271,7 +271,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <div class="modal-content">
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         <div class="modal-status bg-danger"></div>
-                        <form action="/elms/pending" method="POST" enctype="multipart/form-data">
+                        <form action="/elms/headofficepending" method="POST" enctype="multipart/form-data">
                             <div class="modal-body text-center py-4">
                                 <!-- Download SVG icon from http://tabler-icons.io/i/circle-check -->
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">

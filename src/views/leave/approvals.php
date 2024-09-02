@@ -324,8 +324,8 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                             <div class="modal-footer">
                                 <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
                                 <input type="hidden" name="status" value="Rejected">
-                                <input type="hidden" name="uname" value="<?= $request['khmer_name'] ?>">
-                                <input type="hidden" name="leaveType" value="<?= $request['leavetype'] ?>">
+                                <input type="hidden" name="uname" value="<?= $request['user_name'] ?>">
+                                <input type="hidden" name="leaveType" value="<?= $request['leave_type'] ?>">
                                 <input type="hidden" name="user_id" value="<?= $request['user_id'] ?>">
                                 <input type="hidden" name="start_date" value="<?= $request['start_date'] ?>">
                                 <input type="hidden" name="end_date" value="<?= $request['end_date'] ?>">

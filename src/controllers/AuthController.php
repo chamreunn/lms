@@ -78,6 +78,6 @@ class AuthController
 
     public function forgotPassword()
     {
-        require 'src/view/auth/forgot-password.php';
+        require 'src/views/auth/forgot-password.php';
     }
 }

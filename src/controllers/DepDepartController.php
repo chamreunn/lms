@@ -74,19 +74,22 @@ class DepDepartController
             }
 
             // Fetch the user's office details
-            $userDoffice = $userModel->getHDepart();
-            if (!is_array($userDoffice) || !isset($userDoffice['hdepartment_id'])) {
+            $userHeader = $userModel->getEmailLeaderHDApi($_SESSION['user_id'], $_SESSION['token']);
+            if (!$userHeader || $userHeader['http_code'] !== 200 || empty($userHeader['emails'])) {
+                error_log("API Response: " . print_r($userHeader, true));
                 $_SESSION['error'] = [
                     'title' => "Office Error",
-                    'message' => "Unable to find department details. Please contact support."
+                    'message' => "Unable to find office details. Please contact support."
                 ];
                 header("Location: /elms/apply-leave");
                 exit();
             }
 
-            $managerEmail = $userDoffice['hemail'];
-            $managerNumber = $userDoffice['hnumber'];
-            $senderProfileImageUrl = 'public/img/icons/brands/logo2.png'; // Adjust the path as needed
+            // Convert emails array to string if necessary
+            $managerEmail = $userHeader['emails'];
+            if (is_array($managerEmail)) {
+                $managerEmail = implode(',', $managerEmail); // Convert array to comma-separated string
+            }
 
             // Create leave request
             $leaveRequestModel = new DepDepartLeave();
@@ -113,11 +116,11 @@ class DepDepartController
             }
             // Create notification for the user
             $notificationModel = new Notification();
-            $notificationModel->createNotification($userDoffice['hdepartment_id'], $user_id, $leaveRequestId, $message);
+            $notificationModel->createNotification($userHeader['ids'], $user_id, $leaveRequestId, $message);
 
             $_SESSION['success'] = [
                 'title' => "ជោគជ័យ",
-                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $userDoffice['hemail']
+                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $userHeader['emails']
             ];
             header("Location: /elms/leave-requests");
             exit();

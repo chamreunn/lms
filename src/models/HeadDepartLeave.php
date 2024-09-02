@@ -14,6 +14,9 @@ class HeadDepartLeave
     public function create(
         $user_id,
         $leave_type_id,
+        $position,
+        $office,
+        $department,
         $leave_type_name,
         $start_date,
         $end_date,
@@ -25,13 +28,16 @@ class HeadDepartLeave
         // Prepare and execute the SQL statement
         $stmt = $this->pdo->prepare('
             INSERT INTO leave_requests 
-            (user_id, leave_type_id, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, head_department, created_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            (user_id, leave_type_id, position, office, department, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, head_department, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ');
 
         $stmt->execute([
             $user_id,
             $leave_type_id,
+            $position,
+            $office,
+            $department,
             $leave_type_name,
             $start_date,
             $end_date,
@@ -249,108 +255,79 @@ class HeadDepartLeave
         return $stmt->fetchAll();
     }
 
-    public function getPendingRequestsForApprover($approver_id)
+    public function getAllLeaveRequests()
     {
-        // Get the approver's office and department
-        $stmt = $this->pdo->prepare('SELECT office_id, department_id FROM users WHERE id = ?');
-        $stmt->execute([$approver_id]);
-        $approver = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Fetch all leave requests from the database
+        $stmt = $this->pdo->prepare('SELECT * FROM leave_requests 
+        WHERE dhead_department IN (?, ?)
+        AND head_department = ?
+        AND position IN (?, ?, ?, ?, ?)
+        AND department = ?
+        AND user_id != ?
+        ');
+        $stmt->execute(['Approved', 'Rejected', 'Pending', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', 'អនុប្រធានការិយាល័យ', $_SESSION['departmentName'], $_SESSION['user_id']]);
+        $leaveRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if ($approver) {
-            $office_id = $approver['office_id'];
-            $department_id = $approver['department_id'];
+        // Initialize UserModel
+        $userModel = new User();
 
-            // Query to get pending requests for users in the same office or department as the approver
-            $stmt = $this->pdo->prepare('
-                SELECT lr.*, u.email, u.profile_picture AS profile, u.khmer_name, lt.color, lt.name AS leavetype
-                FROM leave_requests lr
-                JOIN users u ON lr.user_id = u.id
-                JOIN positions p ON u.position_id = p.id
-                JOIN leave_types lt ON lr.leave_type_id = lt.id
-                WHERE lr.dhead_department IN (?, ?) 
-                AND lr.head_department = ?
-                AND (u.office_id = ? OR u.department_id = ?)
-                AND u.role IN (?, ?, ?, ?)
-                AND p.name IN (?, ?, ?, ?, ?)
-                AND lr.user_id != ?
-            ');
+        // Fetch user data for each leave request using the API
+        foreach ($leaveRequests as &$request) {
+            // Get user data from API
+            $userApiResponse = $userModel->getUserByIdApi($request['user_id'], $_SESSION['token']);
 
-            // Execute the query with appropriate parameters
-            $stmt->execute([
-                'Approved',
-                'Rejected',
-                'Pending',          // Status to filter
-                $office_id,         // Office ID
-                $department_id,     // Department ID
-                'User',
-                'Deputy Head Of Office',
-                'Deputy Head Of Department',
-                'Head Of Office',   // Roles
-                'មន្ត្រីលក្ខខន្តិកៈ',
-                'ភ្នាក់ងាររដ្ឋបាល',
-                'អនុប្រធានការិយាល័យ',
-                'ប្រធានការិយាល័យ',
-                'អនុប្រធាននាយកដ្ឋាន', // Position names
-                $approver_id        // Exclude the approver's own requests
-            ]);
+            // Debug: Log the API response for each user
+            error_log("API Response for User ID " . $request['user_id'] . ": " . print_r($userApiResponse, true));
 
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } else {
-            return [];
+            // Check if the API response is successful
+            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data']) && !empty($userApiResponse['data'])) {
+                $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+                // Add user information to the leave request
+                $request['user_name'] = $user['lastNameKh'] . " " . $user['firstNameKh'] ?? 'Unknown';
+                $request['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $request['user_email'] = $user['email'] ?? 'Unknown';
+                $request['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $request['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $request['profile'] = $user['image'] ?? 'default-profile.png'; // Use a default profile image if none exists
+            } else {
+                // Handle cases where the API call fails or returns no data
+                $request['user_name'] = 'Unknown';
+                $request['dob'] = 'Unknown';
+                $request['user_email'] = 'Unknown';
+                $request['department_name'] = 'Unknown';
+                $request['position_name'] = 'Unknown';
+                $request['profile'] = 'default-profile.png'; // Use a default profile image if API fails
+
+                // Debug: Log the API failure case
+                error_log("API call failed for User ID " . $request['user_id'] . ". Setting default values.");
+            }
         }
+
+        // Debug: Log the final leave requests array
+        error_log("Final leave requests data: " . print_r($leaveRequests, true));
+
+        return $leaveRequests; // Return the modified leave requests
     }
 
     public function pendingCount($approver_id)
     {
-        // Get the approver's office and department
-        $stmt = $this->pdo->prepare('SELECT office_id, department_id FROM users WHERE id = ?');
-        $stmt->execute([$approver_id]);
-        $approver = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Prepare the SQL statement to count leave requests with the given criteria
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) as leave_count FROM leave_requests 
+    WHERE dhead_department IN (?, ?)
+    AND head_department = ?
+    AND position IN (?, ?, ?, ?, ?)
+    AND department = ?
+    AND user_id != ?');
 
-        if ($approver) {
-            $office_id = $approver['office_id'];
-            $department_id = $approver['department_id'];
+        // Execute the query with the session values
+        $stmt->execute(['Approved', 'Rejected', 'Pending', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', 'អនុប្រធាននាយកដ្ឋាន', $_SESSION['departmentName'], $_SESSION['user_id']]);
 
-            // Query to count pending requests for users in the same office or department as the approver
-            $stmt = $this->pdo->prepare('
-                SELECT COUNT(lr.id) AS pending_count
-                FROM leave_requests lr
-                JOIN users u ON lr.user_id = u.id
-                JOIN positions p ON u.position_id = p.id
-                JOIN leave_types lt ON lr.leave_type_id = lt.id
-                WHERE lr.dhead_department IN (?, ?) 
-                AND lr.head_department = ?
-                AND (u.office_id = ? OR u.department_id = ?)
-                AND u.role IN (?, ?, ?, ?)
-                AND p.name IN (?, ?, ?, ?, ?)
-                AND lr.user_id != ?
-            ');
+        // Fetch the result as an associative array
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Execute the query with appropriate parameters
-            $stmt->execute([
-                'Approved',
-                'Rejected',
-                'Pending',          // Status to filter
-                $office_id,         // Office ID
-                $department_id,     // Department ID
-                'User',
-                'Deputy Head Of Office',
-                'Deputy Head Of Department',
-                'Head Of Office',   // Roles
-                'មន្ត្រីលក្ខខន្តិកៈ',
-                'ភ្នាក់ងាររដ្ឋបាល',
-                'អនុប្រធានការិយាល័យ',
-                'ប្រធានការិយាល័យ',
-                'អនុប្រធាននាយកដ្ឋាន', // Position names
-                $approver_id        // Exclude the approver's own requests
-            ]);
-
-            // Fetch the count of pending requests
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $result['pending_count'] ?? 0;
-        } else {
-            return 0;
-        }
+        // Return the count of leave requests
+        return $result['leave_count'] ?? 0; // Return 0 if the count is not found
     }
 
     public function approvedCount($approver_id)
@@ -455,17 +432,6 @@ class HeadDepartLeave
 
     public function submitApproval($leave_request_id, $approver_id, $status, $remarks, $signaturePath)
     {
-        // Fetch the role of the approver
-        $stmt = $this->pdo->prepare(
-            'SELECT role FROM users WHERE id = ?'
-        );
-        $stmt->execute([$approver_id]);
-        $approverRole = $stmt->fetchColumn();
-
-        if ($approverRole === false) {
-            throw new Exception("Invalid approver ID: $approver_id");
-        }
-
         // Insert the approval record with the signature
         $stmt = $this->pdo->prepare(
             'INSERT INTO leave_approvals (leave_request_id, approver_id, status, remarks, signature, updated_at)
@@ -492,13 +458,11 @@ class HeadDepartLeave
 
     private function updateLeaveRequestStatus($leave_request_id, $latestStatus)
     {
-        // Fetch the current status of the leave request
+        // Fetch the current status and other relevant details of the leave request
         $stmt = $this->pdo->prepare(
-            'SELECT lr.head_department, lr.num_date, lr.status, p.name AS position_name
-         FROM leave_requests lr
-         JOIN users u ON lr.user_id = u.id
-         JOIN positions p ON u.position_id = p.id
-         WHERE lr.id = ?'
+            'SELECT head_department, num_date, status, position
+             FROM leave_requests
+             WHERE id = ?'
         );
         $stmt->execute([$leave_request_id]);
         $leaveRequest = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -510,7 +474,7 @@ class HeadDepartLeave
         $currentHeadDepartmentStatus = $leaveRequest['head_department'];
         $currentStatus = $leaveRequest['status'];
         $duration = $leaveRequest['num_date'];
-        $positionName = $leaveRequest['position_name'];
+        $positionName = $leaveRequest['position'];
 
         // If the current status is already 'Rejected', no further updates are needed
         if ($currentHeadDepartmentStatus == 'Rejected') {
@@ -520,9 +484,9 @@ class HeadDepartLeave
         // Determine the new status based on the latest approval status
         $newStatus = ($latestStatus == 'Rejected') ? 'Rejected' : 'Approved';
 
-        // Update both status and head_department if the leave duration is less than or equal to 3 days
+        // Update both status and head_department if the leave duration is <= 3 days
         // and the position name is one of the specified values
-        if ($duration <= 3 && in_array($positionName, ['មន្ត្រីលក្ខខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល'])) {
+        if ($duration <= 3 && in_array($positionName, ['មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល'])) {
             $stmt = $this->pdo->prepare(
                 'UPDATE leave_requests SET head_department = ?, status = ? WHERE id = ?'
             );

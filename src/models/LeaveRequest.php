@@ -100,7 +100,7 @@ class LeaveRequest
             }
 
             // Fetch additional data using existing methods
-            $result['approvals'] = $this->getApprovalsByLeaveRequestId($result['id']);
+            $result['approvals'] = $this->getApprovalsByLeaveRequestId($result['id'], $_SESSION['token']);
             $result['doffice'] = $this->getDOfficePositions($result['id']);
             $result['hoffice'] = $this->getHOfficePositions($result['id']);
             $result['ddepartment'] = $this->getDDepartmentPositions($result['id']);
@@ -181,7 +181,7 @@ class LeaveRequest
             }
 
             // Fetch additional data using existing methods
-            $result['approvals'] = $this->getApprovalsByLeaveRequestId($result['id']);
+            $result['approvals'] = $this->getApprovalsByLeaveRequestId($result['id'], $_SESSION['token']);
             $result['doffice'] = $this->getDOfficePositions($result['id']);
             $result['hoffice'] = $this->getHOfficePositions($result['id']);
             $result['hdepartment'] = $this->getHDepartmentPositions($result['id']);
@@ -261,29 +261,43 @@ class LeaveRequest
         return $stmt->fetchAll();
     }
 
-    public function getRequestById($leave_id)
+    public function getRequestById($leave_id, $token)
     {
+        // Query to fetch the leave request and related data, excluding joins for office, department, and position
         $stmt = $this->pdo->prepare(
-            'SELECT lr.*, lt.name as leave_type_name, lt.duration, lt.color,
-                deputy.khmer_name as deputy_head_name, user_request.phone_number, user_request.khmer_name, user_request.date_of_birth as dob,
-                o.name as office_name, d.name as department_name,
-                p.name as position_name
+            'SELECT lr.*, lt.name as leave_type_name, lt.duration, lt.color, lr.department AS department_name, lr.office AS office_name, lr.position AS position_name
          FROM leave_requests lr
          JOIN leave_types lt ON lr.leave_type_id = lt.id
-         JOIN users user_request ON lr.user_id = user_request.id
-         JOIN offices o ON user_request.office_id = o.id
-         JOIN departments d ON o.department_id = d.id
-         JOIN positions p ON user_request.position_id = p.id
-         JOIN users deputy ON o.doffice_id = deputy.id
          WHERE lr.id = ?'
         );
         $stmt->execute([$leave_id]);
         $leaveRequest = $stmt->fetch();
 
         if ($leaveRequest) {
-            $leaveRequest['approvals'] = $this->getApprovalsByLeaveRequestId($leaveRequest['id']);
+            // Fetch user information using the API
+            $userModel = new User();
+            $userApiResponse = $userModel->getUserByIdApi($leaveRequest['user_id'], $token);
+
+            if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                $userData = $userApiResponse['data'];
+                // Add user information to the leave request array
+                $leaveRequest['khmer_name'] = $userData['khmer_name'] ?? null;
+                $leaveRequest['phone_number'] = $userData['phoneNumber'] ?? null;
+                $leaveRequest['dob'] = $userData['date_of_birth'] ?? null;
+                $leaveRequest['deputy_head_name'] = $userData['deputy_head_name'] ?? null; // Adjust based on your API response structure
+            } else {
+                // Handle API error or missing data
+                error_log("Failed to fetch user data for leave request ID: $leave_id");
+                $leaveRequest['khmer_name'] = null;
+                $leaveRequest['phone_number'] = null;
+                $leaveRequest['dob'] = null;
+                $leaveRequest['deputy_head_name'] = null;
+            }
+
+            // Optional: Add logic to fetch approvals, office positions, etc.
+            $leaveRequest['approvals'] = $this->getApprovalsByLeaveRequestId($leaveRequest['id'], $_SESSION['token']);
             $leaveRequest['doffice'] = $this->getDOfficePositions($leaveRequest['id']);
-            $leaveRequest['hoffice'] = $this->getHOfficePositions($leaveRequest['id']);
+            $leaveRequest['hoffice'] = $this->getHOfficePositions($leaveRequest['id'], $_SESSION['token']);
             $leaveRequest['hdepartment'] = $this->getHDepartmentPositions($leaveRequest['id']);
             $leaveRequest['dunit'] = $this->getDUnitPositions($leaveRequest['id']);
             $leaveRequest['unit'] = $this->getUnitPositions($leaveRequest['id']);
@@ -348,27 +362,77 @@ class LeaveRequest
         return $result['total'];
     }
 
-    public function getApprovalsByLeaveRequestId($leave_request_id)
+    public function getApprovalsByLeaveRequestId($leave_request_id, $token)
     {
-        // Query to get the approval details along with approver's information, position details, and signature
+        // Query to get approval details without fetching user and position data directly
         $stmt = $this->pdo->prepare(
             'SELECT a.*, 
-                u.khmer_name AS approver_name, 
-                u.profile_picture AS profile,
-                p.name AS position_name,
-                p.color AS position_color,
                 a.signature,  -- Include the signature column
                 (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
-            FROM leave_approvals a
-            JOIN users u ON a.approver_id = u.id
-            JOIN positions p ON u.position_id = p.id
-            WHERE a.leave_request_id = ?'
+         FROM leave_approvals a
+         WHERE a.leave_request_id = ?'
         );
+
         // Execute the query with the leave request ID parameter
         $stmt->execute([$leave_request_id, $leave_request_id]);
-        // Return the fetched results
+        $approvals = $stmt->fetchAll();
+
+        // Check if an attachment is required for the leave type
+        $attachmentStmt = $this->pdo->prepare(
+            'SELECT lt.attachment_required 
+         FROM leave_requests lr
+         JOIN leave_types lt ON lr.leave_type_id = lt.id
+         WHERE lr.id = ?'
+        );
+        $attachmentStmt->execute([$leave_request_id]);
+        $attachmentRequired = $attachmentStmt->fetchColumn();
+
+        // If attachment is required, fetch attachment data
+        if ($attachmentRequired === 'YES') {
+            $attachmentData = $this->fetchAttachmentsByLeaveRequestId($leave_request_id);
+            if (empty($attachmentData)) {
+                // Log error or handle missing attachment
+                error_log("Attachment is required but not found for leave request ID: $leave_request_id");
+                // Optionally, you could return an error response or adjust the approvals data to reflect this issue.
+            }
+        }
+
+        $userModel = new User(); // Assuming User class is responsible for API calls to fetch user data
+
+        // Fetch approver information using API
+        foreach ($approvals as &$approval) {
+            $approverId = $approval['approver_id'];
+
+            // Use the API to get the user details
+            $userApiResponse = $userModel->getUserByIdApi($approverId, $token);
+
+            if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                $userData = $userApiResponse['data'];
+                $approval['approver_name'] = $userData['lastNameKh'] . " " . $userData['firstNameKh'] ?? null;
+                $approval['profile'] = 'https://hrms.iauoffsa.us/images/' . $userData['image'] ?? null;
+                $approval['position_name'] = $userData['position']['name'] ?? null; // Adjust based on your API response structure
+                $approval['position_color'] = $userData['position']['color'] ?? null; // Adjust based on your API response structure
+            } else {
+                // Handle API error or missing data
+                error_log("Failed to fetch user data for approver ID: $approverId");
+                $approval['approver_name'] = null;
+                $approval['profile'] = null;
+                $approval['position_name'] = null;
+                $approval['position_color'] = null;
+            }
+        }
+
+        return $approvals;
+    }
+
+    // Function to fetch attachment data by leave request ID
+    private function fetchAttachmentsByLeaveRequestId($leave_request_id)
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM leave_attachments WHERE leave_request_id = ?');
+        $stmt->execute([$leave_request_id]);
         return $stmt->fetchAll();
     }
+
 
     public function getDOfficePositions($leave_request_id)
     {

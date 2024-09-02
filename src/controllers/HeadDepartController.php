@@ -15,17 +15,33 @@ class HeadDepartController
 {
     public function apply()
     {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $userModel = new User();
 
-            $user_id = $_SESSION['user_id'];
-            $leave_type_id = $_POST['leave_type_id'];
-            $start_date = $_POST['start_date'];
-            $end_date = $_POST['end_date'];
-            $remarks = $_POST['remarks'];
-            $message = $_SESSION['user_khmer_name'] . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
-            $activity =  "បានស្នើសុំច្បាប់ឈប់សម្រាក។";
+            // Fetch session details
+            $user_id = $_SESSION['user_id'] ?? null;
+            $position = $_SESSION['position'] ?? null;
+            $office = $_SESSION['officeName'] ?? null;
+            $department = $_SESSION['departmentName'] ?? null;
+            $token = $_SESSION['token'] ?? null;
+            $user_khmer_name = $_SESSION['user_khmer_name'] ?? null;
+
+            if (!$user_id || !$position || !$department || !$token || !$user_khmer_name) {
+                $_SESSION['error'] = [
+                    'title' => "Session Error",
+                    'message' => "Session information is missing. Please log in again."
+                ];
+                header("Location: /elms/login");
+                exit();
+            }
+
+            $leave_type_id = $_POST['leave_type_id'] ?? null;
+            $start_date = $_POST['start_date'] ?? null;
+            $end_date = $_POST['end_date'] ?? null;
+            $remarks = $_POST['remarks'] ?? null;
+            $message = "$user_khmer_name បានស្នើសុំច្បាប់ឈប់សម្រាក។";
+            $activity = "បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
             // Handle file upload for attachment
             $attachment_name = $this->handleFileUpload($_FILES['attachment'], ['docx', 'pdf'], 2097152, 'public/uploads/leave_attachments/');
@@ -49,7 +65,7 @@ class HeadDepartController
                 exit();
             }
 
-            // Fetch leave type details including duration from database
+            // Fetch leave type details including duration from the database
             $leaveTypeModel = new Leavetype();
             $leaveType = $leaveTypeModel->getLeaveTypeById($leave_type_id);
             if (!$leaveType) {
@@ -78,59 +94,42 @@ class HeadDepartController
                 exit();
             }
 
-            if (isset($_SESSION['departmentName'])) {
-                if ($_SESSION['departmentName'] == "នាយកដ្ឋានកិច្ចការទូទៅ" || $_SESSION['departmentName'] == "នាយកដ្ឋានសវនកម្មទី២") {
-                    // Fetch the user's Unit details
-                    $userDoffice = $userModel->getDUnit_2();
-
-                    if (empty($userDoffice) || !isset($userDoffice['email'])) {
-                        $_SESSION['error'] = [
-                            'title' => "Office Error",
-                            'message' => "Unable to find Unit details. Please contact support."
-                        ];
-                        header("Location: /elms/hod-apply-leave");
-                        exit();
-                    }
-
-                    $managerEmail = $userDoffice['email'];
-                } else {
-                    $userDoffice = $userModel->getDUnit_1();
-
-                    if (empty($userDoffice) || !isset($userDoffice['email'])) {
-                        $_SESSION['error'] = [
-                            'title' => "Office Error",
-                            'message' => "Unable to find Unit details. Please contact support."
-                        ];
-                        header("Location: /elms/hod-apply-leave");
-                        exit();
-                    }
-
-                    $managerEmail = $userDoffice['email'];
-                }
+            // Fetch office details based on department
+            $userDoffice = null;
+            if (in_array($department, ["កិច្ចការទូទៅ", "នាយកដ្ឋានសវនកម្មទី២"])) {
+                // Fetch the user's Unit details
+                $userDoffice = $userModel->getEmailLeaderDHU1Api($user_id, $token);
             } else {
-                // Handle the case where departmentName is not set
+                $userDoffice = $userModel->getEmailLeaderDHU2Api($user_id, $token);
+            }
+
+            if (empty($userDoffice) || empty($userDoffice['ids']) || empty($userDoffice['emails'])) {
                 $_SESSION['error'] = [
-                    'title' => "Session Error",
-                    'message' => "Department name not found in session. Please log in again."
+                    'title' => "Office Error",
+                    'message' => "Unable to find Department details or no emails found. Please contact support."
                 ];
-                header("Location: /elms/login");
+                header('location: /elms/headofficepending');
                 exit();
             }
+
+            $managerEmail = is_array($userDoffice['emails']) ? implode(',', $userDoffice['emails']) : $userDoffice['emails'];
 
             // Create leave request
             $leaveRequestModel = new HeadDepartLeave();
-            $leaveRequestId = $leaveRequestModel->create($user_id, $leave_type_id, $leaveType['name'], $start_date, $end_date, $remarks, $duration_days, $attachment_name, $signature_name);
-
-            $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
-            // Send email notification 
-            if (!$this->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
-                $_SESSION['error'] = [
-                    'title' => "Email Error",
-                    'message' => "Notification email could not be sent. Please try again." . $userDoffice['role']
-                ];
-                header("Location: /elms/hod-apply-leave");
-                exit();
-            }
+            $leaveRequestId = $leaveRequestModel->create(
+                $user_id,
+                $leave_type_id,
+                $position,
+                $office,
+                $department,
+                $leaveType['name'],
+                $start_date,
+                $end_date,
+                $remarks,
+                $duration_days,
+                $attachment_name,
+                $signature_name
+            );
 
             if (!$leaveRequestId) {
                 $_SESSION['error'] = [
@@ -140,13 +139,27 @@ class HeadDepartController
                 header("Location: /elms/hod-apply-leave");
                 exit();
             }
+
+            // Log user activity
+            $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
+
+            // Send email notification 
+            if (!$this->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
+                $_SESSION['error'] = [
+                    'title' => "Email Error",
+                    'message' => "Notification email could not be sent. Please try again."
+                ];
+                header("Location: /elms/hod-apply-leave");
+                exit();
+            }
+
             // Create notification for the user
             $notificationModel = new Notification();
-            $notificationModel->createNotification($userDoffice['id'], $user_id, $leaveRequestId, $message);
+            $notificationModel->createNotification($userDoffice['ids'], $user_id, $leaveRequestId, $message);
 
             $_SESSION['success'] = [
                 'title' => "ជោគជ័យ",
-                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $userDoffice['email']
+                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
             ];
             header("Location: /elms/leave-requests");
             exit();
@@ -356,7 +369,7 @@ class HeadDepartController
         if (isset($_GET['leave_id'])) {
             $leaveRequestModel = new LeaveRequest();
             $leave_id = (int)$_GET['leave_id'];
-            $request = $leaveRequestModel->getRequestById($leave_id);
+            $request = $leaveRequestModel->getRequestById($leave_id, $_SESSION['token']);
 
             if ($request) {
                 require 'src/views/leave/viewleave.php';
@@ -372,17 +385,17 @@ class HeadDepartController
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Retrieve POST data
-            $request_id = $_POST['request_id'];
-            $status = $_POST['status'];
-            $remarks = $_POST['remarks'];
-            $uremarks = $_POST['uremarks'];
-            $uname = $_POST['uname'];
-            $leaveType = $_POST['leaveType'];
-            $user_id = $_POST['user_id']; // ID of the user who applied for leave
-            $start_date = $_POST['start_date'];
-            $end_date = $_POST['end_date'];
-            $duration_days = $_POST['duration'];
-            $approver_id = $_SESSION['user_id'];
+            $request_id = $_POST['request_id'] ?? null;
+            $status = $_POST['status'] ?? null;
+            $remarks = $_POST['remarks'] ?? '';
+            $uremarks = $_POST['uremarks'] ?? '';
+            $uname = $_POST['uname'] ?? '';
+            $leaveType = $_POST['leaveType'] ?? '';
+            $user_id = $_POST['user_id'] ?? null;
+            $start_date = $_POST['start_date'] ?? null;
+            $end_date = $_POST['end_date'] ?? null;
+            $duration_days = $_POST['duration'] ?? null;
+            $approver_id = $_SESSION['user_id'] ?? null;
             $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
             $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
@@ -403,36 +416,26 @@ class HeadDepartController
 
             // Fetch office details
             $userModel = new User();
+            $departmentName = $_SESSION['departmentName'] ?? null;
 
-            if (isset($_SESSION['departmentName'])) {
-                if ($_SESSION['departmentName'] == "នាយកដ្ឋានកិច្ចការទូទៅ" || $_SESSION['departmentName'] == "នាយកដ្ឋានសវនកម្មទី២") {
+            if ($departmentName) {
+                if (in_array($departmentName, ["កិច្ចការទូទៅ", "នាយកដ្ឋានសវនកម្មទី២"])) {
                     // Fetch the user's Unit details
-                    $userDoffice = $userModel->getDUnit_2();
-
-                    if (empty($userDoffice) || !isset($userDoffice['email'])) {
-                        $_SESSION['error'] = [
-                            'title' => "Office Error",
-                            'message' => "Unable to find Unit details. Please contact support."
-                        ];
-                        header("Location: /elms/hod-apply-leave");
-                        exit();
-                    }
-
-                    $managerEmail = $userDoffice['email'];
+                    $userDoffice = $userModel->getEmailLeaderDHU1Api($_SESSION['user_id'], $_SESSION['token']);
                 } else {
-                    $userDoffice = $userModel->getDUnit_1();
-
-                    if (empty($userDoffice) || !isset($userDoffice['email'])) {
-                        $_SESSION['error'] = [
-                            'title' => "Office Error",
-                            'message' => "Unable to find Unit details. Please contact support."
-                        ];
-                        header("Location: /elms/hod-apply-leave");
-                        exit();
-                    }
-
-                    $managerEmail = $userDoffice['email'];
+                    $userDoffice = $userModel->getEmailLeaderDHU2Api($_SESSION['user_id'], $_SESSION['token']);
                 }
+
+                if (empty($userDoffice) || empty($userDoffice['ids'])) {
+                    $_SESSION['error'] = [
+                        'title' => "Office Error",
+                        'message' => "Unable to find Department details or no emails found. Please contact support."
+                    ];
+                    header('location: /elms/headofficepending');
+                    exit();
+                }
+
+                $managerEmail = is_array($userDoffice['emails']) ? implode(',', $userDoffice['emails']) : $userDoffice['emails'];
             } else {
                 // Handle the case where departmentName is not set
                 $_SESSION['error'] = [
@@ -447,7 +450,7 @@ class HeadDepartController
             if (!$this->sendEmailNotification($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
                 $_SESSION['error'] = [
                     'title' => "Email Error",
-                    'message' => "Notification email could not be sent. Please try again."
+                    'message' => "Notification email could not be sent. Please try again." . $managerEmail
                 ];
                 header('location: /elms/headdepartpending');
                 exit();
@@ -457,21 +460,18 @@ class HeadDepartController
             $notificationModel = new Notification();
             $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
 
-            // Create Activity
-            $userModel = new User();
-            $userId = $_SESSION['user_id'];
-            $activity = "បាន " . $status . "ច្បាប់ឈប់សម្រាក " . $uname;
-            $userModel->logUserActivity($userId, $activity, $_SERVER['REMOTE_ADDR']);
+            // Log user activity
+            $userModel->logUserActivity($approver_id, "បាន " . $status . "ច្បាប់ឈប់សម្រាក " . $uname, $_SERVER['REMOTE_ADDR']);
 
             $_SESSION['success'] = [
                 'title' => "សំណើច្បាប់",
-                'message' => "សំណើច្បាប់ត្រូវបាន " . $status . $managerEmail
+                'message' => "សំណើច្បាប់ត្រូវបាន " . $managerEmail
             ];
             header('location: /elms/headdepartpending');
             exit();
         } else {
             $leaveRequestModel = new HeadDepartLeave();
-            $requests = $leaveRequestModel->getPendingRequestsForApprover($_SESSION['user_id']);
+            $requests = $leaveRequestModel->getAllLeaveRequests();
             $leavetypeModel = new Leavetype();
             $leavetypes = $leavetypeModel->getAllLeavetypes();
 

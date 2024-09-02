@@ -30,7 +30,7 @@ ob_start();
             <!-- Page title actions -->
             <div class="col-auto ms-auto d-print-none">
                 <div class="btn-list">
-                    <a href="/elms/apply-leave" class="btn btn-primary d-none d-sm-inline-block">
+                    <a href="#" data-bs-target="#apply-leave" data-bs-toggle="modal" class="btn btn-primary d-none d-sm-inline-block">
                         <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -39,7 +39,7 @@ ob_start();
                         </svg>
                         បង្កើតសំណើច្បាប់
                     </a>
-                    <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon">
+                    <a href="#" data-bs-target="#apply-leave" data-bs-toggle="modal" class="btn btn-primary d-sm-none btn-icon">
                         <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -57,6 +57,11 @@ $pageheader = ob_get_clean();
 include('src/common/header.php');
 function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 {
+    // Return an empty string or a default value if the date is null or empty
+    if (empty($date)) {
+        return '';
+    }
+
     // Define Khmer translations for days and months
     $days = [
         'Mon' => 'ច័ន្ទ',
@@ -96,16 +101,22 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         '9' => '៩'
     ];
 
+    // Check if the provided date is valid
+    $timestamp = strtotime($date);
+    if ($timestamp === false) {
+        return ''; // Return an empty string or a default value if the date is invalid
+    }
+
     // Get the English day and month names
-    $englishDay = date('D', strtotime($date));
-    $englishMonth = date('F', strtotime($date));
+    $englishDay = date('D', $timestamp);
+    $englishMonth = date('F', $timestamp);
 
     // Translate English day and month names to Khmer
     $translatedDay = $days[$englishDay] ?? $englishDay;
     $translatedMonth = $months[$englishMonth] ?? $englishMonth;
 
     // Format the date in English
-    $formattedDate = date($format, strtotime($date));
+    $formattedDate = date($format, $timestamp);
 
     // Replace day and month with Khmer
     $translatedDate = str_replace(
@@ -119,51 +130,13 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 
     return $translatedDate;
 }
-
 ?>
 <div class="row">
-    <div class="col-lg-8">
+    <div class="col-lg-12">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h3>ពិនិត្យមើលច្បាប់ឈប់សម្រាក</h3>
+        </div>
         <div class="card mb-3">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <h3>ពិនិត្យមើលច្បាប់ឈប់សម្រាក</h3>
-                <?php if ($request['status'] == 'Approved') : ?>
-                    <div class="dropdown">
-                        <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                            ទាញយកច្បាប់ឈប់សម្រាក
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <li>
-                                <span class="dropdown-header">ទាញយក បោះពុម្ព</span>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" onclick="printContents(<?= $request['id'] ?>)" href="#">
-                                    <!-- Download SVG icon from http://tabler-icons.io/i/settings -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
-                                        <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" />
-                                        <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
-                                    </svg>
-                                    <span class="mx-2">បោះពុម្ព</span>
-                                </a>
-                            </li>
-                            <li class="dropdown-divider mt-0 mb-0"></li>
-                            <li>
-                                <a class="dropdown-item mb-0" href="#">
-                                    <!-- Download SVG icon from http://tabler-icons.io/i/edit -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-download">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
-                                        <path d="M7 11l5 5l5 -5" />
-                                        <path d="M12 4l0 12" />
-                                    </svg>
-                                    <span class="mx-2">ទាញយក (WORD)</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                <?php endif; ?>
-            </div>
             <div class="card-body">
                 <form>
                     <!-- Leave Type -->
@@ -271,9 +244,51 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <div class="mb-3 row">
                         <label class="col-sm-4 col-form-label">មូលហេតុ :</label>
                         <div class="col-sm-8">
-                            <textarea class="form-control" rows="3" disabled><?= $request['remarks'] ?></textarea>
+                            <input type="text" class="form-control" value="<?= $request['remarks'] ?>" disabled />
                         </div>
                     </div>
+                    <?php if ($request['status'] == 'Approved') : ?>
+                        <div class="mb-3 row">
+                            <label class="col-sm-4 col-form-label">ទាញយក</label>
+                            <div class="col-sm-8">
+                                <div class="dropdown">
+                                    <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                        ទាញយកច្បាប់ឈប់សម្រាក
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <li>
+                                            <span class="dropdown-header">ទាញយក បោះពុម្ព</span>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" onclick="printContents(<?= $request['id'] ?>)" href="#">
+                                                <!-- Download SVG icon from http://tabler-icons.io/i/settings -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
+                                                    <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" />
+                                                    <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
+                                                </svg>
+                                                <span class="mx-2">បោះពុម្ព</span>
+                                            </a>
+                                        </li>
+                                        <li class="dropdown-divider mt-0 mb-0"></li>
+                                        <li>
+                                            <a class="dropdown-item mb-0" href="#">
+                                                <!-- Download SVG icon from http://tabler-icons.io/i/edit -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-download">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+                                                    <path d="M7 11l5 5l5 -5" />
+                                                    <path d="M12 4l0 12" />
+                                                </svg>
+                                                <span class="mx-2">ទាញយក (WORD)</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
 
                     <!-- Attachment -->
                     <?php if (!empty($request['attachment'])) : ?>
@@ -330,19 +345,15 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                         </div>
                     </div>
                 </div>
-            <?php else : ?>
-                <div class="card-footer">
-                    <button class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#cancelModal">Print</button>
-                </div>
             <?php endif; ?>
         </div>
     </div>
 
     <!-- Steps Vertical -->
-    <div class="col-lg-4">
+    <div class="col-lg-12">
+        <h3 class="card-title">ការអនុម័ត</h3>
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title">Steps vertical</h3>
                 <ul class="steps steps-vertical mb-4 placeholder-glow">
                     <?php if (empty($request['approvals'])) : ?>
                         <!-- Placeholder items -->
@@ -370,9 +381,9 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                             $isWaiting = !$isLast && $request['approvals'][$index + 1]['status'] == 'Pending';
                             ?>
                             <li class="step-item <?= $isLast ? 'active' : '' ?> <?= $isWaiting ? 'animate__animated animate__flash' : '' ?> <?= $approval['status'] == 'Rejected' ? 'rejected' : '' ?> <?= $approval['status'] == 'Cancelled' ? 'cancelled' : '' ?>">
-                                <div class="d-flex w-100 justify-content-between align-items-center mb-2">
+                                <div class="d-flex w-100 justify-content-between align-items-center mb-3">
                                     <div class="d-flex align-items-center">
-                                        <img src="<?= $approval['profile'] ?>" class="avatar rounded-circle me-3" alt="">
+                                        <img src="<?= $approval['profile'] ?>" class="avatar rounded-circle me-3" alt="" style="object-fit: cover;">
                                         <div>
                                             <h5 class="mb-0"><?= $approval['approver_name'] ?></h5>
                                             <small class="text-muted"><?= translateDateToKhmer($approval['updated_at'], 'j F, Y h:i A') ?></small>
@@ -392,7 +403,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                         <?= $approval['status'] ?>
                                     </span>
                                 </div>
-                                <small class="text-primary">
+                                <small class="text-primary mb-4">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-message">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M18 3a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-4.724l-4.762 2.857a1 1 0 0 1 -1.508 -.743l-.006 -.114v-2h-1a4 4 0 0 1 -3.995 -3.8l-.005 -.2v-8a4 4 0 0 1 4 -4zm-4 9h-6a1 1 0 0 0 0 2h6a1 1 0 0 0 0 -2m2 -4h-8a1 1 0 1 0 0 2h8a1 1 0 0 0 0 -2" />
@@ -401,10 +412,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                 </small>
                             </li>
                             <?php if ($request['status'] !== 'Approved') : ?>
-                                <li class="step-item">
-                                    <div class="h4 m-0">Finalized</div>
-                                    <div class="text-secondary">Lorem ipsum dolor sit amet.</div>
-                                </li>
                             <?php endif; ?>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -442,7 +449,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                         <center style="text-align: center; font-family: khmer mef2; font-size: 19px;" class="mb-3">
                             លោកប្រធាន<?= $request['department_name'] ?>
                         </center>
-                        <p style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align:justify; text-indent: 50px;"><strong class="h3">កម្មវត្ថុ៖</strong> សំណើសុំច្បាប់ឈប់សម្រាកចំនួន <?= translateDateToKhmer($request['num_date'], 'd') ?>ថ្ងៃ ដោយគិតចាប់ពីថ្ងៃទី <?= translateDateToKhmer($request['start_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['start_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['start_date'], 'Y') ?> ដល់ថ្ងៃទី <?= translateDateToKhmer($request['end_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['end_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['end_date'], 'Y') ?></p>
+                        <p style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align:justify; text-indent: 50px;"><strong class="h3">កម្មវត្ថុ៖</strong> សំណើសុំច្បាប់ឈប់សម្រាកចំនួន <?= $request['num_date'] ?>ថ្ងៃ ដោយគិតចាប់ពីថ្ងៃទី <?= translateDateToKhmer($request['start_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['start_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['start_date'], 'Y') ?> ដល់ថ្ងៃទី <?= translateDateToKhmer($request['end_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['end_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['end_date'], 'Y') ?></p>
                         <p style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align:justify; text-indent: 50px;"><strong class="h3">មូលហេតុ៖</strong> <?= $request['remarks'] ?> ។</p>
                         <p style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align:justify; text-indent: 50px;">
                             តបតាមកម្មវត្ថុខាងលើ ខ្ញុំសូមគោរពជម្រាបជូន លោកប្រធាននាយកដ្ឋាន មេត្តាជ្រាបដ៏ខ្ពង់ខ្ពស់ថា៖ខ្ញុំបាទ/ នាងខ្ញុំឈ្មោះ<?= $request['khmer_name'] ?>កើតថ្ងៃទី <?= translateDateToKhmer($request['dob'], 'd') ?> ខែ <?= translateDateToKhmer($request['dob'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['dob'], 'Y') ?> មានតួនាទីជា <?= $request['position_name'] ?> នៃ <?= $request['office_name'] ?> នៃ <?= $request['department_name'] ?> ខ្ញុំសូមគោរពស្នើសុំការអនុញ្ញាតច្បាប់ចំនួន <?= translateDateToKhmer($request['num_date'], 'd') ?>ថ្ងៃ ដោយគិតចាប់ពីថ្ងៃទី <?= translateDateToKhmer($request['start_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['start_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['start_date'], 'Y') ?> ដល់ថ្ងៃទី <?= translateDateToKhmer($request['end_date'], 'd') ?> ខែ <?= translateDateToKhmer($request['end_date'], 'F') ?> ឆ្នាំ <?= translateDateToKhmer($request['end_date'], 'Y') ?>
@@ -494,6 +501,130 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 </div>
 
 <?php include('src/common/footer.php'); ?>
+
+<div class="modal modal-blur fade" id="apply-leave" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><strong>បង្កើតសំណើ</strong></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/elms/apply-leave" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="leave_type" class="form-label fw-bold">ប្រភេទច្បាប់<span class="text-danger mx-1 fw-bold">*</span></label>
+                            <select class="form-select" id="leave_type" name="leave_type_id" required>
+                                <option value="">ជ្រើសរើសប្រភេទច្បាប់</option>
+                                <?php foreach ($leavetypes as $leavetype) : ?>
+                                    <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>" data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>' <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
+                                        <?= $leavetype['name'] ?> (<?= $leavetype['duration'] ?>ថ្ងៃ)
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <input type="hidden" id="leave_type_name" name="leave_type_name" value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-lg-6 mb-3">
+                                <label for="start_date" class="form-label fw-bold">កាលបរិច្ឆេទចាប់ពី<span class="text-danger mx-1 fw-bold">*</span></label>
+                                <div class="input-icon">
+                                    <span class="input-icon-addon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <rect x="4" y="5" width="16" height="16" rx="2"></rect>
+                                            <line x1="16" y1="3" x2="16" y2="7"></line>
+                                            <line x1="8" y1="3" x2="8" y2="7"></line>
+                                            <line x1="4" y1="11" x2="20" y2="11"></line>
+                                            <rect x="8" y="15" width="2" height="2"></rect>
+                                        </svg>
+                                    </span>
+                                    <input type="text" autocomplete="off" value="<?= htmlspecialchars($_POST['start_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="កាលបរិច្ឆេទចាប់ពី" class="form-control date-picker" id="lstart_date" name="start_date" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 mb-3">
+                                <label for="end_date" class="form-label fw-bold">ដល់កាលបរិច្ឆេទ<span class="text-danger mx-1 fw-bold">*</span></label>
+                                <div class="input-icon">
+                                    <span class="input-icon-addon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <rect x="4" y="5" width="16" height="16" rx="2"></rect>
+                                            <line x1="16" y1="3" x2="16" y2="7"></line>
+                                            <line x1="8" y1="3" x2="8" y2="7"></line>
+                                            <line x1="4" y1="11" x2="20" y2="11"></line>
+                                            <rect x="8" y="15" width="2" height="2"></rect>
+                                        </svg>
+                                    </span>
+                                    <input type="text" autocomplete="off" value="<?= htmlspecialchars($_POST['end_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="ដល់កាលបរិច្ឆេទ" class="form-control date-picker" id="lend_date" name="end_date" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 mb-3">
+                                <label for="reason" class="form-label fw-bold">មូលហេតុ<span class="text-danger mx-1 fw-bold">*</span></label>
+                                <div class="input-icon">
+                                    <!-- <span class="input-icon-addon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-message">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M8 9h8" />
+                                                <path d="M8 13h6" />
+                                                <path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" />
+                                            </svg>
+                                        </span> -->
+                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" rows="5" class="form-control" id="remarks" name="remarks" required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-1">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="signature" onchange="toggleFileInput(this, 'signatureFile')" checked>
+                                    <label class="form-check-label cursor-pointer" for="signature">
+                                        ហត្ថលេខា<span class="text-red fw-bold mx-1">*</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-3" id="signatureFile">
+                                <label id="displayName" for="signature_file" class="btn w-100 text-start p-3 flex-column text-muted bg-light">
+                                    <span class="p-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-signature mx-0">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M3 17c3.333 -3.333 5 -6 5 -8c0 -3 -1 -3 -2 -3s-2.032 1.085 -2 3c.034 2.048 1.658 4.877 2.5 6c1.5 2 2.5 2.5 3.5 1l2 -3c.333 2.667 1.333 4 3 4c.53 0 2.639 -2 3 -2c.517 0 1.517 .667 3 2" />
+                                        </svg>
+                                    </span>
+                                    <span>ហត្ថលេខា</span>
+                                </label>
+                                <input type="file" name="signature" id="signature_file" accept="image/png" required hidden onchange="displayFileName('signature_file', 'displayName')" />
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="attachment" onchange="toggleFileInput(this, 'attachmentFile')">
+                                    <label class="form-check-label cursor-pointer" for="attachment">
+                                        ឯកសារភ្ជាប់
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-3" id="attachmentFile" style="display: none;">
+                                <label id="attachmentDisplayName" for="attachment_file" class="btn w-100 text-start p-3 bg-light">
+                                    ឯកសារភ្ជាប់
+                                </label>
+                                <input type="file" name="attachment" id="attachment_file" class="form-control" hidden onchange="displayFileName('attachment_file', 'attachmentDisplayName')" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-bs-dismiss="modal">បោះបង់</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span>បង្កើតសំណើ</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-send mx-1">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M10 14l11 -11" />
+                            <path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" />
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
     // Function to print the contents
     function printContents(id) {

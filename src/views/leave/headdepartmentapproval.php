@@ -76,15 +76,15 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
             <div class="col-md-6 col-lg-3 mb-3">
                 <div class="card h-100 p-0 border">
                     <div class="card-body p-3">
-                        <div class="ribbon bg-red" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif"><?= $request['status'] ?></div>
+                        <div class="ribbon bg-red">កំពុងរង់ចាំអនុម័ត...</div>
                         <div class="d-flex w-100 justify-content-between mb-2">
                             <div class="d-flex align-items-center">
                                 <div class="me-3">
-                                    <img class="avatar rounded-circle" style="object-fit: cover;" src="<?= $request['profile'] ?>" alt="">
+                                    <img class="avatar rounded-circle" style="object-fit: cover;" src="<?= 'https://hrms.iauoffsa.us/images/' . $request['profile'] ?>" alt="">
                                 </div>
                                 <div class="d-flex flex-column">
                                     <div class="mb-2">
-                                        <h4 class="mb-1 text-primary"><?= $request['khmer_name'] ?></h4>
+                                        <h4 class="mb-1 text-primary"><?= $request['user_name'] ?></h4>
                                         <small class="fw-bolder"><?= translateDateToKhmer($request['created_at'], 'j F Y h:i A') ?></small>
                                     </div>
                                 </div>
@@ -114,7 +114,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                     <path d="M3 9a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9z" />
                                     <path d="M8 7v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2" />
                                 </svg>
-                                <strong>ប្រភេទច្បាប់ : </strong><?= $request['leavetype'] ?>
+                                <strong>ប្រភេទច្បាប់ : </strong><span class="text-red"><?= $request['leave_type'] ?></span>
                             </div>
                             <div class="text-primary mb-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-event">
@@ -216,8 +216,8 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                             <div class="modal-footer">
                                 <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
                                 <input type="hidden" name="status" value="Approved">
-                                <input type="hidden" name="uname" value="<?= $request['khmer_name'] ?>">
-                                <input type="hidden" name="leaveType" value="<?= $request['leavetype'] ?>">
+                                <input type="hidden" name="uname" value="<?= $request['user_name'] ?>">
+                                <input type="hidden" name="leaveType" value="<?= $request['leave_type'] ?>">
                                 <input type="hidden" name="user_id" value="<?= $request['user_id'] ?>">
                                 <input type="hidden" name="start_date" value="<?= $request['start_date'] ?>">
                                 <input type="hidden" name="end_date" value="<?= $request['end_date'] ?>">
@@ -249,7 +249,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <div class="modal-content">
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         <div class="modal-status bg-danger"></div>
-                        <form action="/elms/pending" method="POST" enctype="multipart/form-data">
+                        <form action="/elms/headdepartpending" method="POST" enctype="multipart/form-data">
                             <div class="modal-body text-center py-4">
                                 <!-- Download SVG icon from http://tabler-icons.io/i/circle-check -->
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">
@@ -300,8 +300,8 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                             <div class="modal-footer">
                                 <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
                                 <input type="hidden" name="status" value="Rejected">
-                                <input type="hidden" name="uname" value="<?= $request['khmer_name'] ?>">
-                                <input type="hidden" name="leaveType" value="<?= $request['leavetype'] ?>">
+                                <input type="hidden" name="uname" value="<?= $request['user_name'] ?>">
+                                <input type="hidden" name="leaveType" value="<?= $request['leave_type'] ?>">
                                 <input type="hidden" name="user_id" value="<?= $request['user_id'] ?>">
                                 <input type="hidden" name="start_date" value="<?= $request['start_date'] ?>">
                                 <input type="hidden" name="end_date" value="<?= $request['end_date'] ?>">

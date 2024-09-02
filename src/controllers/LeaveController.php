@@ -485,7 +485,9 @@ class LeaveController
         if (isset($_GET['leave_id'])) {
             $leaveRequestModel = new LeaveRequest();
             $leave_id = (int)$_GET['leave_id'];
-            $request = $leaveRequestModel->getRequestById($leave_id);
+            $request = $leaveRequestModel->getRequestById($leave_id, $_SESSION['token']);
+            $leavetypeModel = new Leavetype();
+            $leavetypes = $leavetypeModel->getAllLeavetypes();
 
             if ($request) {
                 require 'src/views/leave/viewleave.php';
