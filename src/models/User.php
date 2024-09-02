@@ -1111,4 +1111,81 @@ class User
             ];
         }
     }
+
+    public function getdOfficeAdminEmail($id, $token)
+    {
+        $url = 'https://hrms.iauoffsa.us/api/v1/users/leader/contact/' . $id;
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . $token));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return null;
+        }
+
+        // Log the raw API response for debugging
+        error_log("API Response: " . $response);
+
+        $responseData = json_decode($response, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return null;
+        }
+
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            $leaders = $responseData['data'];
+
+            // Log the leaders data to ensure it's being received correctly
+            error_log("Leaders Data: " . print_r($leaders, true));
+
+            $emails = [];
+            $ids = [];
+            $firstNameKh = [];
+            $lastNameKh = [];
+
+            foreach ($leaders as $leader) {
+                if (isset($leader['roleLeave']) && $leader['roleLeave'] === 'Admin') {
+                    if (isset($leader['email'])) {
+                        $emails[] = $leader['email'];
+                    }
+                    if (isset($leader['id'])) {
+                        $ids[] = $leader['id'];
+                    }
+                    if (isset($leader['firstNameKh'])) {
+                        $firstNameKh[] = $leader['firstNameKh'];
+                    }
+                    if (isset($leader['lastNameKh'])) {
+                        $lastNameKh[] = $leader['lastNameKh'];
+                    }
+                }
+            }
+
+            // Log the filtered emails and ids to check if they are found correctly
+            error_log("Filtered Emails: " . print_r($emails, true));
+            error_log("Filtered IDs: " . print_r($ids, true));
+
+            return [
+                'http_code' => $httpCode,
+                'emails' => $emails,
+                'ids' => $ids,
+                'firstNameKh' => $firstNameKh,
+                'lastNameKh' => $lastNameKh,
+            ];
+        } else {
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            return [
+                'http_code' => $httpCode,
+                'response' => $responseData
+            ];
+        }
+    }
 }

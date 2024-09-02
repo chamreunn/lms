@@ -1,5 +1,6 @@
 <?php
 require_once 'src/models/LateModel.php';
+require_once 'src/models/User.php';
 require_once 'src/vendor/autoload.php'; // Ensure PHPMailer is autoloaded
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -221,9 +222,9 @@ class LateController
 
         $userModel = new User;
         // Fetch the user's office details
-        $userDoffice = $userModel->getdOfficeAdminEmail();
+        $userDoffice = $userModel->getdOfficeAdminEmail($_SESSION['user_id'], $_SESSION['token']);
 
-        $adminEmail = $userDoffice['demail'];
+        $adminEmail = $userDoffice['emails'];
 
         // បញ្ចូលមូលហេតុ
         $reason = htmlspecialchars($reason, ENT_QUOTES, 'UTF-8');
@@ -246,6 +247,7 @@ class LateController
             header("Location: /elms/overtimein");
             exit();
         } catch (Exception $e) {
+
             // គ្រប់គ្រងកំហុសដោយសុវត្ថិភាព
             $_SESSION['error'] = [
                 'title' => "Database Error",

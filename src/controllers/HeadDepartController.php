@@ -399,14 +399,14 @@ class HeadDepartController
             $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
             $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
-            // Handle file upload for manager's signature
+            // Handle file upload for signature
             $signaturePath = $this->handleFileUpload($_FILES['manager_signature'], ['png'], 1048576, 'public/uploads/signatures/');
             if ($signaturePath === false) {
                 $_SESSION['error'] = [
                     'title' => "ហត្ថលេខា",
                     'message' => "មិនអាចបញ្ចូលហត្ថលេខាបានទេ។​ សូមព្យាយាមម្តងទៀត"
                 ];
-                header('location: /elms/headdepartmentapproved');
+                header("Location: /elms/apply-leave");
                 exit();
             }
 

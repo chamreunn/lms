@@ -42,6 +42,7 @@ ob_start();
         </div>
     </div>
 </div>
+
 <?php
 $pageheader = ob_get_clean();
 include('src/common/header.php');
