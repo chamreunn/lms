@@ -5,7 +5,7 @@ class User
 {
     private $pdo;
 
-    public $api = "http://127.0.0.1:8000";
+    public $api = "https://hrms.iauoffsa.us";
 
     public function getApi()
     {
