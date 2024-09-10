@@ -117,7 +117,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <div class="col-auto">
                         <span class="avatar avatar-xl" style="background-image: url('<?= $userDetails['profile_picture'] ?>')" ;></span>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-auto" hidden>
                         <!-- Form to change the profile picture -->
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModel">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-refresh">
@@ -128,7 +128,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                             ផ្លាស់ប្តូររូបភាព
                         </button>
                     </div>
-                    <div class="col-auto">
+                    <div class="col-auto" hidden>
                         <!-- Form to reset the profile picture -->
                         <button type="submit" class="btn btn-outline-danger" data-bs-target="#deleteModal" data-bs-toggle="modal">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
@@ -216,40 +216,39 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                 <div class="row g-3 mt-3">
                     <div class="col-md">
                         <div class="form-label fw-bold">ឈ្មោះមន្ត្រី</div>
-                        <input type="text" class="form-control" value="<?= $userDetails['user_name'] ?>">
+                        <input type="text" class="form-control" value="<?= $userDetails['user_name'] ?>" disabled>
                     </div>
                     <div class="col-md">
                         <div class="form-label fw-bold">USERNAME</div>
-                        <input type="text" class="form-control" value="<?= $userDetails['user_eng_name'] ?>">
+                        <input type="text" class="form-control" value="<?= $userDetails['user_eng_name'] ?>" disabled>
                     </div>
                     <div class="col-md">
                         <div class="form-label fw-bold">ភេទ</div>
-                        <input type="text" class="form-control" value="<?= $userDetails['gender'] ?>">
+                        <input type="text" class="form-control" value="<?= $userDetails['gender'] ?>" disabled>
                     </div>
                 </div>
                 <div class="row g-3 mt-3">
                     <div class="col-md">
                         <div class="form-label fw-bold">តួនាទី</div>
-                        <input type="text" class="form-control" value="<?= $userDetails['rolename'] ?>">
+                        <input type="text" class="form-control" value="<?= $userDetails['rolename'] ?>" disabled>
                     </div>
                     <div class="col-md">
                         <div class="form-label">នាយកដ្ឋាន</div>
-                        <input type="text" class="form-control" value="<?= $userDetails['department_name'] ?>">
+                        <input type="text" class="form-control" value="<?= $userDetails['department_name'] ?>" disabled>
                     </div>
                     <div class="col-md">
                         <div class="form-label">ការិយាល័យ</div>
-                        <input type="text" class="form-control" value="<?= $userDetails['office_name'] ?>">
+                        <input type="text" class="form-control" value="<?= $userDetails['office_name'] ?>" disabled>
                     </div>
                 </div>
                 <div class="row g-3 mt-3">
                     <div class="col-md">
                         <div class="form-label fw-bold">ទំនាក់ទំនង</div>
-                        <input type="text" class="form-control" value="<?= $userDetails['phone_number'] ?>">
+                        <input type="text" class="form-control" value="<?= $userDetails['phone_number'] ?>" disabled>
                     </div>
                     <div class="col-md">
                         <div class="form-label">ស្ថានភាពគណនី</div>
-                        <!-- <input type="text" class="form-control" value="<?= $userDetails['active'] ?>"> -->
-                        <select class="form-select" id="leave_type" name="leave_type_id" required>
+                        <select class="form-select" id="leave_type" name="leave_type_id" required disabled>
                             <option value="<?= $userDetails['activeStatus'] ?>" selected><?= $userDetails['active'] ?></option>
                             <option value="1">Active</option>
                             <option value="0">Inactive</option>
@@ -257,19 +256,19 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     </div>
                     <div class="col-md">
                         <div class="form-label fw-bold">ថ្ងៃខែឆ្នាំកំណើត</div>
-                        <input type="text" class="form-control date-picker" value="<?= $userDetails['date_of_birth'] ?>">
+                        <input type="text" class="form-control date-picker" value="<?= $userDetails['date_of_birth'] ?>" disabled>
                     </div>
                 </div>
                 <div class="row g-3 mt-3">
                     <div class="col-md">
                         <div class="form-label fw-bold">ទីកន្លែងកំណើត</div>
-                        <textarea type="text" class="form-control"><?= $userDetails['address'] ?></textarea>
+                        <textarea type="text" class="form-control" disabled><?= $userDetails['address'] ?></textarea>
                     </div>
                 </div>
                 <div class="row g-3 mt-3">
                     <div class="col-md">
                         <div class="form-label fw-bold">អាសយដ្ឋានបច្ចុប្បន្ន</div>
-                        <textarea type="text" class="form-control"><?= $userDetails['curaddress'] ?></textarea>
+                        <textarea type="text" class="form-control" disabled><?= $userDetails['curaddress'] ?></textarea>
                     </div>
                 </div>
             </div>

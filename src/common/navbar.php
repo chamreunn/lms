@@ -22,7 +22,7 @@ $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']
             </a>
         </h1>
         <div class="navbar-nav flex-row order-md-last">
-            <div class="d-none d-md-flex">
+            <div class="d-none d-md-flex me-3">
                 <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="Enable dark mode" data-bs-toggle="tooltip"
                     data-bs-placement="bottom">
                     <!-- Download SVG icon from http://tabler-icons.io/i/moon -->
@@ -38,94 +38,24 @@ $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']
                         <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" />
                     </svg>
                 </a>
-                <div class="nav-item dropdown d-none d-md-flex me-3 w-100">
-                    <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="Show notifications">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" />
-                            <path d="M9 17v1a3 3 0 0 0 6 0v-1" />
-                        </svg>
-                        <?php foreach ($getnotifications as $notification) : ?>
-                            <?php if ($notification['status'] == 'unread') : ?>
-                                <span class="badge bg-red d-block"></span>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h3 class="card-title text-primary mb-0">សារជូនដំណឹង</h3>
-                                <div class="ms-auto">
-                                    <?php if (!empty($getnotifications)) : ?>
-                                        <form action="/elms/markasread" method="POST">
-                                            <input type="hidden" name="status" value="read">
-                                            <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?>"> <!-- Use session user_id directly -->
-                                            <button type="submit" class="nav-link px-0 btn btn-link p-0" data-bs-toggle="tooltip" title="Mark All As Read" style="border: none; background: none;">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-align-justified">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M4 6l16 0" />
-                                                    <path d="M4 12l16 0" />
-                                                    <path d="M4 18l12 0" />
-                                                </svg>
-                                                <?php foreach ($getnotifications as $notification) : ?>
-                                                    <?php if ($notification['status'] == 'unread') : ?>
-                                                        <span class="badge bg-red d-block"></span>
-                                                        <?php break; ?>
-                                                    <?php endif; ?>
-                                                <?php endforeach; ?>
-                                            </button>
-                                        </form>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="list-group list-group-flush list-group-hoverable">
-                                    <?php if (!empty($getnotifications)) : ?>
-                                        <?php foreach ($getnotifications as $notification) : ?>
-                                            <div class="list-group-item <?= $notification['status'] == 'unread' ? 'bg-grey' : 'bg-light' ?>">
-                                                <div class="row align-items-center">
-                                                    <div class="col-auto">
-                                                        <span class="status-dot <?= $notification['status'] == 'unread' ? 'status-dot-animated bg-red' : 'bg-green' ?> d-block"></span>
-                                                    </div>
-                                                    <div class="col text-truncate">
-                                                        <a href="notificationDetail.php?id=<?= $notification['id'] ?>" class="text-body d-block">
-                                                            <?= $notification['message'] ?? "No message available" ?>
-                                                        </a>
-                                                        <small class="d-block text-muted text-truncate mt-n1">
-                                                            <?= $notification['created_at'] ?>
-                                                        </small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    <?php else : ?>
-                                        <div class="list-group-item d-flex flex-column justify-content-center align-items-center" style="min-height: 150px;">
-                                            <img src="public/img/icons/svgs/empty.svg" alt="No data" class="mb-0" style="max-width: 350px;">
-                                            <span class="text-muted mb-3">មិនមានសារជូនដំណឹង</span>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            <div class="card-footer">
-                                <a type="button" href="/elms/notifications" class="btn btn-md w-100">មើលទាំងអស់</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
             <div class="nav-item dropdown">
-                <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
+                <a href="#" class="nav-link d-flex lh-1 p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
                     <img src="<?= $_SESSION['user_profile'] ?>" class="avatar" alt="" style="object-fit: cover;">
                     <div class="d-none d-xl-block ps-2">
                         <div><?= $_SESSION['user_khmer_name'] ?></div>
                         <div class="mt-1 small text-muted"><?= $_SESSION['position'] ?></div>
                     </div>
                 </a>
-                <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <!-- <a href="#" class="dropdown-item">
-                        <div class="badge bg-warning"></div>
-                        <span class="mx-1">Status</span>
-                    </a> -->
+                <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow" style="width: 300px;">
+                    <div class="d-flex flex-column align-items-center justify-content-center text-center">
+                        <img src="<?= $_SESSION['user_profile'] ?>" class="avatar avatar-lg mb-3 mt-2 me-0" alt="" style="object-fit: cover;">
+                        <div class="d-none d-xl-block ps-2">
+                            <h3 class="text-primary mb-0"><?= $_SESSION['user_khmer_name'] ?></h3>
+                            <small class="mt-1 small text-muted"><?= $_SESSION['email'] ?></small>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
                     <a href="/elms/edit_user_detail?user_id=<?= $_SESSION['user_id'] ?>" class="dropdown-item">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-circle">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -135,22 +65,13 @@ $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']
                         </svg>
                         <span class="mx-1">គណនីរបស់ខ្ញុំ</span>
                     </a>
-                    <a href="#" class="dropdown-item">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-pencil">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
-                            <path d="M13.5 6.5l4 4" />
-                        </svg>
-                        <span class="mx-1">ផ្តល់មតិណែនាំ</span>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="/elms/settings" class="dropdown-item">
+                    <a href="/elms/setting_security?user_id=<?= $_SESSION['user_id'] ?>" class="dropdown-item">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-settings">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                             <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" />
                             <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
                         </svg>
-                        <span class="mx-1">ការកំណត់</span>
+                        <span class="mx-1">ផ្លាស់ប្តូរពាក្យសម្ងាត់</span>
                     </a>
                     <a href="/elms/logout" class="dropdown-item">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-logout">

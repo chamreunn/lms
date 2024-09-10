@@ -7,8 +7,8 @@ if (session_status() === PHP_SESSION_NONE) {
 $base_url = '/elms'; // Set your base URL if your application is located under a subdirectory
 
 // Include necessary controllers
-require_once 'src/controllers/AuthController.php';
-require_once 'src/controllers/LeaveController.php';
+require_once 'src/controllers/auth/AuthController.php';
+require_once 'src/controllers/users/LeaveController.php';
 require_once 'src/controllers/NotificationController.php';
 require_once 'src/controllers/DepartmentController.php';
 require_once 'src/controllers/OfficeController.php';
@@ -16,15 +16,17 @@ require_once 'src/controllers/RoleController.php';
 require_once 'src/controllers/PositionController.php';
 require_once 'src/controllers/UserController.php';
 require_once 'src/controllers/DashboardController.php';
-require_once 'src/controllers/HeadOfficeLeaveController.php';
-require_once 'src/controllers/DepDepartController.php';
-require_once 'src/controllers/HeadDepartController.php';
-require_once 'src/controllers/DepUnit1Controller.php';
-require_once 'src/controllers/LateController.php';
+require_once 'src/controllers/offices-h/HeadOfficeController.php';
+require_once 'src/controllers/departments-d/DepDepartmentController.php';
+require_once 'src/controllers/departments-h/HeadDepartmentController.php';
+require_once 'src/controllers/unit1-d/DepUnit1Controller.php';
+require_once 'src/controllers/unit2-d/DepUnit2Controller.php';
+require_once 'src/controllers/unit-h/HeadUnitController.php';
+require_once 'src/controllers/lates/LateController.php';
 require_once 'src/controllers/SettingController.php';
-require_once 'src/controllers/MissionController.php';
-require_once 'src/controllers/DepOfficeController.php';
-require_once 'src/controllers/AdminController.php';
+require_once 'src/controllers/missions/MissionController.php';
+require_once 'src/controllers/offices-d/DepOfficeController.php';
+require_once 'src/controllers/admin/AdminController.php';
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
@@ -75,25 +77,107 @@ switch ($uri) {
         break;
     case $base_url . '/hof-apply-leave':
         checkSessionAndExecute(function () {
-            $controller = new HeadOfficeLeaveController();
+            $controller = new HeadOfficeController();
             $controller->apply();
         });
         break;
     case $base_url . '/ddep-apply-leave':
         checkSessionAndExecute(function () {
-            $controller = new DepDepartController();
+            $controller = new DepDepartmentController();
             $controller->apply();
         });
         break;
     case $base_url . '/hod-apply-leave':
         checkSessionAndExecute(function () {
-            $controller = new HeadDepartController();
+            $controller = new HeadDepartmentController();
             $controller->apply();
         });
         break;
-    case $base_url . '/leave-requests':
+    case $base_url . '/du1-apply-leave':
+        checkSessionAndExecute(function () {
+            $controller = new DepUnit1Controller();
+            $controller->apply();
+        });
+        break;
+    case $base_url . '/du2-apply-leave':
+        checkSessionAndExecute(function () {
+            $controller = new DepUnit2Controller();
+            $controller->apply();
+        });
+        break;
+    case $base_url . '/my-leaves':
         checkSessionAndExecute(function () {
             $controller = new LeaveController();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->viewRequestsWithFilters();
+            } else {
+                $controller->myLeaves();
+            }
+        });
+        break;
+    case $base_url . '/dofficeLeave':
+        checkSessionAndExecute(function () {
+            $controller = new DepOfficeController();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->viewRequestsWithFilters();
+            } else {
+                $controller->viewRequests();
+            }
+        });
+        break;
+    case $base_url . '/hofficeLeave':
+        checkSessionAndExecute(function () {
+            $controller = new HeadOfficeController();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->viewRequestsWithFilters();
+            } else {
+                $controller->viewRequests();
+            }
+        });
+        break;
+    case $base_url . '/ddepartmentLeave':
+        checkSessionAndExecute(function () {
+            $controller = new DepDepartmentController();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->viewRequestsWithFilters();
+            } else {
+                $controller->viewRequests();
+            }
+        });
+        break;
+    case $base_url . '/hdepartmentLeave':
+        checkSessionAndExecute(function () {
+            $controller = new HeadDepartmentController();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->viewRequestsWithFilters();
+            } else {
+                $controller->viewRequests();
+            }
+        });
+        break;
+    case $base_url . '/dunit1Leave':
+        checkSessionAndExecute(function () {
+            $controller = new DepUnit1Controller();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->viewRequestsWithFilters();
+            } else {
+                $controller->viewRequests();
+            }
+        });
+        break;
+    case $base_url . '/dunit2Leave':
+        checkSessionAndExecute(function () {
+            $controller = new DepUnit2Controller();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->viewRequestsWithFilters();
+            } else {
+                $controller->viewRequests();
+            }
+        });
+        break;
+    case $base_url . '/hunitLeave':
+        checkSessionAndExecute(function () {
+            $controller = new HeadUnitController();
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $controller->viewRequestsWithFilters();
             } else {
@@ -115,69 +199,113 @@ switch ($uri) {
         break;
     case $base_url . '/pending':
         checkSessionAndExecute(function () {
-            $controller = new LeaveController();
+            $controller = new DepOfficeController();
             $controller->pending();
         });
         break;
 
     case $base_url . '/headofficepending':
         checkSessionAndExecute(function () {
-            $controller = new HeadOfficeLeaveController();
-            $controller->approve();
+            $controller = new HeadOfficeController();
+            $controller->pending();
         });
         break;
     case $base_url . '/headofficeapproval':
         checkSessionAndExecute(function () {
-            $controller = new HeadOfficeLeaveController();
+            $controller = new HeadOfficeController();
             $controller->approved();
+        });
+        break;
+    case $base_url . '/headofficerejected':
+        checkSessionAndExecute(function () {
+            $controller = new HeadOfficeController();
+            $controller->rejected();
         });
         break;
     case $base_url . '/depdepartmentpending':
         checkSessionAndExecute(function () {
-            $controller = new DepDepartController();
-            $controller->approve();
+            $controller = new DepDepartmentController();
+            $controller->pending();
         });
         break;
     case $base_url . '/depdepartmentapproved':
         checkSessionAndExecute(function () {
-            $controller = new DepDepartController();
+            $controller = new DepDepartmentController();
             $controller->approved();
         });
         break;
-    case $base_url . '/headdepartpending':
+    case $base_url . '/depdepartmentrejected':
         checkSessionAndExecute(function () {
-            $controller = new HeadDepartController();
+            $controller = new DepDepartmentController();
+            $controller->rejected();
+        });
+        break;
+    case $base_url . '/headdepartmentpending':
+        checkSessionAndExecute(function () {
+            $controller = new HeadDepartmentController();
             $controller->approve();
         });
         break;
     case $base_url . '/headdepartmentapproved':
         checkSessionAndExecute(function () {
-            $controller = new HeadDepartController();
+            $controller = new HeadDepartmentController();
             $controller->approved();
         });
         break;
-    case $base_url . '/depunit1pending':
+    case $base_url . '/headdepartmentrejected':
         checkSessionAndExecute(function () {
-            $controller = new DepUnit1Controller();
-            $controller->approve();
+            $controller = new HeadDepartmentController();
+            $controller->rejected();
         });
         break;
-    case $base_url . '/depunit1approved':
+    case $base_url . '/dunit1pending':
+        checkSessionAndExecute(function () {
+            $controller = new DepUnit1Controller();
+            $controller->pending();
+        });
+        break;
+    case $base_url . '/dunit1approved':
         checkSessionAndExecute(function () {
             $controller = new DepUnit1Controller();
             $controller->approved();
         });
         break;
-    case $base_url . '/deputit1rejected':
+    case $base_url . '/dunit1rejected':
         checkSessionAndExecute(function () {
             $controller = new DepUnit1Controller();
+            $controller->rejected();
+        });
+        break;
+
+    case $base_url . '/dunit2pending':
+        checkSessionAndExecute(function () {
+            $controller = new DepUnit2Controller();
+            $controller->pending();
+        });
+        break;
+    case $base_url . '/dunit2approved':
+        checkSessionAndExecute(function () {
+            $controller = new DepUnit2Controller();
             $controller->approved();
         });
         break;
+    case $base_url . '/dunit2rejected':
+        checkSessionAndExecute(function () {
+            $controller = new DepUnit2Controller();
+            $controller->rejected();
+        });
+        break;
+
     case $base_url . '/approved':
         checkSessionAndExecute(function () {
-            $controller = new LeaveController();
+            $controller = new DepOfficeController();
             $controller->approved();
+        });
+        break;
+    case $base_url . '/rejected':
+        checkSessionAndExecute(function () {
+            $controller = new DepOfficeController();
+            $controller->rejected();
         });
         break;
     case $base_url . '/leave-calendar':
@@ -186,39 +314,80 @@ switch ($uri) {
             $controller->viewCalendar();
         });
         break;
-    case $base_url . '/leave-cancel':
-        checkSessionAndExecute(function () {
-            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
-                // Ensure that required parameters are set
-                if (isset($_POST['id']) && isset($_POST['status'])) {
-                    $id = $_POST['id'];
-                    $status = $_POST['status'];
-
-                    // Instantiate the controller and call the cancel method
-                    $controller = new LeaveController();
-                    $controller->cancel($id, $status);
-                } else {
-                    // Handle missing parameters
-                    http_response_code(400); // Bad Request
-                    echo 'Missing parameters.';
-                }
-            } else {
-                // Redirect to login if not a POST request or session user ID is not set
-                header("Location: /elms/login");
-                exit();
-            }
-        });
-        break;
     case $base_url . '/view-leave-detail':
         checkSessionAndExecute(function () {
             $controller = new LeaveController();
             $controller->viewDetail();
         });
         break;
+    case $base_url . '/view-leave':
+        checkSessionAndExecute(function () {
+            $controller = new DepOfficeController();
+            $controller->viewDetail();
+        });
+        break;
+    case '/elms/uploadAttachment':
+        $controller = new LeaveController();
+        $controller->uploadAttachment();
+        break;
     case $base_url . '/leave-delete':
         checkSessionAndExecute(function () {
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
                 $controller = new LeaveController();
+                $controller->delete($_POST['id']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
+        });
+    case $base_url . '/hoffice-delete':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
+                $controller = new HeadOfficeController();
+                $controller->delete($_POST['id']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
+        });
+        break;
+    case $base_url . '/doffice-delete':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
+                $controller = new DepOfficeController();
+                $controller->delete($_POST['id']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
+        });
+        break;
+    case $base_url . '/hdepart-delete':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
+                $controller = new HeadDepartmentController();
+                $controller->delete($_POST['id']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
+        });
+        break;
+    case $base_url . '/dunit1-delete':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
+                $controller = new DepUnit1Controller();
+                $controller->delete($_POST['id']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
+        });
+        break;
+    case $base_url . '/dunit2-delete':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
+                $controller = new DepUnit2Controller();
                 $controller->delete($_POST['id']);
             } else {
                 header("Location: /elms/login");
@@ -374,6 +543,39 @@ switch ($uri) {
             $controller->requestLateOut();
         });
         break;
+    case $base_url . '/late-in-delete':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
+                $controller = new LateController();
+                $controller->deleteLateIn($_POST['id']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
+        });
+        break;
+    case $base_url . '/late-out-delete':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
+                $controller = new LateController();
+                $controller->deleteLateOut($_POST['id']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
+        });
+        break;
+    case $base_url . '/leaveearly-delete':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
+                $controller = new LateController();
+                $controller->deleteLeaveEarly($_POST['id']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
+        });
+        break;
     case $base_url . '/overtimein':
         checkSessionAndExecute(function () {
             $controller = new LateController();
@@ -459,11 +661,11 @@ switch ($uri) {
             }
         });
         break;
-    case $base_url . '/delete_latein':
+    case $base_url . '/delete-late-in':
         checkSessionAndExecute(function () {
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
                 $controller = new LateController();
-                $controller->delete($_POST['id']);
+                $controller->deleteLateIn($_POST['id']);
             } else {
                 header("Location: /elms/login");
                 exit();

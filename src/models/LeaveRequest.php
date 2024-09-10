@@ -14,6 +14,7 @@ class LeaveRequest
 
     public function create(
         $user_id,
+        $user_email,
         $leave_type_id,
         $position,
         $office,
@@ -29,12 +30,13 @@ class LeaveRequest
         // Prepare and execute the SQL statement
         $stmt = $this->pdo->prepare('
             INSERT INTO leave_requests 
-            (user_id, leave_type_id, position, office, department, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, created_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            (user_id, uemails, leave_type_id, position, office, department, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ');
 
         $stmt->execute([
             $user_id,
+            $user_email,
             $leave_type_id,
             $position,
             $office,
@@ -209,7 +211,7 @@ class LeaveRequest
     public function getTodayLeaveById($user_id)
     {
         $stmt = $this->pdo->prepare(
-            'SELECT lr.*, lt.name as leave_type_name, lt.duration, lt.color 
+            'SELECT lr.*, lt.name as leave_type_name, lt.duration, lt.color
          FROM leave_requests lr
          JOIN leave_types lt ON lr.leave_type_id = lt.id
          WHERE lr.user_id = ?
@@ -263,9 +265,16 @@ class LeaveRequest
 
     public function getRequestById($leave_id, $token)
     {
-        // Query to fetch the leave request and related data, excluding joins for office, department, and position
+        // Query to fetch the leave request and related data, including the attachment requirement
         $stmt = $this->pdo->prepare(
-            'SELECT lr.*, lt.name as leave_type_name, lt.duration, lt.color, lr.department AS department_name, lr.office AS office_name, lr.position AS position_name
+            'SELECT lr.*, 
+                lt.name as leave_type_name, 
+                lt.duration, 
+                lt.color, 
+                lt.attachment_required AS attRequired, 
+                lr.department AS department_name, 
+                lr.office AS office_name, 
+                lr.position AS position_name
          FROM leave_requests lr
          JOIN leave_types lt ON lr.leave_type_id = lt.id
          WHERE lr.id = ?'
@@ -274,6 +283,18 @@ class LeaveRequest
         $leaveRequest = $stmt->fetch();
 
         if ($leaveRequest) {
+            // ពិនិត្យមើលថាតើការភ្ជាប់ឯកសារត្រូវការឬអត់ និងវាមាននៅក្នុងសំណើចាកចេញឬអត់
+            if ($leaveRequest['attRequired'] === 'Yes') {
+                if (empty($leaveRequest['attachment'])) {
+                    // ដោះស្រាយករណីដែលត្រូវការភ្ជាប់ឯកសារ ប៉ុន្តែបាត់បង់
+                    error_log("ការភ្ជាប់ឯកសារត្រូវការសម្រាប់សំណើចាកចេញ ID: $leave_id ប៉ុន្តែមិនមាន។");
+                    $leaveRequest['attachment_error'] = "ត្រូវការភ្ជាប់ឯកសារសម្រាប់ប្រភេទច្បាប់នេះ។";
+                } else {
+                    $leaveRequest['attachment_error'] = null; // គ្មានបញ្ហាថាត្រូវការភ្ជាប់ឯកសារនេះ
+                }
+            } else {
+                $leaveRequest['attachment_error'] = null; // មិនត្រូវការភ្ជាប់ឯកសារនេះទេ
+            }
             // Fetch user information using the API
             $userModel = new User();
             $userApiResponse = $userModel->getUserByIdApi($leaveRequest['user_id'], $token);
@@ -281,10 +302,11 @@ class LeaveRequest
             if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
                 $userData = $userApiResponse['data'];
                 // Add user information to the leave request array
-                $leaveRequest['khmer_name'] = $userData['khmer_name'] ?? null;
+                $leaveRequest['khmer_name'] = $userData['lastNameKh'] . " " . $userData['firstNameKh'] ?? null;
                 $leaveRequest['phone_number'] = $userData['phoneNumber'] ?? null;
+                $leaveRequest['email'] = $userData['email'] ?? null;
                 $leaveRequest['dob'] = $userData['date_of_birth'] ?? null;
-                $leaveRequest['deputy_head_name'] = $userData['deputy_head_name'] ?? null; // Adjust based on your API response structure
+                $leaveRequest['deputy_head_name'] = $userData['deputy_head_name'] ?? null;
             } else {
                 // Handle API error or missing data
                 error_log("Failed to fetch user data for leave request ID: $leave_id");
@@ -323,24 +345,6 @@ class LeaveRequest
 
         // Return the leave count
         return $result['leave_count'];
-    }
-
-    public function getPaginatedRequestsByUserId($user_id, $limit, $offset)
-    {
-        // Prepare the SQL query for fetching paginated results
-        $stmt = $this->pdo->prepare(
-            'SELECT lr.*, lt.name as leave_type, lt.color
-         FROM leave_requests lr
-         JOIN leave_types lt ON lr.leave_type_id = lt.id
-         WHERE lr.user_id = ?
-         LIMIT ? OFFSET ?'
-        );
-
-        // Execute the query with the provided user ID, limit, and offset
-        $stmt->execute([$user_id, $limit, $offset]);
-
-        // Fetch the results
-        return $stmt->fetchAll();
     }
 
     public function getTotalRequestsByUserId($user_id)
@@ -419,6 +423,69 @@ class LeaveRequest
                 $approval['profile'] = null;
                 $approval['position_name'] = null;
                 $approval['position_color'] = null;
+            }
+        }
+
+        return $approvals;
+    }
+
+    public function leaveUserApproved($token)
+    {
+        $today = date('Y-m-d'); // Get today's date
+
+        // Fetch office and department from the session
+        $sessionOffice = $_SESSION['officeName'];
+        $sessionDepartment = $_SESSION['departmentName'];
+
+        // Query to get leave requests that are approved and include today's date
+        $stmt = $this->pdo->prepare(
+            'SELECT lr.id as leave_request_id, lr.user_id, lr.start_date, lr.end_date, lr.num_date,
+                lr.office, lr.department, lr.status
+         FROM leave_requests lr
+         WHERE ? BETWEEN lr.start_date AND lr.end_date
+           AND lr.status = ?
+           AND lr.office = ?
+           AND lr.department = ?'
+        );
+        $stmt->execute([$today, 'Approved', $sessionOffice, $sessionDepartment]);
+        $leaveRequests = $stmt->fetchAll();
+
+        if (empty($leaveRequests)) {
+            return []; // Return an empty array if no approved leave requests are found
+        }
+
+        $userModel = new User(); // Assuming User class is responsible for API calls to fetch user data
+        $approvals = [];
+
+        foreach ($leaveRequests as $request) {
+            $userId = $request['user_id'];
+            $userApiResponse = $userModel->getUserByIdApi($userId, $token);
+
+            if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                $userData = $userApiResponse['data'];
+                $approvals[] = [
+                    'leave_request_id' => $request['leave_request_id'],
+                    'user_name' => $userData['lastNameKh'] . " " . $userData['firstNameKh'] ?? null,
+                    'profile' => 'https://hrms.iauoffsa.us/images/' . $userData['image'] ?? null,
+                    'position_name' => $userData['position']['name'] ?? null,
+                    'position_color' => $userData['position']['color'] ?? null,
+                    'start_date' => $request['start_date'],
+                    'end_date' => $request['end_date'],
+                    'num_date' => $request['num_date'],
+                ];
+            } else {
+                // Handle API error or missing data
+                error_log("Failed to fetch user data for user ID: $userId");
+                $approvals[] = [
+                    'leave_request_id' => $request['leave_request_id'],
+                    'user_name' => null,
+                    'profile' => null,
+                    'position_name' => null,
+                    'position_color' => null,
+                    'start_date' => $request['start_date'],
+                    'end_date' => $request['end_date'],
+                    'num_date' => $request['num_date'],
+                ];
             }
         }
 
@@ -585,5 +652,28 @@ class LeaveRequest
         $stmt->bindParam(':status', $status, PDO::PARAM_INT);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         return $stmt->execute();
+    }
+
+    public function updateAttachment($leave_id, $attachmentUrl)
+    {
+        try {
+            // Prepare the SQL statement
+            $stmt = $this->pdo->prepare(
+                'UPDATE leave_requests
+                 SET attachment = :attachmentUrl
+                 WHERE id = :leave_id'
+            );
+
+            // Bind the parameters
+            $stmt->bindParam(':attachmentUrl', $attachmentUrl);
+            $stmt->bindParam(':leave_id', $leave_id, PDO::PARAM_INT);
+
+            // Execute the statement
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            // Log error message
+            error_log("Database Error: " . $e->getMessage());
+            return false;
+        }
     }
 }

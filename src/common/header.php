@@ -56,48 +56,60 @@ if (!isset($_SESSION['user_id'])) {
                             $latesToday = $adminModel->getLateCountToday();
                             include('admin_sidebar.php');
                             break;
-                        case 'User':
-                            include('user_sidebar.php');
-                            break;
                         case 'Deputy Head Of Office':
                             $leaveRequestModel = new LeaveApproval();
                             $requestscount = $leaveRequestModel->countPendingRequestsForApprover();
                             $approvedCount = $leaveRequestModel->approvedCount();
                             $rejectedCount = $leaveRequestModel->rejectedCount();
-                            include('office_manager_sidebar.php');
+                            require 'offices-d/sidebar.php';
                             break;
                         case 'Head Of Office':
-                            $leaveRequestModel = new HeadOfficeLeave();
+                            $leaveRequestModel = new HeadOfficeModel();
                             $pendingCount = $leaveRequestModel->pendingCount();
                             $approvedCount = $leaveRequestModel->approvedCount();
                             $rejectedCount = $leaveRequestModel->rejectedCount();
-                            include('head_office_manager_sidebar.php');
+                            require 'offices-h/sidebar.php';
                             break;
                         case 'Deputy Head Of Department':
-                            $leaveRequestModel = new DepDepartLeave();
+                            $leaveRequestModel = new DepDepartmentModel();
                             $requestscount = $leaveRequestModel->pendingCount();
-                            $approvedCount = $leaveRequestModel->rejectedCount();
-                            $rejectedCount = $leaveRequestModel->approvedCount();
-                            include('deputy_department_sidebar.php');
+                            $approvedCount = $leaveRequestModel->approvedCount();
+                            $rejectedCount = $leaveRequestModel->rejectedCount();
+                            require 'departments-d/sidebar.php';
                             break;
                         case 'Head Of Department':
-                            $leaveRequestModel = new HeadDepartLeave();
-                            $pendingCount = $leaveRequestModel->pendingCount($_SESSION['user_id']);
-                            $approvedCount = $leaveRequestModel->approvedCount($_SESSION['user_id']);
-                            $rejectedCount = $leaveRequestModel->rejectedCount($_SESSION['user_id']);
+                            $leaveRequestModel = new HeadDepartmentModel();
+                            $requestscount = $leaveRequestModel->pendingCount();
+                            $approvedCount = $leaveRequestModel->approvedCount();
+                            $rejectedCount = $leaveRequestModel->rejectedCount();
                             $leavetypeModel = new Leavetype();
                             $leavetypes = $leavetypeModel->getAllLeavetypes();
-                            include('head_department_sidebar.php');
+                            require 'departments-h/sidebar.php';
                             break;
-                        case 'Deputy Of Unit 1':
-                            include('deputy_unit_sidebar_1.php');
+                        case 'Deputy Head Of Unit 1':
+                            $leaveRequestModel = new DepUnit1Model();
+                            $requestscount = $leaveRequestModel->pendingCount();
+                            $approvedCount = $leaveRequestModel->approvedCount();
+                            $rejectedCount = $leaveRequestModel->rejectedCount();
+                            require 'unit1-d/sidebar.php';
                             break;
-                        case 'Deputy Of Unit 2':
-                            include('deputy_unit_sidebar_2.php');
+                        case 'Deputy Head Of Unit 2':
+                            $leaveRequestModel = new DepUnit2Model();
+                            $requestscount = $leaveRequestModel->pendingCount();
+                            $approvedCount = $leaveRequestModel->approvedCount();
+                            $rejectedCount = $leaveRequestModel->rejectedCount();
+                            require 'unit2-d/sidebar.php';
+                            break;
+                        case 'Head Of Unit':
+                            $leaveRequestModel = new HeadUnitModel();
+                            $requestscount = $leaveRequestModel->pendingCount();
+                            $approvedCount = $leaveRequestModel->approvedCount();
+                            $rejectedCount = $leaveRequestModel->rejectedCount();
+                            require 'unit-h/sidebar.php';
                             break;
                         default:
                             // For any unexpected role, include a default sidebar
-                            include('sidebar.php');
+                            include('users/sidebar.php');
                             break;
                     }
                 } else {

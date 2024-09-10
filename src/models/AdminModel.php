@@ -3,6 +3,7 @@ require_once 'config/database.php';
 class AdminModel
 {
     private $pdo;
+    
     private $table_name = "late_in_out";
 
     private $table = "missions";

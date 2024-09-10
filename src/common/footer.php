@@ -223,6 +223,22 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
+                        <label class="form-label date-picker">ឈ្មោះបេសកកម្ម</label>
+                        <div class="input-icon">
+                            <span class="input-icon-addon">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <rect x="4" y="5" width="16" height="16" rx="2"></rect>
+                                    <line x1="16" y1="3" x2="16" y2="7"></line>
+                                    <line x1="8" y1="3" x2="8" y2="7"></line>
+                                    <line x1="4" y1="11" x2="20" y2="11"></line>
+                                    <rect x="8" y="15" width="2" height="2"></rect>
+                                </svg>
+                            </span>
+                            <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទ" class="form-control" id="mission_start" name="mission_name">
+                        </div>
+                    </div>
+                    <div class="mb-3">
                         <label for="mission_start" class="form-label date-picker">កាលបរិច្ឆេទចាប់ពី<span class="text-danger mx-1 fw-bold">*</span></label>
                         <div class="input-icon">
                             <span class="input-icon-addon">
@@ -235,7 +251,7 @@
                                     <rect x="8" y="15" width="2" height="2"></rect>
                                 </svg>
                             </span>
-                            <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទ" class="form-control date-picker" id="mission_start" name="start_date">
+                            <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទ" class="form-control date-picker" name="start_date">
                         </div>
                     </div>
                     <div class="mb-3">

@@ -214,50 +214,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                                 <path d="M12 4l0 12" />
                                             </svg>
                                         </a>
-                                        <a href="#" class="icon me-2 edit-btn text-danger" data-bs-target="#deleteMission<?= $getlate['id'] ?>" data-bs-toggle="modal">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M4 7l16 0" />
-                                                <path d="M10 11l0 6" />
-                                                <path d="M14 11l0 6" />
-                                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                            </svg>
-                                        </a>
 
-                                        <!-- delete  -->
-                                        <div class="modal modal-blur fade" id="deleteMission<?= $getlate['id'] ?>" tabindex="-1" role="dialog" aria-hidden="true">
-                                            <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-status bg-danger"></div>
-                                                    <form action="/elms/leave-delete" method="POST">
-                                                        <div class="modal-body text-center py-4 mb-0">
-                                                            <input type="hidden" name="missionId" value="<?= $getlate['id'] ?>">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">
-                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                                <path d="M12 9v4"></path>
-                                                                <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"></path>
-                                                                <path d="M12 16h.01"></path>
-                                                            </svg>
-                                                            <h5 class="modal-title fw-bold text-danger">លុបការចូលយឺត</h5>
-                                                            <p class="mb-0">តើអ្នកប្រាកដទេថានិងលុបការចូលយឺតនេះ?</p>
-                                                        </div>
-                                                        <div class="modal-footer bg-light border-top">
-                                                            <div class="w-100">
-                                                                <div class="row">
-                                                                    <div class="col">
-                                                                        <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
-                                                                    </div>
-                                                                    <div class="col">
-                                                                        <button type="submit" class="btn btn-danger ms-auto w-100">បាទ / ចា៎</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
                                     <?php else : ?>
                                         <a href="#" class="icon me-2 edit-btn text-secondary text-muted">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
@@ -275,6 +232,51 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                                 <path d="M12 4l0 12" />
                                             </svg>
                                         </a>
+
+                                        <a href="#" class="icon me-2 edit-btn text-danger" data-bs-target="#deleteLateEarly<?= $getlate['id'] ?>" data-bs-toggle="modal">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M4 7l16 0" />
+                                                <path d="M10 11l0 6" />
+                                                <path d="M14 11l0 6" />
+                                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                            </svg>
+                                        </a>
+
+                                        <!-- delete  -->
+                                        <div class="modal modal-blur fade" id="deleteLateEarly<?= $getlate['id'] ?>" tabindex="-1" role="dialog" aria-hidden="true">
+                                            <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-status bg-danger"></div>
+                                                    <form action="/elms/leaveearly-delete" method="POST">
+                                                        <div class="modal-body text-center py-4 mb-0">
+                                                            <input type="hidden" name="id" value="<?= $getlate['id'] ?>">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                                <path d="M12 9v4"></path>
+                                                                <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"></path>
+                                                                <path d="M12 16h.01"></path>
+                                                            </svg>
+                                                            <h5 class="modal-title fw-bold text-danger">លុបការចូលយឺត</h5>
+                                                            <p class="mb-0">តើអ្នកប្រាកដទេថានិងលុបការចូលយឺតនេះ?</p>
+                                                        </div>
+                                                        <div class="modal-footer bg-light border-top">
+                                                            <div class="w-100">
+                                                                <div class="row">
+                                                                    <div class="col">
+                                                                        <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
+                                                                    </div>
+                                                                    <div class="col">
+                                                                        <button type="submit" class="btn btn-danger ms-auto w-100">លុប</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                                     <?php endif; ?>
                                 </td>
                             </tr>

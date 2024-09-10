@@ -60,61 +60,60 @@ class SettingController
     }
 
     public function updatePassword()
-{
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Check if token is set
-        if (!isset($_SESSION['token'])) {
-            $_SESSION['error'] = [
-                'title' => 'Token Error',
-                'message' => 'Session token is missing.'
-            ];
-            header('Location: /elms/change_password'); // Adjust the redirect URL as needed
-            exit();
-        }
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Check if token is set
+            if (!isset($_SESSION['token'])) {
+                $_SESSION['error'] = [
+                    'title' => 'Token Error',
+                    'message' => 'Session token is missing.'
+                ];
+                header('Location: /elms/change_password'); // Adjust the redirect URL as needed
+                exit();
+            }
 
-        $userId = $_POST['user_id']; // Assuming the user ID is stored in the session
-        $password = $_POST['password'];
-        $confirmPassword = $_POST['confirm_password'];
+            $userId = $_POST['user_id']; // Assuming the user ID is stored in the session
+            $password = $_POST['password'];
+            $confirmPassword = $_POST['confirm_password'];
 
-        if (!empty($password) && !empty($confirmPassword)) {
-            if ($password === $confirmPassword) {
+            if (!empty($password) && !empty($confirmPassword)) {
+                if ($password === $confirmPassword) {
 
-                // Instantiate the User model
-                $userModel = new User();
+                    // Instantiate the User model
+                    $userModel = new User();
 
-                // Attempt to update the user's password via the API
-                $updateResult = $userModel->updateUserPasswordApi($userId, $password, $_SESSION['token']);
+                    // Attempt to update the user's password via the API
+                    $updateResult = $userModel->updateUserPasswordApi($userId, $password, $_SESSION['token']);
 
-                if ($updateResult['success']) {
-                    $_SESSION['success'] = [
-                        'title' => 'Success',
-                        'message' => 'Password has been updated successfully.'
-                    ];
+                    if ($updateResult['success']) {
+                        $_SESSION['success'] = [
+                            'title' => 'Success',
+                            'message' => 'Password has been updated successfully.'
+                        ];
+                    } else {
+                        $_SESSION['error'] = [
+                            'title' => 'Update Failed',
+                            'message' => 'Failed to update password. ' . $updateResult['error']
+                        ];
+                    }
                 } else {
                     $_SESSION['error'] = [
-                        'title' => 'Update Failed',
-                        'message' => 'Failed to update password. ' . $updateResult['error']
+                        'title' => 'Password Mismatch',
+                        'message' => 'The passwords do not match.'
                     ];
                 }
             } else {
                 $_SESSION['error'] = [
-                    'title' => 'Password Mismatch',
-                    'message' => 'The passwords do not match.'
+                    'title' => 'Empty Fields',
+                    'message' => 'Please fill in both password fields.'
                 ];
             }
-        } else {
-            $_SESSION['error'] = [
-                'title' => 'Empty Fields',
-                'message' => 'Please fill in both password fields.'
-            ];
+
+            // Redirect back to the change password page
+            header('Location: /elms/setting_security?user_id=' . urlencode($userId)); // Adjust the redirect URL as needed
+            exit();
         }
-
-        // Redirect back to the change password page
-        header('Location: /elms/setting_security?user_id=' . urlencode($userId)); // Adjust the redirect URL as needed
-        exit();
     }
-}
-
 
     public function activity()
     {

@@ -181,12 +181,12 @@ class HeadDepartController
 
             // Server settings
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com'; // SMTP server to send through
-            $mail->SMTPAuth   = true;
-            $mail->Username   = 'pothhchamreun@gmail.com'; // SMTP username
-            $mail->Password   = 'kyph nvwd ncpa gyzi'; // SMTP password
+            $mail->Host = 'smtp.gmail.com'; // SMTP server to send through
+            $mail->SMTPAuth = true;
+            $mail->Username = 'pothhchamreun@gmail.com'; // SMTP username
+            $mail->Password = 'kyph nvwd ncpa gyzi'; // SMTP password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
+            $mail->Port = 587;
 
             // Set charset to UTF-8 for Unicode support
             $mail->CharSet = 'UTF-8';
@@ -289,6 +289,134 @@ class HeadDepartController
         }
     }
 
+    private function sendEmailNotificationToDUnit($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)
+    {
+        $mail = new PHPMailer(true);
+
+        try {
+            // Enable SMTP debugging
+            $mail->SMTPDebug = 2; // Or set to 3 for more verbose output
+            $mail->Debugoutput = function ($str, $level) {
+                error_log("SMTP Debug level $level; message: $str");
+            };
+
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com'; // SMTP server to send through
+            $mail->SMTPAuth = true;
+            $mail->Username = 'pothhchamreun@gmail.com'; // SMTP username
+            $mail->Password = 'kyph nvwd ncpa gyzi'; // SMTP password
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            // Set charset to UTF-8 for Unicode support
+            $mail->CharSet = 'UTF-8';
+
+            // Format dates
+            $start_date_formatted = (new DateTime($start_date))->format('j F, Y');
+            $end_date_formatted = (new DateTime($end_date))->format('j F, Y');
+            $updated_at_formatted = (new DateTime($updatedAt))->format('j F, Y H:i:s');
+
+            // Recipients
+            $mail->setFrom('no-reply@example.com', 'NO REPLY');
+            $mail->addAddress($managerEmail);
+
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = 'Leave Request Notification';
+            $body = "
+            <html>
+            <head>
+                <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'>
+                <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet'>
+                <style>
+                    .profile-img {
+                        width: 100px;
+                        height: 100px;
+                        border-radius: 50%;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        border: 1px solid #e2e2e2;
+                        border-radius: 10px;
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                    }
+                    .header {
+                        background-color: #007bff;
+                        color: white;
+                        padding: 10px;
+                        border-radius: 10px 10px 0 0;
+                    }
+                    .icon {
+                        vertical-align: middle;
+                        margin-right: 10px;
+                    }
+                    .content {
+                        padding: 20px;
+                        background-color: #f9f9f9;
+                    }
+                    .btn {
+                        display: inline-block;
+                        padding: 10px 20px;
+                        margin-top: 10px;
+                        color: white;
+                        background-color: #007bff;
+                        text-decoration: none;
+                        border-radius: 5px;
+                    }
+                    .footer {
+                        padding: 10px;
+                        text-align: center;
+                        background-color: #f1f1f1;
+                        border-radius: 0 0 10px 10px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        <h4>
+                            <img src='http://localhost/elms/public/img/icons/brands/logo2.png' class='icon' alt='Leave Request' /> 
+                            Leave Request Notification
+                        </h4>
+                    </div>
+                    <div class='content'>
+                        <p>$username</p>
+                        <p><strong>រយៈពេល :</strong> $duration_days ថ្ងៃ</p>
+                        <p><strong>ប្រភេទច្បាប់ :</strong> $leaveType</p>
+                        <p><strong>ចាប់ពីថ្ងៃ :</strong> $start_date_formatted</p>
+                        <p><strong>ដល់ថ្ងៃ​ :</strong> $end_date_formatted</p>
+                        <p><strong>មូលហេតុ :</strong> $uremarks</p>
+                        <hr>
+                        <p>$message</p>"
+                . (!empty($remarks) ? "<p><strong>មតិយោបល់ :</strong> $remarks</p>" : "") . "
+                        <p><strong>បានអនុម័តនៅថ្ងៃ:</strong> $updated_at_formatted</p>
+                        <a href='http://localhost/elms/view-leave-detail?leave_id={$leaveRequestId}' class='btn'>ចុចទីនេះ</a>
+                    </div>
+                    <div class='footer'>
+                        <p>&copy; " . date("Y") . " Leave Management System. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            ";
+            $mail->Body = $body;
+
+            if ($mail->send()) {
+                error_log("Email sent successfully to $managerEmail");
+                return true;
+            } else {
+                error_log("Email failed to send to $managerEmail: " . $mail->ErrorInfo);
+                return false;
+            }
+        } catch (Exception $e) {
+            error_log("Email Error: {$mail->ErrorInfo}");
+            return false;
+        }
+    }
+
     private function handleFileUpload($file, $allowed_extensions, $max_size, $upload_path)
     {
         $file_name = $file['name'];
@@ -368,7 +496,7 @@ class HeadDepartController
     {
         if (isset($_GET['leave_id'])) {
             $leaveRequestModel = new LeaveRequest();
-            $leave_id = (int)$_GET['leave_id'];
+            $leave_id = (int) $_GET['leave_id'];
             $request = $leaveRequestModel->getRequestById($leave_id, $_SESSION['token']);
 
             if ($request) {
@@ -398,28 +526,18 @@ class HeadDepartController
             $approver_id = $_SESSION['user_id'] ?? null;
             $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
             $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
+            $leave = 1 ?? null;
 
-            // Check if a signature file was uploaded
-            if (isset($_FILES['manager_signature']) && $_FILES['manager_signature']['error'] !== UPLOAD_ERR_NO_FILE) {
-                // Handle file upload for signature
-                $signaturePath = $this->handleFileUpload($_FILES['manager_signature'], ['png'], 1048576, 'public/uploads/signatures/');
-
-                if ($signaturePath === false) {
-                    $_SESSION['error'] = [
-                        'title' => "ហត្ថលេខា",
-                        'message' => "មិនអាចបញ្ចូលហត្ថលេខាបានទេ។​ សូមព្យាយាមម្តងទៀត"
-                    ];
-                    header("Location: /elms/apply-leave");
-                    exit();
-                }
-            } else {
-                // Set signaturePath to null if no file is uploaded
-                $signaturePath = null;
+            // Handle file upload for manager's signature
+            $signaturePath = $this->handleFileUpload($_FILES['manager_signature'], ['png'], 1048576, 'public/uploads/signatures/');
+            if ($signaturePath === false) {
+                $_SESSION['error'] = [
+                    'title' => "ហត្ថលេខា",
+                    'message' => "មិនអាចបញ្ចូលហត្ថលេខាបានទេ។​ សូមព្យាយាមម្តងទៀត"
+                ];
+                header('location: /elms/headdepartmentapproved');
+                exit();
             }
-
-            // Create approval record
-            $leaveApproval = new HeadDepartLeave();
-            $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks, $signaturePath);
 
             // Fetch office details
             $userModel = new User();
@@ -453,40 +571,101 @@ class HeadDepartController
                 exit();
             }
 
-            // Send email notification
-            if (!$this->sendEmailNotification($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
-                $_SESSION['error'] = [
-                    'title' => "Email Error",
-                    'message' => "Notification email could not be sent. Please try again." . $managerEmail
+            $roleLeaves = new User();
+            $roleLeave = $roleLeaves->getUserByIdApi($user_id, $_SESSION['token']);
+
+            $leaveApproval = new HeadDepartLeave();
+
+            // Check if approval should be processed or escalated
+            if ($roleLeave['data']['roleLeave'] === 'User' && $duration_days <= 3) {
+                // Direct approval for Users with leave duration <= 3 days
+                $updateToApi = $leaveApproval->updateToApi($user_id, $start_date, $end_date, $leave, $_SESSION['token']);
+
+                if ($updateToApi) {
+                    // If the API call was successful
+                    $_SESSION['success'] = [
+                        'title' => "API Update",
+                        'message' => "Leave status has been successfully updated in the API."
+                    ];
+                } else {
+                    // If the API call failed
+                    $_SESSION['error'] = [
+                        'title' => "API Error",
+                        'message' => "Failed to update leave to API. " . $updateToApi['error']
+                    ];
+                    header('location: /elms/headdepartpending');
+                    exit();
+                }
+
+                $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks, $signaturePath);
+
+                // Handle escalation for non-User roles or leave duration > 3 days
+                if (!$this->sendEmailNotificationToDUnit($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
+                    $_SESSION['error'] = [
+                        'title' => "Email Error",
+                        'message' => "Notification email could not be sent. Please try again."
+                    ];
+                    header('location: /elms/headdepartpending');
+                    exit();
+                }
+                // Create notification
+                $notificationModel = new Notification();
+                $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
+
+                // Log user activity
+                $userModel->logUserActivity($approver_id, "បាន " . $status . "ច្បាប់ឈប់សម្រាក " . $uname, $_SERVER['REMOTE_ADDR']);
+
+                $_SESSION['success'] = [
+                    'title' => "សំណើច្បាប់",
+                    'message' => "សំណើច្បាប់ត្រូវបានអនុម័តដោយជោគជ័យ។"
+                ];
+                header('location: /elms/headdepartpending');
+                exit();
+            } else {
+                $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks, $signaturePath);
+
+                // Handle escalation for non-User roles or leave duration > 3 days
+                if (!$this->sendEmailNotificationToDUnit($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
+                    $_SESSION['error'] = [
+                        'title' => "Email Error",
+                        'message' => "Notification email could not be sent. Please try again."
+                    ];
+                    header('location: /elms/headdepartpending');
+                    exit();
+                }
+                // Create notification
+                $notificationModel = new Notification();
+                $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
+
+                // Log user activity
+                $userModel->logUserActivity($approver_id, "បាន " . $status . "ច្បាប់ឈប់សម្រាក " . $uname, $_SERVER['REMOTE_ADDR']);
+
+                $_SESSION['success'] = [
+                    'title' => "បរាជ័យ",
+                    'message' => "សំណើច្បាប់ត្រូវបានបញ្ជូនទៅអ្នកដឹកនាំសម្រាប់បន្តដំណើរការ។" . $managerEmail
                 ];
                 header('location: /elms/headdepartpending');
                 exit();
             }
-
-            // Create notification
-            $notificationModel = new Notification();
-            $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
-
-            // Log user activity
-            $userModel->logUserActivity($approver_id, "បាន " . $status . "ច្បាប់ឈប់សម្រាក " . $uname, $_SERVER['REMOTE_ADDR']);
-
-            $_SESSION['success'] = [
-                'title' => "សំណើច្បាប់",
-                'message' => "សំណើច្បាប់ត្រូវបាន " . $managerEmail
-            ];
-            header('location: /elms/headdepartpending');
-            exit();
         } else {
             $leaveRequestModel = new HeadDepartLeave();
             $requests = $leaveRequestModel->getAllLeaveRequests();
             $leavetypeModel = new Leavetype();
             $leavetypes = $leavetypeModel->getAllLeavetypes();
 
-            require 'src/views/leave/headdepartmentapproval.php';
+            require 'src/views/leave/departments-h/pending.php';
         }
     }
 
     public function approved()
+    {
+        $leaveRequestModel = new HeadDepartLeave();
+        $requests = $leaveRequestModel->gethapproved($_SESSION['user_id']);
+
+        require 'src/views/leave/headdepartmentapproved.php';
+    }
+
+    public function rejected()
     {
         $leaveRequestModel = new HeadDepartLeave();
         $requests = $leaveRequestModel->gethapproved($_SESSION['user_id']);

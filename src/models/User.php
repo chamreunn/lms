@@ -5,6 +5,13 @@ class User
 {
     private $pdo;
 
+    public $api = "http://127.0.0.1:8000";
+
+    public function getApi()
+    {
+        return $this->api;
+    }
+
     public function __construct()
     {
         global $pdo;
@@ -20,7 +27,7 @@ class User
 
     public function authenticateUser($email, $password)
     {
-        $url = 'https://hrms.iauoffsa.us/api/login';
+        $url = "{$this->api}/api/login";
         $data = json_encode(['email' => $email, 'password' => $password]);
 
         $ch = curl_init($url);
@@ -32,9 +39,16 @@ class User
         ]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
-        // Ignore SSL certificate verification (only for development)
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        // Check if running on localhost
+        if (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
+            // Ignore SSL certificate verification on localhost (only for development)
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        } else {
+            // Enforce SSL certificate verification on live server
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        }
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -274,7 +288,7 @@ class User
 
     public function updateUserEmailApi($userId, $newEmail, $token)
     {
-        $apiUrl = 'https://hrms.iauoffsa.us/api/v1/users/' . $userId;
+        $apiUrl = "{$this->api}/api/v1/users/$userId";
 
         $data = [
             'email' => $newEmail,
@@ -316,7 +330,7 @@ class User
 
     public function updateUserPasswordApi($userId, $password, $token)
     {
-        $apiUrl = 'https://hrms.iauoffsa.us/api/v1/users/' . $userId;
+        $apiUrl = "{$this->api}/api/v1/users/$userId";
 
         $data = [
             'password' => $password, // Pass the hashed password
@@ -358,7 +372,7 @@ class User
 
     public function getUserByIdApi($id, $token)
     {
-        $url = 'https://hrms.iauoffsa.us/api/v1/users/' . $id;
+        $url = "{$this->api}/api/v1/users/" . $id;
 
         // Initialize cURL session
         $ch = curl_init($url);
@@ -417,7 +431,7 @@ class User
 
     public function getRoleApi($id, $token)
     {
-        $url = 'https://hrms.iauoffsa.us/api/v1/roles/' . $id;
+        $url = "{$this->api}/api/v1/roles/" . $id;
 
         $ch = curl_init($url);
 
@@ -460,7 +474,7 @@ class User
 
     public function getOfficeApi($id, $token)
     {
-        $url = 'https://hrms.iauoffsa.us/api/v1/offices/' . $id;
+        $url = "{$this->api}/api/v1/offices/{$id}";
 
         $ch = curl_init($url);
 
@@ -503,7 +517,7 @@ class User
 
     public function getDepartmentApi($id, $token)
     {
-        $url = 'https://hrms.iauoffsa.us/api/v1/departments/' . $id;
+        $url = "{$this->api}/api/v1/departments/" . $id;
 
         $ch = curl_init($url);
 
@@ -544,34 +558,10 @@ class User
         }
     }
 
-    public function getUserByDepartment($id = null)
-    {
-        if ($id === null) {
-            // Assuming $_SESSION['user_id'] is set and contains the user ID
-            $id = $_SESSION['user_id'];
-        }
-
-        $stmt = $this->pdo->prepare("SELECT users.*, departments.name AS department_name FROM users JOIN departments ON users.department_id = departments.id WHERE users.id = :id");
-        $stmt->execute(['id' => $id]);
-        return $stmt->fetch();
-    }
-
-    public function getdOffice()
-    {
-        $stmt = $this->pdo->prepare("
-        SELECT users.*, offices.name AS office_name, offices.doffice_id, users.email AS demail, users.phone_number AS dnumber, users.khmer_name AS dkhmer_name
-        FROM users 
-        JOIN offices ON users.id = offices.doffice_id
-        WHERE offices.id = :id
-    ");
-        $stmt->execute(['id' => $_SESSION['officeId']]);
-        return $stmt->fetch();
-    }
-
     // អនុប្រធានការិយាល័យ
     public function getEmailLeaderDOApi($id, $token)
     {
-        $url = 'https://hrms.iauoffsa.us/api/v1/users/leader/contact/' . $id;
+        $url = "{$this->api}/api/v1/users/leader/contact/" . $id;
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -649,7 +639,8 @@ class User
     // ប្រធានការិយាល័យ
     public function getEmailLeaderHOApi($id, $token)
     {
-        $url = 'https://hrms.iauoffsa.us/api/v1/users/leader/contact/' . $id;
+
+        $url = "{$this->api}/api/v1/users/leader/contact/" . $id;
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -727,7 +718,7 @@ class User
     // អនុប្រធាននាយកដ្ឋាន
     public function getEmailLeaderDDApi($id, $token)
     {
-        $url = 'https://hrms.iauoffsa.us/api/v1/users/leader/contact/' . $id;
+        $url = "{$this->api}/api/v1/users/leader/contact/" . $id;
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -805,7 +796,7 @@ class User
     // ប្រធាននាយកដ្ឋាន
     public function getEmailLeaderHDApi($id, $token)
     {
-        $url = 'https://hrms.iauoffsa.us/api/v1/users/leader/contact/' . $id;
+        $url = "{$this->api}/api/v1/users/leader/contact/" . $id;
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -883,7 +874,7 @@ class User
     // អនុប្រធានអង្គភាព
     public function getEmailLeaderDHU1Api($id, $token)
     {
-        $url = 'https://hrms.iauoffsa.us/api/v1/users/leader/contact/' . $id;
+        $url = "{$this->api}/api/v1/users/leader/contact/" . $id;
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -960,7 +951,7 @@ class User
 
     public function getEmailLeaderDHU2Api($id, $token)
     {
-        $url = 'http://127.0.0.1:8000/api/v1/users/leader/contact/' . $id;
+        $url = "{$this->api}/api/v1/users/leader/contact/" . $id;
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1037,7 +1028,7 @@ class User
 
     public function getEmailLeaderHUApi($id, $token)
     {
-        $url = 'https://hrms.iauoffsa.us/api/v1/users/leader/contact/' . $id;
+        $url = "{$this->api}/api/v1/users/leader/contact/" . $id;
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1112,14 +1103,15 @@ class User
         }
     }
 
-    public function getdOfficeAdminEmail($id, $token)
+    // get Admin Email 
+    public function getAdminEmails($token)
     {
-        $url = 'https://hrms.iauoffsa.us/api/v1/users/leader/contact/' . $id;
+        $url = "{$this->api}/api/v1/users/";
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . $token));
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -1131,9 +1123,6 @@ class User
             return null;
         }
 
-        // Log the raw API response for debugging
-        error_log("API Response: " . $response);
-
         $responseData = json_decode($response, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -1142,43 +1131,16 @@ class User
         }
 
         if ($httpCode === 200 && isset($responseData['data'])) {
-            $leaders = $responseData['data'];
-
-            // Log the leaders data to ensure it's being received correctly
-            error_log("Leaders Data: " . print_r($leaders, true));
-
             $emails = [];
-            $ids = [];
-            $firstNameKh = [];
-            $lastNameKh = [];
-
-            foreach ($leaders as $leader) {
-                if (isset($leader['roleLeave']) && $leader['roleLeave'] === 'Admin') {
-                    if (isset($leader['email'])) {
-                        $emails[] = $leader['email'];
-                    }
-                    if (isset($leader['id'])) {
-                        $ids[] = $leader['id'];
-                    }
-                    if (isset($leader['firstNameKh'])) {
-                        $firstNameKh[] = $leader['firstNameKh'];
-                    }
-                    if (isset($leader['lastNameKh'])) {
-                        $lastNameKh[] = $leader['lastNameKh'];
-                    }
+            foreach ($responseData['data'] as $user) {
+                if (isset($user['roleLeave']) && $user['roleLeave'] === 'Admin' && isset($user['email'])) {
+                    $emails[] = $user['email'];
                 }
             }
-
-            // Log the filtered emails and ids to check if they are found correctly
-            error_log("Filtered Emails: " . print_r($emails, true));
-            error_log("Filtered IDs: " . print_r($ids, true));
 
             return [
                 'http_code' => $httpCode,
                 'emails' => $emails,
-                'ids' => $ids,
-                'firstNameKh' => $firstNameKh,
-                'lastNameKh' => $lastNameKh,
             ];
         } else {
             error_log("Unexpected API Response: " . print_r($responseData, true));
@@ -1187,5 +1149,51 @@ class User
                 'response' => $responseData
             ];
         }
+    }
+
+    // mission to API 
+    public function updateMissionToApi($user_id, $start_date, $end_date, $mission, $token)
+    {
+        $url = "{$this->api}/api/v1/leaves";
+
+        $data = [
+            'uid' => $user_id,
+            'startDate' => $start_date,
+            'endDate' => $end_date,
+            'mission' => $mission
+        ];
+
+        $jsonData = json_encode($data);
+
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST"); // Ensure this is correct
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $token, // Using the token from the session
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+
+        // Ignore SSL certificate verification (use only for debugging)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if (curl_errno($ch)) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            return ['success' => false, 'error' => $error, 'http_code' => $httpCode, 'response' => $response];
+        }
+
+        curl_close($ch);
+
+        return [
+            'success' => $httpCode === 200, // Adjust based on API documentation
+            'http_code' => $httpCode,
+            'response' => $response
+        ];
     }
 }

@@ -96,16 +96,12 @@ ob_start();
                     <div class="d-flex">
                         <!-- <input type="search" class="form-control d-inline-block w-9 me-3" placeholder="ស្វែងរកនាយកដ្ឋាន…" id="customSearch" /> -->
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#mission">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-plus">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5" />
-                                <path d="M16 3v4" />
-                                <path d="M8 3v4" />
-                                <path d="M4 11h16" />
-                                <path d="M16 19h6" />
-                                <path d="M19 16v6" />
+                                <path d="M12 5l0 14" />
+                                <path d="M5 12l14 0" />
                             </svg>
-                            <span>បង្កើតសំណើ</span>
+                            <span>បន្ថែមថ្មី</span>
                         </button>
                     </div>
                 </div>
@@ -189,6 +185,7 @@ include('src/common/header.php');
             <thead>
                 <tr>
                     <th>ឈ្មោះមន្ត្រី</th>
+                    <th class="d-none d-sm-table-cell">ឈ្មោះបេសកកម្ម</th>
                     <th class="d-none d-sm-table-cell">ចាប់ពីកាលបរិច្ឆេទ</th>
                     <th class="d-none d-sm-table-cell">ដល់កាលបរិច្ឆេទ</th>
                     <th class="d-none d-sm-table-cell">រយៈពេល</th>
@@ -199,7 +196,7 @@ include('src/common/header.php');
             <tbody>
                 <?php if (empty($missions)) : ?>
                     <tr>
-                        <td colspan="6" class="text-center">
+                        <td colspan="8" class="text-center">
                             <img src="public/img/icons/svgs/empty.svg" alt="">
                             <p>មិនទាន់មានសំណើនៅឡើយ។ សូមបង្កើតដោយចុចប៊ូតុងខាងក្រោម ឬស្តាំដៃខាងលើ</p>
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#mission">
@@ -230,11 +227,12 @@ include('src/common/header.php');
                                     </div>
                                 </div>
                             </td>
+                            <td class="d-none d-sm-table-cell"><?= $mission['missionName'] ?></td>
                             <td class="d-none d-sm-table-cell"><?= translateDateToKhmer($mission['start_date'], 'D,j F Y') ?></td>
                             <td class="d-none d-sm-table-cell"><?= translateDateToKhmer($mission['end_date'], 'D,j F Y') ?></td>
                             <td class="d-none d-sm-table-cell"><?= $mission['num_date'] ?>ថ្ងៃ</td>
                             <td class="d-none text-truncate d-sm-table-cell">
-                                <a data-bs-toggle="tooltip" data-bs-placement="auto" title="<?= $mission['attachment'] ?>" href="public/uploads/missions_attachments/<?= $mission['attachment'] ?>">
+                                <a data-bs-toggle="tooltip" target="_blank" data-bs-placement="auto" title="<?= $mission['attachment'] ?>" href="public/uploads/missions_attachments/<?= $mission['attachment'] ?>">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-paperclip">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5" />
@@ -320,6 +318,24 @@ include('src/common/header.php');
                                             <input type="hidden" name="mission_id" value="<?= $mission['id'] ?>">
 
                                             <div class="mb-3">
+                                                <label for="emission_start" class="form-label">ឈ្មោះបេសកកម្ម<span class="text-danger mx-1 fw-bold">*</span></label>
+                                                <div class="input-icon">
+                                                    <span class="input-icon-addon">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                            <rect x="4" y="5" width="16" height="16" rx="2"></rect>
+                                                            <line x1="16" y1="3" x2="16" y2="7"></line>
+                                                            <line x1="8" y1="3" x2="8" y2="7"></line>
+                                                            <line x1="4" y1="11" x2="20" y2="11"></line>
+                                                            <rect x="8" y="15" width="2" height="2"></rect>
+                                                        </svg>
+                                                    </span>
+                                                    <!-- Pre-fill the input with the current start date -->
+                                                    <input type="text" value="<?= $mission['missionName'] ?>" class="form-control" name="mission_name" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
                                                 <label for="emission_start" class="form-label">កាលបរិច្ឆេទចាប់ពី<span class="text-danger mx-1 fw-bold">*</span></label>
                                                 <div class="input-icon">
                                                     <span class="input-icon-addon">
@@ -333,7 +349,7 @@ include('src/common/header.php');
                                                         </svg>
                                                     </span>
                                                     <!-- Pre-fill the input with the current start date -->
-                                                    <input type="text" value="<?= $mission['start_date'] ?>" class="form-control" id="emission_start" name="start_date" required>
+                                                    <input type="text" value="<?= $mission['start_date'] ?>" class="form-control date-picker" id="emission_start" name="start_date" required>
                                                 </div>
                                             </div>
                                             <div class="mb-3">
@@ -349,7 +365,7 @@ include('src/common/header.php');
                                                         </svg>
                                                     </span>
                                                     <!-- Pre-fill the input with the current end date -->
-                                                    <input type="text" value="<?= $mission['end_date'] ?>" class="form-control" id="emission_end" name="end_date" required>
+                                                    <input type="text" value="<?= $mission['end_date'] ?>" class="form-control date-picker" id="emission_end" name="end_date" required>
                                                 </div>
                                             </div>
                                             <div class="mb-3">
@@ -456,83 +472,7 @@ include('src/common/header.php');
     </div>
 </div>
 
-<!-- Modal Apply Mission -->
-<div class="modal modal-blur fade" id="mission" tabindex="-1" position="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" position="document">
-        <div class="modal-content">
-            <form action="/elms/apply-mission" method="POST" enctype="multipart/form-data">
-                <div class="modal-header">
-                    <h5 class="modal-title">បង្កើតលិខិតថ្មី</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label date-picker">កាលបរិច្ឆេទចាប់ពី<span class="text-danger mx-1 fw-bold">*</span></label>
-                        <div class="input-icon">
-                            <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <rect x="4" y="5" width="16" height="16" rx="2"></rect>
-                                    <line x1="16" y1="3" x2="16" y2="7"></line>
-                                    <line x1="8" y1="3" x2="8" y2="7"></line>
-                                    <line x1="4" y1="11" x2="20" y2="11"></line>
-                                    <rect x="8" y="15" width="2" height="2"></rect>
-                                </svg>
-                            </span>
-                            <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទ" class="form-control date-picker" id="mission_start" name="start_date">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label date-picker">ដល់កាលបរិចេ្ឆទ<span class="text-danger mx-1 fw-bold">*</span></label>
-                        <div class="input-icon">
-                            <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-12">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M3 12a9 9 0 0 0 9 9m9 -9a9 9 0 1 0 -18 0" />
-                                    <path d="M12 7v5l.5 .5" />
-                                    <path d="M18 15h2a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-1a1 1 0 0 0 -1 1v1a1 1 0 0 0 1 1h2" />
-                                    <path d="M15 21v-6" />
-                                </svg>
-                            </span>
-                            <input type="text" autocomplete="off" placeholder="ដល់កាលបរិចេ្ឆទ" class="form-control date-picker" name="end_date">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="createMissionDoc" class="form-label">ឯកសារភ្ជាប់</label>
-                        <label id="createMissionName" for="createMissionDoc" class="btn w-100 text-start p-3 flex-column text-muted bg-light">
-                            <span class="p-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-signature mx-0">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M3 17c3.333 -3.333 5 -6 5 -8c0 -3 -1 -3 -2 -3s-2.032 1.085 -2 3c.034 2.048 1.658 4.877 2.5 6c1.5 2 2.5 2.5 3.5 1l2 -3c.333 2.667 1.333 4 3 4c.53 0 2.639 -2 3 -2c.517 0 1.517 .667 3 2" />
-                                </svg>
-                            </span>
-                            <span>ឯកសារភ្ជាប់</span>
-                        </label>
-                        <input type="file" name="missionDoc" id="createMissionDoc" accept=".pdf, .docx, .xlsx" required hidden onchange="displayFileName('createMissionDoc', 'createMissionName')" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-check cursor-pointer">
-                            <input class="form-check-input" type="checkbox" name="agree" <?= isset($_POST['agree']) ? 'checked' : ''; ?>>
-                            <span class="form-check-label">យល់ព្រមលើកាបញ្ចូល<span class="text-danger fw-bold mx-1">*</span></span>
-                        </label>
-                    </div>
-                </div>
-                <div class="modal-footer bg-light border-top">
-                    <div class="w-100">
-                        <div class="row">
-                            <div class="col">
-                                <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
-                            </div>
-                            <div class="col">
-                                <button type="submit" class="btn w-100 btn-primary ms-auto">បញ្ចូន</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+
 
 <?php include('src/common/footer.php'); ?>
 

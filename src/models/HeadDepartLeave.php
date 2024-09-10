@@ -1,5 +1,5 @@
 <?php
-require_once 'config/database.php';
+require_once 'src/models/User.php';
 
 class HeadDepartLeave
 {
@@ -454,6 +454,102 @@ class HeadDepartLeave
         $this->updateLeaveRequestStatus($leave_request_id, $status);
 
         return $updatedAt; // Return the updated_at timestamp
+    }
+
+    public function getUserApi($id, $token)
+    {
+        $url = 'https://hrms.iauoffsa.us/api/v1/users/' . $id;
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $token]);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return null;
+        }
+
+        $responseData = json_decode($response, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return null;
+        }
+
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            $emails = [];
+            foreach ($responseData['data'] as $user) {
+                if (isset($user['roleLeave']) && $user['roleLeave'] === 'User') {
+                    $ids[] = $user['id'];
+                }
+            }
+
+            return [
+                'http_code' => $httpCode,
+                'emails' => $emails,
+                'ids' => $ids,
+            ];
+        } else {
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            return [
+                'http_code' => $httpCode,
+                'response' => $responseData
+            ];
+        }
+    }
+
+    public function updateToApi($user_id, $start_date, $end_date, $leave, $token)
+    {
+        $apis = new User();
+        $api = $apis->getApi();
+
+        $url = "{$api}/api/v1/leaves";
+
+        $data = [
+            'uid' => $user_id,
+            'startDate' => $start_date,
+            'endDate' => $end_date,
+            'leave' => $leave
+        ];
+
+        $jsonData = json_encode($data);
+
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST"); // Ensure this is correct
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $token, // Using the token from the session
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+
+        // Ignore SSL certificate verification (use only for debugging)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if (curl_errno($ch)) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            return ['success' => false, 'error' => $error, 'http_code' => $httpCode, 'response' => $response];
+        }
+
+        curl_close($ch);
+
+        return [
+            'success' => $httpCode === 200, // Adjust based on API documentation
+            'http_code' => $httpCode,
+            'response' => $response
+        ];
     }
 
     private function updateLeaveRequestStatus($leave_request_id, $latestStatus)
