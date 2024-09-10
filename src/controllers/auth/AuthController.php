@@ -54,10 +54,10 @@ class AuthController
 
                         // get department api 
                         $department = $userModel->getDepartmentApi($user['departmentId'], $token);
-                        $_SESSION['departmentName'] = $department['data']['departmentNameKh'];
+                        $_SESSION['departmentName'] = $department['data']['departmentNameKh'] ?? 'null';
                         // get office api 
                         $department = $userModel->getOfficeApi($user['officeId'], $token);
-                        $_SESSION['officeName'] = $department['data']['officeNameKh'];
+                        $_SESSION['officeName'] = $department['data']['officeNameKh'] ?? 'null';
 
                         // Log the login trace
                         $userModel->logLoginTrace($user['id'], $_SERVER['REMOTE_ADDR']);
