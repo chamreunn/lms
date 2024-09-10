@@ -153,10 +153,6 @@ class DepOfficeController
                 exit();
             }
 
-            // Create notification for the user
-            $notificationModel = new Notification();
-            $notificationModel->createNotification($userDoffice['ids'], $user_id, $leaveRequestId, $message);
-
             // Log user activity
             $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
 
