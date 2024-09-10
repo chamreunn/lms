@@ -35,10 +35,21 @@ class Notification
         return $stmt->fetchAll();
     }
 
-    public function createNotification($receiver_id, $user_id, $request_id, $message)
+    public function createNotification($receiver_ids, $user_id, $request_id, $message)
     {
+        // Check if receiver_ids is an array and has valid data
+        if (!is_array($receiver_ids) || empty($receiver_ids)) {
+            throw new Exception('Invalid receiver ID(s) provided.');
+        }
+
+        // Prepare the SQL statement for inserting notifications
         $stmt = $this->pdo->prepare('INSERT INTO notifications (receiver_id, user_id, request_id, message, created_at) VALUES (?, ?, ?, ?, NOW())');
-        $stmt->execute([$receiver_id, $user_id, $request_id, $message]);
+
+        // Iterate through receiver IDs and create a notification for each one
+        foreach ($receiver_ids as $receiver_id) {
+            // Execute the query with provided parameters
+            $stmt->execute([$receiver_id, $user_id, $request_id, $message]);
+        }
     }
 
     public function markasread($status, $user_id)

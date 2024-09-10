@@ -153,6 +153,10 @@ class DepOfficeController
                 exit();
             }
 
+            // Create notification for the user
+            $notificationModel = new Notification();
+            $notificationModel->createNotification($userDoffice['ids'], $user_id, $leaveRequestId, $message);
+
             // Log user activity
             $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
 
@@ -284,7 +288,7 @@ class DepOfficeController
                 // Set success message and redirect to the pending page
                 $_SESSION['success'] = [
                     'title' => "សំណើច្បាប់",
-                    'message' => "កំពុងបញ្ជូនទៅកាន់ " .  $managerEmail
+                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
                 ];
                 header('location: /elms/pending');
                 exit();
@@ -336,7 +340,7 @@ class DepOfficeController
     {
         if (isset($_GET['leave_id'])) {
             $leaveRequestModel = new DepOfficeModel();
-            $leave_id = (int)$_GET['leave_id'];
+            $leave_id = (int) $_GET['leave_id'];
             $request = $leaveRequestModel->getRequestById($leave_id, $_SESSION['token']);
             $leavetypeModel = new Leavetype();
             $leavetypes = $leavetypeModel->getAllLeavetypes();
