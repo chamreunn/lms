@@ -129,7 +129,7 @@ ob_start();
                 <h5 class="modal-title"><strong>បង្កើតសំណើ</strong></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="POST" action="/elms/hunit-apply-leave" enctype="multipart/form-data">
+            <form method="POST" action="/elms/admin-apply-leave" enctype="multipart/form-data">
                 <div class="modal-body">
                     <div class="card-body">
                         <div class="mb-3">
@@ -272,7 +272,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
     </div>
 
     <div class="card-body border-bottom">
-        <form class="mb-0" action="/elms/hunitLeave" method="POST">
+        <form class="mb-0" action="/elms/adminLeave" method="POST">
             <div class="row align-items-center">
                 <div class="col-lg-3 mb-3">
                     <div class="input-icon">
@@ -326,7 +326,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                     </button>
                 </div>
                 <div class="col mb-3">
-                    <a href="/elms/hunitLeave" type="reset" class="btn w-100 btn-danger">
+                    <a href="/elms/adminLeave" type="reset" class="btn w-100 btn-danger">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-rotate-clockwise">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                             <path d="M4.05 11a8 8 0 1 1 .5 4m-.5 5v-5h5" />
@@ -494,7 +494,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                             <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-status bg-danger"></div>
-                                    <form action="/elms/hunit-delete" method="POST">
+                                    <form action="/elms/admin-delete" method="POST">
                                         <div class="modal-body text-center py-4 mb-0">
                                             <input type="hidden" name="id" value="<?= htmlspecialchars($request['id']) ?>">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">

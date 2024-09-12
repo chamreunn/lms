@@ -12,6 +12,24 @@ class LateModel
         $this->pdo = $pdo;
     }
 
+    // Begin transaction
+    public function beginTransaction()
+    {
+        $this->pdo->beginTransaction();
+    }
+
+    // Commit transaction
+    public function commitTransaction()
+    {
+        $this->pdo->commit();
+    }
+
+    // Rollback transaction
+    public function rollBackTransaction()
+    {
+        $this->pdo->rollBack();
+    }
+
     public function getAllLatetype()
     {
         $stmt = $this->pdo->query("SELECT * FROM latetype");

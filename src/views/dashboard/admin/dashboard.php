@@ -362,7 +362,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                 </svg>
             </div>
             <strong>ច្បាប់ឈប់សម្រាក</strong>
-            <span class="sr-only">Apply for leave</span>
         </a>
 
     </div>
@@ -379,7 +378,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                 </svg>
             </div>
             <strong>លិខិតចូលយឺត</strong>
-            <span class="sr-only">Apply for late entry</span>
         </a>
     </div>
 
@@ -398,7 +396,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                 </svg>
             </div>
             <strong>លិខិតចេញយឺត</strong>
-            <span class="sr-only">Apply for late exit</span>
         </a>
     </div>
 
@@ -414,7 +411,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                 </svg>
             </div>
             <strong>លិខិតចេញមុន</strong>
-            <span class="sr-only">Apply for early exit</span>
         </a>
     </div>
 
@@ -437,7 +433,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                 </svg>
             </div>
             <strong>បេសកកម្ម</strong>
-            <span class="sr-only">Apply for mission</span>
         </a>
     </div>
 </div>

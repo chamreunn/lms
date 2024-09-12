@@ -34,13 +34,58 @@ if (!isset($_SESSION['user_id'])) {
             cursor: pointer;
             text-decoration: underline;
         }
+
+        /* Full-Page Loader with Blur */
+        .loader-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader {
+            border: 6px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 6px solid #3498db;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Page content blur when loader is visible */
+        body.loading .page {
+            filter: blur(8px);
+        }
     </style>
 </head>
 
-<body>
+<body class="loading">
+    <!-- Loader HTML -->
+    <div id="loader-wrapper" class="loader-wrapper">
+        <div class="loader"></div>
+    </div>
+
     <script src="public/dist/js/demo-theme.min.js?1668287865"></script>
 
     <div class="page">
+
         <!-- Navbar -->
         <div class="sticky-top">
             <?php
@@ -54,13 +99,16 @@ if (!isset($_SESSION['user_id'])) {
                             $adminModel = new AdminModel();
                             $getPendingCounts = $adminModel->getLateinCount();
                             $latesToday = $adminModel->getLateCountToday();
-                            include('admin_sidebar.php');
+                            require 'admin/sidebar.php';
                             break;
                         case 'Deputy Head Of Office':
                             $leaveRequestModel = new LeaveApproval();
                             $requestscount = $leaveRequestModel->countPendingRequestsForApprover();
                             $approvedCount = $leaveRequestModel->approvedCount();
                             $rejectedCount = $leaveRequestModel->rejectedCount();
+                            $adminModel = new AdminModel();
+                            $getPendingCounts = $adminModel->getLateinCount();
+                            $latesToday = $adminModel->getLateCountToday();
                             require 'offices-d/sidebar.php';
                             break;
                         case 'Head Of Office':

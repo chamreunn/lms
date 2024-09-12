@@ -21,7 +21,7 @@ class HeadUnitModel
     {
         // Prepare and execute the SQL statement
         $stmt = $this->pdo->prepare("
-            INSERT INTO $this->table_name (user_id, uemails, leave_type_id, position, department, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, dhead_unit, created_at) 
+            INSERT INTO $this->table_name (user_id, uemails, leave_type_id, position, department, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, head_unit, created_at) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
         $stmt->execute([
@@ -37,7 +37,7 @@ class HeadUnitModel
             $duration_days,
             $attachment,
             $signature,
-            'Pending',
+            'Approved',
             'Approved'
         ]);
 
@@ -704,15 +704,12 @@ class HeadUnitModel
     {
         // Fetch all leave requests from the database
         $stmt = $this->pdo->prepare('SELECT * FROM leave_requests 
-        WHERE head_department IN (?, ?)
+        WHERE dhead_unit IN (?, ?)
         AND status = ?
-        AND dhead_unit = ?
-        AND position IN (?, ?, ?, ?, ?, ?)
-        AND department IN (?, ?)
-        AND user_id != ?
-        ');
+        AND head_unit = ?
+        AND user_id != ?');
 
-        $stmt->execute(['Approved', 'Rejected', 'Pending', 'Pending', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', 'អនុប្រធាននាយកដ្ឋាន', 'ប្រធាននាយកដ្ឋាន', 'កិច្ចការទូទៅ', 'សវនកម្មទី២', $_SESSION['user_id']]);
+        $stmt->execute(['Approved', 'Rejected', 'Pending', 'Pending', $_SESSION['user_id']]);
         $leaveRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Initialize UserModel
@@ -1057,15 +1054,13 @@ class HeadUnitModel
     {
         // Fetch all leave requests from the database
         $stmt = $this->pdo->prepare('SELECT * FROM leave_requests 
-        WHERE head_department IN (?, ?)
+        WHERE dhead_unit IN (?, ?)
         AND status = ?
-        AND dhead_unit = ?
-        AND position IN (?, ?, ?, ?, ?, ?)
-        AND department IN (?, ?)
+        AND head_unit = ?
         AND user_id != ?
         ');
 
-        $stmt->execute(['Approved', 'Rejected', 'Pending', 'Approved', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', 'អនុប្រធាននាយកដ្ឋាន', 'ប្រធាននាយកដ្ឋាន', 'កិច្ចការទូទៅ', 'សវនកម្មទី២', $user_id]);
+        $stmt->execute(['Approved', 'Rejected', 'Pending', 'Approved', $user_id]);
         $leaveRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Initialize UserModel
@@ -1114,15 +1109,13 @@ class HeadUnitModel
     {
         // Fetch all leave requests from the database
         $stmt = $this->pdo->prepare('SELECT * FROM leave_requests 
-        WHERE head_department IN (?, ?)
+        WHERE dhead_unit IN (?, ?)
         AND status = ?
-        AND dhead_unit = ?
-        AND position IN (?, ?, ?, ?, ?, ?)
-        AND department IN (?, ?)
+        AND head_unit = ?
         AND user_id != ?
         ');
 
-        $stmt->execute(['Approved', 'Rejected', 'Pending', 'Rejected', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', 'អនុប្រធាននាយកដ្ឋាន', 'ប្រធាននាយកដ្ឋាន', 'កិច្ចការទូទៅ', 'សវនកម្មទី២', $user_id]);
+        $stmt->execute(['Approved', 'Rejected', 'Pending', 'Rejected', $user_id]);
         $leaveRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Initialize UserModel

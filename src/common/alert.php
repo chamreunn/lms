@@ -2,7 +2,7 @@
 function showAlert($sessionType, $alertType, $iconPath, $bgColor)
 {
     if (isset($_SESSION[$sessionType]) && is_array($_SESSION[$sessionType])) : ?>
-        <div id="customAlert" class="col-10 col-lg-3 col-md-10 col-sm-10 alert alert-<?php echo $alertType; ?> position-fixed top-0 start-50 translate-middle-x mt-3 shadow animate__animated animate__bounceInDown" style="z-index: 999999;" role="alert">
+        <div id="customAlert" class="col-10 col-lg-3 col-md-10 col-sm-10 alert alert-<?php echo $alertType; ?> position-fixed top-0 start-50 translate-middle-x mt-3 shadow animate__animated" style="z-index: 999999;" role="alert">
             <div class="d-flex align-items-center">
                 <div class="p-2 rounded-circle border border-<?php echo $alertType; ?>">
                     <!-- SVG icon -->

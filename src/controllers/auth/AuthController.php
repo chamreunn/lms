@@ -45,6 +45,7 @@ class AuthController
                         $_SESSION['role'] = $user['roleLeave'] ?? 'NULL';
                         $_SESSION['officeId'] = $user['officeId'];
                         $_SESSION['departmentId'] = $user['departmentId'];
+                        $_SESSION['isAdmin'] = $user['isAdmin'];
                         // $_SESSION['positionId'] = $user['positionId'];
                         $_SESSION['token'] = $token; // Store the token
 
@@ -78,10 +79,5 @@ class AuthController
             }
         }
         require 'src/views/auth/login.php';
-    }
-
-    public function forgotPassword()
-    {
-        require 'src/views/auth/forgot-password.php';
     }
 }

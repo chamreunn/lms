@@ -13,7 +13,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>ចូលប្រព័ន្ធ</title>
+    <title>ភ្លេចពាក្យសម្ងាត់</title>
     <!-- CSS files -->
     <link rel="icon" href="public/img/favicon/favicon.ico" type="image/x-icon" />
     <link rel="shortcut icon" href="public/img/favicon/favicon.ico" type="image/x-icon" />
@@ -122,39 +122,93 @@
         }
     </style>
 </head>
-<?php include('src/common/alert.php'); ?>
+<?php include ('src/common/alert.php'); ?>
 
-<body class="border-top-wide border-primary d-flex flex-column">
+<body class="border-top-wide border-primary d-flex flex-column" style="min-height: 100vh;">
     <script src="public/dist/js/demo-theme.min.js?1668287865"></script>
-    <div class="background-image"></div>
-    <div class="color-overlay"></div>
-    <div class="wave">
-        <div style="width: 200px; height: 100px;"></div>
-        <div style="width: 300px; height: 100px;"></div>
-        <div style="width: 400px; height: 100px;"></div>
-        <div style="width: 500px; height: 100px;"></div>
-        <div style="width: 600px; height: 100px;"></div>
+
+    <!-- Background with overlay -->
+    <div class="background-image">
     </div>
-    <div class="page page-center">
+    <div class="color-overlay">
+    </div>
+
+    <div class="page page-center d-flex align-items-center justify-content-center"
+        style="position: relative; z-index: 1;">
         <div class="container container-normal py-4">
             <div class="row align-items-center g-4">
                 <div class="col-lg">
                     <div class="container-tight">
-                        <div class="card card-md rounded">
+                        <!-- Card with shadow -->
+                        <div class="card card-md rounded shadow-lg" style="background-color: white;">
                             <div class="card-body">
-                                <div class="text-center mb-1">
-                                    <a href="." class="navbar-brand navbar-brand-autodark"><img src="public/img/icons/brands/logo2.png" height="80" alt=""></a>
+                                <div class="text-center mb-3">
+                                    <a href="." class="navbar-brand navbar-brand-autodark"><img
+                                            src="public/img/icons/brands/logo2.png" height="80" alt=""></a>
                                 </div>
                                 <h2 class="h2 text-center mb-3">ភ្លេចពាក្យសម្ងាត់</h2>
-                                <form action="/elms/login" method="POST" autocomplete="off" novalidate>
+
+                                <!-- Form -->
+                                <form action="/elms/forgot-password" method="POST" class="mb-3" autocomplete="off"
+                                    novalidate>
                                     <div class="mb-3">
-                                        <label class="form-label mb-3">អាសយដ្ឋានអ៊ីម៉ែល<span class="text-danger fw-bold mx-1">*</span></label>
-                                        <input type="email" style="font-family: system-ui, 'khmer mef1', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;" class="form-control" name="email" placeholder="អាសយដ្ឋានអ៊ីម៉ែល" value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" autofocus autocomplete="on">
+                                        <label class="form-label mb-3">អាសយដ្ឋានអ៊ីម៉ែល<span
+                                                class="text-danger fw-bold mx-1">*</span></label>
+                                        <input type="email" class="form-control" name="email"
+                                            placeholder="អាសយដ្ឋានអ៊ីម៉ែល"
+                                            value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                            autofocus autocomplete="on" required>
+                                        <div class="invalid-feedback">
+                                            សូមបញ្ចូលអាសយដ្ឋានអ៊ីម៉ែលត្រឹមត្រូវ!
+                                        </div>
                                     </div>
+
                                     <div class="form-footer">
-                                        <button type="submit" class="btn btn-primary w-100">បញ្ជូន</button>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <span class="spinner-border spinner-border-sm" role="status"
+                                                aria-hidden="true" style="display: none;"></span>
+                                            បញ្ជូន
+                                        </button>
+                                    </div>
+                                    <div class="hr-text">ឬ</div>
+                                    <div class="text-center mt-3">
+                                        <a href="/elms/login" class="btn mb-0 w-100">ត្រឡប់ទៅការចូលប្រព័ន្ធ</a>
                                     </div>
                                 </form>
+                                <!-- Code Input (Appears after sending code) -->
+                                <?php if (isset($_SESSION['verification_code_sent'])): ?>
+                                    <div class="hr"></div>
+                                    <!-- Code Input (Appears after sending code) -->
+                                    <form action="/elms/verify_code" method="POST" id="verificationForm" class="mb-3">
+                                        <div class="mb-3">
+                                            <label class="form-label mb-3">បញ្ចូលលេខកូដ 6 ខ្ទង់<span
+                                                    class="text-danger fw-bold mx-1">*</span></label>
+
+                                            <!-- 6 inputs for each digit of the code -->
+                                            <div class="d-flex justify-content-between">
+                                                <input type="text" class="form-control text-center mx-1 code-input"
+                                                    maxlength="1" name="digit1" required>
+                                                <input type="text" class="form-control text-center mx-1 code-input"
+                                                    maxlength="1" name="digit2" required>
+                                                <input type="text" class="form-control text-center mx-1 code-input"
+                                                    maxlength="1" name="digit3" required>
+                                                <input type="text" class="form-control text-center mx-1 code-input"
+                                                    maxlength="1" name="digit4" required>
+                                                <input type="text" class="form-control text-center mx-1 code-input"
+                                                    maxlength="1" name="digit5" required>
+                                                <input type="text" class="form-control text-center mx-1 code-input"
+                                                    maxlength="1" name="digit6" required>
+                                            </div>
+                                            <div class="invalid-feedback">
+                                                សូមបញ្ចូលលេខកូដ 6 ខ្ទង់!
+                                            </div>
+                                        </div>
+
+                                        <div class="form-footer">
+                                            <button type="submit" class="btn btn-success w-100">ផ្ទៀងផ្ទាត់</button>
+                                        </div>
+                                    </form>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -162,38 +216,75 @@
             </div>
         </div>
     </div>
+
     <!-- Libs JS -->
-    <!-- Tabler Core -->
     <script src="public/dist/js/tabler.min.js?1668287865" defer></script>
     <script src="public/dist/js/demo.min.js?1668287865" defer></script>
 </body>
-<script>
-    if (window.history.replaceState) {
-        window.history.replaceState(null, null, window.location.href);
-    }
 
-    function togglePasswordVisibility() {
-        var passwordInput = document.getElementById('password');
-        var passwordIcon = document.querySelector('.input-group-text svg');
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            passwordIcon.classList.remove('icon-tabler-eye');
-            passwordIcon.classList.add('icon-tabler-eye-off');
-            passwordIcon.innerHTML = `
-                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-eye-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.585 10.587a2 2 0 0 0 2.829 2.828" /><path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87" /><path d="M3 3l18 18" /></svg>
-                `;
+<script>
+    // Email form submission logic
+    document.querySelector('form[action="/elms/forgot-password"]').addEventListener('submit', function (e) {
+        const emailInput = document.querySelector('input[name="email"]');
+        if (!emailInput.checkValidity()) {
+            emailInput.classList.add('is-invalid');
+            e.preventDefault(); // Prevent form submission if invalid
         } else {
-            passwordInput.type = 'password';
-            passwordIcon.classList.remove('icon-tabler-eye-off');
-            passwordIcon.classList.add('icon-tabler-eye');
-            passwordIcon.innerHTML = `
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <circle cx="12" cy="12" r="2" />
-                    <path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" />
-                `;
+            emailInput.classList.remove('is-invalid');
+            // Show loading spinner
+            const submitBtn = document.querySelector('.btn-primary');
+            submitBtn.querySelector('.spinner-border').style.display = 'inline-block';
         }
-    }
+    });
+
+    // Get all input elements for the 6-digit code input
+    const inputs = document.querySelectorAll('.code-input');
+
+    inputs.forEach((input, index) => {
+        // Listen for input event on each input field
+        input.addEventListener('input', (event) => {
+            if (event.target.value.length === 1 && index < inputs.length - 1) {
+                // Move to the next input field when a digit is entered
+                inputs[index + 1].focus();
+            }
+        });
+
+        // Listen for keydown event to handle backspace functionality
+        input.addEventListener('keydown', (event) => {
+            if (event.key === "Backspace" && input.value === '' && index > 0) {
+                // Move back to the previous input when backspace is pressed
+                inputs[index - 1].focus();
+            }
+        });
+    });
+
+    // Combine 6-digit code into one hidden input when the verification form is submitted
+    document.getElementById('verificationForm').addEventListener('submit', function (e) {
+        let fullCode = '';
+        inputs.forEach(input => {
+            fullCode += input.value; // Concatenate the values from each input
+        });
+
+        if (fullCode.length < 6) {
+            e.preventDefault(); // Prevent form submission if the code is incomplete
+            alert('សូមបញ្ចូលលេខកូដ 6 ខ្ទង់!');
+            return;
+        }
+
+        // Create a hidden input to store the full 6-digit code
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'verification_code';
+        hiddenInput.value = fullCode;
+        this.appendChild(hiddenInput);
+
+        // Remove individual digit inputs' names to avoid submitting them separately
+        inputs.forEach(input => {
+            input.removeAttribute('name');
+        });
+    });
 </script>
+
 
 </html>
 <!-- <div class="col-lg d-none d-lg-block">

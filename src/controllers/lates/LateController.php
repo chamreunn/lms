@@ -190,13 +190,13 @@ class LateController
         $time = trim($time);
         $reason = trim($reason);
 
-        // ស្ទួនសារបញ្ចូលចូល
+        // Basic validation
         if (empty($date)) {
             $_SESSION['error'] = [
                 'title' => "Date Error",
                 'message' => "ចន្លោះកាលបរិច្ឆេទត្រូវបានទាមទារ។"
             ];
-            header("Location: /elms/late_in_request");
+            header("Location: /elms/overtimein");
             exit();
         }
 
@@ -205,7 +205,7 @@ class LateController
                 'title' => "Time Error",
                 'message' => "ចន្លោះម៉ោងត្រូវបានទាមទារ។"
             ];
-            header("Location: /elms/late_in_request");
+            header("Location: /elms/overtimein");
             exit();
         }
 
@@ -214,95 +214,100 @@ class LateController
                 'title' => "Reason Error",
                 'message' => "ចន្លោះមូលហេតុត្រូវបានទាមទារ។"
             ];
-            header("Location: /elms/late_in_request");
+            header("Location: /elms/overtimein");
             exit();
         }
 
-        // ស្ទួនពិនិត្យកាលបរិច្ឆេទត្រឹមត្រូវ
+        // Validate date format
         $dateObj = DateTime::createFromFormat('Y-m-d', $date);
         if (!$dateObj || $dateObj->format('Y-m-d') !== $date) {
             $_SESSION['error'] = [
                 'title' => "Date Error",
                 'message' => "ទ្រង់ទ្រាយកាលបរិច្ឆេទមិនត្រឹមត្រូវ។ ប្រើ Y-m-d."
             ];
-            header("Location: /elms/late_in_request");
+            header("Location: /elms/overtimein");
             exit();
         }
 
-        // ស្ទួនពិនិត្យម៉ោងត្រឹមត្រូវ (ឧ. ទ្រង់ទ្រាយ HH:MM)
+        // Validate time format
         if (!preg_match('/^\d{2}:\d{2}$/', $time)) {
             $_SESSION['error'] = [
                 'title' => "Time Error",
                 'message' => "ទ្រង់ទ្រាយម៉ោងមិនត្រឹមត្រូវ។ ប្រើ HH:MM."
             ];
-            header("Location: /elms/late_in_request");
+            header("Location: /elms/overtimein");
             exit();
         }
 
-        // បន្ថែមវិនាទីទៅម៉ោងប្រសិនបើចាំបាច់
+        // Add seconds to time if necessary
         if (preg_match('/^\d{2}:\d{2}$/', $time)) {
             $time .= ":00";
         }
 
-        // គណនាម៉ោងយឺត
+        // Calculate late minutes
         $workStartTime = DateTime::createFromFormat('H:i', '09:00');
         $submittedTime = DateTime::createFromFormat('H:i:s', $time);
 
+        $lateMinutes = 0;
         if ($submittedTime > $workStartTime) {
             $interval = $workStartTime->diff($submittedTime);
             $lateMinutes = $interval->h * 60 + $interval->i;
-        } else {
-            $lateMinutes = 0;
         }
 
-        // Usage in your code
-        $userModel = new User();
-        // Fetch the admin emails
-        $adminEmails = $userModel->getAdminEmails($_SESSION['token']);
-
-        if (!$adminEmails || $adminEmails['http_code'] !== 200 || empty($adminEmails['emails'])) {
-            error_log("API Response: " . print_r($adminEmails, true));
-            $_SESSION['error'] = [
-                'title' => "Office Error",
-                'message' => "Unable to find office details. Please contact support."
-            ];
-            header("Location: /elms/apply-leave");
-            exit();
-        }
-
-        // Extract the first admin email (or handle multiple emails as needed)
-        $adminEmail = $adminEmails['emails'][0]; // Assuming you want the first email
-
-        // បញ្ចូលមូលហេតុ
+        // Sanitize reason input
         $reason = htmlspecialchars($reason, ENT_QUOTES, 'UTF-8');
 
         try {
-            if (!$this->sendEmailNotification($adminEmail, $date, $time, $lateMinutes, $reason)) {
-                $_SESSION['error'] = [
-                    'title' => "Email Error",
-                    'message' => "Notification email could not be sent. Please try again." . $adminEmail
-                ];
+            // Begin transaction
+            $lateModel = new LateModel();
+            $lateModel->beginTransaction(); // Assuming you have a method for beginning a transaction
+
+            // Fetch the admin emails via API
+            $userModel = new User();
+            $adminEmails = $userModel->getAdminEmails($_SESSION['token']);
+
+            if (!$adminEmails || $adminEmails['http_code'] !== 200 || empty($adminEmails['emails'])) {
+                throw new Exception("Unable to fetch admin emails.");
             }
 
-            $lateModel = new LateModel();
+            // Use the first admin email or handle multiple emails as needed
+            $adminEmail = $adminEmails['emails'][0];
+
+            // Send email notification
+            if (!$this->sendEmailNotification($adminEmail, $date, $time, $lateMinutes, $reason)) {
+                throw new Exception("Notification email could not be sent.");
+            }
+
+            // Apply the late-in request to the database
             $lateModel->applyLateIn($date, $time, $lateMinutes, $reason);
 
+            // Commit transaction after success
+            $lateModel->commitTransaction();
+
+            // Optionally display admin email in success message
             $_SESSION['success'] = [
                 'title' => "សំណើចូលយឺត",
-                'message' => "អ្នកបានយឺតចំនួន {$lateMinutes} នាទី។ សំណើបានបញ្ជូនទៅកាន់ " . $adminEmail . " សូមមេត្តារង់ចាំ។ សូមអរគុណ។"
+                'message' => "អ្នកបានយឺតចំនួន {$lateMinutes} នាទី។ សំណើបានបញ្ជូនទៅកាន់ " . ($adminEmail ?? "") . ". សូមអរគុណ។"
             ];
             header("Location: /elms/overtimein");
             exit();
-        } catch (Exception $e) {
-            // គ្រប់គ្រងកំហុសដោយសុវត្ថិភាព
-            $_SESSION['error'] = [
-                'title' => "Database Error",
-                'message' => "មានកំហុសមួយបានកើតឡើងក្នុងការបង្កើតសំណើចូលយឺត៖ " . $e->getMessage()
-            ];
-        }
 
-        header("Location: /elms/overtimein");
-        exit();
+        } catch (Exception $e) {
+            // Rollback transaction in case of any error
+            $lateModel->rollBackTransaction(); // Assuming you have a method for rollback
+
+            // Log the error for debugging purposes
+            error_log("Error: " . $e->getMessage());
+
+            // Show error message to the user
+            $_SESSION['error'] = [
+                'title' => "សំណើចូលយឺត",
+                'message' => "មានកំហុសមួយបានកើតឡើង: " . $e->getMessage()
+            ];
+
+            header("Location: /elms/overtimein");
+            exit();
+        }
     }
 
     public function createLateOut($date, $time, $reason)
@@ -588,12 +593,12 @@ class LateController
 
             // Server settings
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com'; // SMTP server to send through
-            $mail->SMTPAuth   = true;
-            $mail->Username   = 'pothhchamreun@gmail.com'; // SMTP username
-            $mail->Password   = 'kyph nvwd ncpa gyzi'; // SMTP password
+            $mail->Host = 'smtp.gmail.com'; // SMTP server to send through
+            $mail->SMTPAuth = true;
+            $mail->Username = 'pothhchamreun@gmail.com'; // SMTP username
+            $mail->Password = 'kyph nvwd ncpa gyzi'; // SMTP password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
+            $mail->Port = 587;
 
             // Set charset to UTF-8 for Unicode support
             $mail->CharSet = 'UTF-8';

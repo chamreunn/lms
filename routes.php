@@ -28,7 +28,7 @@ require_once 'src/controllers/missions/MissionController.php';
 require_once 'src/controllers/offices-d/DepOfficeController.php';
 require_once 'src/controllers/admin/AdminController.php';
 
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$uri = parse_url(url: $_SERVER['REQUEST_URI'], component: PHP_URL_PATH);
 
 switch ($uri) {
     case $base_url . '/':
@@ -44,7 +44,7 @@ switch ($uri) {
         session_destroy();
 
         // Optionally, you might want to explicitly remove the session cookie
-        if (ini_get("session.use_cookies")) {
+        if (ini_get(option: "session.use_cookies")) {
             $params = session_get_cookie_params();
             setcookie(
                 session_name(),
@@ -56,15 +56,11 @@ switch ($uri) {
                 $params["httponly"]
             );
         }
-        sleep(1);
-        header("Location: $base_url/login");
+        sleep(seconds: 1);
+        header(header: "Location: $base_url/login");
         exit();
-    case $base_url . '/forgot-password':
-        $controller = new AuthController();
-        $controller->forgotPassword();
-        break;
     case $base_url . '/apply-leave':
-        checkSessionAndExecute(function () {
+        checkSessionAndExecute(callback: function (): void {
             $controller = new LeaveController();
             $controller->apply();
         });
@@ -102,6 +98,12 @@ switch ($uri) {
     case $base_url . '/du2-apply-leave':
         checkSessionAndExecute(function () {
             $controller = new DepUnit2Controller();
+            $controller->apply();
+        });
+        break;
+    case $base_url . '/hunit-apply-leave':
+        checkSessionAndExecute(function () {
+            $controller = new HeadUnitController();
             $controller->apply();
         });
         break;
@@ -185,6 +187,22 @@ switch ($uri) {
             }
         });
         break;
+    case $base_url . '/adminLeave':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->viewRequestsWithFilters();
+            } else {
+                $controller->viewRequests();
+            }
+        });
+        break;
+    case $base_url . '/admin-apply-leave':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->apply();
+        });
+        break;
     case $base_url . '/adminpending':
         checkSessionAndExecute(function () {
             $controller = new AdminController();
@@ -255,6 +273,24 @@ switch ($uri) {
     case $base_url . '/headdepartmentrejected':
         checkSessionAndExecute(function () {
             $controller = new HeadDepartmentController();
+            $controller->rejected();
+        });
+        break;
+    case $base_url . '/hunitpending':
+        checkSessionAndExecute(function () {
+            $controller = new HeadUnitController();
+            $controller->pending();
+        });
+        break;
+    case $base_url . '/hunitapproved':
+        checkSessionAndExecute(function () {
+            $controller = new HeadUnitController();
+            $controller->approved();
+        });
+        break;
+    case $base_url . '/hunitrejected':
+        checkSessionAndExecute(function () {
+            $controller = new HeadUnitController();
             $controller->rejected();
         });
         break;
@@ -388,6 +424,17 @@ switch ($uri) {
         checkSessionAndExecute(function () {
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
                 $controller = new DepUnit2Controller();
+                $controller->delete($_POST['id']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
+        });
+        break;
+    case $base_url . '/admin-delete':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
+                $controller = new AdminController();
                 $controller->delete($_POST['id']);
             } else {
                 header("Location: /elms/login");
@@ -560,18 +607,18 @@ switch ($uri) {
                 $controller = new LateController();
                 $controller->deleteLateOut($_POST['id']);
             } else {
-                header("Location: /elms/login");
+                header(header: "Location: /elms/login");
                 exit();
             }
         });
         break;
     case $base_url . '/leaveearly-delete':
-        checkSessionAndExecute(function () {
+        checkSessionAndExecute(callback: function (): void {
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
                 $controller = new LateController();
-                $controller->deleteLeaveEarly($_POST['id']);
+                $controller->deleteLeaveEarly(id: $_POST['id']);
             } else {
-                header("Location: /elms/login");
+                header(header: "Location: /elms/login");
                 exit();
             }
         });

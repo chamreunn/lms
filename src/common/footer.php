@@ -4,7 +4,8 @@
 </div>
 
 <!-- Modal Apply Late In -->
-<div class="modal modal-blur fade" id="apply-late-in" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal modal-blur fade" id="apply-late-in" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content">
             <div class="modal-header">
@@ -15,10 +16,13 @@
                 <div class="modal-body">
                     <div class="row mb-3">
                         <div class="col-lg-12 mb-3">
-                            <label for="lateindate" class="form-label">កាលបរិច្ឆេទចាប់<span class="text-danger mx-1 fw-bold">*</span></label>
+                            <label for="lateindate" class="form-label">កាលបរិច្ឆេទចាប់<span
+                                    class="text-danger mx-1 fw-bold">*</span></label>
                             <div class="input-icon">
                                 <span class="input-icon-addon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                         <rect x="4" y="5" width="16" height="16" rx="2"></rect>
                                         <line x1="16" y1="3" x2="16" y2="7"></line>
@@ -27,32 +31,42 @@
                                         <rect x="8" y="15" width="2" height="2"></rect>
                                     </svg>
                                 </span>
-                                <input type="text" autocomplete="off" value="<?= isset($_POST['date']) ? translateDateToKhmer($_POST['date'], 'j F, Y') : '' ?>" placeholder="កាលបរិច្ឆេទចាប់ពី" class="form-control date-picker" name="date">
+                                <input type="text" autocomplete="off"
+                                    value="<?= isset($_POST['date']) ? translateDateToKhmer($_POST['date'], 'j F, Y') : '' ?>"
+                                    placeholder="កាលបរិច្ឆេទចាប់ពី" class="form-control date-picker" name="date">
                             </div>
                         </div>
                         <div class="col-lg-12 mb-3">
                             <label class="form-label">ម៉ោង<span class="text-danger mx-1 fw-bold">*</span></label>
                             <div class="input-icon">
                                 <span class="input-icon-addon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-12">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        class="icon icon-tabler icons-tabler-outline icon-tabler-clock-12">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M3 12a9 9 0 0 0 9 9m9 -9a9 9 0 1 0 -18 0" />
                                         <path d="M12 7v5l.5 .5" />
-                                        <path d="M18 15h2a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-1a1 1 0 0 0 -1 1v1a1 1 0 0 0 1 1h2" />
+                                        <path
+                                            d="M18 15h2a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-1a1 1 0 0 0 -1 1v1a1 1 0 0 0 1 1h2" />
                                         <path d="M15 21v-6" />
                                     </svg>
                                 </span>
-                                <input type="text" autocomplete="off" value="09:00" placeholder="ម៉ោង" class="form-control time-picker" id="time" name="time">
+                                <input type="text" autocomplete="off" value="09:00" placeholder="ម៉ោង"
+                                    class="form-control time-picker" id="time" name="time">
                             </div>
                         </div>
                         <div class="col-12 mb-3">
-                            <label for="reason" class="form-label">មូលហេតុ<span class="text-danger mx-1 fw-bold">*</span></label>
-                            <textarea autocomplete="off" placeholder="មូលហេតុ" class="form-control" id="reason" name="reason"><?= htmlspecialchars($_POST['reason'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                            <label for="reason" class="form-label">មូលហេតុ<span
+                                    class="text-danger mx-1 fw-bold">*</span></label>
+                            <textarea autocomplete="off" placeholder="មូលហេតុ" class="form-control" id="reason"
+                                name="reason"><?= htmlspecialchars($_POST['reason'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                         </div>
                         <div class="col-lg-6 mb-3">
                             <label class="form-check cursor-pointer">
                                 <input class="form-check-input" type="checkbox" name="agree" <?= isset($_POST['agree']) ? 'checked' : ''; ?>>
-                                <span class="form-check-label">យល់ព្រមលើកាបញ្ចូល<span class="text-danger fw-bold mx-1">*</span></span>
+                                <span class="form-check-label">យល់ព្រមលើកាបញ្ចូល<span
+                                        class="text-danger fw-bold mx-1">*</span></span>
                             </label>
                         </div>
                     </div>
@@ -64,7 +78,9 @@
                                 <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
                             </div>
                             <div class="col">
-                                <button type="submit" class="btn w-100 btn-primary ms-auto">បញ្ចូន</button>
+                                <button type="submit" class="btn w-100 btn-primary ms-auto">
+                                    បញ្ចូន
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -85,10 +101,13 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="start_date" class="form-label">កាលបរិច្ឆេទ<span class="text-danger mx-1 fw-bold">*</span></label>
+                        <label for="start_date" class="form-label">កាលបរិច្ឆេទ<span
+                                class="text-danger mx-1 fw-bold">*</span></label>
                         <div class="input-icon">
                             <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                     <rect x="4" y="5" width="16" height="16" rx="2"></rect>
                                     <line x1="16" y1="3" x2="16" y2="7"></line>
@@ -97,32 +116,42 @@
                                     <rect x="8" y="15" width="2" height="2"></rect>
                                 </svg>
                             </span>
-                            <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទចាប់ពី" class="form-control date-picker" name="date">
+                            <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទចាប់ពី"
+                                class="form-control date-picker" name="date">
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="end_date" class="form-label">ម៉ោង<span class="text-danger mx-1 fw-bold">*</span></label>
+                        <label for="end_date" class="form-label">ម៉ោង<span
+                                class="text-danger mx-1 fw-bold">*</span></label>
                         <div class="input-icon">
                             <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-12">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-clock-12">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                     <path d="M3 12a9 9 0 0 0 9 9m9 -9a9 9 0 1 0 -18 0" />
                                     <path d="M12 7v5l.5 .5" />
-                                    <path d="M18 15h2a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-1a1 1 0 0 0 -1 1v1a1 1 0 0 0 1 1h2" />
+                                    <path
+                                        d="M18 15h2a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-1a1 1 0 0 0 -1 1v1a1 1 0 0 0 1 1h2" />
                                     <path d="M15 21v-6" />
                                 </svg>
                             </span>
-                            <input type="text" autocomplete="off" value="17:30" placeholder="ម៉ោង" class="form-control time-picker" id="time" name="time">
+                            <input type="text" autocomplete="off" value="17:30" placeholder="ម៉ោង"
+                                class="form-control time-picker" id="time" name="time">
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="reason" class="form-label">មូលហេតុ<span class="text-danger mx-1 fw-bold">*</span></label>
-                        <textarea autocomplete="off" placeholder="មូលហេតុ" class="form-control" id="reason" name="reason"><?= htmlspecialchars($_POST['reason'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                        <label for="reason" class="form-label">មូលហេតុ<span
+                                class="text-danger mx-1 fw-bold">*</span></label>
+                        <textarea autocomplete="off" placeholder="មូលហេតុ" class="form-control" id="reason"
+                            name="reason"><?= htmlspecialchars($_POST['reason'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-check cursor-pointer">
                             <input class="form-check-input" type="checkbox" name="agree" <?= isset($_POST['agree']) ? 'checked' : ''; ?>>
-                            <span class="form-check-label">យល់ព្រមលើកាបញ្ចូល<span class="text-danger fw-bold mx-1">*</span></span>
+                            <span class="form-check-label">យល់ព្រមលើកាបញ្ចូល<span
+                                    class="text-danger fw-bold mx-1">*</span></span>
                         </label>
                     </div>
                 </div>
@@ -154,10 +183,13 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="leftbefore" class="form-label">កាលបរិច្ឆេទ<span class="text-danger mx-1 fw-bold">*</span></label>
+                        <label for="leftbefore" class="form-label">កាលបរិច្ឆេទ<span
+                                class="text-danger mx-1 fw-bold">*</span></label>
                         <div class="input-icon">
                             <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                     <rect x="4" y="5" width="16" height="16" rx="2"></rect>
                                     <line x1="16" y1="3" x2="16" y2="7"></line>
@@ -166,32 +198,41 @@
                                     <rect x="8" y="15" width="2" height="2"></rect>
                                 </svg>
                             </span>
-                            <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទ" class="form-control date-picker" id="leftbefore" name="date">
+                            <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទ"
+                                class="form-control date-picker" id="leftbefore" name="date">
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">ម៉ោង<span class="text-danger mx-1 fw-bold">*</span></label>
                         <div class="input-icon">
                             <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-12">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-clock-12">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                     <path d="M3 12a9 9 0 0 0 9 9m9 -9a9 9 0 1 0 -18 0" />
                                     <path d="M12 7v5l.5 .5" />
-                                    <path d="M18 15h2a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-1a1 1 0 0 0 -1 1v1a1 1 0 0 0 1 1h2" />
+                                    <path
+                                        d="M18 15h2a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-1a1 1 0 0 0 -1 1v1a1 1 0 0 0 1 1h2" />
                                     <path d="M15 21v-6" />
                                 </svg>
                             </span>
-                            <input type="text" autocomplete="off" value="16:00" placeholder="ម៉ោង" class="form-control time-picker" id="time" name="time">
+                            <input type="text" autocomplete="off" value="16:00" placeholder="ម៉ោង"
+                                class="form-control time-picker" id="time" name="time">
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="reason" class="form-label">មូលហេតុ<span class="text-danger mx-1 fw-bold">*</span></label>
-                        <textarea autocomplete="off" placeholder="មូលហេតុ" class="form-control" id="reason" name="reason"><?= htmlspecialchars($_POST['reason'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                        <label for="reason" class="form-label">មូលហេតុ<span
+                                class="text-danger mx-1 fw-bold">*</span></label>
+                        <textarea autocomplete="off" placeholder="មូលហេតុ" class="form-control" id="reason"
+                            name="reason"><?= htmlspecialchars($_POST['reason'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-check cursor-pointer">
                             <input class="form-check-input" type="checkbox" name="agree" <?= isset($_POST['agree']) ? 'checked' : ''; ?>>
-                            <span class="form-check-label">យល់ព្រមលើកាបញ្ចូល<span class="text-danger fw-bold mx-1">*</span></span>
+                            <span class="form-check-label">យល់ព្រមលើកាបញ្ចូល<span
+                                    class="text-danger fw-bold mx-1">*</span></span>
                         </label>
                     </div>
                 </div>
@@ -223,10 +264,12 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label date-picker">ឈ្មោះបេសកកម្ម</label>
+                        <label class="form-label">ឈ្មោះបេសកកម្ម</label>
                         <div class="input-icon">
                             <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                     <rect x="4" y="5" width="16" height="16" rx="2"></rect>
                                     <line x1="16" y1="3" x2="16" y2="7"></line>
@@ -235,14 +278,18 @@
                                     <rect x="8" y="15" width="2" height="2"></rect>
                                 </svg>
                             </span>
-                            <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទ" class="form-control" id="mission_start" name="mission_name">
+                            <input type="text" autocomplete="off" placeholder="ឈ្មោះបេសកកម្ម" class="form-control"
+                                id="mission_start" name="mission_name">
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="mission_start" class="form-label date-picker">កាលបរិច្ឆេទចាប់ពី<span class="text-danger mx-1 fw-bold">*</span></label>
+                        <label class="form-label">កាលបរិច្ឆេទចាប់ពី<span
+                                class="text-danger mx-1 fw-bold">*</span></label>
                         <div class="input-icon">
                             <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                     <rect x="4" y="5" width="16" height="16" rx="2"></rect>
                                     <line x1="16" y1="3" x2="16" y2="7"></line>
@@ -251,41 +298,55 @@
                                     <rect x="8" y="15" width="2" height="2"></rect>
                                 </svg>
                             </span>
-                            <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទ" class="form-control date-picker" name="start_date">
+                            <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទ"
+                                class="form-control date-picker" name="start_date">
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="mission_end" class="form-label date-picker">ដល់កាលបរិចេ្ឆទ<span class="text-danger mx-1 fw-bold">*</span></label>
+                        <label class="form-label">ដល់កាលបរិចេ្ឆទ<span
+                                class="text-danger mx-1 fw-bold">*</span></label>
                         <div class="input-icon">
                             <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-12">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-clock-12">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                     <path d="M3 12a9 9 0 0 0 9 9m9 -9a9 9 0 1 0 -18 0" />
                                     <path d="M12 7v5l.5 .5" />
-                                    <path d="M18 15h2a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-1a1 1 0 0 0 -1 1v1a1 1 0 0 0 1 1h2" />
+                                    <path
+                                        d="M18 15h2a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-1a1 1 0 0 0 -1 1v1a1 1 0 0 0 1 1h2" />
                                     <path d="M15 21v-6" />
                                 </svg>
                             </span>
-                            <input type="text" autocomplete="off" placeholder="ដល់កាលបរិចេ្ឆទ" class="form-control date-picker" name="end_date">
+                            <input type="text" autocomplete="off" placeholder="ដល់កាលបរិចេ្ឆទ"
+                                class="form-control date-picker" name="end_date">
                         </div>
                     </div>
                     <div class="mb-3">
                         <label for="createMissionDoc" class="form-label">ឯកសារភ្ជាប់</label>
-                        <label id="createMissionName" for="createMissionDoc" class="btn w-100 text-start p-3 flex-column text-muted bg-light">
+                        <label id="createMissionName" for="createMissionDoc"
+                            class="btn w-100 text-start p-3 flex-column text-muted bg-light">
                             <span class="p-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-signature mx-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-signature mx-0">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M3 17c3.333 -3.333 5 -6 5 -8c0 -3 -1 -3 -2 -3s-2.032 1.085 -2 3c.034 2.048 1.658 4.877 2.5 6c1.5 2 2.5 2.5 3.5 1l2 -3c.333 2.667 1.333 4 3 4c.53 0 2.639 -2 3 -2c.517 0 1.517 .667 3 2" />
+                                    <path
+                                        d="M3 17c3.333 -3.333 5 -6 5 -8c0 -3 -1 -3 -2 -3s-2.032 1.085 -2 3c.034 2.048 1.658 4.877 2.5 6c1.5 2 2.5 2.5 3.5 1l2 -3c.333 2.667 1.333 4 3 4c.53 0 2.639 -2 3 -2c.517 0 1.517 .667 3 2" />
                                 </svg>
                             </span>
                             <span>ឯកសារភ្ជាប់</span>
                         </label>
-                        <input type="file" name="missionDoc" id="createMissionDoc" accept=".pdf, .docx, .xlsx" required hidden onchange="displayFileName('createMissionDoc', 'createMissionName')" />
+                        <input type="file" name="missionDoc" id="createMissionDoc" accept=".pdf, .docx, .xlsx" required
+                            hidden onchange="displayFileName('createMissionDoc', 'createMissionName')" />
                     </div>
                     <div class="mb-3">
                         <label class="form-check cursor-pointer">
                             <input class="form-check-input" type="checkbox" name="agree" <?= isset($_POST['agree']) ? 'checked' : ''; ?>>
-                            <span class="form-check-label">យល់ព្រមលើកាបញ្ចូល<span class="text-danger fw-bold mx-1">*</span></span>
+                            <span class="form-check-label">យល់ព្រមលើកាបញ្ចូល<span
+                                    class="text-danger fw-bold mx-1">*</span></span>
                         </label>
                     </div>
                 </div>
@@ -325,9 +386,54 @@
 <!-- datatables  -->
 <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+
+<!-- spinner button  -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Select all forms
+        const forms = document.querySelectorAll('form');
+
+        forms.forEach(function (form) {
+            // Attach event listener for form submission
+            form.addEventListener('submit', function (event) {
+                const submitBtn = form.querySelector('button[type="submit"]');
+
+                // Check if the spinner already exists; if not, create and append it
+                if (!submitBtn.querySelector('.spinner-border')) {
+                    const spinner = document.createElement('span');
+                    spinner.classList.add('spinner-border', 'spinner-border-sm', 'mx-2');
+                    spinner.setAttribute('role', 'status');
+                    spinner.setAttribute('aria-hidden', 'true');
+                    spinner.style.display = 'none';
+                    submitBtn.appendChild(spinner);
+                }
+
+                // Show the spinner
+                const spinner = submitBtn.querySelector('.spinner-border');
+                spinner.style.display = 'inline-block';
+
+                // Disable the button after a slight delay to allow form submission
+                setTimeout(function () {
+                    submitBtn.setAttribute('disabled', 'true');
+                }, 50); // Delay the button disable by 50ms, giving the form time to submit
+            });
+        });
+    });
+</script>
+<!-- Script to hide the loader with delay -->
+<script>
+    window.addEventListener('load', function () {
+        // Add a delay before removing the loader
+        setTimeout(function () {
+            var loader = document.getElementById('loader-wrapper');
+            document.body.classList.remove('loading');
+            loader.style.display = 'none';
+        }, 500); // Delay for 0.5 second (500 milliseconds)
+    });
+</script>
 <!-- end  -->
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         window.Litepicker && new Litepicker({
             element: document.getElementById("datepicker-inline"),
             buttonText: {
@@ -351,7 +457,7 @@
 </script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         // Check if element exists before initializing TomSelect
         const leaveTypeElement = document.getElementById("leave_type");
         if (leaveTypeElement) {
@@ -361,12 +467,12 @@
                 optionClass: "dropdown-item",
                 controlInput: "<input>",
                 render: {
-                    item: function(data, escape) {
+                    item: function (data, escape) {
                         return data.customProperties ?
                             `<div><span class="dropdown-item-indicator">${data.customProperties}</span>${escape(data.text)}</div>` :
                             `<div>${escape(data.text)}</div>`;
                     },
-                    option: function(data, escape) {
+                    option: function (data, escape) {
                         return data.customProperties ?
                             `<div><span class="dropdown-item-indicator">${data.customProperties}</span>${escape(data.text)}</div>` :
                             `<div>${escape(data.text)}</div>`;
@@ -374,7 +480,7 @@
                 },
             });
 
-            leaveTypeElement.addEventListener('change', function() {
+            leaveTypeElement.addEventListener('change', function () {
                 const selectedOption = this.options[this.selectedIndex];
                 const leaveTypeName = selectedOption.getAttribute('data-leave-name');
                 document.getElementById('leave_type_name').value = leaveTypeName;
@@ -438,7 +544,7 @@
 
 <script>
     // @formatter:off
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         var el;
         window.TomSelect && (new TomSelect(el = document.getElementById('select-status'), {
             copyClassesToDropdown: false,
@@ -446,13 +552,13 @@
             optionClass: 'dropdown-item',
             controlInput: '<input>',
             render: {
-                item: function(data, escape) {
+                item: function (data, escape) {
                     if (data.customProperties) {
                         return '<div><span class="dropdown-item-indicator">' + data.customProperties + '</span>' + escape(data.text) + '</div>';
                     }
                     return '<div>' + escape(data.text) + '</div>';
                 },
-                option: function(data, escape) {
+                option: function (data, escape) {
                     if (data.customProperties) {
                         return '<div><span class="dropdown-item-indicator">' + data.customProperties + '</span>' + escape(data.text) + '</div>';
                     }

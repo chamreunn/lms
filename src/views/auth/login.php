@@ -122,7 +122,8 @@
         }
     </style>
 </head>
-<?php include ('src/common/alert.php'); ?>
+<?php include('src/common/alert.php'); ?>
+
 <body class="border-top-wide border-primary d-flex flex-column">
     <script src="public/dist/js/demo-theme.min.js?1668287865"></script>
     <div class="background-image"></div>
@@ -142,29 +143,42 @@
                         <div class="card card-md rounded">
                             <div class="card-body">
                                 <div class="text-center mb-1">
-                                    <a href="." class="navbar-brand navbar-brand-autodark"><img src="public/img/icons/brands/logo2.png" height="80" alt=""></a>
+                                    <a href="." class="navbar-brand navbar-brand-autodark"><img
+                                            src="public/img/icons/brands/logo2.png" height="80" alt=""></a>
                                 </div>
                                 <h2 class="h2 text-center mb-3">ចូលប្រព័ន្ធ</h2>
                                 <form action="/elms/login" method="POST" autocomplete="off" novalidate>
                                     <div class="mb-3">
-                                        <label class="form-label">ឈ្មោះមន្ត្រី ឬអាសយដ្ឋានអ៊ីមែល<span class="text-danger fw-bold mx-1">*</span></label>
-                                        <input type="email" style="font-family: system-ui, 'khmer mef1', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;" class="form-control" name="email" placeholder="ឈ្មោះមន្ត្រី ឬអាសយដ្ឋានអ៊ីមែល" value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" autofocus autocomplete="on">
+                                        <label class="form-label">ឈ្មោះមន្ត្រី ឬអាសយដ្ឋានអ៊ីមែល<span
+                                                class="text-danger fw-bold mx-1">*</span></label>
+                                        <input type="email"
+                                            style="font-family: system-ui, 'khmer mef1', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;"
+                                            class="form-control" name="email"
+                                            placeholder="ឈ្មោះមន្ត្រី ឬអាសយដ្ឋានអ៊ីមែល"
+                                            value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                            autofocus autocomplete="on">
                                     </div>
                                     <div class="mb-2">
                                         <label class="form-label">
                                             ពាក្យសម្ងាត់<span class="text-danger fw-bold mx-1">*</span>
-                                            <span class="form-label-description">
-                                                <a class="mef1" href="/elms/forgot-password" style="font-family: 'Khmer MEF1'">ភ្លេចពាក្យសម្ងាត់ ?</a>
-                                            </span>
                                         </label>
                                         <div class="input-group input-group-flat">
-                                            <input type="password" style="font-family: system-ui, 'khmer mef1', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;" class="form-control" name="password" value="<?php echo htmlspecialchars($_POST['password'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="ពាក្យសម្ងាត់" autocomplete="off" id="password">
+                                            <input type="password"
+                                                style="font-family: system-ui, 'khmer mef1', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;"
+                                                class="form-control" name="password"
+                                                value="<?php echo htmlspecialchars($_POST['password'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                placeholder="ពាក្យសម្ងាត់" autocomplete="off" id="password">
                                             <span class="input-group-text">
-                                                <a href="#" class="link-secondary" title="Show password" data-bs-toggle="tooltip" onclick="togglePasswordVisibility()">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <a href="#" class="link-secondary" title="Show password"
+                                                    data-bs-toggle="tooltip" onclick="togglePasswordVisibility()">
+                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                        class="icon icon-tabler icon-tabler-eye" width="24" height="24"
+                                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                         <circle cx="12" cy="12" r="2" />
-                                                        <path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" />
+                                                        <path
+                                                            d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" />
                                                     </svg>
                                                 </a>
                                             </span>
@@ -196,6 +210,38 @@
     <script src="public/dist/js/tabler.min.js?1668287865" defer></script>
     <script src="public/dist/js/demo.min.js?1668287865" defer></script>
 </body>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Select all forms
+        const forms = document.querySelectorAll('form');
+
+        forms.forEach(function (form) {
+            // Attach event listener for form submission
+            form.addEventListener('submit', function (event) {
+                const submitBtn = form.querySelector('button[type="submit"]');
+
+                // Check if the spinner already exists; if not, create and append it
+                if (!submitBtn.querySelector('.spinner-border')) {
+                    const spinner = document.createElement('span');
+                    spinner.classList.add('spinner-border', 'spinner-border-sm', 'mx-2');
+                    spinner.setAttribute('role', 'status');
+                    spinner.setAttribute('aria-hidden', 'true');
+                    spinner.style.display = 'none';
+                    submitBtn.appendChild(spinner);
+                }
+
+                // Show the spinner
+                const spinner = submitBtn.querySelector('.spinner-border');
+                spinner.style.display = 'inline-block';
+
+                // Disable the button after a slight delay to allow form submission
+                setTimeout(function () {
+                    submitBtn.setAttribute('disabled', 'true');
+                }, 50); // Delay the button disable by 50ms, giving the form time to submit
+            });
+        });
+    });
+</script>
 <script>
     if (window.history.replaceState) {
         window.history.replaceState(null, null, window.location.href);
