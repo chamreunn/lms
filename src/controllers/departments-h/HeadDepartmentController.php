@@ -102,7 +102,7 @@ class HeadDepartmentController
 
             // Fetch office details based on department
             $userDoffice = null;
-            if (in_array($department, ["កិច្ចការទូទៅ", "នាយកដ្ឋានសវនកម្មទី២"])) {
+            if (in_array($department, ["នាយកដ្ឋានកិច្ចការទូទៅ", "នាយកដ្ឋានសវនកម្មទី២"])) {
                 // Fetch the user's Unit details
                 $userDoffice = $userModel->getEmailLeaderDHU1Api($user_id, $token);
             } else {
