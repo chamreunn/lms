@@ -31,7 +31,7 @@ class MissionController
             $mission = "1" ?? "NULL";
 
             // Handle file upload
-            $attachment_name = $this->handleFileUpload($_FILES['missionDoc'], ['docx', 'pdf'], 2097152, 'public/uploads/missions_attachments/');
+            $attachment_name = $this->handleFileUpload($_FILES['missionDoc'], ['docx', 'pdf'], 5097152, 'public/uploads/missions_attachments/');
             if ($attachment_name === false) {
                 $_SESSION['error'] = [
                     'title' => "ឯកសារភ្ជាប់",
@@ -177,7 +177,7 @@ class MissionController
         require 'src/views/missions/index.php';
     }
 
-    private function handleFileUpload($file, $allowed_extensions, $max_size, $upload_path)
+    public function handleFileUpload($file, $allowed_extensions, $max_size, $upload_path)
     {
         $file_name = $file['name'];
         $file_tmp_name = $file['tmp_name'];
