@@ -493,7 +493,7 @@ class HeadDepartmentController
 
                 if ($departmentName) {
                     // Determine the appropriate API based on department name
-                    if (in_array($departmentName, ["កិច្ចការទូទៅ", "នាយកដ្ឋានសវនកម្មទី២"])) {
+                    if (in_array($departmentName, ["នាយកដ្ឋានកិច្ចការទូទៅ", "នាយកដ្ឋានសវនកម្មទី២"])) {
                         $userDoffice = $userModel->getEmailLeaderDHU1Api($_SESSION['user_id'], $_SESSION['token']);
                     } else {
                         $userDoffice = $userModel->getEmailLeaderDHU2Api($_SESSION['user_id'], $_SESSION['token']);
