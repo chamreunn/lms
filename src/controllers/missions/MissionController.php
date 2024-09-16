@@ -58,7 +58,7 @@ class MissionController
                 $createActivityResult = $userModel->logUserActivity($user_id, $activity);
 
                 // Check if both operations were successful
-                if ($createMissionResult && $createActivityResult) {
+                if ($createMissionResult) {
                     // Commit transaction
                     $this->pdo->commit();
                     $updateToApi = $userModel->updateMissionToApi($user_id, $start_date, $end_date, $mission, $_SESSION['token']);
