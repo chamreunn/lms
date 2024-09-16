@@ -282,13 +282,14 @@ $action = $_GET['action'] ?? 'latein';
                                     <div class="text-muted h4">មិនទាន់មានសំណើនៅឡើយ។</div>
                                 </div>
                             <?php else: ?>
-                                <?php foreach ($getAlls as $request): ?>
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h3 class="card-title text-primary mb-0">
-                                                <span>ចេញមុន</span>
-                                            </h3>
-                                        </div>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title text-primary mb-0">
+                                            <span>ចេញមុន</span>
+                                        </h3>
+                                    </div>
+                                    <?php foreach ($getAlls as $request): ?>
+
                                         <div class="list-group list-group-flush">
                                             <a href="viewLateDetail?<?= $request['id'] ?>"
                                                 class="list-group-item list-group-item-action" aria-current="true">
@@ -308,8 +309,9 @@ $action = $_GET['action'] ?? 'latein';
                                                 </div>
                                             </a>
                                         </div>
-                                    </div>
-                                <?php endforeach; ?>
+
+                                    <?php endforeach; ?>
+                                </div>
                             <?php endif; ?>
                         </ul>
 
