@@ -125,8 +125,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     <?php endif; ?>
 </div>
 
-
-
 <div class="row row-card">
     <div class="col-12 mb-3">
         <div class="row row-cards">
@@ -378,7 +376,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <path d="M12 7v5l2.5 2.5" />
                 </svg>
             </div>
-            <strong class="mt-2">លិខិតចូលយឺត</strong>
+            <strong class="mt-2">សំណើចូលយឺត</strong>
         </a>
     </div>
 
@@ -400,7 +398,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <path d="M19 16a3 3 0 1 0 2 5.236" />
                 </svg>
             </div>
-            <strong class="mt-2">លិខិតចេញយឺត</strong>
+            <strong class="mt-2">សំណើចេញយឺត</strong>
         </a>
     </div>
 
@@ -419,7 +417,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <path d="M12 7v5l3 3" />
                 </svg>
             </div>
-            <strong class="mt-2">លិខិតចេញមុន</strong>
+            <strong class="mt-2">សំណើចេញមុន</strong>
         </a>
     </div>
 

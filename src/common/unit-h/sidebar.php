@@ -1,4 +1,6 @@
-<?php $current_page = basename($_SERVER['REQUEST_URI']); ?>
+<?php
+$current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+?>
 <div class="navbar-expand-md">
     <div class="collapse navbar-collapse" id="navbar-menu">
         <div class="navbar navbar-light">

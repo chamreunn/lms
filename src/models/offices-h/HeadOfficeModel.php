@@ -1056,7 +1056,7 @@ class HeadOfficeModel
                         <p><strong>ចាប់ពីថ្ងៃ :</strong> $start_date_formatted</p>
                         <p><strong>ដល់ថ្ងៃ​ :</strong> $end_date_formatted</p>
                         <p><strong>មូលហេតុ :</strong> $remarks</p>
-                        <a href='http://localhost/elms/view-leave-detail?leave_id={$leaveRequestId}' class='btn'>ចុចទីនេះ</a>
+                        <a href='https://leave.iauoffsa.us/elms/view-leave-detail?leave_id={$leaveRequestId}' class='btn'>ចុចទីនេះ</a>
                     </div>
                     <div class='footer'>
                         <p>&copy; " . date("Y") . " Leave Management System. All rights reserved.</p>

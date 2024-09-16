@@ -149,12 +149,12 @@
                                 <h2 class="h2 text-center mb-3">ចូលប្រព័ន្ធ</h2>
                                 <form action="/elms/login" method="POST" autocomplete="off" novalidate>
                                     <div class="mb-3">
-                                        <label class="form-label">ឈ្មោះមន្ត្រី ឬអាសយដ្ឋានអ៊ីមែល<span
+                                        <label class="form-label">អាសយដ្ឋានអ៊ីមែល<span
                                                 class="text-danger fw-bold mx-1">*</span></label>
                                         <input type="email"
                                             style="font-family: system-ui, 'khmer mef1', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;"
                                             class="form-control" name="email"
-                                            placeholder="ឈ្មោះមន្ត្រី ឬអាសយដ្ឋានអ៊ីមែល"
+                                            placeholder="ឬអាសយដ្ឋានអ៊ីមែល"
                                             value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                             autofocus autocomplete="on">
                                     </div>

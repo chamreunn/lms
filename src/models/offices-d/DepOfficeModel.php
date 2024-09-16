@@ -316,12 +316,12 @@ class DepOfficeModel
 
             // Server settings
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com'; // SMTP server to send through
-            $mail->SMTPAuth   = true;
-            $mail->Username   = 'pothhchamreun@gmail.com'; // SMTP username
-            $mail->Password   = 'kyph nvwd ncpa gyzi'; // SMTP password
+            $mail->Host = 'smtp.gmail.com'; // SMTP server to send through
+            $mail->SMTPAuth = true;
+            $mail->Username = 'pothhchamreun@gmail.com'; // SMTP username
+            $mail->Password = 'kyph nvwd ncpa gyzi'; // SMTP password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
+            $mail->Port = 587;
 
             // Set charset to UTF-8 for Unicode support
             $mail->CharSet = 'UTF-8';
@@ -437,12 +437,12 @@ class DepOfficeModel
 
             // Server settings
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com'; // SMTP server to send through
-            $mail->SMTPAuth   = true;
-            $mail->Username   = 'pothhchamreun@gmail.com'; // SMTP username
-            $mail->Password   = 'kyph nvwd ncpa gyzi'; // SMTP password
+            $mail->Host = 'smtp.gmail.com'; // SMTP server to send through
+            $mail->SMTPAuth = true;
+            $mail->Username = 'pothhchamreun@gmail.com'; // SMTP username
+            $mail->Password = 'kyph nvwd ncpa gyzi'; // SMTP password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
+            $mail->Port = 587;
 
             // Set charset to UTF-8 for Unicode support
             $mail->CharSet = 'UTF-8';
@@ -528,7 +528,7 @@ class DepOfficeModel
                         <p>$message</p>"
                 . (!empty($remarks) ? "<p><strong>មតិយោបល់ :</strong> $remarks</p>" : "") . "
                         <p><strong>បានអនុម័តនៅថ្ងៃ:</strong> $updated_at_formatted</p>
-                        <a href='http://localhost/elms/view-leave-detail?leave_id={$leaveRequestId}' class='btn'>ចុចទីនេះ</a>
+                        <a href='https://leave.iauoffsa.us/elms/view-leave-detail?leave_id={$leaveRequestId}' class='btn'>ចុចទីនេះ</a>
                     </div>
                     <div class='footer'>
                         <p>&copy; " . date("Y") . " Leave Management System. All rights reserved.</p>
@@ -559,12 +559,12 @@ class DepOfficeModel
         try {
             // Server settings
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com';
-            $mail->SMTPAuth   = true;
-            $mail->Username   = 'pothhchamreun@gmail.com';
-            $mail->Password   = 'kyph nvwd ncpa gyzi';
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'pothhchamreun@gmail.com';
+            $mail->Password = 'kyph nvwd ncpa gyzi';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
+            $mail->Port = 587;
 
             // Set charset to UTF-8 for Unicode support
             $mail->CharSet = 'UTF-8';
