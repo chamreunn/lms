@@ -214,9 +214,20 @@ class MissionController
             return false;
         }
 
+        // Ensure upload directory exists
+        if (!is_dir($upload_path)) {
+            if (!mkdir($upload_path, 0755, true)) {
+                $_SESSION['error'] = [
+                    'title' => "File Error",
+                    'message' => "Failed to create upload directory."
+                ];
+                return false;
+            }
+        }
+
         // Preserve the original file name with a unique suffix to avoid overwriting
         $unique_file_name = pathinfo($file_name, PATHINFO_FILENAME) . '_' . uniqid('', true) . '.' . $file_ext;
-        $destination = $upload_path . $unique_file_name;
+        $destination = $upload_path . DIRECTORY_SEPARATOR . $unique_file_name;
 
         if (move_uploaded_file($file_tmp_name, $destination)) {
             return $unique_file_name;
@@ -228,6 +239,7 @@ class MissionController
             return false;
         }
     }
+
 
     private function calculateTotalDays(DateTime $start_date, DateTime $end_date)
     {
