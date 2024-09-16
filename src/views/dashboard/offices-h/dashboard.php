@@ -176,7 +176,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                             </div>
                             <div class="col">
                                 <div class="font-weight-medium">
-                                    លិខិតចូលយឺត
+                                    សំណើចូលយឺត
                                 </div>
                                 <div class="text-green fw-bolder">
                                     <?= $getovertimeincounts . "លិខិត" ?? "" ?>
@@ -223,7 +223,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                             </div>
                             <div class="col">
                                 <div class="font-weight-medium">
-                                    លិខិតចេញយឺត
+                                    សំណើចេញយឺត
                                 </div>
                                 <div class="text-warning fw-bolder">
                                     <?= $getovertimeoutcounts . "លិខិត" ?? "" ?>
