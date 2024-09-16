@@ -189,6 +189,7 @@ class LateController
         $date = trim($date);
         $time = trim($time);
         $reason = trim($reason);
+        $userId = $_SESSION['user_id'];
 
         // Basic validation
         if (empty($date)) {
@@ -266,6 +267,11 @@ class LateController
             $userModel = new User();
             $adminEmails = $userModel->getAdminEmails($_SESSION['token']);
 
+            // Fetch the user's name using the user ID and session token
+            $userInfo = $userModel->getUserByIdApi($userId, $_SESSION['token']);
+            $userNameKh = $userInfo['data']['lastNameKh'] . ' ' . $userInfo['data']['firstNameKh']; // Combining first and last name in Khmer
+
+            // Check if fetching the admin emails was successful
             if (!$adminEmails || $adminEmails['http_code'] !== 200 || empty($adminEmails['emails'])) {
                 throw new Exception("Unable to fetch admin emails.");
             }
@@ -273,13 +279,13 @@ class LateController
             // Use the first admin email or handle multiple emails as needed
             $adminEmail = $adminEmails['emails'][0];
 
-            // Send email notification
-            if (!$this->sendEmailNotification($adminEmail, $date, $time, $lateMinutes, $reason)) {
+            // Send email notification to the admin, including the user's Khmer name
+            if (!$this->sendEmailNotification($userNameKh, $adminEmail, $date, $time, $lateMinutes, $reason)) {
                 throw new Exception("Notification email could not be sent.");
             }
 
             // Apply the late-in request to the database
-            $lateModel->applyLateIn($date, $time, $lateMinutes, $reason);
+            $lateModel->applyLateIn($userId, $date, $time, $lateMinutes, $reason);
 
             // Commit transaction after success
             $lateModel->commitTransaction();
@@ -316,6 +322,7 @@ class LateController
         $date = trim($date);
         $time = trim($time);
         $reason = trim($reason);
+        $userId = $_SESSION['user_id'];
 
         // Check if date field is empty
         if (empty($date)) {
@@ -391,6 +398,7 @@ class LateController
         $userModel = new User();
         // Fetch the admin emails
         $adminEmails = $userModel->getAdminEmails($_SESSION['token']);
+        $userName = $userModel->getUserByIdApi($userId, $_SESSION['token']);
 
         if (!$adminEmails || $adminEmails['http_code'] !== 200 || empty($adminEmails['emails'])) {
             error_log("API Response: " . print_r($adminEmails, true));
@@ -421,7 +429,7 @@ class LateController
 
         try {
 
-            if (!$this->sendEmailNotification($adminEmail, $date, $time, $lateMinutes, $reason)) {
+            if (!$this->sendEmailNotification($userName['firstNameKh'], $adminEmail, $date, $time, $lateMinutes, $reason)) {
                 $_SESSION['error'] = [
                     'title' => "Email Error",
                     'message' => "Notification email could not be sent. Please try again.$adminEmail"
@@ -455,6 +463,7 @@ class LateController
         $date = trim($date);
         $time = trim($time);
         $reason = trim($reason);
+        $userId = $_SESSION['user_id'];
 
         // Check if date field is empty
         if (empty($date)) {
@@ -534,6 +543,8 @@ class LateController
         $userModel = new User();
         // Fetch the admin emails
         $adminEmails = $userModel->getAdminEmails($_SESSION['token']);
+        $userName = $userModel->getUserByIdApi($userId, $_SESSION['token']);
+
 
         if (!$adminEmails || $adminEmails['http_code'] !== 200 || empty($adminEmails['emails'])) {
             error_log("API Response: " . print_r($adminEmails, true));
@@ -552,7 +563,7 @@ class LateController
 
         try {
 
-            if (!$this->sendEmailNotification($adminEmail, $date, $time, $lateMinutes, $reason)) {
+            if (!$this->sendEmailNotification($userName['firstNameKh'], $adminEmail, $date, $time, $lateMinutes, $reason)) {
                 $_SESSION['error'] = [
                     'title' => "Email Error",
                     'message' => "Notification email could not be sent. Please try again.$adminEmail"
@@ -564,7 +575,7 @@ class LateController
 
             $_SESSION['success'] = [
                 'title' => "លិខិតចេញយឺត",
-                'message' => "អ្នកបានយឺតចំនួន {$lateMinutes} នាទី។ សំណើបានបញ្ជូនទៅកាន់ " . $adminEmail . " សូមមេត្តារង់ចាំ។ សូមអរគុណ។"
+                'message' => "អ្នកបានចេញមុនចំនួន {$lateMinutes} នាទី។ សំណើបានបញ្ជូនទៅកាន់ " . $adminEmail . " សូមមេត្តារង់ចាំ។ សូមអរគុណ។"
             ];
             header("Location: /elms/leaveearly");
             exit();
@@ -580,7 +591,7 @@ class LateController
         exit();
     }
 
-    private function sendEmailNotification($adminEmail, $date, $time, $lateMinutes, $reason)
+    private function sendEmailNotification($userName, $adminEmail, $date, $time, $lateMinutes, $reason)
     {
         $mail = new PHPMailer(true);
 
@@ -619,73 +630,102 @@ class LateController
             $body = "
         <html>
         <head>
-            <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'>
             <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet'>
+            <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'>
             <style>
-                .profile-img {
-                    width: 100px;
-                    height: 100px;
-                    border-radius: 50%;
-                }
                 .container {
                     max-width: 600px;
                     margin: 0 auto;
                     padding: 20px;
-                    border: 1px solid #e2e2e2;
-                    border-radius: 10px;
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                    border: none;
+                    border-radius: 15px;
+                    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+                    background-color: #ffffff;
                 }
                 .header {
-                    background-color: #007bff;
+                    background-color: #17a2b8;
                     color: white;
-                    padding: 10px;
-                    border-radius: 10px 10px 0 0;
+                    padding: 15px;
+                    border-radius: 15px 15px 0 0;
+                    text-align: center;
                 }
-                .icon {
-                    vertical-align: middle;
-                    margin-right: 10px;
+                .header img {
+                    max-height: 50px;
+                    margin-bottom: 10px;
+                }
+                .header h4 {
+                    margin: 0;
+                    font-size: 1.5rem;
                 }
                 .content {
                     padding: 20px;
-                    background-color: #f9f9f9;
+                    background-color: #f4f7f6;
+                    color: #333;
+                }
+                .content p {
+                    font-size: 1rem;
+                    margin-bottom: 10px;
+                }
+                .content .details {
+                    background-color: #e9ecef;
+                    padding: 15px;
+                    border-radius: 10px;
+                    margin-bottom: 15px;
+                }
+                .details p {
+                    margin: 0;
                 }
                 .btn {
                     display: inline-block;
-                    padding: 10px 20px;
-                    margin-top: 10px;
-                    color: white;
-                    background-color: #007bff;
+                    padding: 10px 30px;
+                    color: #ffffff;
+                    background-color: #28a745;
+                    border-radius: 30px;
                     text-decoration: none;
-                    border-radius: 5px;
+                    font-weight: bold;
+                    margin-top: 20px;
+                    transition: background-color 0.3s ease;
+                }
+                .btn:hover {
+                    background-color: #218838;
                 }
                 .footer {
                     padding: 10px;
+                    background-color: #17a2b8;
+                    color: white;
+                    border-radius: 0 0 15px 15px;
                     text-align: center;
-                    background-color: #f1f1f1;
-                    border-radius: 0 0 10px 10px;
+                }
+                .footer p {
+                    margin: 0;
+                    font-size: 0.9rem;
                 }
             </style>
         </head>
         <body>
             <div class='container'>
                 <div class='header'>
-                    <h4><img src='http://localhost/elms/public/img/icons/brands/logo2.png' class='icon' alt='Leave Request' /> Leave Request Notification</h4>
+                    <img src='https://leave.iauoffsa.us/elms/public/img/icons/brands/logo2.png' alt='Logo'>
+                    <h4>សំណើចូលយឺត</h4>
                 </div>
                 <div class='content'>
-                    <p>$reason</p>
-                    <p><strong>រយៈពេល :</strong> $lateMinutes </p>
-                    <p><strong>ចាប់ពីថ្ងៃ :</strong> $date</p>
-                    <p><strong>មូលហេតុ :</strong> $reason</p>
-                    <a href='http://localhost/elms/view-leave-detail?leave_id={}' class='btn'>ចុចទីនេះ</a>
+                    <p>សូមគោរពជូនមន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមាន</p>
+                    <div class='details'>
+                        <p><strong>ឈ្មោះ:</strong> $userName</p>
+                        <p><strong>កាលបរិចេ្ឆទ:</strong> $date</p>
+                        <p><strong>ម៉ោងចូល:</strong> $time នាទី</p>
+                        <p><strong>រយៈពេលយឺត:</strong> $lateMinutes នាទី</p>
+                        <p><strong>មូលហេតុ:</strong> $reason</p>
+                    </div>
+                    <a href='https://leave.iauoffsa.us/elms/view-leave-detail?leave_id={}' class='btn'>ចុចទីនេះដើម្បីអនុម័ត</a>
                 </div>
                 <div class='footer'>
-                    <p>&copy; " . date("Y") . " Leave Management System. All rights reserved.</p>
+                    <p>&copy; <?= date('Y') ?> Leave Management System. All rights reserved.</p>
                 </div>
             </div>
         </body>
         </html>
     ";
-
             $mail->Body = $body;
 
             if ($mail->send()) {

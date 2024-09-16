@@ -64,17 +64,6 @@ class HeadOfficeController
                 exit();
             }
 
-            // Handle file upload for signature
-            $signature_name = $headOfficeModel->handleFileUpload($_FILES['signature'], ['png'], 1048576, 'public/uploads/signatures/');
-            if ($signature_name === false) {
-                $_SESSION['error'] = [
-                    'title' => "ហត្ថលេខា",
-                    'message' => "មិនអាចបញ្ចូលហត្ថលេខាបានទេ។​ សូមព្យាយាមម្តងទៀត"
-                ];
-                header("Location: /elms/apply-leave");
-                exit();
-            }
-
             // Fetch leave type details including duration from database
             $leaveTypeModel = new Leavetype();
             $leaveType = $leaveTypeModel->getLeaveTypeById($leave_type_id);
@@ -136,7 +125,6 @@ class HeadOfficeController
                 $remarks,
                 $duration_days,
                 $attachment_name,
-                $signature_name
             );
 
             if (!$leaveRequestId) {
@@ -255,22 +243,11 @@ class HeadOfficeController
             $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
             $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
-            // Handle file upload for manager's signature
-            $signaturePath = $leaveApproval->handleFileUpload($_FILES['manager_signature'], ['png'], 1048576, 'public/uploads/signatures/');
-            if ($signaturePath === false) {
-                $_SESSION['error'] = [
-                    'title' => "ហត្ថលេខា",
-                    'message' => "មិនអាចបញ្ចូលហត្ថលេខាបានទេ។​ សូមព្យាយាមម្តងទៀត"
-                ];
-                header("Location: /elms/apply-leave");
-                exit();
-            }
-
             // Start transaction
             try {
                 $this->pdo->beginTransaction();
 
-                $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks, $signaturePath);
+                $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks);
 
                 // Fetch office details using API
                 $userModel = new User();

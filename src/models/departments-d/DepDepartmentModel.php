@@ -17,12 +17,12 @@ class DepDepartmentModel
         $this->pdo = $pdo;
     }
 
-    public function create($user_id, $user_email, $leave_type_id, $position, $office, $department, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment, $signature)
+    public function create($user_id, $user_email, $leave_type_id, $position, $office, $department, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment)
     {
         // Prepare and execute the SQL statement
         $stmt = $this->pdo->prepare("
-            INSERT INTO $this->table_name (user_id, uemails, leave_type_id, position, office, department, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, dhead_department, created_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            INSERT INTO $this->table_name (user_id, uemails, leave_type_id, position, office, department, leave_type, start_date, end_date, remarks, num_date, attachment,status, dhead_department, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
         $stmt->execute([
             $user_id,
@@ -37,7 +37,6 @@ class DepDepartmentModel
             $remarks,
             $duration_days,
             $attachment,
-            $signature,
             'Pending',
             'Approved'
         ]);
@@ -556,11 +555,11 @@ class DepDepartmentModel
     {
         // Prepare the SQL statement to count leave requests with the given criteria
         $stmt = $this->pdo->prepare('SELECT COUNT(*) as leave_count FROM leave_requests 
-    WHERE head_office IN (?, ?)
-    AND dhead_department = ?
-    AND position IN (?, ?, ?, ?)
-    AND department = ?
-    AND user_id != ?');
+        WHERE head_office IN (?, ?)
+        AND dhead_department = ?
+        AND position IN (?, ?, ?, ?)
+        AND department = ?
+        AND user_id != ?');
 
         // Execute the query with the session values
         $stmt->execute(['Approved', 'Rejected', 'Pending', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', $_SESSION['departmentName'], $_SESSION['user_id']]);
@@ -612,14 +611,14 @@ class DepDepartmentModel
         return $result['leave_count'] ?? 0; // Return 0 if the count is not found
     }
 
-    public function submitApproval($leave_request_id, $approver_id, $status, $remarks, $signaturePath)
+    public function submitApproval($leave_request_id, $approver_id, $status, $remarks)
     {
         // Insert the approval record with the signature
         $stmt = $this->pdo->prepare(
-            'INSERT INTO leave_approvals (leave_request_id, approver_id, status, remarks, signature, updated_at)
-        VALUES (?, ?, ?, ?, ?, NOW())'
+            'INSERT INTO leave_approvals (leave_request_id, approver_id, status, remarks, updated_at)
+        VALUES (?, ?, ?, ?, NOW())'
         );
-        $stmt->execute([$leave_request_id, $approver_id, $status, $remarks, $signaturePath]);
+        $stmt->execute([$leave_request_id, $approver_id, $status, $remarks]);
 
         // Get the updated_at timestamp
         $stmt = $this->pdo->prepare(

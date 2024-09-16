@@ -17,12 +17,12 @@ class DepOfficeModel
         $this->pdo = $pdo;
     }
 
-    public function create($user_id, $user_email, $leave_type_id, $position, $office, $department, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment, $signature)
+    public function create($user_id, $user_email, $leave_type_id, $position, $office, $department, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment)
     {
         // Prepare and execute the SQL statement
         $stmt = $this->pdo->prepare("
-            INSERT INTO $this->table_name (user_id, uemails, leave_type_id, position, office, department, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, dhead_office, created_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            INSERT INTO $this->table_name (user_id, uemails, leave_type_id, position, office, department, leave_type, start_date, end_date, remarks, num_date, attachment, status, dhead_office, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
         $stmt->execute([
             $user_id,
@@ -37,7 +37,6 @@ class DepOfficeModel
             $remarks,
             $duration_days,
             $attachment,
-            $signature,
             'Pending',
             'Approved'
         ]);
@@ -177,14 +176,14 @@ class DepOfficeModel
         return $results;
     }
 
-    public function submitApproval($leave_request_id, $approver_id, $status, $remarks, $signaturePath)
+    public function submitApproval($leave_request_id, $approver_id, $status, $remarks)
     {
         // Insert the approval record with the signature
         $stmt = $this->pdo->prepare(
-            'INSERT INTO ' . $this->approval . ' (leave_request_id, approver_id, status, remarks, signature, updated_at)
-        VALUES (?, ?, ?, ?, ?, NOW())'
+            'INSERT INTO ' . $this->approval . ' (leave_request_id, approver_id, status, remarks, updated_at)
+        VALUES (?, ?, ?, ?, NOW())'
         );
-        $stmt->execute([$leave_request_id, $approver_id, $status, $remarks, $signaturePath]);
+        $stmt->execute([$leave_request_id, $approver_id, $status, $remarks]);
 
         // Get the updated_at timestamp
         $stmt = $this->pdo->prepare(
@@ -1006,9 +1005,7 @@ class DepOfficeModel
         $stmt = $this->pdo->prepare(
             'SELECT a.*, 
                 a.signature,  -- Include the signature column
-                (SELECT COUNT(*) FROM ' . $this->approval . ' WHERE leave_request_id = ?) AS approval_count
-         FROM leave_approvals a
-         WHERE a.leave_request_id = ?'
+                (SELECT COUNT(*) FROM ' . $this->approval . ' WHERE leave_request_id = ?) AS approval_count FROM leave_approvals a WHERE a.leave_request_id = ? ORDER BY id DESC'
         );
 
         // Execute the query with the leave request ID parameter

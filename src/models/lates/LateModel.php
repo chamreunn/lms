@@ -386,10 +386,10 @@ class LateModel
         return $stmt->execute();
     }
 
-    public function applyLateIn($date, $time, $lateMinutes, $reason)
+    public function applyLateIn($userId, $date, $time, $lateMinutes, $reason)
     {
-        $stmt = $this->pdo->prepare("INSERT INTO late_in_out (user_id, date, late_in, late, reasons) VALUES (:user_id, :date, :time, :late, :reason)");
-        $stmt->execute(['user_id' => $_SESSION['user_id'], 'date' => $date, 'time' => $time, 'late' => $lateMinutes, 'reason' => $reason]);
+        $stmt = $this->pdo->prepare("INSERT INTO $this->table_name (user_id, date, late_in, late, reasons) VALUES (:user_id, :date, :time, :late, :reason)");
+        $stmt->execute(['user_id' => $userId, 'date' => $date, 'time' => $time, 'late' => $lateMinutes, 'reason' => $reason]);
     }
 
     public function applyLateOut($date, $time24, $overtimeoutMinutes, $reason)

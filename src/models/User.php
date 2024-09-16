@@ -223,7 +223,7 @@ class User
 
     public function getAllUserApi($token)
     {
-        $url = 'https://hrms.iauoffsa.us/api/v1/users/';
+        $url = "{$this->api}/api/v1/users/";
 
         // Initialize cURL session
         $ch = curl_init($url);
@@ -1192,6 +1192,124 @@ class User
 
         return [
             'success' => $httpCode === 200, // Adjust based on API documentation
+            'http_code' => $httpCode,
+            'response' => $response
+        ];
+    }
+
+    public function updateLateInToApi($uId, $checkIn, $lateIn, $token)
+    {
+        $url = "{$this->api}/api/v1/lates";
+
+        // Prepare the data for the POST request
+        $data = [
+            'uid' => $uId,
+            'date' => $checkIn,
+            'lateIn' => $lateIn,
+        ];
+
+        // Encode the data to JSON format
+        $jsonData = json_encode($data);
+
+        // Initialize cURL session
+        $ch = curl_init($url);
+
+        // Set cURL options
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST"); // Specify the HTTP request method as POST
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $token, // Attach the token for authorization
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+
+        // Ignore SSL certificate verification (use only for development, not production)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+        // Execute the cURL request
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        // Check for cURL errors
+        if (curl_errno($ch)) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            return [
+                'success' => false,
+                'error' => $error,
+                'http_code' => $httpCode,
+                'response' => $response
+            ];
+        }
+
+        // Close the cURL session
+        curl_close($ch);
+
+        // Check for success based on HTTP code (2xx series for success)
+        $isSuccess = $httpCode >= 200 && $httpCode < 300;
+
+        return [
+            'success' => $isSuccess,
+            'http_code' => $httpCode,
+            'response' => $response
+        ];
+    }
+
+    public function updateLateOutToApi($uId, $checkOut, $lateOut, $token)
+    {
+        $url = "{$this->api}/api/v1/lates";
+
+        // Prepare the data for the POST request
+        $data = [
+            'uid' => $uId,
+            'date' => $checkOut,
+            'lateOut' => $lateOut,
+        ];
+
+        // Encode the data to JSON format
+        $jsonData = json_encode($data);
+
+        // Initialize cURL session
+        $ch = curl_init($url);
+
+        // Set cURL options
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST"); // Specify the HTTP request method as POST
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $token, // Attach the token for authorization
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+
+        // Ignore SSL certificate verification (use only for development, not production)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+        // Execute the cURL request
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        // Check for cURL errors
+        if (curl_errno($ch)) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            return [
+                'success' => false,
+                'error' => $error,
+                'http_code' => $httpCode,
+                'response' => $response
+            ];
+        }
+
+        // Close the cURL session
+        curl_close($ch);
+
+        // Check for success based on HTTP code (2xx series for success)
+        $isSuccess = $httpCode >= 200 && $httpCode < 300;
+
+        return [
+            'success' => $isSuccess,
             'http_code' => $httpCode,
             'response' => $response
         ];

@@ -5,18 +5,34 @@ class Leavetype
     private $pdo;
     private $table_name = "leave_types";
 
-    public function __construct() {
+    public function __construct()
+    {
         global $pdo;
         $this->pdo = $pdo;
     }
 
     public function getAllLeavetypes()
     {
-        $query = "SELECT id, name, color, duration, description, attachment_required, created_at, updated_at FROM $this->table_name";
+        // Query to fetch leave types
+        $query = "SELECT id, name, color, duration, description, attachment_required, created_at, updated_at 
+              FROM $this->table_name";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $leaveTypes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Process each leave type and add a message if the document is required
+        foreach ($leaveTypes as &$leaveType) {
+            if (strtolower($leaveType['attachment_required']) === 'yes') {
+                $leaveType['document_status'] = '(ត្រូវមានឯកសារភ្ជាប់​​ )';
+            } else {
+                $leaveType['document_status'] = '';
+            }
+        }
+
+        return $leaveTypes;
     }
+
 
     public function createLeavetype($data)
     {

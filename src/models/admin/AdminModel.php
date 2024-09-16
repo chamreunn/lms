@@ -36,10 +36,86 @@ class AdminModel
         $this->pdo->rollBack();
     }
 
+    public function getLateById($late_id)
+    {
+        // Fetch a single late-in record by ID without joining the users table
+        $query = "SELECT lt.*, lt.status AS late_status, lt.id AS late_id 
+              FROM $this->table_name lt 
+              WHERE lt.id = :late_id AND lt.status = 'Pending'";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':late_id', $late_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // Fetch the late-in record
+        $lateInRecord = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Check if a record is found
+        if (!$lateInRecord) {
+            return null; // Return null if no record is found
+        }
+
+        $userModel = new User();
+        $user_id = $lateInRecord['user_id'];
+
+        // Fetch user data from API using the user_id
+        $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+        // Check if the API response is successful and contains user data
+        if ($userApiResponse && isset($userApiResponse['http_code']) && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+            $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+            // Fetch user role from the API
+            $roleResponse = $userModel->getRoleApi($user['roleId'], $_SESSION['token']);
+
+            // Add the role to the user data
+            $user['role'] = ($roleResponse && $roleResponse['http_code'] === 200 && isset($roleResponse['data']['roleNameKh']))
+                ? $roleResponse['data']['roleNameKh']
+                : 'Unknown';
+
+            // Merge user data into the late-in record
+            $lateInRecord['khmer_name'] = isset($user['lastNameKh'], $user['firstNameKh'])
+                ? $user['lastNameKh'] . ' ' . $user['firstNameKh']
+                : 'Unknown';
+            $lateInRecord['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+            $lateInRecord['email'] = $user['email'] ?? 'Unknown';
+            $lateInRecord['contact'] = $user['phoneNumber'] ?? 'Unknown';
+            $lateInRecord['address'] = $user['pobAddress'] ?? 'Unknown';
+            $lateInRecord['department_name'] = $user['department']['name'] ?? 'Unknown';
+            $lateInRecord['position_name'] = $user['position']['name'] ?? 'Unknown';
+            $lateInRecord['role'] = $user['role'] ?? 'Unknown';
+            $lateInRecord['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png');
+
+            return $lateInRecord;
+        } else {
+            // Log the unexpected response for debugging purposes
+            error_log("Unexpected API Response: " . print_r($userApiResponse, true));
+            return [
+                'http_code' => $userApiResponse['http_code'] ?? 500, // Default to 500 if http_code is missing
+                'error' => "Unexpected API Response",
+                'response' => $userApiResponse
+            ];
+        }
+    }
+
+    public function updateStatus($lateId, $status)
+    {
+        $sql = "UPDATE $this->table_name SET status = :status WHERE id = :lateId";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':status', $status, PDO::PARAM_STR);
+        $stmt->bindParam(':lateId', $lateId, PDO::PARAM_INT);
+
+        if ($stmt->execute()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public function getAllLatein()
     {
         // Fetch only late-in records without joining the users table
-        $query = "SELECT lt.*, lt.status AS late_status, lt.id AS late_id FROM $this->table_name lt WHERE lt.status = 'Pending'";
+        $query = "SELECT lt.*, lt.status AS late_status, lt.id AS late_id FROM $this->table_name lt WHERE lt.status = 'Pending' AND lt.late_in is NOT NULL";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
@@ -68,7 +144,148 @@ class AdminModel
                 $record['email'] = $user['email'] ?? 'Unknown';
                 $record['department_name'] = $user['department']['name'] ?? 'Unknown';
                 $record['position_name'] = $user['position']['name'] ?? 'Unknown';
-                $record['profile_picture'] = 'https://hrms.iauoffsa.us/images/'. $user['image'] ?? 'default-profile.png'; // Use a default profile image if none exists
+                $record['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . $user['image'] ?? 'default-profile.png'; // Use a default profile image if none exists
+            } else {
+                // Handle cases where the API call fails or returns no data
+                $record['user_name'] = 'Unknown';
+                $record['dob'] = 'Unknown';
+                $record['user_email'] = 'Unknown';
+                $record['department_name'] = 'Unknown';
+                $record['position_name'] = 'Unknown';
+                $record['user_profile'] = 'default-profile.png'; // Use a default profile image if API fails
+            }
+        }
+
+        return $lateInRecords;
+    }
+
+    public function getAll()
+    {
+        // Fetch only late-in records without joining the users table
+        $query = "SELECT lt.*, lt.status AS late_status, lt.id AS late_id FROM $this->table_name lt WHERE lt.status != 'Pending'";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        $lateInRecords = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $userModel = new User();
+
+        // Add user information and additional data to each late-in record
+        foreach ($lateInRecords as &$record) {
+            // Fetch user_id from the current late-in record
+            $user_id = $record['user_id'];
+
+            // Fetch user data from API using the user_id
+            $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+            // Check if the API response is successful
+            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+                $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+                // Add user information to the late-in record
+                $record['khmer_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh'])
+                    ? $user['lastNameKh'] . " " . $user['firstNameKh']
+                    : 'Unknown';
+                $record['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $record['email'] = $user['email'] ?? 'Unknown';
+                $record['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $record['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $record['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . $user['image'] ?? 'default-profile.png'; // Use a default profile image if none exists
+            } else {
+                // Handle cases where the API call fails or returns no data
+                $record['user_name'] = 'Unknown';
+                $record['dob'] = 'Unknown';
+                $record['user_email'] = 'Unknown';
+                $record['department_name'] = 'Unknown';
+                $record['position_name'] = 'Unknown';
+                $record['user_profile'] = 'default-profile.png'; // Use a default profile image if API fails
+            }
+        }
+
+        return $lateInRecords;
+    }
+
+    public function getAllLateout()
+    {
+        // Fetch only late-in records without joining the users table
+        $query = "SELECT lt.*, lt.status AS late_status, lt.id AS late_id FROM $this->table_name lt WHERE lt.status = 'Pending' AND lt.late_out is NOT NULL";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        $lateInRecords = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $userModel = new User();
+
+        // Add user information and additional data to each late-in record
+        foreach ($lateInRecords as &$record) {
+            // Fetch user_id from the current late-in record
+            $user_id = $record['user_id'];
+
+            // Fetch user data from API using the user_id
+            $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+            // Check if the API response is successful
+            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+                $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+                // Add user information to the late-in record
+                $record['khmer_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh'])
+                    ? $user['lastNameKh'] . " " . $user['firstNameKh']
+                    : 'Unknown';
+                $record['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $record['email'] = $user['email'] ?? 'Unknown';
+                $record['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $record['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $record['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . $user['image'] ?? 'default-profile.png'; // Use a default profile image if none exists
+            } else {
+                // Handle cases where the API call fails or returns no data
+                $record['user_name'] = 'Unknown';
+                $record['dob'] = 'Unknown';
+                $record['user_email'] = 'Unknown';
+                $record['department_name'] = 'Unknown';
+                $record['position_name'] = 'Unknown';
+                $record['user_profile'] = 'default-profile.png'; // Use a default profile image if API fails
+            }
+        }
+
+        return $lateInRecords;
+    }
+
+    public function getAllLeaveEarly()
+    {
+        // Fetch only late-in records without joining the users table
+        $query = "SELECT lt.*, lt.status AS late_status, lt.id AS late_id FROM $this->table_name lt WHERE lt.status = 'Pending' AND lt.leave_early is NOT NULL";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        $lateInRecords = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $userModel = new User();
+
+        // Add user information and additional data to each late-in record
+        foreach ($lateInRecords as &$record) {
+            // Fetch user_id from the current late-in record
+            $user_id = $record['user_id'];
+
+            // Fetch user data from API using the user_id
+            $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+            // Check if the API response is successful
+            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+                $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+                // Add user information to the late-in record
+                $record['khmer_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh'])
+                    ? $user['lastNameKh'] . " " . $user['firstNameKh']
+                    : 'Unknown';
+                $record['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $record['email'] = $user['email'] ?? 'Unknown';
+                $record['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $record['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $record['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . $user['image'] ?? 'default-profile.png'; // Use a default profile image if none exists
             } else {
                 // Handle cases where the API call fails or returns no data
                 $record['user_name'] = 'Unknown';
@@ -322,16 +539,48 @@ class AdminModel
     {
         $query = "
         SELECT COUNT(*) AS latein_count
-        FROM $this->table_name lt
-        JOIN users u ON lt.user_id = u.id
-        WHERE lt.status = 'Pending'
+        FROM $this->table_name
+        WHERE status = 'Pending'
+        AND late_in IS NOT NULL
     ";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
 
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result['latein_count'] ?? 0;
+        return $result['latein_count'];
+    }
+
+    public function getLateoutCount()
+    {
+        $query = "
+            SELECT COUNT(*) AS lateout_count
+            FROM $this->table_name
+            WHERE status = 'Pending'
+            AND late_out IS NOT NULL
+        ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['lateout_count'] ?? 0;
+    }
+
+    public function getLeaveEarlyCount()
+    {
+        $query = "
+        SELECT COUNT(*) AS leaveearly_count
+        FROM $this->table_name
+        WHERE status = 'Pending'
+        AND leave_early IS NOT NULL
+    ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['leaveearly_count'] ?? 0;
     }
 
     public function getLateCountToday()
@@ -349,6 +598,21 @@ class AdminModel
 
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['latein_count'] ?? 0;
+    }
+
+    public function getAllLate()
+    {
+        $query = "
+        SELECT COUNT(*) AS AllLate
+        FROM $this->table_name lt
+        WHERE lt.status = 'Pending'
+    ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['AllLate'];
     }
 
     public function updateRequest($approver_id, $action, $request_id, $comment, $signature)

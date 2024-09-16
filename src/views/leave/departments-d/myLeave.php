@@ -94,8 +94,12 @@ ob_start();
             <div class="col-auto ms-auto d-print-none">
                 <div class="btn-list">
                     <div class="d-flex">
-                        <a class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#apply-leave">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-plus">
+                        <a class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
+                            data-bs-target="#apply-leave">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-plus">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5" />
                                 <path d="M16 3v4" />
@@ -106,9 +110,12 @@ ob_start();
                             </svg>
                             <span>បង្កើតសំណើច្បាប់</span>
                         </a>
-                        <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#apply-leave">
+                        <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal"
+                            data-bs-target="#apply-leave">
                             <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -122,7 +129,8 @@ ob_start();
 </div>
 
 <!-- Modal Apply Leave -->
-<div class="modal modal-blur fade" id="apply-leave" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal modal-blur fade" id="apply-leave" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -133,23 +141,30 @@ ob_start();
                 <div class="modal-body">
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="leave_type" class="form-label fw-bold">ប្រភេទច្បាប់<span class="text-danger mx-1 fw-bold">*</span></label>
+                            <label for="leave_type" class="form-label fw-bold">ប្រភេទច្បាប់<span
+                                    class="text-danger mx-1 fw-bold">*</span></label>
                             <select class="form-select" id="leave_type" name="leave_type_id" required>
                                 <option value="">ជ្រើសរើសប្រភេទច្បាប់</option>
-                                <?php foreach ($leavetypes as $leavetype) : ?>
-                                    <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>" data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>' <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
-                                        <?= $leavetype['name'] ?> (<?= $leavetype['duration'] ?>ថ្ងៃ)
+                                <?php foreach ($leavetypes as $leavetype): ?>
+                                    <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
+                                        data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
+                                        <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
+                                        <?= $leavetype['name'] ?>     <?= $leavetype['document_status'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <input type="hidden" id="leave_type_name" name="leave_type_name" value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                            <input type="hidden" id="leave_type_name" name="leave_type_name"
+                                value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
                         <div class="row mb-3">
                             <div class="col-lg-6 mb-3">
-                                <label for="start_date" class="form-label fw-bold">កាលបរិច្ឆេទចាប់ពី<span class="text-danger mx-1 fw-bold">*</span></label>
+                                <label for="start_date" class="form-label fw-bold">កាលបរិច្ឆេទចាប់ពី<span
+                                        class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
                                     <span class="input-icon-addon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                            stroke-linecap="round" stroke-linejoin="round">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                             <rect x="4" y="5" width="16" height="16" rx="2"></rect>
                                             <line x1="16" y1="3" x2="16" y2="7"></line>
@@ -158,14 +173,20 @@ ob_start();
                                             <rect x="8" y="15" width="2" height="2"></rect>
                                         </svg>
                                     </span>
-                                    <input type="text" autocomplete="off" value="<?= htmlspecialchars($_POST['start_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="កាលបរិច្ឆេទចាប់ពី" class="form-control date-picker" id="lstart_date" name="start_date" required>
+                                    <input type="text" autocomplete="off"
+                                        value="<?= htmlspecialchars($_POST['start_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                        placeholder="កាលបរិច្ឆេទចាប់ពី" class="form-control date-picker"
+                                        id="lstart_date" name="start_date" required>
                                 </div>
                             </div>
                             <div class="col-lg-6 mb-3">
-                                <label for="end_date" class="form-label fw-bold">ដល់កាលបរិច្ឆេទ<span class="text-danger mx-1 fw-bold">*</span></label>
+                                <label for="end_date" class="form-label fw-bold">ដល់កាលបរិច្ឆេទ<span
+                                        class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
                                     <span class="input-icon-addon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                            stroke-linecap="round" stroke-linejoin="round">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                             <rect x="4" y="5" width="16" height="16" rx="2"></rect>
                                             <line x1="16" y1="3" x2="16" y2="7"></line>
@@ -174,70 +195,46 @@ ob_start();
                                             <rect x="8" y="15" width="2" height="2"></rect>
                                         </svg>
                                     </span>
-                                    <input type="text" autocomplete="off" value="<?= htmlspecialchars($_POST['end_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="ដល់កាលបរិច្ឆេទ" class="form-control date-picker" id="lend_date" name="end_date" required>
+                                    <input type="text" autocomplete="off"
+                                        value="<?= htmlspecialchars($_POST['end_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                        placeholder="ដល់កាលបរិច្ឆេទ" class="form-control date-picker" id="lend_date"
+                                        name="end_date" required>
                                 </div>
                             </div>
                             <div class="col-lg-12 mb-3">
-                                <label for="reason" class="form-label fw-bold">មូលហេតុ<span class="text-danger mx-1 fw-bold">*</span></label>
+                                <label for="reason" class="form-label fw-bold">មូលហេតុ<span
+                                        class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
-                                    <!-- <span class="input-icon-addon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-message">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M8 9h8" />
-                                                <path d="M8 13h6" />
-                                                <path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" />
-                                            </svg>
-                                        </span> -->
-                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" rows="5" class="form-control" id="remarks" name="remarks" required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" rows="5"
+                                        class="form-control" id="remarks" name="remarks"
+                                        required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
-                            </div>
-                            <div class="col-12 mb-1">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="signature" onchange="toggleFileInput(this, 'signatureFile')" checked>
-                                    <label class="form-check-label cursor-pointer" for="signature">
-                                        ហត្ថលេខា<span class="text-red fw-bold mx-1">*</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-12 mb-3" id="signatureFile">
-                                <label id="displayName" for="signature_file" class="btn w-100 text-start p-3 flex-column text-muted bg-light">
-                                    <span class="p-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-signature mx-0">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M3 17c3.333 -3.333 5 -6 5 -8c0 -3 -1 -3 -2 -3s-2.032 1.085 -2 3c.034 2.048 1.658 4.877 2.5 6c1.5 2 2.5 2.5 3.5 1l2 -3c.333 2.667 1.333 4 3 4c.53 0 2.639 -2 3 -2c.517 0 1.517 .667 3 2" />
-                                        </svg>
-                                    </span>
-                                    <span>ហត្ថលេខា</span>
-                                </label>
-                                <input type="file" name="signature" id="signature_file" accept="image/png" required hidden onchange="displayFileName('signature_file', 'displayName')" />
                             </div>
 
                             <div class="col-12 mb-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="attachment" onchange="toggleFileInput(this, 'attachmentFile')">
+                                    <input class="form-check-input" type="checkbox" value="" id="attachment"
+                                        onchange="toggleFileInput(this, 'attachmentFile')">
                                     <label class="form-check-label cursor-pointer" for="attachment">
                                         ឯកសារភ្ជាប់
                                     </label>
                                 </div>
                             </div>
                             <div class="col-12 mb-3" id="attachmentFile" style="display: none;">
-                                <label id="attachmentDisplayName" for="attachment_file" class="btn w-100 text-start p-3 bg-light">
+                                <label id="attachmentDisplayName" for="attachment_file"
+                                    class="btn w-100 text-start p-3 bg-light">
                                     ឯកសារភ្ជាប់
                                 </label>
-                                <input type="file" name="attachment" id="attachment_file" class="form-control" hidden onchange="displayFileName('attachment_file', 'attachmentDisplayName')" />
+                                <input type="file" name="attachment" id="attachment_file" class="form-control" hidden
+                                    onchange="displayFileName('attachment_file', 'attachmentDisplayName')" />
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-light">
+                <div class="modal-footer">
                     <button type="button" class="btn" data-bs-dismiss="modal">បោះបង់</button>
                     <button type="submit" class="btn btn-primary">
                         <span>បង្កើតសំណើ</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-send mx-1">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M10 14l11 -11" />
-                            <path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" />
-                        </svg>
                     </button>
                 </div>
             </form>
@@ -256,7 +253,7 @@ $totalRequests = count($requests);
 $totalPages = ceil($totalRequests / $requestsPerPage);
 
 // Get the current page from the URL, default to page 1 if not set
-$currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 $currentPage = max(1, min($currentPage, $totalPages)); // Ensure the current page is within bounds
 
 // Calculate the starting index of the requests to display
@@ -277,9 +274,13 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                 <div class="col-lg-3 mb-3">
                     <div class="input-icon">
                         <span class="input-icon-addon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="icon">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"></path>
+                                <path
+                                    d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z">
+                                </path>
                                 <path d="M16 3v4"></path>
                                 <path d="M8 3v4"></path>
                                 <path d="M4 11h16"></path>
@@ -287,15 +288,20 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                 <path d="M12 15v3"></path>
                             </svg>
                         </span>
-                        <input class="form-control date-picker" placeholder="កាលបរិច្ឆេទចាប់ពី" type="text" name="start_date" id="start_date" autocomplete="off" />
+                        <input class="form-control date-picker" placeholder="កាលបរិច្ឆេទចាប់ពី" type="text"
+                            name="start_date" id="start_date" autocomplete="off" />
                     </div>
                 </div>
                 <div class="col-lg-3 mb-3">
                     <div class="input-icon">
                         <span class="input-icon-addon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="icon">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"></path>
+                                <path
+                                    d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z">
+                                </path>
                                 <path d="M16 3v4"></path>
                                 <path d="M8 3v4"></path>
                                 <path d="M4 11h16"></path>
@@ -303,21 +309,28 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                 <path d="M12 15v3"></path>
                             </svg>
                         </span>
-                        <input class="form-control date-picker" placeholder="ដល់កាលបរិច្ឆេទ" type="text" name="end_date" id="leave_end_date" autocomplete="off" />
+                        <input class="form-control date-picker" placeholder="ដល់កាលបរិច្ឆេទ" type="text" name="end_date"
+                            id="leave_end_date" autocomplete="off" />
                     </div>
                 </div>
                 <div class="col-lg-3 mb-3">
                     <select type="text" class="form-select" id="select-status" name="status" tabindex="-1">
                         <option class="text-muted" selected disabled>ស្ថានភាព</option>
-                        <option value="Pending" data-custom-properties="&lt;span class=&quot;badge bg-warning&quot;">Pending</option>
-                        <option value="Approved" data-custom-properties="&lt;span class=&quot;badge bg-success&quot;">Approved</option>
-                        <option value="Rejected" data-custom-properties="&lt;span class=&quot;badge bg-danger&quot;">Rejected</option>
-                        <option value="Canceled" data-custom-properties="&lt;span class=&quot;badge bg-secondary&quot;">Canceled</option>
+                        <option value="Pending" data-custom-properties="&lt;span class=&quot;badge bg-warning&quot;">
+                            Pending</option>
+                        <option value="Approved" data-custom-properties="&lt;span class=&quot;badge bg-success&quot;">
+                            Approved</option>
+                        <option value="Rejected" data-custom-properties="&lt;span class=&quot;badge bg-danger&quot;">
+                            Rejected</option>
+                        <option value="Canceled" data-custom-properties="&lt;span class=&quot;badge bg-secondary&quot;">
+                            Canceled</option>
                     </select>
                 </div>
                 <div class="col mb-3">
                     <button type="submit" class="btn w-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="icon icon-tabler icons-tabler-outline icon-tabler-search">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                             <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
                             <path d="M21 21l-6 -6" />
@@ -327,7 +340,9 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                 </div>
                 <div class="col mb-3">
                     <a href="/elms/ddepartmentLeave" type="reset" class="btn w-100 btn-danger">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-rotate-clockwise">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="icon icon-tabler icons-tabler-outline icon-tabler-rotate-clockwise">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                             <path d="M4.05 11a8 8 0 1 1 .5 4m-.5 5v-5h5" />
                         </svg>
@@ -353,13 +368,17 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                 </tr>
             </thead>
             <tbody>
-                <?php if (empty($paginatedRequests)) : ?>
+                <?php if (empty($paginatedRequests)): ?>
                     <tr>
                         <td colspan="8" class="text-center">
                             <img src="public/img/icons/svgs/empty.svg" alt="No Image">
                             <p>មិនទាន់មានសំណើនៅឡើយ។ សូមបង្កើតដោយចុចប៊ូតុងខាងក្រោម ឬស្តាំដៃខាងលើ</p>
-                            <a class="btn btn-primary d-none d-sm-inline-block mb-3" data-bs-toggle="modal" data-bs-target="#apply-leave">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-plus">
+                            <a class="btn btn-primary d-none d-sm-inline-block mb-3" data-bs-toggle="modal"
+                                data-bs-target="#apply-leave">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-plus">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                     <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5" />
                                     <path d="M16 3v4" />
@@ -370,9 +389,12 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                 </svg>
                                 <span>បង្កើតសំណើច្បាប់</span>
                             </a>
-                            <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon mb-3" data-bs-toggle="modal" data-bs-target="#apply-leave">
+                            <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon mb-3"
+                                data-bs-toggle="modal" data-bs-target="#apply-leave">
                                 <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                     <line x1="12" y1="5" x2="12" y2="19"></line>
                                     <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -380,12 +402,13 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                             </a>
                         </td>
                     </tr>
-                <?php else : ?>
-                    <?php foreach ($requests as $request) : ?>
+                <?php else: ?>
+                    <?php foreach ($requests as $request): ?>
                         <tr>
                             <td>
                                 <div class="d-flex">
-                                    <img src="<?= $_SESSION['user_profile'] ?>" class="avatar" style="object-fit: cover;" alt="">
+                                    <img src="<?= $_SESSION['user_profile'] ?>" class="avatar" style="object-fit: cover;"
+                                        alt="">
                                     <div class="d-flex flex-column mx-2">
                                         <h4 class="mx-0 mb-1 text-primary">
                                             <?= $_SESSION['user_khmer_name'] ?>
@@ -395,9 +418,11 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                 </div>
                             </td>
                             <td class="d-none d-sm-table-cell">
-                                <div class="badge <?= htmlspecialchars($request['color']) ?>"><?= htmlspecialchars($request['leave_type_name']) ?></div>
+                                <div class="badge <?= htmlspecialchars($request['color']) ?>">
+                                    <?= htmlspecialchars($request['leave_type_name']) ?></div>
                             </td>
-                            <td class="d-none d-sm-table-cell"><?= translateDateToKhmer($request['start_date'], 'D,j F Y') ?></td>
+                            <td class="d-none d-sm-table-cell"><?= translateDateToKhmer($request['start_date'], 'D,j F Y') ?>
+                            </td>
                             <td class="d-none d-sm-table-cell"><?= translateDateToKhmer($request['end_date'], 'D,j F Y') ?></td>
                             <td class="d-none d-sm-table-cell"><?= $request['num_date'] ?>ថ្ងៃ</td>
                             <td class="d-none d-sm-table-cell">
@@ -417,18 +442,27 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                 </div>
                             </td>
                             <td class="d-none d-sm-table-cell">
-                                <span class="text-truncate" data-bs-placement="top" data-bs-toggle="tooltip" title="<?= htmlspecialchars($request['remarks']) ?>"><?= htmlspecialchars($request['remarks']) ?></span>
+                                <span class="text-truncate" data-bs-placement="top" data-bs-toggle="tooltip"
+                                    title="<?= htmlspecialchars($request['remarks']) ?>"><?= htmlspecialchars($request['remarks']) ?></span>
                             </td>
                             <td class="p-0">
-                                <a href="/elms/view-leave-detail?leave_id=<?= htmlspecialchars($request['id']) ?>" title="ពិនិត្យមើល" data-bs-placement="auto" data-bs-toggle="tooltip" class="icon me-0 edit-btn">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-eye">
+                                <a href="/elms/view-leave-detail?leave_id=<?= htmlspecialchars($request['id']) ?>"
+                                    title="ពិនិត្យមើល" data-bs-placement="auto" data-bs-toggle="tooltip"
+                                    class="icon me-0 edit-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="icon icon-tabler icon-tabler-eye">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                                        <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                                        <path
+                                            d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
                                     </svg>
                                 </a>
-                                <a href="#" title="លុប" data-bs-placement="right" class="icon delete-btn text-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<?= htmlspecialchars($request['id']) ?>">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <a href="#" title="លុប" data-bs-placement="right" class="icon delete-btn text-danger"
+                                    data-bs-toggle="modal" data-bs-target="#deleteModal<?= htmlspecialchars($request['id']) ?>">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M4 7l16 0" />
                                         <path d="M10 11l0 6" />
@@ -437,8 +471,12 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                         <path d="M9 7l0 -3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1l0 3" />
                                     </svg>
                                 </a>
-                                <a href="#" class="d-sm-none" title="បង្ហាញបន្ថែម" data-bs-toggle="collapse" data-bs-target="#collapseRequest<?= $request['id'] ?>" aria-expanded="false" aria-controls="collapseRequest<?= $request['id'] ?>">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-dots">
+                                <a href="#" class="d-sm-none" title="បង្ហាញបន្ថែម" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseRequest<?= $request['id'] ?>" aria-expanded="false"
+                                    aria-controls="collapseRequest<?= $request['id'] ?>">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-dots">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
                                         <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
@@ -456,7 +494,8 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                             <tr>
                                                 <td>
                                                     <strong>ប្រភេទច្បាប់ : </strong>
-                                                    <div class="badge <?= htmlspecialchars($request['color']) ?>"><?= htmlspecialchars($request['leave_type']) ?></div>
+                                                    <div class="badge <?= htmlspecialchars($request['color']) ?>">
+                                                        <?= htmlspecialchars($request['leave_type']) ?></div>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -480,7 +519,8 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                             <tr>
                                                 <td>
                                                     <strong>មូលហេតុ : </strong>
-                                                    <span class="text-truncate" data-bs-placement="top" data-bs-toggle="tooltip" title="<?= htmlspecialchars($request['remarks']) ?>"><?= htmlspecialchars($request['remarks']) ?></span>
+                                                    <span class="text-truncate" data-bs-placement="top" data-bs-toggle="tooltip"
+                                                        title="<?= htmlspecialchars($request['remarks']) ?>"><?= htmlspecialchars($request['remarks']) ?></span>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -490,17 +530,22 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                         </tr>
 
                         <!-- delete  -->
-                        <div class="modal modal-blur fade" id="deleteModal<?= htmlspecialchars($request['id']) ?>" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal modal-blur fade" id="deleteModal<?= htmlspecialchars($request['id']) ?>" tabindex="-1"
+                            role="dialog" aria-hidden="true">
                             <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-status bg-danger"></div>
                                     <form action="/elms/hoffice-delete" method="POST">
                                         <div class="modal-body text-center py-4 mb-0">
                                             <input type="hidden" name="id" value="<?= htmlspecialchars($request['id']) ?>">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                                 <path d="M12 9v4"></path>
-                                                <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"></path>
+                                                <path
+                                                    d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
+                                                </path>
                                                 <path d="M12 16h.01"></path>
                                             </svg>
                                             <h5 class="modal-title fw-bold text-danger">លុបសំណើច្បាប់</h5>
@@ -510,10 +555,12 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                             <div class="w-100">
                                                 <div class="row">
                                                     <div class="col">
-                                                        <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
+                                                        <button type="button" class="btn w-100"
+                                                            data-bs-dismiss="modal">បោះបង់</button>
                                                     </div>
                                                     <div class="col">
-                                                        <button type="submit" class="btn btn-danger ms-auto w-100">បាទ / ចា៎</button>
+                                                        <button type="submit" class="btn btn-danger ms-auto w-100">បាទ /
+                                                            ចា៎</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -533,20 +580,25 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
             <!-- Previous Page Link -->
             <li class="page-item <?= $currentPage == 1 ? 'disabled' : '' ?>">
                 <a class="page-link mx-1" href="?page=<?= $currentPage - 1 ?>" tabindex="-1" aria-disabled="true">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                         <path d="M15 6l-6 6l6 6"></path>
                     </svg>
                 </a>
             </li>
             <!-- Page Number Links -->
-            <?php for ($i = 1; $i <= $totalPages; $i++) : ?>
-                <li class="page-item <?= $currentPage == $i ? 'active' : '' ?>"><a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a></li>
+            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                <li class="page-item <?= $currentPage == $i ? 'active' : '' ?>"><a class="page-link"
+                        href="?page=<?= $i ?>"><?= $i ?></a></li>
             <?php endfor; ?>
             <!-- Next Page Link -->
             <li class="page-item <?= $currentPage == $totalPages ? 'disabled' : '' ?>">
                 <a class="page-link" href="?page=<?= $currentPage + 1 ?>">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                         <path d="M9 6l6 6l-6 6"></path>
                     </svg>
@@ -557,7 +609,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
 </div>
 <?php include('src/common/footer.php'); ?>
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         // Initialize TomSelect
         flatpickr("#date", {
             dateFormat: "Y-m-d",
@@ -585,7 +637,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
 
 <script>
     // @formatter:off
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         var el;
         window.TomSelect && (new TomSelect(el = document.getElementById('select-status'), {
             copyClassesToDropdown: false,
@@ -593,13 +645,13 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
             optionClass: 'dropdown-item',
             controlInput: '<input>',
             render: {
-                item: function(data, escape) {
+                item: function (data, escape) {
                     if (data.customProperties) {
                         return '<div><span class="dropdown-item-indicator">' + data.customProperties + '</span>' + escape(data.text) + '</div>';
                     }
                     return '<div>' + escape(data.text) + '</div>';
                 },
-                option: function(data, escape) {
+                option: function (data, escape) {
                     if (data.customProperties) {
                         return '<div><span class="dropdown-item-indicator">' + data.customProperties + '</span>' + escape(data.text) + '</div>';
                     }

@@ -65,6 +65,7 @@ switch ($uri) {
             $controller->apply();
         });
         break;
+
     case $base_url . '/dof-apply-leave':
         checkSessionAndExecute(function () {
             $controller = new DepOfficeController();
@@ -206,7 +207,25 @@ switch ($uri) {
     case $base_url . '/adminpending':
         checkSessionAndExecute(function () {
             $controller = new AdminController();
-            $controller->getPendingLate();
+            // Check if action is set in the query parameters
+            $action = $_GET['action'] ?? 'latein'; // Default to 'latein' if no action is set
+
+            switch ($action) {
+                case 'latein':
+                    $controller->getPendingLate();
+                    break;
+                case 'lateout':
+                    $controller->getPendingLateOut();
+                    break;
+                case 'leaveearly':
+                    $controller->getPendingLeaveEarly();
+                    break;
+                case 'allLate':
+                    $controller->getAllLate();
+                    break;
+                default:
+                    $controller->getPendingLate(); // Default case
+            }
         });
         break;
     case $base_url . '/adminapprovelate':
@@ -578,6 +597,18 @@ switch ($uri) {
             $controller->index();
         });
         break;
+    case $base_url . '/actionLate':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->ActionLate();
+        });
+        break;
+    case $base_url . '/actionLateOut':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->ActionLateOut();
+        });
+        break;
     case $base_url . '/late_in_request':
         checkSessionAndExecute(function () {
             $controller = new LateController();
@@ -621,6 +652,18 @@ switch ($uri) {
                 header(header: "Location: /elms/login");
                 exit();
             }
+        });
+        break;
+    case $base_url . '/viewLateDetail':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->viewLateDetail();
+        });
+        break;
+    case $base_url . '/viewLateDetailLateOut':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->viewLateDetailLateOut();
         });
         break;
     case $base_url . '/overtimein':

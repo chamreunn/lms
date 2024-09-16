@@ -99,6 +99,7 @@ if (!isset($_SESSION['user_id'])) {
                             $adminModel = new AdminModel();
                             $getPendingCounts = $adminModel->getLateinCount();
                             $latesToday = $adminModel->getLateCountToday();
+                            $AllLate = $adminModel->getAllLate();
                             require 'admin/sidebar.php';
                             break;
                         case 'Deputy Head Of Office':

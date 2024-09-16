@@ -219,20 +219,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                     <input name="remarks" class="form-control" list="datalistOptions" placeholder="សូមបញ្ចូលមតិយោបល់...">
                                     <datalist id="datalistOptions">
                                         <option value="អាចឈប់សម្រាកបាន"></option>
-                                        <option value="United Arab Emirates"></option>
-                                        <option value="Afghanistan"></option>
-                                        <option value="Antigua"></option>
-                                        <option value="Anguilla"></option>
-                                        <option value="Armenia"></option>
-                                        <option value="Angolan"></option>
-                                        <option value="Antarctica"></option>
-                                        <option value="Argentina"></option>
-                                        <option value="American Samoa"></option>
                                     </datalist>
-                                </div>
-                                <div class="mt-3">
-                                    <label id="file-name<?= $request['id'] ?>" for="upload-signature<?= $request['id'] ?>" class="btn w-100 text-start">ហត្ថលេខា<span class="text-red fw-bold mx-1">*</span></label>
-                                    <input type="file" name="manager_signature" id="upload-signature<?= $request['id'] ?>" accept="image/png" hidden onchange="displayFileName(<?= $request['id'] ?>)" required />
                                 </div>
                             </div>
                             <div class="modal-footer">

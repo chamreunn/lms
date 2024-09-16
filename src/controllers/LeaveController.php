@@ -5,6 +5,10 @@ require_once 'src/models/Leavetype.php';
 require_once 'src/models/User.php';
 require_once 'src/models/Notification.php';
 require_once 'src/vendor/autoload.php'; // Ensure PHPMailer is autoloaded
+require_once 'src/vendor/autoload.php';
+
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\IOFactory;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -31,12 +35,12 @@ class LeaveController
 
             // Server settings
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com'; // SMTP server to send through
-            $mail->SMTPAuth   = true;
-            $mail->Username   = 'pothhchamreun@gmail.com'; // SMTP username
-            $mail->Password   = 'kyph nvwd ncpa gyzi'; // SMTP password
+            $mail->Host = 'smtp.gmail.com'; // SMTP server to send through
+            $mail->SMTPAuth = true;
+            $mail->Username = 'pothhchamreun@gmail.com'; // SMTP username
+            $mail->Password = 'kyph nvwd ncpa gyzi'; // SMTP password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
+            $mail->Port = 587;
 
             // Set charset to UTF-8 for Unicode support
             $mail->CharSet = 'UTF-8';
@@ -152,12 +156,12 @@ class LeaveController
 
             // Server settings
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com'; // SMTP server to send through
-            $mail->SMTPAuth   = true;
-            $mail->Username   = 'pothhchamreun@gmail.com'; // SMTP username
-            $mail->Password   = 'kyph nvwd ncpa gyzi'; // SMTP password
+            $mail->Host = 'smtp.gmail.com'; // SMTP server to send through
+            $mail->SMTPAuth = true;
+            $mail->Username = 'pothhchamreun@gmail.com'; // SMTP username
+            $mail->Password = 'kyph nvwd ncpa gyzi'; // SMTP password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
+            $mail->Port = 587;
 
             // Set charset to UTF-8 for Unicode support
             $mail->CharSet = 'UTF-8';
@@ -274,12 +278,12 @@ class LeaveController
         try {
             // Server settings
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com';
-            $mail->SMTPAuth   = true;
-            $mail->Username   = 'pothhchamreun@gmail.com';
-            $mail->Password   = 'kyph nvwd ncpa gyzi';
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'pothhchamreun@gmail.com';
+            $mail->Password = 'kyph nvwd ncpa gyzi';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
+            $mail->Port = 587;
 
             // Set charset to UTF-8 for Unicode support
             $mail->CharSet = 'UTF-8';
@@ -529,5 +533,46 @@ class LeaveController
                 exit();
             }
         }
+    }
+
+    public function exportToWord($id)
+    {
+        // Load request data based on $id (e.g., from a database)
+        $request = $this->getRequestById($id);
+
+        $phpWord = new PhpWord();
+        $section = $phpWord->addSection();
+
+        // Build HTML string to export to Word
+        $html = '
+        <h1 style="text-align: center;">ព្រះរាជាណាចក្រកម្ពុជា</h1>
+        <p>សំណើសុំច្បាប់ឈប់សម្រាកចំនួន ' . $request['num_date'] . ' ថ្ងៃ ពី ' . $request['start_date'] . ' ដល់ ' . $request['end_date'] . '</p>
+        <p>មូលហេតុ៖ ' . $request['remarks'] . '</p>';
+
+        \PhpOffice\PhpWord\Shared\Html::addHtml($section, $html, false, false);
+
+        $fileName = "leave_request_" . $request['id'] . ".docx";
+        $writer = IOFactory::createWriter($phpWord, 'Word2007');
+        $writer->save($fileName);
+
+        header('Content-Description: File Transfer');
+        header('Content-Disposition: attachment; filename=' . $fileName);
+        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        readfile($fileName);
+        unlink($fileName);
+    }
+    // Method to fetch the request data
+    private function getRequestById($id)
+    {
+        // Replace this with actual data fetching logic
+        // Here’s an example of mock data:
+        return [
+            'id' => $id,
+            'num_date' => 3,
+            'start_date' => '2024-09-15',
+            'end_date' => '2024-09-18',
+            'remarks' => 'ជួសជុលផ្ទះ',
+            'khmer_name' => 'នាង A',
+        ];
     }
 }

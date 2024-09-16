@@ -71,17 +71,6 @@ class HeadDepartmentController
                 exit();
             }
 
-            // Handle file upload for signature
-            $signature_name = $HeadDepartmentModel->handleFileUpload($_FILES['signature'], ['png'], 1048576, 'public/uploads/signatures/');
-            if ($signature_name === false) {
-                $_SESSION['error'] = [
-                    'title' => "ហត្ថលេខា",
-                    'message' => "មិនអាចបញ្ចូលហត្ថលេខាបានទេ។​ សូមព្យាយាមម្តងទៀត"
-                ];
-                header("Location: /elms/hdepartmentLeave");
-                exit();
-            }
-
             // Fetch leave type details including duration from the database
             $leaveTypeModel = new Leavetype();
             $leaveType = $leaveTypeModel->getLeaveTypeById($leave_type_id);
@@ -144,7 +133,6 @@ class HeadDepartmentController
                 $remarks,
                 $duration_days,
                 $attachment_name,
-                $signature_name
             );
 
             if (!$leaveRequestId) {
@@ -478,147 +466,146 @@ class HeadDepartmentController
     public function approve()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            try {
+                $userModel = new User();
+                $HeadDepartmentModel = new HeadDepartmentModel();
+                $notificationModel = new Notification();
 
-            $userModel = new User();
-            $HeadDepartmentModel = new HeadDepartmentModel();
-            // Retrieve POST data
-            $request_id = $_POST['request_id'] ?? null;
-            $status = $_POST['status'] ?? null;
-            $remarks = $_POST['remarks'] ?? '';
-            $uremarks = $_POST['uremarks'] ?? '';
-            $uname = $_POST['uname'] ?? '';
-            $leaveType = $_POST['leaveType'] ?? '';
-            $user_id = $_POST['user_id'] ?? null;
-            $start_date = $_POST['start_date'] ?? null;
-            $end_date = $_POST['end_date'] ?? null;
-            $duration_days = $_POST['duration'] ?? null;
-            $approver_id = $_SESSION['user_id'] ?? null;
-            $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
-            $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
-            $leave = 1 ?? null;
+                // Retrieve POST data
+                $request_id = $_POST['request_id'] ?? null;
+                $status = $_POST['status'] ?? null;
+                $remarks = $_POST['remarks'] ?? '';
+                $uremarks = $_POST['uremarks'] ?? '';
+                $uname = $_POST['uname'] ?? '';
+                $uEmail = $_POST['uemail'] ?? '';
+                $leaveType = $_POST['leaveType'] ?? '';
+                $user_id = $_POST['user_id'] ?? null;
+                $start_date = $_POST['start_date'] ?? null;
+                $end_date = $_POST['end_date'] ?? null;
+                $duration_days = $_POST['duration'] ?? null;
+                $approver_id = $_SESSION['user_id'] ?? null;
+                $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
+                $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
+                $leave = 1 ?? null;
 
-            // Handle file upload for manager's signature
-            $signaturePath = $HeadDepartmentModel->handleFileUpload($_FILES['manager_signature'], ['png'], 1048576, 'public/uploads/signatures/');
-            if ($signaturePath === false) {
-                $_SESSION['error'] = [
-                    'title' => "ហត្ថលេខា",
-                    'message' => "មិនអាចបញ្ចូលហត្ថលេខាបានទេ។​ សូមព្យាយាមម្តងទៀត"
-                ];
-                header('location: /elms/headdepartmentapproved');
-                exit();
-            }
+                // Fetch department details
+                $departmentName = $_SESSION['departmentName'] ?? null;
 
-            // Fetch department details
-            $departmentName = $_SESSION['departmentName'] ?? null;
+                if ($departmentName) {
+                    // Determine the appropriate API based on department name
+                    if (in_array($departmentName, ["កិច្ចការទូទៅ", "នាយកដ្ឋានសវនកម្មទី២"])) {
+                        $userDoffice = $userModel->getEmailLeaderDHU1Api($_SESSION['user_id'], $_SESSION['token']);
+                    } else {
+                        $userDoffice = $userModel->getEmailLeaderDHU2Api($_SESSION['user_id'], $_SESSION['token']);
+                    }
 
-            if ($departmentName) {
-                if (in_array($departmentName, ["កិច្ចការទូទៅ", "នាយកដ្ឋានសវនកម្មទី២"])) {
-                    // Fetch the user's Unit details
-                    $userDoffice = $userModel->getEmailLeaderDHU1Api($_SESSION['user_id'], $_SESSION['token']);
+                    if (empty($userDoffice) || empty($userDoffice['ids'])) {
+                        throw new Exception("Unable to find Department details or no emails found.");
+                    }
+
+                    $managerEmail = is_array($userDoffice['emails']) ? implode(',', $userDoffice['emails']) : $userDoffice['emails'];
                 } else {
-                    $userDoffice = $userModel->getEmailLeaderDHU2Api($_SESSION['user_id'], $_SESSION['token']);
+                    throw new Exception("Department name not found in session. Please log in again.");
                 }
 
-                if (empty($userDoffice) || empty($userDoffice['ids'])) {
-                    $_SESSION['error'] = [
-                        'title' => "Office Error",
-                        'message' => "Unable to find Department details or no emails found. Please contact support."
-                    ];
-                    header('location: /elms/headofficepending');
-                    exit();
-                }
+                // Fetch user's role for leave processing
+                $roleLeave = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
 
-                $managerEmail = is_array($userDoffice['emails']) ? implode(',', $userDoffice['emails']) : $userDoffice['emails'];
-            } else {
-                // Handle the case where departmentName is not set
-                $_SESSION['error'] = [
-                    'title' => "Session Error",
-                    'message' => "Department name not found in session. Please log in again."
-                ];
-                header("Location: /elms/login");
-                exit();
-            }
+                if (empty($roleLeave['data']['roleLeave']) && $duration_days <= 3) {
+                    // Direct approval for Users with leave duration <= 3 days
+                    $updateToApi = $HeadDepartmentModel->updateToApi($user_id, $start_date, $end_date, $leave, $_SESSION['token']);
 
-            $roleLeave = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+                    if (!$updateToApi) {
+                        throw new Exception("Failed to update leave to API. " . ($updateToApi['error'] ?? 'Unknown error'));
+                    }
 
-            // Check if approval should be processed or escalated
-            if ($roleLeave['data']['roleLeave'] === 'User' && $duration_days <= 3) {
-                // Direct approval for Users with leave duration <= 3 days
-                $updateToApi = $HeadDepartmentModel->updateToApi($user_id, $start_date, $end_date, $leave, $_SESSION['token']);
+                    $updatedAt = $HeadDepartmentModel->submitApproval($request_id, $approver_id, $status, $remarks);
 
-                if ($updateToApi) {
-                    // If the API call was successful
+                    // Send email notification to Department Unit
+                    if (!$HeadDepartmentModel->sendEmailNotification($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
+                        throw new Exception("Notification email could not be sent.");
+                    }
+
+                    // Retrieve user's email from the user model
+                    $userDetails = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+                    $uEmail = $userDetails['data']['email'] ?? null;
+
+                    if (!$uEmail) {
+                        throw new Exception("Failed to retrieve user email.");
+                    }
+
+                    // Send email back to the user confirming approval/rejection
+                    if (!$HeadDepartmentModel->sendEmailBacktoUser($uEmail, $message, $status, $start_date, $end_date, $remarks, $leaveType)) {
+                        throw new Exception("Failed to send email back to user.");
+                    }
+
+                    // Create notification for user and approver
+                    $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
+
+                    // Log user activity
+                    $userModel->logUserActivity($approver_id, "បាន " . $status . " ច្បាប់ឈប់សម្រាក " . $uname, $_SERVER['REMOTE_ADDR']);
+
                     $_SESSION['success'] = [
-                        'title' => "API Update",
-                        'message' => "Leave status has been successfully updated in the API."
+                        'title' => "សំណើច្បាប់",
+                        'message' => "សំណើច្បាប់ត្រូវបានអនុម័តដោយជោគជ័យ។"
                     ];
+                    header('location: /elms/headdepartmentpending');
+                    exit();
                 } else {
-                    // If the API call failed
-                    $_SESSION['error'] = [
-                        'title' => "API Error",
-                        'message' => "Failed to update leave to API. " . $updateToApi['error']
+                    // Handle escalation for non-User roles or leave duration > 3 days
+                    $updatedAt = $HeadDepartmentModel->submitApproval($request_id, $approver_id, $status, $remarks);
+
+                    // Send email notification to Department Unit
+                    if (!$HeadDepartmentModel->sendEmailNotification($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
+                        throw new Exception("Notification email could not be sent.");
+                    }
+
+                    // Send email back to the user confirming approval/rejection
+                    if (!$HeadDepartmentModel->sendEmailBacktoUser($uEmail, $message, $status, $start_date, $end_date, $remarks, $leaveType)) {
+                        throw new Exception("Failed to send email back to user.");
+                    }
+
+                    // Create notification for user and approver
+                    $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
+
+                    // Log user activity
+                    $userModel->logUserActivity($approver_id, "បាន " . $status . "ច្បាប់ឈប់សម្រាក " . $uname, $_SERVER['REMOTE_ADDR']);
+
+                    $_SESSION['success'] = [
+                        'title' => "បរាជ័យ",
+                        'message' => "សំណើច្បាប់ត្រូវបានបញ្ជូនទៅអ្នកដឹកនាំសម្រាប់បន្តដំណើរការ។" . $managerEmail
                     ];
                     header('location: /elms/headdepartmentpending');
                     exit();
                 }
-
-                $updatedAt = $HeadDepartmentModel->submitApproval($request_id, $approver_id, $status, $remarks, $signaturePath);
-
-                // Handle escalation for non-User roles or leave duration > 3 days
-                if (!$this->sendEmailNotificationToDUnit($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
-                    $_SESSION['error'] = [
-                        'title' => "Email Error",
-                        'message' => "Notification email could not be sent. Please try again."
-                    ];
-                    header('location: /elms/headdepartmentpending');
-                    exit();
-                }
-                // Create notification
-                $notificationModel = new Notification();
-                $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
-
-                // Log user activity
-                $userModel->logUserActivity($approver_id, "បាន " . $status . "ច្បាប់ឈប់សម្រាក " . $uname, $_SERVER['REMOTE_ADDR']);
-
-                $_SESSION['success'] = [
-                    'title' => "សំណើច្បាប់",
-                    'message' => "សំណើច្បាប់ត្រូវបានអនុម័តដោយជោគជ័យ។"
-                ];
-                header('location: /elms/headdepartmentpending');
-                exit();
-            } else {
-                $updatedAt = $HeadDepartmentModel->submitApproval($request_id, $approver_id, $status, $remarks, $signaturePath);
-
-                // Handle escalation for non-User roles or leave duration > 3 days
-                if (!$this->sendEmailNotificationToDUnit($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
-                    $_SESSION['error'] = [
-                        'title' => "Email Error",
-                        'message' => "Notification email could not be sent. Please try again."
-                    ];
-                    header('location: /elms/headdepartmentpending');
-                    exit();
-                }
-                // Create notification
-                $notificationModel = new Notification();
-                $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
-
-                // Log user activity
-                $userModel->logUserActivity($approver_id, "បាន " . $status . "ច្បាប់ឈប់សម្រាក " . $uname, $_SERVER['REMOTE_ADDR']);
-
-                $_SESSION['success'] = [
-                    'title' => "បរាជ័យ",
-                    'message' => "សំណើច្បាប់ត្រូវបានបញ្ជូនទៅអ្នកដឹកនាំសម្រាប់បន្តដំណើរការ។" . $managerEmail
+            } catch (Exception $e) {
+                // Log the error and set an error message
+                error_log("Error in approving leave: " . $e->getMessage());
+                $_SESSION['error'] = [
+                    'title' => "Error",
+                    'message' => $e->getMessage()
                 ];
                 header('location: /elms/headdepartmentpending');
                 exit();
             }
         } else {
-            $leaveRequestModel = new HeadDepartmentModel();
-            $requests = $leaveRequestModel->getAllLeaveRequests();
-            $leavetypeModel = new Leavetype();
-            $leavetypes = $leavetypeModel->getAllLeavetypes();
+            // Handle non-POST requests
+            try {
+                $leaveRequestModel = new HeadDepartmentModel();
+                $requests = $leaveRequestModel->getAllLeaveRequests();
+                $leavetypeModel = new Leavetype();
+                $leavetypes = $leavetypeModel->getAllLeavetypes();
 
-            require 'src/views/leave/departments-h/pending.php';
+                require 'src/views/leave/departments-h/pending.php';
+            } catch (Exception $e) {
+                error_log("Error in loading leave requests: " . $e->getMessage());
+                $_SESSION['error'] = [
+                    'title' => "Error",
+                    'message' => "Failed to load leave requests."
+                ];
+                header('location: /elms/headdepartmentpending');
+                exit();
+            }
         }
     }
 

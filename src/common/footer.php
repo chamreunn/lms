@@ -14,7 +14,7 @@
             </div>
             <form method="POST" action="/elms/apply_latein" enctype="multipart/form-data">
                 <div class="modal-body">
-                    <div class="row mb-3">
+                    <div class="row">
                         <div class="col-lg-12 mb-3">
                             <label for="lateindate" class="form-label">កាលបរិច្ឆេទចាប់<span
                                     class="text-danger mx-1 fw-bold">*</span></label>
@@ -62,7 +62,7 @@
                             <textarea autocomplete="off" placeholder="មូលហេតុ" class="form-control" id="reason"
                                 name="reason"><?= htmlspecialchars($_POST['reason'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                         </div>
-                        <div class="col-lg-6 mb-3">
+                        <div class="col-lg-6">
                             <label class="form-check cursor-pointer">
                                 <input class="form-check-input" type="checkbox" name="agree" <?= isset($_POST['agree']) ? 'checked' : ''; ?>>
                                 <span class="form-check-label">យល់ព្រមលើកាបញ្ចូល<span
@@ -71,7 +71,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-light border-top">
+                <div class="modal-footer bg-light">
                     <div class="w-100">
                         <div class="row">
                             <div class="col">

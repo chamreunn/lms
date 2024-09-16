@@ -1,4 +1,6 @@
-<?php $current_page = basename($_SERVER['REQUEST_URI']); ?>
+<?php
+$current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+?>
 <div class="navbar-expand-md">
     <div class="collapse navbar-collapse" id="navbar-menu">
         <div class="navbar navbar-light">
@@ -7,7 +9,9 @@
                     <li class="nav-item <?= ($current_page == 'dashboard') ? 'active' : '' ?>">
                         <a class="nav-link" href="/elms/dashboard">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                     <polyline points="5 12 3 12 12 3 21 12 19 12" />
                                     <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
@@ -19,10 +23,14 @@
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item <?= ($current_page == 'my-leaves' || $current_page == 'view-leave-detail') ? 'active' : '' ?>">
+                    <li
+                        class="nav-item <?= ($current_page == 'my-leaves' || $current_page == 'view-leave-detail') ? 'active' : '' ?>">
                         <a class="nav-link" href="/elms/my-leaves">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                     <path d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
                                     <path d="M16 3v4" />
@@ -40,7 +48,10 @@
                     <li class="nav-item <?= ($current_page == 'mission') ? 'active' : '' ?>">
                         <a class="nav-link" href="/elms/mission">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-repeat">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-repeat">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                     <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3" />
                                     <path d="M16 3v4" />
@@ -56,12 +67,18 @@
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item dropdown <?= ($current_page == 'overtimein' || $current_page == 'overtimeout' || $current_page == 'leaveearly') ? 'active' : '' ?>">
-                        <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                    <li
+                        class="nav-item dropdown <?= ($current_page == 'overtimein' || $current_page == 'overtimeout' || $current_page == 'leaveearly') ? 'active' : '' ?>">
+                        <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-layout-bottombar-collapse">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-layout-bottombar-collapse">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M20 6v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2z" />
+                                    <path
+                                        d="M20 6v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2z" />
                                     <path d="M20 15h-16" />
                                     <path d="M14 8l-2 2l-2 -2" />
                                 </svg>
@@ -73,9 +90,13 @@
                         <div class="dropdown-menu">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
-                                    <a class="dropdown-item <?= ($current_page == 'overtimein') ? 'active' : '' ?>" href="/elms/overtimein">
+                                    <a class="dropdown-item <?= ($current_page == 'overtimein') ? 'active' : '' ?>"
+                                        href="/elms/overtimein">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-up">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-clock-up">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                 <path d="M20.983 12.548a9 9 0 1 0 -8.45 8.436" />
                                                 <path d="M19 22v-6" />
@@ -85,9 +106,13 @@
                                         </span>
                                         លិខិតចូលយឺត
                                     </a>
-                                    <a class="dropdown-item <?= ($current_page == 'overtimeout') ? 'active' : '' ?>" href="/elms/overtimeout">
+                                    <a class="dropdown-item <?= ($current_page == 'overtimeout') ? 'active' : '' ?>"
+                                        href="/elms/overtimeout">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-plus">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-clock-plus">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                 <path d="M20.984 12.535a9 9 0 1 0 -8.468 8.45" />
                                                 <path d="M16 19h6" />
@@ -97,9 +122,13 @@
                                         </span>
                                         លិខិតចេញយឺត
                                     </a>
-                                    <a class="dropdown-item <?= ($current_page == 'leaveearly') ? 'active' : '' ?>" href="/elms/leaveearly">
+                                    <a class="dropdown-item <?= ($current_page == 'leaveearly') ? 'active' : '' ?>"
+                                        href="/elms/leaveearly">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-share">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-clock-share">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                 <path d="M20.943 13.016a9 9 0 1 0 -8.915 7.984" />
                                                 <path d="M16 22l5 -5" />
@@ -116,9 +145,13 @@
                     <li class="nav-item <?= ($current_page == 'leave-calendar') ? 'active' : '' ?>">
                         <a class="nav-link" href="/elms/leave-calendar">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
+                                    <path
+                                        d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
                                     <path d="M16 3v4" />
                                     <path d="M8 3v4" />
                                     <path d="M4 11h16" />

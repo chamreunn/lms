@@ -68,7 +68,7 @@ class DashboardController
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
                     $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
-                    $gettoday = $countRequestModel->getTodayLeaveById($_SESSION['user_id']);
+                    $leaves = $countRequestModel->getTodayLeaveById($_SESSION['user_id']);
                     $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
                     $leavetype = $leavetypes->getLeaveTypeById($_SESSION['user_id']);
                     $leavetypes = $leavetypes->getAllLeavetypes();

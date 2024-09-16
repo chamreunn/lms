@@ -221,10 +221,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                         <option value="អាចឈប់សម្រាកបាន"></option>
                                     </datalist>
                                 </div>
-                                <div class="mt-3">
-                                    <label id="file-name<?= $request['id'] ?>" for="upload-signature<?= $request['id'] ?>" class="btn w-100 text-start">ហត្ថលេខា<span class="text-red fw-bold mx-1">*</span></label>
-                                    <input type="file" name="manager_signature" id="upload-signature<?= $request['id'] ?>" accept="image/png" hidden onchange="displayFileName(<?= $request['id'] ?>)" required />
-                                </div>
                             </div>
                             <div class="modal-footer">
                                 <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
