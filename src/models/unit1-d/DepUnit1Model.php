@@ -712,7 +712,7 @@ class DepUnit1Model
         AND user_id != ?
         ');
 
-        $stmt->execute(['Approved', 'Rejected', 'Pending', 'Pending', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', 'អនុប្រធាននាយកដ្ឋាន', 'ប្រធាននាយកដ្ឋាន', 'កិច្ចការទូទៅ', 'សវនកម្មទី២', $_SESSION['user_id']]);
+        $stmt->execute(['Approved', 'Rejected', 'Pending', 'Pending', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', 'អនុប្រធាននាយកដ្ឋាន', 'ប្រធាននាយកដ្ឋាន', 'នាយកដ្ឋានកិច្ចការទូទៅ', 'នាយកដ្ឋានសវនកម្មទី២', $_SESSION['user_id']]);
         $leaveRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Initialize UserModel
