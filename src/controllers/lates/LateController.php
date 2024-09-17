@@ -190,6 +190,7 @@ class LateController
         $time = trim($time);
         $reason = trim($reason);
         $userId = $_SESSION['user_id'];
+        $title = "សំណើចូលយឺត";
 
         // Basic validation
         if (empty($date)) {
@@ -280,7 +281,7 @@ class LateController
             $adminEmail = $adminEmails['emails'][0];
 
             // Send email notification to the admin, including the user's Khmer name
-            if (!$this->sendEmailNotification($userNameKh, $adminEmail, $date, $time, $lateMinutes, $reason)) {
+            if (!$this->sendLateInEmail($userNameKh, $adminEmail, $date, $time, $lateMinutes, $reason, $title)) {
                 throw new Exception("Notification email could not be sent.");
             }
 
@@ -323,6 +324,7 @@ class LateController
         $time = trim($time);
         $reason = trim($reason);
         $userId = $_SESSION['user_id'];
+        $title = "សំណើចេញយឺត";
 
         // Check if date field is empty
         if (empty($date)) {
@@ -398,7 +400,9 @@ class LateController
         $userModel = new User();
         // Fetch the admin emails
         $adminEmails = $userModel->getAdminEmails($_SESSION['token']);
-        $userName = $userModel->getUserByIdApi($userId, $_SESSION['token']);
+        // Fetch the user's name using the user ID and session token
+        $userInfo = $userModel->getUserByIdApi($userId, $_SESSION['token']);
+        $userNameKh = $userInfo['data']['lastNameKh'] . ' ' . $userInfo['data']['firstNameKh'];
 
         if (!$adminEmails || $adminEmails['http_code'] !== 200 || empty($adminEmails['emails'])) {
             error_log("API Response: " . print_r($adminEmails, true));
@@ -429,7 +433,7 @@ class LateController
 
         try {
 
-            if (!$this->sendEmailNotification($userName['firstNameKh'], $adminEmail, $date, $time, $lateMinutes, $reason)) {
+            if (!$this->sendLateOutEmail($userNameKh, $adminEmail, $date, $time, $lateMinutes, $reason, $title)) {
                 $_SESSION['error'] = [
                     'title' => "Email Error",
                     'message' => "Notification email could not be sent. Please try again.$adminEmail"
@@ -464,6 +468,7 @@ class LateController
         $time = trim($time);
         $reason = trim($reason);
         $userId = $_SESSION['user_id'];
+        $title = "សំណើចេញមុន";
 
         // Check if date field is empty
         if (empty($date)) {
@@ -543,7 +548,9 @@ class LateController
         $userModel = new User();
         // Fetch the admin emails
         $adminEmails = $userModel->getAdminEmails($_SESSION['token']);
-        $userName = $userModel->getUserByIdApi($userId, $_SESSION['token']);
+
+        $userInfo = $userModel->getUserByIdApi($userId, $_SESSION['token']);
+        $userNameKh = $userInfo['data']['lastNameKh'] . ' ' . $userInfo['data']['firstNameKh'];
 
 
         if (!$adminEmails || $adminEmails['http_code'] !== 200 || empty($adminEmails['emails'])) {
@@ -563,7 +570,7 @@ class LateController
 
         try {
 
-            if (!$this->sendEmailNotification($userName['firstNameKh'], $adminEmail, $date, $time, $lateMinutes, $reason)) {
+            if (!$this->sendLateEarlyEmail($userNameKh, $adminEmail, $date, $time, $lateMinutes, $reason, $title)) {
                 $_SESSION['error'] = [
                     'title' => "Email Error",
                     'message' => "Notification email could not be sent. Please try again.$adminEmail"
@@ -589,6 +596,457 @@ class LateController
 
         header("Location: /elms/leaveearly");
         exit();
+    }
+
+    private function sendLateInEmail($userName, $adminEmail, $date, $time, $lateMinutes, $reason, $title)
+    {
+        $mail = new PHPMailer(true);
+
+        try {
+            // Enable SMTP debugging
+            $mail->SMTPDebug = 2; // Or set to 3 for more verbose output
+            $mail->Debugoutput = function ($str, $level) {
+                error_log("SMTP Debug level $level; message: $str");
+            };
+
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com'; // SMTP server to send through
+            $mail->SMTPAuth = true;
+            $mail->Username = 'pothhchamreun@gmail.com'; // SMTP username
+            $mail->Password = 'kyph nvwd ncpa gyzi'; // SMTP password
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            // Set charset to UTF-8 for Unicode support
+            $mail->CharSet = 'UTF-8';
+
+            // Recipients
+            $mail->setFrom('no-reply@example.com', 'NO REPLY');
+
+            // Ensure $adminEmail is a string, not an array
+            if (is_array($adminEmail)) {
+                $adminEmail = implode(', ', $adminEmail); // Convert array to comma-separated string
+            }
+
+            $mail->addAddress($adminEmail);
+
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = 'Leave Request Notification';
+            $body = "
+        <html>
+        <head>
+            <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet'>
+            <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'>
+            <style>
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    border: none;
+                    border-radius: 15px;
+                    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+                    background-color: #ffffff;
+                }
+                .header {
+                    background-color: #17a2b8;
+                    color: white;
+                    padding: 15px;
+                    border-radius: 15px 15px 0 0;
+                    text-align: center;
+                }
+                .header img {
+                    max-height: 50px;
+                    margin-bottom: 10px;
+                }
+                .header h4 {
+                    margin: 0;
+                    font-size: 1.5rem;
+                    font-family: khmer mef2;
+                }
+                .content {
+                    padding: 20px;
+                    background-color: #f4f7f6;
+                    color: #333;
+                }
+                .content p {
+                    font-size: 1rem;
+                    margin-bottom: 10px;
+                }
+                .content .details {
+                    background-color: #e9ecef;
+                    padding: 15px;
+                    border-radius: 10px;
+                    margin-bottom: 15px;
+                }
+                .details p {
+                    margin: 0;
+                }
+                .btn {
+                    display: inline-block;
+                    padding: 10px 30px;
+                    color: #ffffff;
+                    background-color: #28a745;
+                    border-radius: 30px;
+                    text-decoration: none;
+                    font-weight: bold;
+                    margin-top: 20px;
+                    transition: background-color 0.3s ease;
+                }
+                .btn:hover {
+                    background-color: #218838;
+                }
+                .footer {
+                    padding: 10px;
+                    background-color: #17a2b8;
+                    color: white;
+                    border-radius: 0 0 15px 15px;
+                    text-align: center;
+                }
+                .footer p {
+                    margin: 0;
+                    font-size: 0.9rem;
+                }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='header'>
+                    <img src='https://leave.iauoffsa.us/elms/public/img/icons/brands/logo2.png' alt='Logo'>
+                    <h4>$title</h4>
+                </div>
+                <div class='content'>
+                    <p>សូមគោរពជូនមន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមាន</p>
+                    <div class='details'>
+                        <p><strong>ឈ្មោះ:</strong> $userName</p>
+                        <p><strong>កាលបរិចេ្ឆទ:</strong> $date</p>
+                        <p><strong>ម៉ោងចូល:</strong> $time នាទី</p>
+                        <p><strong>រយៈពេលយឺត:</strong> $lateMinutes នាទី</p>
+                        <p><strong>មូលហេតុ:</strong> $reason</p>
+                    </div>
+                    <a href='https://leave.iauoffsa.us/elms/adminpending?action=latein' class='btn text-white'>ចុចទីនេះដើម្បីអនុម័ត</a>
+                </div>
+                <div class='footer'>
+                    <p>&copy; <?= date('Y') ?> រក្សាសិទ្ធគ្រប់យ៉ាងដោយអង្គភាពសវនកម្មផ្ទៃក្នុង</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    ";
+            $mail->Body = $body;
+
+            if ($mail->send()) {
+                error_log("Email sent successfully to $adminEmail");
+                return true;
+            } else {
+                error_log("Email failed to send to $adminEmail: " . $mail->ErrorInfo);
+                return false;
+            }
+        } catch (Exception $e) {
+            error_log("Email Error: {$mail->ErrorInfo}");
+            return false;
+        }
+    }
+
+    private function sendLateOutEmail($userName, $adminEmail, $date, $time, $lateMinutes, $reason, $title)
+    {
+        $mail = new PHPMailer(true);
+
+        try {
+            // Enable SMTP debugging
+            $mail->SMTPDebug = 2; // Or set to 3 for more verbose output
+            $mail->Debugoutput = function ($str, $level) {
+                error_log("SMTP Debug level $level; message: $str");
+            };
+
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com'; // SMTP server to send through
+            $mail->SMTPAuth = true;
+            $mail->Username = 'pothhchamreun@gmail.com'; // SMTP username
+            $mail->Password = 'kyph nvwd ncpa gyzi'; // SMTP password
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            // Set charset to UTF-8 for Unicode support
+            $mail->CharSet = 'UTF-8';
+
+            // Recipients
+            $mail->setFrom('no-reply@example.com', 'NO REPLY');
+
+            // Ensure $adminEmail is a string, not an array
+            if (is_array($adminEmail)) {
+                $adminEmail = implode(', ', $adminEmail); // Convert array to comma-separated string
+            }
+
+            $mail->addAddress($adminEmail);
+
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = 'Leave Request Notification';
+            $body = "
+        <html>
+        <head>
+            <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet'>
+            <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'>
+            <style>
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    border: none;
+                    border-radius: 15px;
+                    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+                    background-color: #ffffff;
+                }
+                .header {
+                    background-color: #17a2b8;
+                    color: white;
+                    padding: 15px;
+                    border-radius: 15px 15px 0 0;
+                    text-align: center;
+                }
+                .header img {
+                    max-height: 50px;
+                    margin-bottom: 10px;
+                }
+                .header h4 {
+                    margin: 0;
+                    font-size: 1.5rem;
+                }
+                .content {
+                    padding: 20px;
+                    background-color: #f4f7f6;
+                    color: #333;
+                }
+                .content p {
+                    font-size: 1rem;
+                    margin-bottom: 10px;
+                }
+                .content .details {
+                    background-color: #e9ecef;
+                    padding: 15px;
+                    border-radius: 10px;
+                    margin-bottom: 15px;
+                }
+                .details p {
+                    margin: 0;
+                }
+                .btn {
+                    display: inline-block;
+                    padding: 10px 30px;
+                    color: #ffffff;
+                    background-color: #28a745;
+                    border-radius: 30px;
+                    text-decoration: none;
+                    font-weight: bold;
+                    margin-top: 20px;
+                    transition: background-color 0.3s ease;
+                }
+                .btn:hover {
+                    background-color: #218838;
+                }
+                .footer {
+                    padding: 10px;
+                    background-color: #17a2b8;
+                    color: white;
+                    border-radius: 0 0 15px 15px;
+                    text-align: center;
+                }
+                .footer p {
+                    margin: 0;
+                    font-size: 0.9rem;
+                }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='header'>
+                    <img src='https://leave.iauoffsa.us/elms/public/img/icons/brands/logo2.png' alt='Logo'>
+                    <h4>$title</h4>
+                </div>
+                <div class='content'>
+                    <p>សូមគោរពជូនមន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមាន</p>
+                    <div class='details'>
+                        <p><strong>ឈ្មោះ:</strong> $userName</p>
+                        <p><strong>កាលបរិចេ្ឆទ:</strong> $date</p>
+                        <p><strong>ម៉ោងចូល:</strong> $time នាទី</p>
+                        <p><strong>រយៈពេលយឺត:</strong> $lateMinutes នាទី</p>
+                        <p><strong>មូលហេតុ:</strong> $reason</p>
+                    </div>
+                    <a href='https://leave.iauoffsa.us/elms/adminpending?action=lateout' class='btn text-white'>ចុចទីនេះដើម្បីអនុម័ត</a>
+                </div>
+                <div class='footer'>
+                    <p>&copy; <?= date('Y') ?> រក្សាសិទ្ធគ្រប់យ៉ាងដោយអង្គភាពសវនកម្មផ្ទៃក្នុង</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    ";
+            $mail->Body = $body;
+
+            if ($mail->send()) {
+                error_log("Email sent successfully to $adminEmail");
+                return true;
+            } else {
+                error_log("Email failed to send to $adminEmail: " . $mail->ErrorInfo);
+                return false;
+            }
+        } catch (Exception $e) {
+            error_log("Email Error: {$mail->ErrorInfo}");
+            return false;
+        }
+    }
+
+    private function sendLateEarlyEmail($userName, $adminEmail, $date, $time, $lateMinutes, $reason, $title)
+    {
+        $mail = new PHPMailer(true);
+
+        try {
+            // Enable SMTP debugging
+            $mail->SMTPDebug = 2; // Or set to 3 for more verbose output
+            $mail->Debugoutput = function ($str, $level) {
+                error_log("SMTP Debug level $level; message: $str");
+            };
+
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com'; // SMTP server to send through
+            $mail->SMTPAuth = true;
+            $mail->Username = 'pothhchamreun@gmail.com'; // SMTP username
+            $mail->Password = 'kyph nvwd ncpa gyzi'; // SMTP password
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            // Set charset to UTF-8 for Unicode support
+            $mail->CharSet = 'UTF-8';
+
+            // Recipients
+            $mail->setFrom('no-reply@example.com', 'NO REPLY');
+
+            // Ensure $adminEmail is a string, not an array
+            if (is_array($adminEmail)) {
+                $adminEmail = implode(', ', $adminEmail); // Convert array to comma-separated string
+            }
+
+            $mail->addAddress($adminEmail);
+
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = 'Leave Request Notification';
+            $body = "
+        <html>
+        <head>
+            <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet'>
+            <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'>
+            <style>
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    border: none;
+                    border-radius: 15px;
+                    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+                    background-color: #ffffff;
+                }
+                .header {
+                    background-color: #17a2b8;
+                    color: white;
+                    padding: 15px;
+                    border-radius: 15px 15px 0 0;
+                    text-align: center;
+                }
+                .header img {
+                    max-height: 50px;
+                    margin-bottom: 10px;
+                }
+                .header h4 {
+                    margin: 0;
+                    font-size: 1.5rem;
+                }
+                .content {
+                    padding: 20px;
+                    background-color: #f4f7f6;
+                    color: #333;
+                }
+                .content p {
+                    font-size: 1rem;
+                    margin-bottom: 10px;
+                }
+                .content .details {
+                    background-color: #e9ecef;
+                    padding: 15px;
+                    border-radius: 10px;
+                    margin-bottom: 15px;
+                }
+                .details p {
+                    margin: 0;
+                }
+                .btn {
+                    display: inline-block;
+                    padding: 10px 30px;
+                    color: #ffffff;
+                    background-color: #28a745;
+                    border-radius: 10px;
+                    text-decoration: none;
+                    font-weight: bold;
+                    margin-top: 20px;
+                    transition: background-color 0.3s ease;
+                }
+                .btn:hover {
+                    background-color: #218838;
+                }
+                .footer {
+                    padding: 10px;
+                    background-color: #17a2b8;
+                    color: white;
+                    border-radius: 0 0 15px 15px;
+                    text-align: center;
+                }
+                .footer p {
+                    margin: 0;
+                    font-size: 0.9rem;
+                }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='header'>
+                    <img src='https://leave.iauoffsa.us/elms/public/img/icons/brands/logo2.png' alt='Logo'>
+                    <h4>$title</h4>
+                </div>
+                <div class='content'>
+                    <p>សូមគោរពជូនមន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមាន</p>
+                    <div class='details'>
+                        <p><strong>ឈ្មោះ:</strong> $userName</p>
+                        <p><strong>កាលបរិចេ្ឆទ:</strong> $date</p>
+                        <p><strong>ម៉ោងចូល:</strong> $time នាទី</p>
+                        <p><strong>រយៈពេលយឺត:</strong> $lateMinutes នាទី</p>
+                        <p><strong>មូលហេតុ:</strong> $reason</p>
+                    </div>
+                    <a href='https://leave.iauoffsa.us/elms/adminpending?action=lateearly' class='btn text-white'>ចុចទីនេះដើម្បីអនុម័ត</a>
+                </div>
+                <div class='footer'>
+                    <p>&copy; <?= date('Y') ?> រក្សាសិទ្ធគ្រប់យ៉ាងដោយអង្គភាពសវនកម្មផ្ទៃក្នុង</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    ";
+            $mail->Body = $body;
+
+            if ($mail->send()) {
+                error_log("Email sent successfully to $adminEmail");
+                return true;
+            } else {
+                error_log("Email failed to send to $adminEmail: " . $mail->ErrorInfo);
+                return false;
+            }
+        } catch (Exception $e) {
+            error_log("Email Error: {$mail->ErrorInfo}");
+            return false;
+        }
     }
 
     private function sendEmailNotification($userName, $adminEmail, $date, $time, $lateMinutes, $reason)

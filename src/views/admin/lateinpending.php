@@ -24,6 +24,7 @@ $action = $_GET['action'] ?? 'latein';
         <div class="row mt-3 mb-3">
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-3 mb-3">
+
                 <div class="card list-group mb-3">
                     <a href="/elms/adminpending?action=latein"
                         class="list-group-item list-group-item-action <?php echo $action == 'latein' ? 'active' : ''; ?>">
@@ -99,7 +100,7 @@ $action = $_GET['action'] ?? 'latein';
                     </a>
                 </div>
 
-                <div class="card list-group">
+                <div class="card list-group mb-3">
                     <a href="/elms/adminpending?action=allLate"
                         class="list-group-item list-group-item-action <?php echo $action == 'allLate' ? 'active' : ''; ?>">
                         <!-- SVG and Badge for Late In -->
@@ -122,8 +123,8 @@ $action = $_GET['action'] ?? 'latein';
                                 <path d="M7.01 17h.005" />
                                 <path d="M10.01 17h.005" />
                             </svg>
-                            <div class="mx-2">សំណើទាំងអស់</div>
-                            <span class="badge bg-danger text-white ms-auto"><?= $getAllLate ?></span>
+                            <div class="mx-2">សំណើដែលបានអនុម័ត</div>
+                            <span class="badge bg-danger text-white ms-auto"><?= $getApproved ?></span>
                         </div>
                     </a>
                 </div>
@@ -237,15 +238,16 @@ $action = $_GET['action'] ?? 'latein';
                                     <div class="text-muted h4">មិនទាន់មានសំណើនៅឡើយ។</div>
                                 </div>
                             <?php else: ?>
-                                <?php foreach ($getAll as $request): ?>
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h3 class="card-title text-primary mb-0">
-                                                <span>ចេញមុន</span>
-                                            </h3>
-                                        </div>
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title text-primary mb-0">
+                                            <span>ចេញមុន</span>
+                                        </h3>
+                                    </div>
+                                    <?php foreach ($getAll as $request): ?>
+
                                         <div class="list-group list-group-flush">
-                                            <a href="viewLateDetail?<?= $request['id'] ?>"
+                                            <a href="viewLateDetailLeaveEarly?id=<?= $request['id'] ?>"
                                                 class="list-group-item list-group-item-action" aria-current="true">
                                                 <!-- Profile Picture -->
                                                 <div class="d-flex">
@@ -263,8 +265,8 @@ $action = $_GET['action'] ?? 'latein';
                                                 </div>
                                             </a>
                                         </div>
-                                    </div>
-                                <?php endforeach; ?>
+                                    <?php endforeach; ?>
+                                </div>
                             <?php endif; ?>
                         </ul>
 
@@ -289,9 +291,8 @@ $action = $_GET['action'] ?? 'latein';
                                         </h3>
                                     </div>
                                     <?php foreach ($getAlls as $request): ?>
-
                                         <div class="list-group list-group-flush">
-                                            <a href="viewLateDetail?<?= $request['id'] ?>"
+                                            <a href="viewLateDetailAllLate?id=<?= $request['id'] ?>"
                                                 class="list-group-item list-group-item-action" aria-current="true">
                                                 <!-- Profile Picture -->
                                                 <div class="d-flex">
@@ -304,12 +305,11 @@ $action = $_GET['action'] ?? 'latein';
                                                         </div>
                                                     </div>
                                                     <div class="ms-auto">
-                                                        <div class="badge bg-warning"><?= $request['status'] ?></div>
+                                                        <div class="badge bg-success"><?= $request['status'] ?></div>
                                                     </div>
                                                 </div>
                                             </a>
                                         </div>
-
                                     <?php endforeach; ?>
                                 </div>
                             <?php endif; ?>

@@ -153,8 +153,7 @@
                                                 class="text-danger fw-bold mx-1">*</span></label>
                                         <input type="email"
                                             style="font-family: system-ui, 'khmer mef1', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;"
-                                            class="form-control" name="email"
-                                            placeholder="ឬអាសយដ្ឋានអ៊ីមែល"
+                                            class="form-control" name="email" placeholder="អាសយដ្ឋានអ៊ីមែល"
                                             value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                             autofocus autocomplete="on">
                                     </div>
@@ -193,8 +192,16 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col">
-                                        <a href="#" class="btn w-100" style="font-family: khmer mef1">
-                                            ត្រឡប់ទៅកាន់ទំព័រដើម
+                                        <a href="https://t.me/+tUM99eg0IGxlZGVl" target="_blank" class="btn btn-facebook w-100">
+                                            <!-- Download SVG icon from http://tabler-icons.io/i/brand-facebook -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-brand-telegram">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M15 10l-4 4l6 6l4 -16l-18 7l4 2l2 6l3 -4" />
+                                            </svg>
+                                           ទំនាក់ទនងក្រុមការងារគាំគ្របច្ចេកទេស
                                         </a>
                                     </div>
                                 </div>

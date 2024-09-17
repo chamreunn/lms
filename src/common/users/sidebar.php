@@ -84,7 +84,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                 </svg>
                             </span>
                             <span class="nav-link-title">
-                                លិខិតយឺត
+                                គ្រប់គ្រងការចេញចូល
                             </span>
                         </a>
                         <div class="dropdown-menu">
@@ -104,7 +104,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                                 <path d="M12 7v5l2.5 2.5" />
                                             </svg>
                                         </span>
-                                        លិខិតចូលយឺត
+                                        ចូលយឺត
                                     </a>
                                     <a class="dropdown-item <?= ($current_page == 'overtimeout') ? 'active' : '' ?>"
                                         href="/elms/overtimeout">
@@ -120,7 +120,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                                 <path d="M12 7v5l3 3" />
                                             </svg>
                                         </span>
-                                        លិខិតចេញយឺត
+                                        ចេញយឺត
                                     </a>
                                     <a class="dropdown-item <?= ($current_page == 'leaveearly') ? 'active' : '' ?>"
                                         href="/elms/leaveearly">
@@ -136,7 +136,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                                 <path d="M12 7v5l2 2" />
                                             </svg>
                                         </span>
-                                        លិខិតចេញមុន
+                                        ចេញមុន
                                     </a>
                                 </div>
                             </div>

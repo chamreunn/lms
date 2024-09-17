@@ -609,6 +609,12 @@ switch ($uri) {
             $controller->ActionLateOut();
         });
         break;
+    case $base_url . '/actionLeaveEarly':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->ActionLeaveEarly();
+        });
+        break;
     case $base_url . '/late_in_request':
         checkSessionAndExecute(function () {
             $controller = new LateController();
@@ -664,6 +670,18 @@ switch ($uri) {
         checkSessionAndExecute(function () {
             $controller = new AdminController();
             $controller->viewLateDetailLateOut();
+        });
+        break;
+    case $base_url . '/viewLateDetailLeaveEarly':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->viewLateDetailLeaveEarly();
+        });
+        break;
+    case $base_url . '/viewLateDetailAllLate':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->viewLateDetailAllLate();
         });
         break;
     case $base_url . '/overtimein':

@@ -88,8 +88,11 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
             <div class="card-body">
                 <h4 class="subheader">គណនីរបស់ខ្ញុំ</h4>
                 <div class="list-group list-group-transparent">
-                    <a href="/elms/edit_user_detail?user_id=<?= $userDetails['user_id'] ?>" class="list-group-item list-group-item-action d-flex align-items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-circle">
+                    <a href="/elms/edit_user_detail?user_id=<?= $userDetails['user_id'] ?>"
+                        class="list-group-item list-group-item-action d-flex align-items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="icon icon-tabler icons-tabler-outline icon-tabler-user-circle">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                             <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
                             <path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
@@ -97,10 +100,15 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                         </svg>
                         <span class="mx-2">គណនីរបស់ខ្ញុំ</span>
                     </a>
-                    <a href="/elms/setting_security?user_id=<?= $userDetails['user_id'] ?>" data-bs-toggle="tooltip" title="ផ្លាស់ប្តូរអ៊ីម៉ែល និងពាក្យសម្ងាត់" data-bs-target="top" class="list-group-item list-group-item-action d-flex align-items-center active">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-shield-lock">
+                    <a href="/elms/setting_security?user_id=<?= $userDetails['user_id'] ?>" data-bs-toggle="tooltip"
+                        title="ផ្លាស់ប្តូរអ៊ីម៉ែល និងពាក្យសម្ងាត់" data-bs-target="top"
+                        class="list-group-item list-group-item-action d-flex align-items-center active">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="icon icon-tabler icons-tabler-outline icon-tabler-shield-lock">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3" />
+                            <path
+                                d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3" />
                             <path d="M12 11m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
                             <path d="M12 12l0 2.5" />
                         </svg>
@@ -113,36 +121,56 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
             <div class="card-body">
                 <h2 class="mb-4">សុវត្ថិភាព</h2>
                 <h3 class="card-title mt-4">អាសយដ្ឋានអ៊ីម៉ែល</h3>
-                <p class="card-subtitle text-danger">សូមពិនិត្យអាសយដ្ឋានអ៊ីម៉ែលអោយបានត្រឹមត្រូវ។​ ការស្នើសុំច្បាប់ ការដាក់លិខិតផ្សេងៗនិងត្រូវបានផ្ញើទៅកាន់អាសយដ្ឋានអ៊ីម៉ែលរបស់អ្នក។</p>
+                <p class="card-subtitle text-danger">សូមពិនិត្យអាសយដ្ឋានអ៊ីម៉ែលអោយបានត្រឹមត្រូវ។​ ការស្នើសុំច្បាប់
+                    ការដាក់លិខិតផ្សេងៗនិងត្រូវបានផ្ញើទៅកាន់អាសយដ្ឋានអ៊ីម៉ែលរបស់អ្នក។</p>
                 <div class="mb-3">
                     <!-- Email Update Form -->
                     <div class="row">
                         <div class="col-10">
-                            <input type="email" name="email" disabled class="form-control" value="<?= htmlspecialchars($userDetails['email'], ENT_QUOTES, 'UTF-8'); ?>" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+                            <input type="email" name="email" disabled class="form-control"
+                                value="<?= htmlspecialchars($userDetails['email'], ENT_QUOTES, 'UTF-8'); ?>"
+                                style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
                         </div>
                         <div class="col-2">
-                            <button type="button" class="btn btn-red w-100" data-bs-toggle="modal" data-bs-target="#emailUpdateModal">
+                            <button type="button" class="btn btn-red w-100" data-bs-toggle="modal"
+                                data-bs-target="#emailUpdateModal">
                                 ផ្លាស់ប្តូរ
                             </button>
                         </div>
                     </div>
 
+                    <!-- Telegram Connect Button -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <!-- Replace your_bot_username and unique_user_token dynamically -->
+                            <a href="https://t.me/your_bot_username?start=(unique_user_token)"
+                                class="btn btn-primary w-100">
+                                Connect Telegram
+                            </a>
+                        </div>
+                    </div>
+
                     <!-- Modal Structure -->
-                    <div class="modal modal-blur fade" id="emailUpdateModal" tabindex="-1" aria-labelledby="emailUpdateModalLabel" aria-hidden="true">
+                    <div class="modal modal-blur fade" id="emailUpdateModal" tabindex="-1"
+                        aria-labelledby="emailUpdateModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="emailUpdateModalLabel">អាសយដ្ឋានអ៊ីម៉ែលថ្មី</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <!-- Email Update Form Inside Modal -->
                                     <form action="/elms/update-email" method="post">
                                         <div class="row g-2">
                                             <div class="col-12 mb-3">
-                                                <input type="hidden" name="user_id" value="<?= $userDetails['user_id'] ?>">
-                                                <h5 for="new_email" class="form-label mb-3 mt-0">អាសយដ្ឋានអ៊ីម៉ែលថ្មី</h5>
-                                                <input type="email" id="new_email" name="email" class="form-control" placeholder="សូមបញ្ចូលអាសយដ្ឋានអ៊ីម៉ែលថ្មី">
+                                                <input type="hidden" name="user_id"
+                                                    value="<?= $userDetails['user_id'] ?>">
+                                                <h5 for="new_email" class="form-label mb-3 mt-0">អាសយដ្ឋានអ៊ីម៉ែលថ្មី
+                                                </h5>
+                                                <input type="email" id="new_email" name="email" class="form-control"
+                                                    placeholder="សូមបញ្ចូលអាសយដ្ឋានអ៊ីម៉ែលថ្មី">
                                             </div>
                                             <div class="col-12">
                                                 <button type="submit" class="btn btn-red w-100">ផ្លាស់ប្តូរ</button>
@@ -156,20 +184,30 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                 </div>
                 <hr>
                 <h3 class="card-title mt-4">ពាក្យសម្ងាត់</h3>
-                <p class="card-subtitle text-danger">សូមប្រើប្រាស់ពាក្យសម្ងាត់ដែលមានសុវត្ថិភាពខ្ពស់។ ត្រូវមានអក្សរធំ អក្សរតូច លេខ និងសញ្ញាជាដើម។</p>
+                <p class="card-subtitle text-danger">សូមប្រើប្រាស់ពាក្យសម្ងាត់ដែលមានសុវត្ថិភាពខ្ពស់។ ត្រូវមានអក្សរធំ
+                    អក្សរតូច លេខ និងសញ្ញាជាដើម។</p>
                 <form action="/elms/update-password" method="POST" class="mb-3">
                     <input type="hidden" name="user_id" value="<?= $userDetails['user_id'] ?>">
                     <div class="row g-3 mb-3">
                         <div class="col-lg-5 col-md-12 col-sm-12">
                             <div class="input-group input-group-flat">
-                                <input type="password" style="font-family: system-ui, 'khmer mef1', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;" class="form-control" name="password" value="<?php echo htmlspecialchars($_POST['password'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="ពាក្យសម្ងាត់ថ្មី" autocomplete="off" id="password">
+                                <input type="password"
+                                    style="font-family: system-ui, 'khmer mef1', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;"
+                                    class="form-control" name="password"
+                                    value="<?php echo htmlspecialchars($_POST['password'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                    placeholder="ពាក្យសម្ងាត់ថ្មី" autocomplete="off" id="password">
                                 <span class="input-group-text">
-                                    <a href="#" class="link-secondary" title="Show password" data-bs-toggle="tooltip" onclick="togglePasswordVisibility('password', 'password_icon')">
+                                    <a href="#" class="link-secondary" title="Show password" data-bs-toggle="tooltip"
+                                        onclick="togglePasswordVisibility('password', 'password_icon')">
                                         <span id="password_icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                class="icon icon-tabler icon-tabler-eye" width="24" height="24"
+                                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                stroke-linecap="round" stroke-linejoin="round">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                 <circle cx="12" cy="12" r="2" />
-                                                <path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" />
+                                                <path
+                                                    d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" />
                                             </svg>
                                         </span>
                                     </a>
@@ -178,14 +216,23 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                         </div>
                         <div class="col-lg-5 col-md-12 col-sm-12">
                             <div class="input-group input-group-flat">
-                                <input type="password" style="font-family: system-ui, 'khmer mef1', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;" class="form-control" name="confirm_password" value="<?php echo htmlspecialchars($_POST['confirm_password'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="បញ្ជាក់ពាក្យសម្ងាត់ថ្មី" autocomplete="off" id="confirm_password">
+                                <input type="password"
+                                    style="font-family: system-ui, 'khmer mef1', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;"
+                                    class="form-control" name="confirm_password"
+                                    value="<?php echo htmlspecialchars($_POST['confirm_password'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                    placeholder="បញ្ជាក់ពាក្យសម្ងាត់ថ្មី" autocomplete="off" id="confirm_password">
                                 <span class="input-group-text">
-                                    <a href="#" class="link-secondary" title="Show password" data-bs-toggle="tooltip" onclick="togglePasswordVisibility('confirm_password', 'confirm_password_icon')">
+                                    <a href="#" class="link-secondary" title="Show password" data-bs-toggle="tooltip"
+                                        onclick="togglePasswordVisibility('confirm_password', 'confirm_password_icon')">
                                         <span id="confirm_password_icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                class="icon icon-tabler icon-tabler-eye" width="24" height="24"
+                                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                stroke-linecap="round" stroke-linejoin="round">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                 <circle cx="12" cy="12" r="2" />
-                                                <path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" />
+                                                <path
+                                                    d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" />
                                             </svg>
                                         </span>
                                     </a>
@@ -255,16 +302,16 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     }
 
     // Event listeners for buttons
-    document.getElementById('cardViewBtn').addEventListener('click', function() {
+    document.getElementById('cardViewBtn').addEventListener('click', function () {
         switchView('card');
     });
 
-    document.getElementById('listViewBtn').addEventListener('click', function() {
+    document.getElementById('listViewBtn').addEventListener('click', function () {
         switchView('list');
     });
 
     // On page load, set the view based on the user's previous choice
-    window.onload = function() {
+    window.onload = function () {
         const preferredView = localStorage.getItem('preferredView') || 'card';
         switchView(preferredView);
     };

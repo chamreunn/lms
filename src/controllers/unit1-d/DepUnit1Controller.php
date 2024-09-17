@@ -261,24 +261,13 @@ class DepUnit1Controller
             $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
             $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
-            // Handle file upload for manager's signature
-            $signaturePath = $Model->handleFileUpload($_FILES['manager_signature'], ['png'], 1048576, 'public/uploads/signatures/');
-            if ($signaturePath === false) {
-                $_SESSION['error'] = [
-                    'title' => "ហត្ថលេខា",
-                    'message' => "មិនអាចបញ្ចូលហត្ថលេខាបានទេ។​ សូមព្យាយាមម្តងទៀត"
-                ];
-                header('location: /elms/dunit1pending');
-                exit();
-            }
-
             // Start transaction
             try {
                 $this->pdo->beginTransaction();
 
                 // Create approval record
                 $leaveApproval = new DepUnit1Model();
-                $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks, $signaturePath);
+                $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks);
 
                 // Fetch office details using API
                 $userModel = new User();

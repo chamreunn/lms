@@ -299,6 +299,78 @@ class AdminController
         }
     }
 
+    public function ActionLeaveEarly()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Initialize variables
+            $approver_id = $_SESSION['user_id'] ?? null; // Ensure session variable is set
+            $uEmail = $_POST['uEmail'] ?? null;
+
+            $lateId = $_POST['lateId'] ?? null;
+            $status = $_POST['status'] ?? null;
+            $activity = "អនុម័តសំណើចេញយឺត"; // Update activity message to reflect "late out"
+
+            $uId = $_POST['uId'] ?? null;
+            $checkOut = $_POST['checkOut'] ?? null;
+            $exit = $_POST['exit'] ?? null;
+
+            try {
+                // Start transaction
+                $this->pdo->beginTransaction();
+
+                // Ensure all required fields are provided
+                if (empty($lateId) || empty($status) || empty($uId) || empty($checkOut) || empty($exit)) {
+                    throw new Exception("Missing required fields for processing.");
+                }
+
+                // Update the late-out status
+                $adminModel = new AdminModel();
+                $updateStatus = $adminModel->updateStatus($lateId, $status);
+
+                // Log user activity
+                $userModel = new User();
+                $createActivityResult = $userModel->logUserActivity($approver_id, $activity);
+
+                // Check if both operations were successful
+                if ($updateStatus) {
+                    // Commit the transaction
+                    $this->pdo->commit();
+
+                    // If the status is not "Rejected", update the API with late-out information
+                    if ($status !== 'Rejected') {
+                        $updateToApi = $userModel->updateLeaveEarlyToApi($uId, $checkOut, $exit, $_SESSION['token']);
+
+                        // If API update fails, handle it (optional: log or display an error)
+                        if (!$updateToApi['success']) {
+                            throw new Exception("Failed to update late-out information to the API. Response: " . $updateToApi['response']);
+                        }
+                    }
+
+                    // Set success message in session
+                    $_SESSION['success'] = [
+                        'title' => "ជោគជ័យ",
+                        'message' => "សំណើចេញយឺតត្រូវបានអនុម័តដោយជោគជ័យ។"
+                    ];
+                } else {
+                    // If any operation fails, roll back and throw an exception
+                    $this->pdo->rollBack();
+                    throw new Exception("Failed to update status or log activity.");
+                }
+            } catch (Exception $e) {
+                // Rollback transaction on error
+                $this->pdo->rollBack();
+                // Set error message in session
+                $_SESSION['error'] = [
+                    'title' => "កំហុស",
+                    'message' => "មានបញ្ហាក្នុងការអនុម័តសំណើ: " . $e->getMessage()
+                ];
+            }
+
+            // Redirect to pending admin page
+            header("Location: /elms/adminpending?action=lateout");
+            exit();
+        }
+    }
 
     public function viewLateDetail()
     {
@@ -334,6 +406,40 @@ class AdminController
         exit();
     }
 
+    public function viewLateDetailLeaveEarly()
+    {
+        if (isset($_GET['id'])) {
+            $adminModel = new AdminModel();
+            $id = (int) $_GET['id'];
+            $detail = $adminModel->getLateById($id);
+
+            if ($detail) {
+                require 'src/views/admin/LateDetailLeaveEarly.php';
+                return;
+            }
+        }
+        // If request not found or leave_id is not provided, redirect or show error
+        header('Location: /elms/adminpending');
+        exit();
+    }
+
+    public function viewLateDetailAllLate()
+    {
+        if (isset($_GET['id'])) {
+            $adminModel = new AdminModel();
+            $id = (int) $_GET['id'];
+            $detail = $adminModel->getAllLateById($id);
+
+            if ($detail) {
+                require 'src/views/admin/LateAllDetail.php';
+                return;
+            }
+        }
+        // If request not found or leave_id is not provided, redirect or show error
+        header('Location: /elms/adminpending');
+        exit();
+    }
+
     public function getPendingLate()
     {
         $adminModel = new AdminModel();
@@ -343,6 +449,7 @@ class AdminController
         $getLateOutCount = $adminModel->getLateoutCount();
         $getLeaveEarlyCount = $adminModel->getLeaveearlyCount();
         $getAllLate = $adminModel->getAllLate();
+        $getApproved = $adminModel->getApprovedLateCount();
 
         require 'src/views/admin/lateinpending.php';
     }
@@ -356,6 +463,7 @@ class AdminController
         $getLateOutCount = $adminModel->getLateoutCount();
         $getLeaveEarlyCount = $adminModel->getLeaveearlyCount();
         $getAllLate = $adminModel->getAllLate();
+        $getApproved = $adminModel->getApprovedLateCount();
 
         require 'src/views/admin/lateinpending.php';
     }
@@ -369,6 +477,7 @@ class AdminController
         $getLateOutCount = $adminModel->getLateoutCount();
         $getLeaveEarlyCount = $adminModel->getLeaveearlyCount();
         $getAllLate = $adminModel->getAllLate();
+        $getApproved = $adminModel->getApprovedLateCount();
 
         require 'src/views/admin/lateinpending.php';
     }
@@ -382,6 +491,7 @@ class AdminController
         $getLateOutCount = $adminModel->getLateoutCount();
         $getLeaveEarlyCount = $adminModel->getLeaveearlyCount();
         $getAllLate = $adminModel->getAllLate();
+        $getApproved = $adminModel->getApprovedLateCount();
 
         require 'src/views/admin/lateinpending.php';
     }

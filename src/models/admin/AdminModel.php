@@ -98,6 +98,66 @@ class AdminModel
         }
     }
 
+    public function getAllLateById($late_id)
+    {
+        // Fetch a single late-in record by ID without joining the users table
+        $query = "SELECT * FROM $this->table_name WHERE id = :id";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $late_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // Fetch the late-in record
+        $lateInRecord = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Check if a record is found
+        if (!$lateInRecord) {
+            return null; // Return null if no record is found
+        }
+
+        $userModel = new User();
+        $user_id = $lateInRecord['user_id'];
+
+        // Fetch user data from API using the user_id
+        $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+        // Check if the API response is successful and contains user data
+        if ($userApiResponse && isset($userApiResponse['http_code']) && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+            $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+            // Fetch user role from the API
+            $roleResponse = $userModel->getRoleApi($user['roleId'], $_SESSION['token']);
+
+            // Add the role to the user data
+            $user['role'] = ($roleResponse && $roleResponse['http_code'] === 200 && isset($roleResponse['data']['roleNameKh']))
+                ? $roleResponse['data']['roleNameKh']
+                : 'Unknown';
+
+            // Merge user data into the late-in record
+            $lateInRecord['khmer_name'] = isset($user['lastNameKh'], $user['firstNameKh'])
+                ? $user['lastNameKh'] . ' ' . $user['firstNameKh']
+                : 'Unknown';
+            $lateInRecord['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+            $lateInRecord['email'] = $user['email'] ?? 'Unknown';
+            $lateInRecord['contact'] = $user['phoneNumber'] ?? 'Unknown';
+            $lateInRecord['address'] = $user['pobAddress'] ?? 'Unknown';
+            $lateInRecord['department_name'] = $user['department']['name'] ?? 'Unknown';
+            $lateInRecord['position_name'] = $user['position']['name'] ?? 'Unknown';
+            $lateInRecord['role'] = $user['role'] ?? 'Unknown';
+            $lateInRecord['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png');
+
+            return $lateInRecord;
+        } else {
+            // Log the unexpected response for debugging purposes
+            error_log("Unexpected API Response: " . print_r($userApiResponse, true));
+            return [
+                'http_code' => $userApiResponse['http_code'] ?? 500, // Default to 500 if http_code is missing
+                'error' => "Unexpected API Response",
+                'response' => $userApiResponse
+            ];
+        }
+    }
+
     public function updateStatus($lateId, $status)
     {
         $sql = "UPDATE $this->table_name SET status = :status WHERE id = :lateId";
@@ -606,6 +666,21 @@ class AdminModel
         SELECT COUNT(*) AS AllLate
         FROM $this->table_name lt
         WHERE lt.status = 'Pending'
+    ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['AllLate'];
+    }
+
+    public function getApprovedLateCount()
+    {
+        $query = "
+        SELECT COUNT(*) AS AllLate
+        FROM $this->table_name lt
+        WHERE lt.status != 'Pending'
     ";
 
         $stmt = $this->pdo->prepare($query);

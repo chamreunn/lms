@@ -196,7 +196,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <div class="modal-content">
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         <div class="modal-status bg-success"></div>
-                        <form action="/elms/dunit1pending" method="POST" enctype="multipart/form-data">
+                        <form action="/elms/hunitpending" method="POST" enctype="multipart/form-data">
                             <div class="modal-body text-center py-4">
                                 <!-- Download SVG icon from http://tabler-icons.io/i/circle-check -->
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -225,13 +225,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                     <datalist id="datalistOptions">
                                         <option value="អាចឈប់សម្រាកបាន"></option>
                                     </datalist>
-                                </div>
-                                <div class="mt-3">
-                                    <label id="file-name<?= $request['id'] ?>" for="upload-signature<?= $request['id'] ?>"
-                                        class="btn w-100 text-start">ហត្ថលេខា<span
-                                            class="text-red fw-bold mx-1">*</span></label>
-                                    <input type="file" name="manager_signature" id="upload-signature<?= $request['id'] ?>"
-                                        accept="image/png" hidden onchange="displayFileName(<?= $request['id'] ?>)" required />
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -271,7 +264,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <div class="modal-content">
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         <div class="modal-status bg-danger"></div>
-                        <form action="/elms/dunit1pending" method="POST" enctype="multipart/form-data">
+                        <form action="/elms/hunitpending" method="POST" enctype="multipart/form-data">
                             <div class="modal-body text-center py-4">
                                 <!-- Download SVG icon from http://tabler-icons.io/i/circle-check -->
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -304,13 +297,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                         <option value="Andorra">
                                         </option>
                                     </datalist>
-                                </div>
-                                <div class="mt-3" hidden>
-                                    <label id="file-name<?= $request['id'] ?>" for="upload-signature<?= $request['id'] ?>"
-                                        class="btn w-100 text-start">ហត្ថលេខា<span
-                                            class="text-red fw-bold mx-1">*</span></label>
-                                    <input type="file" name="manager_signature" id="upload-signature<?= $request['id'] ?>"
-                                        accept="image/png" hidden onchange="displayFileName(<?= $request['id'] ?>)" />
                                 </div>
                             </div>
                             <div class="modal-footer">

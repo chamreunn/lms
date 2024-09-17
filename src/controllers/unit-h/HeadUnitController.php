@@ -228,7 +228,7 @@ class HeadUnitController
             }
 
             // Create approval record
-            $Model = new DepUnit1Model();
+            $Model = new HeadUnitModel();
             // Retrieve POST data
             $request_id = $_POST['request_id'];
             $status = $_POST['status'];
@@ -245,43 +245,16 @@ class HeadUnitController
             $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
             $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
-            // Handle file upload for manager's signature
-            $signaturePath = $Model->handleFileUpload($_FILES['manager_signature'], ['png'], 1048576, 'public/uploads/signatures/');
-            if ($signaturePath === false) {
-                $_SESSION['error'] = [
-                    'title' => "ហត្ថលេខា",
-                    'message' => "មិនអាចបញ្ចូលហត្ថលេខាបានទេ។​ សូមព្យាយាមម្តងទៀត"
-                ];
-                header('location: /elms/dunit1pending');
-                exit();
-            }
-
             // Start transaction
             try {
                 $this->pdo->beginTransaction();
 
                 // Create approval record
-                $leaveApproval = new DepUnit1Model();
-                $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks, $signaturePath);
+                $leaveApproval = new HeadUnitModel();
+                $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks);
 
                 // Fetch office details using API
                 $userModel = new User();
-                $userHoffice = $userModel->getEmailLeaderHUApi($_SESSION['user_id'], $_SESSION['token']);
-
-                if (!is_array($userHoffice) || !isset($userHoffice['ids'])) {
-                    throw new Exception("Unable to find Department details. Please contact support.");
-                }
-
-                // Convert emails array to string if necessary
-                $managerEmail = $userHoffice['emails'];
-                if (is_array($managerEmail)) {
-                    $managerEmail = implode(',', $managerEmail); // Convert array to comma-separated string
-                }
-
-                // Send email notification
-                if (!$Model->sendEmailNotification($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
-                    throw new Exception("Notification email could not be sent. Please try again.");
-                }
 
                 // Send email back to the user
                 if (!$Model->sendEmailBackToUser($uEmail, $_SESSION['user_khmer_name'], $request_id, $status, $updatedAt, $remarks)) {
@@ -302,9 +275,9 @@ class HeadUnitController
                 // Set success message and redirect to the pending page
                 $_SESSION['success'] = [
                     'title' => "សំណើច្បាប់",
-                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
+                    'message' => "អនុម័តបានជោគជ័យ។"
                 ];
-                header('location: /elms/dunit1pending');
+                header('location: /elms/hunitpending');
                 exit();
             } catch (Exception $e) {
                 // Rollback transaction in case of failure
@@ -316,7 +289,7 @@ class HeadUnitController
                     'title' => "កំហុស",
                     'message' => "មានបញ្ហាក្នុងការបញ្ជូនសំណើ: " . $e->getMessage()
                 ];
-                header("Location: /elms/dunit1pending");
+                header("Location: /elms/hunitpending");
                 exit();
             }
         } else {
