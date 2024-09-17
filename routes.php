@@ -375,6 +375,12 @@ switch ($uri) {
             $controller->viewDetail();
         });
         break;
+    case $base_url . '/view-leave-detail-d':
+        checkSessionAndExecute(function () {
+            $controller = new DepOfficeController();
+            $controller->viewLeaveDetail();
+        });
+        break;
     case $base_url . '/view-leave':
         checkSessionAndExecute(function () {
             $controller = new DepOfficeController();

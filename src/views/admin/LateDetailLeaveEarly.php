@@ -79,7 +79,7 @@ include('src/common/header.php');
                             <input type="text" class="form-control" value="<?= $detail['date'] ?>" disabled>
                         </div>
                         <div class="col-xl-6 mb-3">
-                            <label class="form-label fw-bold">ម៉ោងចូល</label>
+                            <label class="form-label fw-bold">ម៉ោងចេញ</label>
                             <input type="text" class="form-control" value="<?= $detail['leave_early'] ?> នាទី" disabled>
                         </div>
                         <div class="col-xl-12 mb-3 text-red">

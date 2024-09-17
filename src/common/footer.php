@@ -303,8 +303,7 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">ដល់កាលបរិចេ្ឆទ<span
-                                class="text-danger mx-1 fw-bold">*</span></label>
+                        <label class="form-label">ដល់កាលបរិចេ្ឆទ<span class="text-danger mx-1 fw-bold">*</span></label>
                         <div class="input-icon">
                             <span class="input-icon-addon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -420,6 +419,7 @@
         });
     });
 </script>
+
 <!-- Script to hide the loader with delay -->
 <script>
     window.addEventListener('load', function () {
@@ -512,7 +512,9 @@
                 time_24hr: false,
                 defaultHour: 12,
                 defaultMinute: 0,
-                locale: 'km'
+                locale: 'km',
+                allowInput: true, // Allow users to type directly into the input field
+                minuteIncrement: 1 // Set minute intervals to 1 (instead of 5)
             });
         });
 

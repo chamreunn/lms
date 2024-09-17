@@ -367,7 +367,7 @@ class AdminController
             }
 
             // Redirect to pending admin page
-            header("Location: /elms/adminpending?action=lateout");
+            header("Location: /elms/adminpending?action=leaveearly");
             exit();
         }
     }

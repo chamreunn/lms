@@ -1011,45 +1011,46 @@ class DepUnit1Model
 
     private function updateLeaveRequestStatus($leave_request_id, $latestStatus)
     {
-        // Fetch the current status and other relevant details of the leave request
-        $stmt = $this->pdo->prepare(
-            'SELECT dhead_unit, num_date, status, position
+        try {
+            // Fetch the current status and other relevant details of the leave request
+            $stmt = $this->pdo->prepare(
+                'SELECT dhead_unit, num_date, status, position
              FROM leave_requests
              WHERE id = ?'
-        );
-        $stmt->execute([$leave_request_id]);
-        $leaveRequest = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$leaveRequest) {
-            throw new Exception("Invalid leave request ID: $leave_request_id");
-        }
-
-        $currentHeadDepartmentStatus = $leaveRequest['dhead_unit'];
-        $currentStatus = $leaveRequest['status'];
-        $duration = $leaveRequest['num_date'];
-        $positionName = $leaveRequest['position'];
-
-        // If the current status is already 'Rejected', no further updates are needed
-        if ($currentHeadDepartmentStatus == 'Rejected') {
-            return;
-        }
-
-        // Determine the new status based on the latest approval status
-        $newStatus = ($latestStatus == 'Rejected') ? 'Rejected' : 'Approved';
-
-        // Update both status and head_department if the leave duration is <= 3 days
-        // and the position name is one of the specified values
-        if ($duration <= 3 && in_array($positionName, ['មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល'])) {
-            $stmt = $this->pdo->prepare(
-                'UPDATE leave_requests SET dhead_unit = ?, status = ? WHERE id = ?'
             );
-            $stmt->execute([$newStatus, $newStatus, $leave_request_id]);
-        } else {
-            // Otherwise, update only the head_department status
-            $stmt = $this->pdo->prepare(
-                'UPDATE leave_requests SET dhead_unit = ? WHERE id = ?'
-            );
-            $stmt->execute([$newStatus, $leave_request_id]);
+            $stmt->execute([$leave_request_id]);
+            $leaveRequest = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$leaveRequest) {
+                throw new Exception("Invalid leave request ID: $leave_request_id");
+            }
+
+            $currentHeadDepartmentStatus = $leaveRequest['dhead_unit'];
+
+            // If the current head department status is 'Rejected', no further updates are needed
+            if ($currentHeadDepartmentStatus === 'Rejected') {
+                return; // Early return, no further action required
+            }
+
+            // Determine the new status based on the latest approval status
+            $newStatus = ($latestStatus === 'Rejected') ? 'Rejected' : 'Approved';
+
+            // If the new status is different from the current status, proceed with the update
+            if ($currentHeadDepartmentStatus !== $newStatus) {
+                $stmt = $this->pdo->prepare(
+                    'UPDATE leave_requests SET dhead_unit = ? WHERE id = ?'
+                );
+                $stmt->execute([$newStatus, $leave_request_id]);
+            }
+
+        } catch (PDOException $e) {
+            // Handle any PDO-related exceptions (e.g., database connection or query errors)
+            error_log('Database error: ' . $e->getMessage());
+            throw new Exception('An error occurred while updating the leave request status. Please try again later.');
+        } catch (Exception $e) {
+            // Handle general exceptions
+            error_log('Error: ' . $e->getMessage());
+            throw $e; // Re-throw the exception so it can be handled by the caller
         }
     }
 

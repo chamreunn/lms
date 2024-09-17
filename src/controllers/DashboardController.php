@@ -114,6 +114,7 @@ class DashboardController
                     $notification = new Notification();
                     $leavetypeModel = new Leavetype();
                     $countRequestModel = new LeaveRequest();
+                    $getUserApprove = $countRequestModel->leaveUserApprovedByDepartment($_SESSION['token']);
                     $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
                     $leavetypes = $leavetypeModel->getAllLeavetypes();
                     $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
@@ -124,8 +125,10 @@ class DashboardController
                     break;
                 case 'Head Of Department':
                     $leaveRequestModel = new HeadDepartmentModel();
-                    $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
                     $lateModel = new LateModel();
+                    $countRequestModel = new LeaveRequest();
+                    $getUserApprove = $countRequestModel->leaveUserApprovedByDepartment($_SESSION['token']);
+                    $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
                     $countRequestModel = new LeaveRequest();

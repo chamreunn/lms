@@ -231,7 +231,7 @@ class DepUnit1Controller
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Validate required POST fields
-            $requiredFields = ['request_id', 'status', 'remarks', 'uremarks', 'uname', 'uemail', 'leaveType', 'user_id', 'start_date', 'end_date', 'duration'];
+            $requiredFields = ['request_id', 'status', 'uremarks', 'uname', 'uemail', 'leaveType', 'user_id', 'start_date', 'end_date', 'duration'];
             foreach ($requiredFields as $field) {
                 if (empty($_POST[$field])) {
                     $_SESSION['error'] = [

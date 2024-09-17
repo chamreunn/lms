@@ -778,14 +778,13 @@ class HeadUnitModel
     {
         // Prepare the SQL statement to count leave requests with the given criteria
         $stmt = $this->pdo->prepare('SELECT COUNT(*) as leave_count FROM leave_requests 
-        WHERE dhead_unit IN (?, ?)
-        AND status = ?
+        WHERE status IN (?, ?)
         AND head_unit = ?
         AND position IN (?, ?, ?, ?, ?, ?, ?)
         AND user_id != ?');
 
         // Execute the query with the session values
-        $stmt->execute(['Approved', 'Rejected', 'Pending', 'Approved', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', 'អនុប្រធាននាយកដ្ឋាន', 'ប្រធាននាយកដ្ឋាន', 'អនុប្រធានអង្គភាព', $_SESSION['user_id']]);
+        $stmt->execute(['Approved', 'Rejected', 'Approved', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', 'អនុប្រធាននាយកដ្ឋាន', 'ប្រធាននាយកដ្ឋាន', 'អនុប្រធានអង្គភាព', $_SESSION['user_id']]);
 
         // Fetch the result as an associative array
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -798,14 +797,13 @@ class HeadUnitModel
     {
         // Prepare the SQL statement to count leave requests with the given criteria
         $stmt = $this->pdo->prepare('SELECT COUNT(*) as leave_count FROM leave_requests 
-        WHERE dhead_unit IN (?, ?)
-        AND status = ?
+        WHERE status IN (?, ?)
         AND head_unit = ?
         AND position IN (?, ?, ?, ?, ?, ?, ?)
         AND user_id != ?');
 
         // Execute the query with the session values
-        $stmt->execute(['Approved', 'Rejected', 'Pending', 'Rejected', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', 'អនុប្រធាននាយកដ្ឋាន', 'ប្រធាននាយកដ្ឋាន', 'អនុប្រធានអង្គភាព', $_SESSION['user_id']]);
+        $stmt->execute(['Approved', 'Rejected', 'Rejected', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', 'អនុប្រធាននាយកដ្ឋាន', 'ប្រធាននាយកដ្ឋាន', 'អនុប្រធានអង្គភាព', $_SESSION['user_id']]);
 
         // Fetch the result as an associative array
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -1005,45 +1003,47 @@ class HeadUnitModel
 
     private function updateLeaveRequestStatus($leave_request_id, $latestStatus)
     {
-        // Fetch the current status and other relevant details of the leave request
-        $stmt = $this->pdo->prepare(
-            'SELECT head_unit, num_date, status, position
+        try {
+            // Fetch the current status and other relevant details of the leave request
+            $stmt = $this->pdo->prepare(
+                'SELECT head_unit, num_date, status, position
              FROM leave_requests
              WHERE id = ?'
-        );
-        $stmt->execute([$leave_request_id]);
-        $leaveRequest = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$leaveRequest) {
-            throw new Exception("Invalid leave request ID: $leave_request_id");
-        }
-
-        $currentHeadDepartmentStatus = $leaveRequest['head_unit'];
-        $currentStatus = $leaveRequest['status'];
-        $duration = $leaveRequest['num_date'];
-        $positionName = $leaveRequest['position'];
-
-        // If the current status is already 'Rejected', no further updates are needed
-        if ($currentHeadDepartmentStatus == 'Rejected') {
-            return;
-        }
-
-        // Determine the new status based on the latest approval status
-        $newStatus = ($latestStatus == 'Rejected') ? 'Rejected' : 'Approved';
-
-        // Update both status and head_department if the leave duration is <= 3 days
-        // and the position name is one of the specified values
-        if ($duration <= 3 && in_array($positionName, ['មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល'])) {
-            $stmt = $this->pdo->prepare(
-                'UPDATE leave_requests SET head_unit = ?, status = ? WHERE id = ?'
             );
-            $stmt->execute([$newStatus, $newStatus, $leave_request_id]);
-        } else {
-            // Otherwise, update only the head_department status
-            $stmt = $this->pdo->prepare(
-                'UPDATE leave_requests SET head_unit = ? WHERE id = ?'
-            );
-            $stmt->execute([$newStatus, $leave_request_id]);
+            $stmt->execute([$leave_request_id]);
+            $leaveRequest = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$leaveRequest) {
+                throw new Exception("Invalid leave request ID: $leave_request_id");
+            }
+
+            $currentHeadUnitStatus = $leaveRequest['head_unit'];
+            $currentStatus = $leaveRequest['status'];
+
+            // If the current head unit status is 'Rejected', no further updates are needed
+            if ($currentHeadUnitStatus === 'Rejected') {
+                return; // Early return as no further update is needed
+            }
+
+            // Determine the new status based on the latest approval status
+            $newStatus = ($latestStatus === 'Rejected') ? 'Rejected' : 'Approved';
+
+            // Only update if the new status is different from the current status
+            if ($currentHeadUnitStatus !== $newStatus || $currentStatus !== $newStatus) {
+                $stmt = $this->pdo->prepare(
+                    'UPDATE leave_requests SET head_unit = ?, status = ? WHERE id = ?'
+                );
+                $stmt->execute([$newStatus, $newStatus, $leave_request_id]);
+            }
+
+        } catch (PDOException $e) {
+            // Handle any PDO-related exceptions (e.g., database connection or query errors)
+            error_log('Database error: ' . $e->getMessage());
+            throw new Exception('An error occurred while updating the leave request status. Please try again later.');
+        } catch (Exception $e) {
+            // Handle general exceptions
+            error_log('Error: ' . $e->getMessage());
+            throw $e; // Re-throw the exception so it can be handled by the caller
         }
     }
 
@@ -1051,13 +1051,12 @@ class HeadUnitModel
     {
         // Fetch all leave requests from the database
         $stmt = $this->pdo->prepare('SELECT * FROM leave_requests 
-        WHERE dhead_unit IN (?, ?)
-        AND status = ?
+        WHERE status IN (?, ?)
         AND head_unit = ?
         AND user_id != ?
         ');
 
-        $stmt->execute(['Approved', 'Rejected', 'Pending', 'Approved', $user_id]);
+        $stmt->execute(['Approved', 'Rejected', 'Approved', $user_id]);
         $leaveRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Initialize UserModel
