@@ -140,15 +140,14 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     </div>
 
                     <!-- Telegram Connect Button -->
-                    <div class="row mt-3">
+                    <!-- <div class="row mt-3">
                         <div class="col-12">
-                            <!-- Replace your_bot_username and unique_user_token dynamically -->
                             <a href="https://t.me/your_bot_username?start=(unique_user_token)"
                                 class="btn btn-primary w-100">
                                 Connect Telegram
                             </a>
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- Modal Structure -->
                     <div class="modal modal-blur fade" id="emailUpdateModal" tabindex="-1"

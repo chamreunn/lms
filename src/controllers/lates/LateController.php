@@ -33,7 +33,7 @@ class LateController
     public function leaveearly()
     {
         $lateModel = new LateModel();
-        $getleaveearly = $lateModel->getLeaveEarly($_SESSION['user_id']);
+        $getleaveearly = $lateModel->getLeaveEarly($_SESSION['user_id'], $_SESSION['token']);
 
         require 'src/views/documentlate/leaveearly.php';
     }

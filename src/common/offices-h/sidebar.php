@@ -9,7 +9,9 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                     <li class="nav-item <?= ($current_page == 'dashboard') ? 'active' : '' ?>">
                         <a class="nav-link" href="/elms/dashboard">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                     <polyline points="5 12 3 12 12 3 21 12 19 12" />
                                     <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
@@ -21,10 +23,14 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item <?= ($current_page == 'hofficeLeave' || $current_page == 'view-leave-detail') ? 'active' : '' ?>">
+                    <li
+                        class="nav-item <?= ($current_page == 'hofficeLeave' || $current_page == 'view-leave-detail') ? 'active' : '' ?>">
                         <a class="nav-link" href="/elms/hofficeLeave">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                     <path d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
                                     <path d="M16 3v4" />
@@ -39,45 +45,37 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item <?= ($current_page == 'mission') ? 'active' : '' ?>">
-                        <a class="nav-link" href="/elms/mission">
+                    <!-- late & mission  -->
+                    <li
+                        class="nav-item dropdown <?= ($current_page == 'overtimein' || $current_page == 'overtimeout' || $current_page == 'leaveearly' || $current_page == 'mission') ? 'active' : '' ?>">
+                        <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-repeat">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-category">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3" />
-                                    <path d="M16 3v4" />
-                                    <path d="M8 3v4" />
-                                    <path d="M4 11h12" />
-                                    <path d="M20 14l2 2h-3" />
-                                    <path d="M20 18l2 -2" />
-                                    <path d="M19 16a3 3 0 1 0 2 5.236" />
+                                    <path d="M4 4h6v6h-6z" />
+                                    <path d="M14 4h6v6h-6z" />
+                                    <path d="M4 14h6v6h-6z" />
+                                    <path d="M17 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
                                 </svg>
                             </span>
                             <span class="nav-link-title">
-                                បេសកកម្ម
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item dropdown <?= ($current_page == 'overtimein' || $current_page == 'overtimeout' || $current_page == 'leaveearly') ? 'active' : '' ?>">
-                        <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
-                            <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-layout-bottombar-collapse">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M20 6v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2z" />
-                                    <path d="M20 15h-16" />
-                                    <path d="M14 8l-2 2l-2 -2" />
-                                </svg>
-                            </span>
-                            <span class="nav-link-title">
-                                លិខិតយឺត
+                                ការចេញចូលយឺត
                             </span>
                         </a>
                         <div class="dropdown-menu">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
-                                    <a class="dropdown-item <?= ($current_page == 'overtimein') ? 'active' : '' ?>" href="/elms/overtimein">
+                                    <a class="dropdown-item <?= ($current_page == 'overtimein') ? 'active' : '' ?>"
+                                        href="/elms/overtimein">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-up">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-clock-up">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                 <path d="M20.983 12.548a9 9 0 1 0 -8.45 8.436" />
                                                 <path d="M19 22v-6" />
@@ -85,11 +83,15 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                                 <path d="M12 7v5l2.5 2.5" />
                                             </svg>
                                         </span>
-                                        លិខិតចូលយឺត
+                                        ចូលយឺត
                                     </a>
-                                    <a class="dropdown-item <?= ($current_page == 'overtimeout') ? 'active' : '' ?>" href="/elms/overtimeout">
+                                    <a class="dropdown-item <?= ($current_page == 'overtimeout') ? 'active' : '' ?>"
+                                        href="/elms/overtimeout">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-plus">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-clock-plus">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                 <path d="M20.984 12.535a9 9 0 1 0 -8.468 8.45" />
                                                 <path d="M16 19h6" />
@@ -97,11 +99,15 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                                 <path d="M12 7v5l3 3" />
                                             </svg>
                                         </span>
-                                        លិខិតចេញយឺត
+                                        ចេញយឺត
                                     </a>
-                                    <a class="dropdown-item <?= ($current_page == 'leaveearly') ? 'active' : '' ?>" href="/elms/leaveearly">
+                                    <a class="dropdown-item <?= ($current_page == 'leaveearly') ? 'active' : '' ?>"
+                                        href="/elms/leaveearly">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-share">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-clock-share">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                 <path d="M20.943 13.016a9 9 0 1 0 -8.915 7.984" />
                                                 <path d="M16 22l5 -5" />
@@ -109,28 +115,52 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                                 <path d="M12 7v5l2 2" />
                                             </svg>
                                         </span>
-                                        លិខិតចេញមុន
+                                        ចេញមុន
+                                    </a>
+                                    <div class="dropdown-divider m-0"></div>
+                                    <a class="dropdown-item <?= ($current_page == 'mission') ? 'active' : '' ?>"
+                                        href="/elms/mission">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path
+                                                    d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+                                                <path d="M16 3v4" />
+                                                <path d="M8 3v4" />
+                                                <path d="M4 11h16" />
+                                                <path d="M19 22v.01" />
+                                                <path
+                                                    d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
+                                            </svg>
+                                        </span>
+                                        បេសកកម្ម
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </li>
-                    <li class="nav-item dropdown <?= ($current_page == 'headofficepending' || $current_page == 'headofficeapproval' || $current_page == 'headofficerejected') ? 'active' : '' ?>">
-                        <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                    <li
+                        class="nav-item dropdown <?= ($current_page == 'headofficepending' || $current_page == 'headofficeapproval' || $current_page == 'headofficerejected') ? 'active' : '' ?>">
+                        <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-text-plus">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-mail-question">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M19 10h-14" />
-                                    <path d="M5 6h14" />
-                                    <path d="M14 14h-9" />
-                                    <path d="M5 18h6" />
-                                    <path d="M18 15v6" />
-                                    <path d="M15 18h6" />
+                                    <path d="M15 19h-10a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v4.5" />
+                                    <path d="M19 22v.01" />
+                                    <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
+                                    <path d="M3 7l9 6l9 -6" />
                                 </svg>
                             </span>
                             <span class="nav-link-title">
-                                សំណើច្បាប់
-                                <?php if (!empty($pendingCount)) : ?>
+                                គ្រប់គ្រងសំណើ
+                                <?php if (!empty($pendingCount)): ?>
                                     <span class="badge bg-red text-red-fg ms-2"><?= $pendingCount; ?></span>
                                 <?php endif; ?>
                             </span>
@@ -138,52 +168,69 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                         <div class="dropdown-menu">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
-                                    <a class="dropdown-item <?= ($current_page == 'headofficepending') ? 'active' : '' ?>" href="/elms/headofficepending">
+                                    <a class="dropdown-item <?= ($current_page == 'headofficepending') ? 'active' : '' ?>"
+                                        href="/elms/headofficepending">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+                                                <path
+                                                    d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
                                                 <path d="M16 3v4" />
                                                 <path d="M8 3v4" />
                                                 <path d="M4 11h16" />
                                                 <path d="M19 22v.01" />
-                                                <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
+                                                <path
+                                                    d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
                                             </svg>
                                         </span>
                                         <span>កំពុងរង់ចាំ</span>
-                                        <?php if (!empty($pendingCount)) : ?>
+                                        <?php if (!empty($pendingCount)): ?>
                                             <span class="badge bg-red text-red-fg ms-auto"><?= $pendingCount; ?></span>
                                         <?php endif; ?>
                                     </a>
-                                    <a class="dropdown-item <?= ($current_page == 'headofficeapproval') ? 'active' : '' ?>" href="/elms/headofficeapproval">
+                                    <a class="dropdown-item <?= ($current_page == 'headofficeapproval') ? 'active' : '' ?>"
+                                        href="/elms/headofficeapproval">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+                                                <path
+                                                    d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
                                                 <path d="M16 3v4" />
                                                 <path d="M8 3v4" />
                                                 <path d="M4 11h16" />
                                                 <path d="M19 22v.01" />
-                                                <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
+                                                <path
+                                                    d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
                                             </svg>
                                         </span>
                                         <span> បានអនុម័ត</span>
-                                        <?php if (!empty($approvedCount)) : ?>
+                                        <?php if (!empty($approvedCount)): ?>
                                             <span class="badge bg-red text-red-fg ms-auto"><?= $approvedCount; ?></span>
                                         <?php endif; ?>
                                     </a>
-                                    <a class="dropdown-item <?= ($current_page == 'headofficerejected') ? 'active' : '' ?>" href="/elms/headofficerejected">
+                                    <a class="dropdown-item <?= ($current_page == 'headofficerejected') ? 'active' : '' ?>"
+                                        href="/elms/headofficerejected">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-clock-question">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-clock-question">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                 <path d="M20.975 11.33a9 9 0 1 0 -5.717 9.06" />
                                                 <path d="M12 7v5l2 2" />
                                                 <path d="M19 22v.01" />
-                                                <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
+                                                <path
+                                                    d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
                                             </svg>
                                         </span>
                                         <span>មិនអនុម័ត</span>
-                                        <?php if (!empty($rejectedCount)) : ?>
+                                        <?php if (!empty($rejectedCount)): ?>
                                             <span class="badge bg-red text-red-fg ms-auto"><?= $rejectedCount; ?></span>
                                         <?php endif; ?>
                                     </a>
@@ -191,12 +238,16 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </div>
                         </div>
                     </li>
-                    <li class="nav-item <?= ($current_page == 'leave-calendar') ? 'active' : '' ?>">
+                    <!-- <li class="nav-item <?= ($current_page == 'leave-calendar') ? 'active' : '' ?>">
                         <a class="nav-link" href="/elms/leave-calendar">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
+                                    <path
+                                        d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
                                     <path d="M16 3v4" />
                                     <path d="M8 3v4" />
                                     <path d="M4 11h16" />
@@ -213,7 +264,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                 ប្រតិទិន
                             </span>
                         </a>
-                    </li>
+                    </li> -->
                 </ul>
             </div>
         </div>

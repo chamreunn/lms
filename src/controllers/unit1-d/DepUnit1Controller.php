@@ -78,17 +78,6 @@ class DepUnit1Controller
                 exit();
             }
 
-            // Handle file upload for signature
-            $signature_name = $HeadDepartmentModel->handleFileUpload($_FILES['signature'], ['png'], 1048576, 'public/uploads/signatures/');
-            if ($signature_name === false) {
-                $_SESSION['error'] = [
-                    'title' => "ហត្ថលេខា",
-                    'message' => "មិនអាចបញ្ចូលហត្ថលេខាបានទេ។​ សូមព្យាយាមម្តងទៀត"
-                ];
-                header("Location: /elms/dunit1Leave");
-                exit();
-            }
-
             // Fetch leave type details including duration from the database
             $leaveTypeModel = new Leavetype();
             $leaveType = $leaveTypeModel->getLeaveTypeById($leave_type_id);
@@ -143,8 +132,7 @@ class DepUnit1Controller
                 $end_date,
                 $remarks,
                 $duration_days,
-                $attachment_name,
-                $signature_name
+                $attachment_name
             );
 
             if (!$leaveRequestId) {

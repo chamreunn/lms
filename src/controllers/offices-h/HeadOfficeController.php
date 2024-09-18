@@ -196,7 +196,7 @@ class HeadOfficeController
     {
         if (isset($_GET['leave_id'])) {
             $leaveRequestModel = new HeadOfficeModel();
-            $leave_id = (int)$_GET['leave_id'];
+            $leave_id = (int) $_GET['leave_id'];
             $request = $leaveRequestModel->getRequestById($leave_id, $_SESSION['token']);
 
             if ($request) {
@@ -287,7 +287,7 @@ class HeadOfficeController
                 // Set success message and redirect to the pending page
                 $_SESSION['success'] = [
                     'title' => "សំណើច្បាប់",
-                    'message' => "កំពុងបញ្ជូនទៅកាន់ " .  $managerEmail
+                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
                 ];
                 header('location: /elms/headofficepending');
                 exit();
@@ -346,6 +346,25 @@ class HeadOfficeController
             ];
         }
         header("Location: /elms/hofficeLeave");
+        exit();
+    }
+
+    public function viewLeaveDetail()
+    {
+        if (isset($_GET['leave_id'])) {
+            $leaveRequestModel = new LeaveRequest();
+            $leave_id = (int) $_GET['leave_id'];
+            $request = $leaveRequestModel->getRequestById($leave_id, $_SESSION['token']);
+            $leavetypeModel = new Leavetype();
+            $leavetypes = $leavetypeModel->getAllLeavetypes();
+
+            if ($request) {
+                require 'src/views/leave/offices-h/viewLeaveDetail.php';
+                return;
+            }
+        }
+        // If request not found or leave_id is not provided, redirect or show error
+        header('Location: /elms/requests');
         exit();
     }
 }

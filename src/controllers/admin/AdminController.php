@@ -162,11 +162,14 @@ class AdminController
 
             $lateId = $_POST['lateId'] ?? null;
             $status = $_POST['status'] ?? null;
-            $activity = "អនុម័តសំណើចូលយឺត";
 
             $uId = $_POST['uId'] ?? null;
             $checkIn = $_POST['checkIn'] ?? null;
             $lateIn = $_POST['lateIn'] ?? null;
+
+            $action = "បាន" . $status . "ការចូលយឺត";
+            $comment = $_POST['comment'] ?? ''; // Ensure comment is set (avoid null)
+            $title = "សំណើចូលយឺត";
 
             try {
                 // Start transaction
@@ -177,16 +180,15 @@ class AdminController
                     throw new Exception("Missing required fields for processing.");
                 }
 
-                // Update the late-in status
-                $adminModel = new AdminModel();
-                $updateStatus = $adminModel->updateStatus($lateId, $status);
+                // Update the request in the approval model
+                $approveModel = new AdminModel();
+                $approvals = $approveModel->updateRequest($approver_id, $status, $lateId, $comment);
 
                 // Log user activity
                 $userModel = new User();
-                $createActivityResult = $userModel->logUserActivity($approver_id, $activity);
+                $createActivityResult = $userModel->logUserActivity($approver_id, $action);
 
-                // Check if both operations were successful
-                if ($updateStatus) {
+                if ($approvals) {
                     // Commit the transaction
                     $this->pdo->commit();
 
@@ -194,25 +196,33 @@ class AdminController
                     if ($status !== 'Rejected') {
                         $updateToApi = $userModel->updateLateInToApi($uId, $checkIn, $lateIn, $_SESSION['token']);
 
-                        // If API update fails, handle it (optional: log or display an error)
+                        // If API update fails, log or handle the error
                         if (!$updateToApi) {
                             throw new Exception("Failed to update late-in information to the API.");
                         }
-                    }
 
+                        $sendEmailBack = $approveModel->sendEmailBackToUser($uEmail, $approvals, $_SESSION['user_khmer_name'], $status, $comment, $title);
+                        // If send update fails, log or handle the error
+                        if (!$sendEmailBack) {
+                            throw new Exception("Failed to update late-in information to the API.");
+                        }
+                    }
                     // Set success message in session
                     $_SESSION['success'] = [
                         'title' => "ជោគជ័យ",
                         'message' => "សំណើចូលយឺតត្រូវបានអនុម័តដោយជោគជ័យ។"
                     ];
                 } else {
-                    // If any operation fails, roll back and throw an exception
+                    // Rollback on failure and throw an exception
                     $this->pdo->rollBack();
                     throw new Exception("Failed to update status or log activity.");
                 }
             } catch (Exception $e) {
                 // Rollback transaction on error
-                $this->pdo->rollBack();
+                if ($this->pdo->inTransaction()) {
+                    $this->pdo->rollBack();
+                }
+
                 // Set error message in session
                 $_SESSION['error'] = [
                     'title' => "កំហុស",
@@ -235,11 +245,14 @@ class AdminController
 
             $lateId = $_POST['lateId'] ?? null;
             $status = $_POST['status'] ?? null;
-            $activity = "អនុម័តសំណើចេញយឺត"; // Update activity message to reflect "late out"
 
             $uId = $_POST['uId'] ?? null;
             $checkOut = $_POST['checkOut'] ?? null;
             $lateOut = $_POST['lateOut'] ?? null;
+
+            $action = "បាន" . $status . "ការចេញយឺត";
+            $comment = $_POST['comment'] ?? ''; // Ensure comment is set (avoid null)
+            $title = "សំណើចេញយឺត";
 
             try {
                 // Start transaction
@@ -250,16 +263,16 @@ class AdminController
                     throw new Exception("Missing required fields for processing.");
                 }
 
-                // Update the late-out status
-                $adminModel = new AdminModel();
-                $updateStatus = $adminModel->updateStatus($lateId, $status);
+                // Update the request in the approval model
+                $approveModel = new AdminModel();
+                $approvals = $approveModel->updateRequest($approver_id, $status, $lateId, $comment);
 
                 // Log user activity
                 $userModel = new User();
-                $createActivityResult = $userModel->logUserActivity($approver_id, $activity);
+                $createActivityResult = $userModel->logUserActivity($approver_id, $action);
 
                 // Check if both operations were successful
-                if ($updateStatus) {
+                if ($approvals) {
                     // Commit the transaction
                     $this->pdo->commit();
 
@@ -270,6 +283,12 @@ class AdminController
                         // If API update fails, handle it (optional: log or display an error)
                         if (!$updateToApi['success']) {
                             throw new Exception("Failed to update late-out information to the API. Response: " . $updateToApi['response']);
+                        }
+
+                        $sendEmailBack = $approveModel->sendEmailBackToUser($uEmail, $approvals, $_SESSION['user_khmer_name'], $status, $comment, $title);
+                        // If send update fails, log or handle the error
+                        if (!$sendEmailBack) {
+                            throw new Exception("Failed to update late-in information to the API.");
                         }
                     }
 
@@ -308,11 +327,14 @@ class AdminController
 
             $lateId = $_POST['lateId'] ?? null;
             $status = $_POST['status'] ?? null;
-            $activity = "អនុម័តសំណើចេញយឺត"; // Update activity message to reflect "late out"
 
             $uId = $_POST['uId'] ?? null;
             $checkOut = $_POST['checkOut'] ?? null;
             $exit = $_POST['exit'] ?? null;
+
+            $action = "បាន" . $status . "ការចេញយឺត";
+            $comment = $_POST['comment'] ?? ''; // Ensure comment is set (avoid null)
+            $title = "សំណើចេញមុន";
 
             try {
                 // Start transaction
@@ -323,16 +345,16 @@ class AdminController
                     throw new Exception("Missing required fields for processing.");
                 }
 
-                // Update the late-out status
-                $adminModel = new AdminModel();
-                $updateStatus = $adminModel->updateStatus($lateId, $status);
+                // Update the request in the approval model
+                $approveModel = new AdminModel();
+                $approvals = $approveModel->updateRequest($approver_id, $status, $lateId, $comment);
 
                 // Log user activity
                 $userModel = new User();
-                $createActivityResult = $userModel->logUserActivity($approver_id, $activity);
+                $createActivityResult = $userModel->logUserActivity($approver_id, $action);
 
                 // Check if both operations were successful
-                if ($updateStatus) {
+                if ($approvals) {
                     // Commit the transaction
                     $this->pdo->commit();
 
@@ -343,6 +365,12 @@ class AdminController
                         // If API update fails, handle it (optional: log or display an error)
                         if (!$updateToApi['success']) {
                             throw new Exception("Failed to update late-out information to the API. Response: " . $updateToApi['response']);
+                        }
+
+                        $sendEmailBack = $approveModel->sendEmailBackToUser($uEmail, $approvals, $_SESSION['user_khmer_name'], $status, $comment, $title);
+                        // If send update fails, log or handle the error
+                        if (!$sendEmailBack) {
+                            throw new Exception("Failed to update late-in information to the API.");
                         }
                     }
 

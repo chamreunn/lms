@@ -56,6 +56,12 @@ $pageheader = ob_get_clean();
 include('src/common/header.php');
 function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 {
+    // Return an empty string or a default value if the date is null or empty
+    if (empty($date)) {
+        return '';
+    }
+
+    // Define Khmer translations for days and months
     $days = [
         'Mon' => 'ច័ន្ទ',
         'Tue' => 'អង្គារ',
@@ -80,15 +86,56 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         'December' => 'ធ្នូ'
     ];
 
-    $translatedDay = $days[date('D', strtotime($date))];
-    $translatedMonth = $months[date('F', strtotime($date))];
+    // Define Khmer numerals
+    $numerals = [
+        '0' => '០',
+        '1' => '១',
+        '2' => '២',
+        '3' => '៣',
+        '4' => '៤',
+        '5' => '៥',
+        '6' => '៦',
+        '7' => '៧',
+        '8' => '៨',
+        '9' => '៩'
+    ];
+
+    // Check if the provided date is valid
+    $timestamp = strtotime($date);
+    if ($timestamp === false) {
+        return ''; // Return an empty string or a default value if the date is invalid
+    }
+
+    // Get the English day and month names
+    $englishDay = date('D', $timestamp);
+    $englishMonth = date('F', $timestamp);
+
+    // Translate English day and month names to Khmer
+    $translatedDay = $days[$englishDay] ?? $englishDay;
+    $translatedMonth = $months[$englishMonth] ?? $englishMonth;
+
+    // Format the date in English
+    $formattedDate = date($format, $timestamp);
+
+    // Replace day and month with Khmer
     $translatedDate = str_replace(
-        [date('D', strtotime($date)), date('F', strtotime($date))],
+        [$englishDay, $englishMonth],
         [$translatedDay, $translatedMonth],
-        date($format, strtotime($date))
+        $formattedDate
     );
 
+    // Replace Arabic numerals with Khmer numerals
+    $translatedDate = strtr($translatedDate, $numerals);
+
     return $translatedDate;
+}
+
+function convertToKhmerNumerals($number)
+{
+    $arabicNumerals = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    $khmerNumerals = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩'];
+
+    return str_replace($arabicNumerals, $khmerNumerals, $number);
 }
 ?>
 <!-- display office  -->
@@ -509,29 +556,29 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                                         ពាក្យស្នើសុំបញ្ជាក់ពិការចេញពីបំពេញការងារយឺតយ៉ាវ
                                                     </center>
                                                     <p
-                                                        style="font-family: khmer mef1; font-size:18px; line-height: 30px; text-align:justify; text-indent: 50px;">
-                                                        ខ្ញុំបាទ / នាងខ្ញុំឈ្មោះ <span
-                                                            class="fw-bold"><?= $getlate['khmer_name'] ?></span> មានតួនាទីជា
-                                                        <span class="fw-bold"><?= $getlate['position_name'] ?></span> នៃ <span
-                                                            class="fw-bold"><?= $getlate['department_name'] ?></span>
-                                                        បានមកបំពេញការងារយឺតពេលកំណត់នៅថ្ងៃទី <span
-                                                            class="fw-bold"><?= date('d', strtotime($getlate['date'])) ?> ខែ
-                                                            <span
-                                                                class="fw-bold"><?= translateDateToKhmer($getlate['date'], 'F') ?>
-                                                                ឆ្នាំ <span
-                                                                    class="fw-bold"><?= date('Y', strtotime($getlate['date'])) ?>
-                                                                </span> វេលាម៉ោង <span
-                                                                    class="fw-bold"><?= $getlate['late_in'] . "នាទី" ?></span>
-                                                                ហើយខ្ញុំសូមបញ្ជាក់ពីមូលហេតុដែលខ្ញុំបាទ/នាងខ្ញុំមកបំពេញការងារយឺតយ៉ាវដោយមូលហេតុ
-                                                                <span
-                                                                    class="fw-bolder"><?= $getlate['reasons'] ?></span>។ដូចនេះសូមមន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមានខ្ញុំបាទ/នាងខ្ញុំក្នុងបញ្ជីវត្តមានរបស់មន្ត្រីនៃអង្គភាពសវនកម្មផ្ទៃក្នុងនៃ
-                                                                <span class="fw-bolder">អ.ស.ហ.</span>នៅថ្ងៃទី <span
-                                                                    class="fw-bold"><?= date('d', strtotime($getlate['date'])) ?>
-                                                                    ខែ <span
-                                                                        class="fw-bold"><?= translateDateToKhmer($getlate['date'], 'F') ?>
-                                                                        ឆ្នាំ <span
-                                                                            class="fw-bold"><?= date('Y', strtotime($getlate['date'])) ?>
-                                                                            គឺតាមមូលហេតុខាងលើនេះ។
+                                                        style="font-family: khmer mef1; font-size:18px; line-height: 35px; text-align:justify; text-indent: 50px;">
+                                                        ខ្ញុំបាទ / នាងខ្ញុំឈ្មោះ
+                                                        <span><?= $getlate['khmer_name'] ?></span>
+                                                        មានតួនាទីជា <span><?= $_SESSION['position'] ?></span>
+                                                        នៃ <span><?= $_SESSION['departmentName'] ?></span>
+                                                        បានមកបំពេញការងារយឺតពេលកំណត់នៅថ្ងៃទី
+                                                        <span><?= translateDateToKhmer($getlate['date'], 'd') ?></span>
+                                                        ខែ <span><?= translateDateToKhmer($getlate['date'], 'F') ?>
+                                                            ឆ្នាំ
+                                                            <span><?= translateDateToKhmer($getlate['date'], 'Y') ?>
+                                                            </span> វេលាម៉ោង
+                                                            <span><?= convertToKhmerNumerals($getlate['leave_early'] . "នាទី") ?></span>
+                                                            ហើយខ្ញុំសូមបញ្ជាក់ពីមូលហេតុដែលខ្ញុំបាទ/នាងខ្ញុំមកបំពេញការងារយឺតយ៉ាវដោយមូលហេតុ
+                                                            <span class="fw-bolder"><?= $getlate['reasons'] ?>
+                                                            </span>។ដូចនេះសូមមន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមានខ្ញុំបាទ/នាងខ្ញុំក្នុងបញ្ជីវត្តមានរបស់មន្ត្រីនៃអង្គភាពសវនកម្មផ្ទៃក្នុងនៃ
+                                                            <span class="fw-bolder">អ.ស.ហ.</span>
+                                                            នៅថ្ងៃទី
+                                                            <span><?= translateDateToKhmer($getlate['date'], 'd') ?></span>
+                                                            ខែ <span><?= translateDateToKhmer($getlate['date'], 'F') ?>
+                                                                ឆ្នាំ
+                                                                <span><?= translateDateToKhmer($getlate['date'], 'Y') ?>
+                                                                </span>
+                                                                គឺតាមមូលហេតុខាងលើនេះ។
                                                     </p>
                                                     <p
                                                         style="font-family: khmer mef1; font-size:18px; text-align:justify; text-indent: 50px;">
@@ -541,6 +588,64 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                                         style="font-family: khmer mef1; font-size:18px; text-align:justify; text-indent: 50px;">
                                                         សូម <b>មន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមាន</b> ទទួលនូវការរាប់អានពីខ្ញុំ។
                                                     </p>
+                                                    <div class="row">
+                                                        <!-- Staff Information -->
+                                                        <div class="col-6 mb-2 mt-3"
+                                                            style="font-family: 'khmer mef1'; font-size: 18px; line-height: 20px; text-align: justify;">
+                                                            <div style="text-align: center;">
+                                                                <p>បានឃើញ និងឯកភាពថា</p>
+                                                            </div>
+                                                            <p style="white-space: nowrap; text-align: center;">
+                                                                ឈ្មោះ <?= $getlate['khmer_name'] ?> តួនាទីជា
+                                                                <?= $_SESSION['position'] ?>
+                                                            </p>
+                                                            <p style="white-space: nowrap; text-align: center;">
+                                                                នៃ <?= $_SESSION['departmentName'] ?>
+                                                            </p>
+                                                            <p style="white-space: nowrap;">បានចេញពីបំពេញការងារវេលាម៉ោង
+                                                                <?= convertToKhmerNumerals($getlate['leave_early'] . "នាទី") ?></p>
+                                                            <p style="text-align: center;">
+                                                                រាជធានីភ្នំពេញ ថ្ងៃទី
+                                                                <?= translateDateToKhmer($getlate['updated_at'], 'd') ?>
+                                                                ខែ <?= translateDateToKhmer($getlate['updated_at'], 'F') ?>
+                                                                ឆ្នាំ <?= translateDateToKhmer($getlate['updated_at'], 'Y') ?>
+                                                            </p>
+                                                            <h3 style="text-align: center;">មន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមាន
+                                                            </h3>
+                                                            <p style="text-align: center;
+                                                    class=" mb-2 <?= ($getlate['approval_status'] ?? '') === 'Approved' ? 'text-success' : 'text-danger' ?>">
+                                                                <?php
+                                                                switch ($getlate['approval_status'] ?? '') {
+                                                                    case 'Approved':
+                                                                        echo 'បានអនុម័ត'; // Khmer for 'Approved'
+                                                                        break;
+                                                                    case 'Rejected':
+                                                                        echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
+                                                                        break;
+                                                                    default:
+                                                                        echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
+                                                                        break;
+                                                                }
+                                                                ?>
+                                                            </p>
+                                                            <h3 style="text-align: center;"><?= $getlate['approver_name'] ?>
+                                                            </h3>
+                                                        </div>
+
+                                                        <div class="col-6 mb-2"
+                                                            style="font-family: khmer mef1; font-size: 18px; line-height: 30px; text-align: justify; text-align: center;">
+                                                            <p style="margin-bottom: 0;">
+                                                                រាជធានីភ្នំពេញ ថ្ងៃទី
+                                                                <?= translateDateToKhmer($getlate['created_at'], 'd') ?>
+                                                                ខែ <?= translateDateToKhmer($getlate['created_at'], 'F') ?>
+                                                                ឆ្នាំ <?= translateDateToKhmer($getlate['created_at'], 'Y') ?>
+                                                            </p>
+                                                            <h3 class="mb-3">អ្នកស្នើសុំ</h3>
+                                                            <h3 class="mb-0">
+                                                                <?= htmlspecialchars($getlate['khmer_name'] ?? 'Unknown Name', ENT_QUOTES, 'UTF-8') ?>
+                                                            </h3>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

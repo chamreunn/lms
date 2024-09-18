@@ -446,7 +446,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                     title="<?= htmlspecialchars($request['remarks']) ?>"><?= htmlspecialchars($request['remarks']) ?></span>
                             </td>
                             <td class="p-0">
-                                <a href="/elms/view-leave-detail?leave_id=<?= htmlspecialchars($request['id']) ?>"
+                                <a href="/elms/view-leave-detail-h?leave_id=<?= htmlspecialchars($request['id']) ?>"
                                     title="ពិនិត្យមើល" data-bs-placement="auto" data-bs-toggle="tooltip"
                                     class="icon me-0 edit-btn">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"

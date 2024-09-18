@@ -381,6 +381,18 @@ switch ($uri) {
             $controller->viewLeaveDetail();
         });
         break;
+    case $base_url . '/view-leave-detail-h':
+        checkSessionAndExecute(function () {
+            $controller = new HeadOfficeController();
+            $controller->viewLeaveDetail();
+        });
+        break;
+    case $base_url . '/hoffice-view-leave':
+        checkSessionAndExecute(function () {
+            $controller = new HeadOfficeController();
+            $controller->viewDetail();
+        });
+        break;
     case $base_url . '/view-leave':
         checkSessionAndExecute(function () {
             $controller = new DepOfficeController();

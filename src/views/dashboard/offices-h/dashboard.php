@@ -310,7 +310,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         <div class="card">
             <div class="list-group list-group-flush overflow-auto" style="max-height: 35rem">
                 <?php foreach ($getUserApprove as $request): ?>
-                    <a href="/elms/view-leave-detail?leave_id=<?= $request['leave_request_id'] ?>"
+                    <a href="/elms/hoffice-view-leave?leave_id=<?= $request['leave_request_id'] ?>"
                         class="list-group-item list-group-item-action border-left-light">
                         <!-- <div class="list-group-item"> -->
                         <div class="row align-items-center">

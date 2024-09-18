@@ -9,6 +9,8 @@ class AdminModel
 
     private $table_name = "late_in_out";
 
+    private $lateApproval = "late_approvals";
+
     private $leaveRequest = "leave_requests";
 
     private $table = "missions";
@@ -690,25 +692,19 @@ class AdminModel
         return $result['AllLate'];
     }
 
-    public function updateRequest($approver_id, $action, $request_id, $comment, $signature)
+    public function updateRequest($approver_id, $action, $request_id, $comment)
     {
         try {
-            // Start a transaction to ensure atomicity
-            $this->pdo->beginTransaction();
-
-            // Insert the approval record with the signature
+            // Insert the approval record
             $stmt = $this->pdo->prepare(
-                'INSERT INTO late_approvals (acted_by, action, late_approval_id, comment, signature, created_at)
-                VALUES (?, ?, ?, ?, ?, NOW())'
+                "INSERT INTO $this->lateApproval (acted_by, action, lateId, comment, created_at)
+             VALUES (?, ?, ?, ?, NOW())"
             );
-            $stmt->execute([$approver_id, $action, $request_id, $comment, $signature]);
+            $stmt->execute([$approver_id, $action, $request_id, $comment]);
 
-            // Update the action and updated_at timestamp in the existing late_approvals record
-            $stmt = $this->pdo->prepare("UPDATE late_in_out SET status = ?, updated_at = NOW() WHERE id = ?");
+            // Update the action and updated_at timestamp in the existing late_in_out record
+            $stmt = $this->pdo->prepare("UPDATE $this->table_name SET status = ?, updated_at = NOW() WHERE id = ?");
             $stmt->execute([$action, $request_id]);
-
-            // Commit the transaction
-            $this->pdo->commit();
 
             // Optionally, fetch the updated_at timestamp if needed
             $stmt = $this->pdo->prepare("SELECT updated_at FROM late_in_out WHERE id = ?");
@@ -722,10 +718,7 @@ class AdminModel
             return $updatedAt; // Return the updated_at timestamp if needed
 
         } catch (Exception $e) {
-            // Rollback the transaction in case of an error
-            if ($this->pdo->inTransaction()) {
-                $this->pdo->rollBack();
-            }
+            // Handle the exception without rolling back transactions
             throw $e;
         }
     }
@@ -1160,7 +1153,7 @@ class AdminModel
         }
     }
 
-    public function sendEmailBackToUser($uEmail, $adminApproved, $leaveRequestId, $status, $updatedAt, $remarks)
+    public function sendEmailBackToUser($uEmail, $approved_at, $approved_by, $status, $comment, $title)
     {
         $mail = new PHPMailer(true);
 
@@ -1178,83 +1171,97 @@ class AdminModel
             $mail->CharSet = 'UTF-8';
 
             // Format date
-            $updated_at_formatted = (new DateTime($updatedAt))->format('j F, Y H:i:s');
+            $updated_at_formatted = (new DateTime($approved_at))->format('j F, Y H:i:s');
 
             // Recipients
-            $mail->setFrom('no-reply@example.com', 'ប្រព័ន្ធគ្រប់គ្រងការសុំច្បាប់');
+            $mail->setFrom('no-reply@example.com', "ប្រព័ន្ធគ្រប់គ្រងការសុំច្បាប់ | $title");
             $mail->addAddress($uEmail);
 
             // Email Content
             $mail->isHTML(true);
             $mail->Subject = "ការស្នើសុំច្បាប់ត្រូវបាន $status";
 
-            // Updated body with "khmer MEF1" font
+            // Updated body with modern design
             $body = "
         <html>
         <head>
             <style>
                 @font-face {
                     font-family: 'khmer MEF1';
-                    src: url('../../public/dist/fonts/Khmer-MEF1.ttf') format('truetype');
+                    src: url('public/dist/fonts/Khmer-MEF1.ttf') format('truetype');
                 }
                 body {
                     font-family: 'khmer MEF1', Arial, sans-serif;
-                    background-color: #f7f7f7;
+                    background-color: #f4f4f4;
                     margin: 0;
                     padding: 0;
+                    line-height: 1.6;
                 }
                 .container {
                     max-width: 600px;
-                    margin: 40px auto;
+                    margin: 30px auto;
                     background-color: #ffffff;
-                    border-radius: 8px;
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                    border-radius: 10px;
+                    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
                     overflow: hidden;
+                    padding: 20px;
                 }
                 .header {
-                    background-color: #4CAF50;
-                    color: white;
+                    background-color: #1abc9c;
+                    color: #ffffff;
                     padding: 20px;
                     text-align: center;
                     font-size: 24px;
                     font-weight: bold;
+                    text-transform: uppercase;
                 }
                 .content {
                     padding: 20px;
                     font-size: 16px;
-                    color: #333333;
+                    color: #333;
                 }
                 .content p {
-                    margin: 0 0 15px;
+                    margin-bottom: 20px;
                 }
                 .status-badge {
                     display: inline-block;
-                    background-color: " . ($status === 'Approved' ? '#28a745' : '#dc3545') . ";
+                    padding: 10px 20px;
+                    background-color: " . ($status === 'Approved' ? '#28a745' : '#e74c3c') . ";
                     color: white;
-                    padding: 5px 10px;
-                    border-radius: 4px;
                     font-weight: bold;
+                    border-radius: 5px;
                     text-transform: uppercase;
+                    font-size: 14px;
                 }
                 .footer {
-                    background-color: #f1f1f1;
                     text-align: center;
-                    padding: 10px;
+                    padding: 15px;
+                    background-color: #e9ecef;
+                    color: #555555;
                     font-size: 12px;
-                    color: #666666;
-                    border-top: 1px solid #e2e2e2;
+                    border-top: 1px solid #dddddd;
+                    margin-top: 30px;
+                }
+                .footer a {
+                    color: #1abc9c;
+                    text-decoration: none;
                 }
             </style>
         </head>
         <body>
-            <div class='container-fluid'>
-                <p><strong>Status:</strong> $status</p>
-                <p><strong>Approved by:</strong> $adminApproved</p>
-                <p><strong>Date:</strong> $updated_at_formatted</p>"
-                . (!empty($remarks) ? "<p><strong>Remarks:</strong> $remarks</p>" : "") . "
-            </div>
-            <div class='footer'>
-                &copy; " . date("Y") . " ប្រព័ន្ធគ្រប់គ្រងការសុំច្បាប់។ រក្សាសិទ្ធិគ្រប់យ៉ាង។
+            <div class='container'>
+                <div class='header'>
+                    $title
+                </div>
+                <div class='content'>
+                    <p><strong>ស្ថានភាព:</strong> <span class='status-badge'>$status</span></p>
+                    <p><strong>អនុម័តដោយ:</strong> $approved_by</p>
+                    <p><strong>កាលបរិចេ្ឆទអនុម័ត:</strong> $updated_at_formatted</p>"
+                . (!empty($comment) ? "<p><strong>មតិយោបល់:</strong> $comment</p>" : "") . "
+                </div>
+                <div class='footer'>
+                    &copy; " . date("Y") . " <a href='#'>ប្រព័ន្ធគ្រប់គ្រងការសុំច្បាប់</a> | All Rights Reserved.
+                </div>
             </div>
         </body>
         </html>

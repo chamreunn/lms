@@ -146,7 +146,7 @@ include('src/common/header.php');
                                     <span>មតិយោបល់</span>
                                 </a>
                                 <div class="collapse collapse-multiple mt-3" id="approved">
-                                    <input name="remarks" class="form-control" list="datalistOptions"
+                                    <input name="comment" class="form-control" list="datalistOptions"
                                         placeholder="សូមបញ្ចូលមតិយោបល់...">
                                     <datalist id="datalistOptions">
                                         <option value="អាចឈប់សម្រាកបាន"></option>
@@ -212,7 +212,7 @@ include('src/common/header.php');
                                     <span>មតិយោបល់</span>
                                 </a>
                                 <div class="collapse collapse-multiple mt-3" id="approved">
-                                    <input name="remarks" class="form-control" list="datalistOptions"
+                                    <input name="comment" class="form-control" list="datalistOptions"
                                         placeholder="សូមបញ្ចូលមតិយោបល់...">
                                     <datalist id="datalistOptions">
                                         <option value="អាចឈប់សម្រាកបាន"></option>
