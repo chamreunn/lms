@@ -118,7 +118,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                         <path d="M7.01 17h.005" />
                         <path d="M10.01 17h.005" />
                     </svg>
-                    <a href="/elms/view-leave-detail?leave_id=<?= $leave['id'] ?>" class="text-success text-decoration-none" data-bs-placement="top" data-bs-toggle="tooltip" title="កាលបរិច្ឆេទចាប់ពី <?= translateDateToKhmer($leave['start_date'],'d F Y') ?> ដល់ <?= translateDateToKhmer($leave['end_date'],'d F Y') ?>">ច្បាប់ឈប់សម្រាករបស់អ្នកត្រូវាបាន <strong>អនុម័ត</strong></a>
+                    <a href="/elms/view-leave-detail?leave_id=<?= $leave['id'] ?>" class="text-success text-decoration-none" data-bs-placement="top" data-bs-toggle="tooltip" title="កាលបរិច្ឆេទចាប់ពី <?= translateDateToKhmer($leave['start_date'],'d F Y') ?> ដល់ <?= translateDateToKhmer($leave['end_date'],'d F Y') ?>">ច្បាប់ឈប់សម្រាករបស់អ្នកត្រូវបាន <strong>អនុម័ត</strong></a>
                 </div>
             </div>
         <?php endforeach; ?>

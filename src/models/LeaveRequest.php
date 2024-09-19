@@ -107,7 +107,7 @@ class LeaveRequest
             $result['hoffice'] = $this->getHOfficePositions($result['id'], $_SESSION['token']);
             $result['hdepartment'] = $this->getDDepartmentPositions($result['id'], $_SESSION['token']);
             $result['hdepartment'] = $this->getHDepartmentPositions($result['id'], $_SESSION['token']);
-            $result['dunit'] = $this->getDUnitPositions( $result['id'], $_SESSION['token']);
+            $result['dunit'] = $this->getDUnitPositions($result['id'], $_SESSION['token']);
             $result['unit'] = $this->getUnitPositions($result['id'], $_SESSION['token']);
         }
 
@@ -210,24 +210,43 @@ class LeaveRequest
 
     public function getTodayLeaveById($user_id)
     {
+        // SQL query to fetch leave requests for today
         $sql = '
-            SELECT lr.*, 
-                   lt.name AS leave_type_name, 
-                   lt.duration, 
-                   lt.color, 
-                   lr.start_date, 
-                   lr.end_date
-            FROM leave_requests lr
-            JOIN leave_types lt ON lr.leave_type_id = lt.id
-            WHERE lr.user_id = ? 
-            AND lr.status = "Approved"
-            AND CURDATE() BETWEEN lr.start_date AND lr.end_date
-        ';
+        SELECT lr.*, 
+               lt.name AS leave_type_name, 
+               lt.duration, 
+               lt.color, 
+               lr.start_date, 
+               lr.end_date
+        FROM leave_requests lr
+        JOIN leave_types lt ON lr.leave_type_id = lt.id
+        WHERE lr.user_id = ? 
+        AND lr.status = "Approved"
+        AND CURDATE() BETWEEN lr.start_date AND lr.end_date
+    ';
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$user_id]);
+        try {
+            // Prepare and execute the SQL statement
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$user_id]);
 
-        return $stmt->fetchAll();
+            // Fetch all leave requests that meet the criteria
+            $leaveRequests = $stmt->fetchAll();
+
+            // If no leave requests are found, return an empty array or log it as needed
+            if (empty($leaveRequests)) {
+                error_log("No leave requests found for user ID: $user_id for today.");
+                return [];
+            }
+
+            // Return the fetched leave requests
+            return $leaveRequests;
+
+        } catch (PDOException $e) {
+            // Log any SQL or database-related errors
+            error_log("Database Error: " . $e->getMessage());
+            return [];
+        }
     }
 
     public function countRequestsByUserId($user_id)
@@ -383,7 +402,7 @@ class LeaveRequest
                 a.signature,  -- Include the signature column
                 (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
          FROM leave_approvals a
-         WHERE a.leave_request_id = ?'
+         WHERE a.leave_request_id = ? ORDER BY id DESC'
         );
 
         // Execute the query with the leave request ID parameter

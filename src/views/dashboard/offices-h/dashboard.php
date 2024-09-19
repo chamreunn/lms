@@ -76,6 +76,36 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </div>
     </div>
 </div>
+
+<div class="row">
+    <?php if (!empty($leaves)): ?>
+            <div class="col-12">
+                <div class="alert alert-success" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
+                        <path d="M16 3v4" />
+                        <path d="M8 3v4" />
+                        <path d="M4 11h16" />
+                        <path d="M7 14h.013" />
+                        <path d="M10.01 14h.005" />
+                        <path d="M13.01 14h.005" />
+                        <path d="M16.015 14h.005" />
+                        <path d="M13.015 17h.005" />
+                        <path d="M7.01 17h.005" />
+                        <path d="M10.01 17h.005" />
+                    </svg>
+                    <a href="/elms/view-leave-detail?leave_id=<?= $leaves['id'] ?>" class="text-success text-decoration-none"
+                        data-bs-placement="top" data-bs-toggle="tooltip"
+                        title="កាលបរិច្ឆេទចាប់ពី <?= translateDateToKhmer($leaves['start_date'], 'd F Y') ?> ដល់ <?= translateDateToKhmer($leaves['end_date'], 'd F Y') ?>">ច្បាប់ឈប់សម្រាករបស់អ្នកត្រូវាបាន
+                        <strong>អនុម័ត</strong></a>
+                </div>
+            </div>
+    <?php endif; ?>
+</div>
+
 <!-- alert leave count  -->
 <?php if (!empty($pendingCount)): ?>
     <div class="col">
@@ -101,6 +131,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </div>
     </div>
 <?php endif; ?>
+
 <div class="row row-card">
     <div class="col-12 mb-3">
         <div class="row row-cards">
@@ -304,13 +335,14 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     </div>
 </div>
 
+
 <?php if (count($getUserApprove) > 0): ?>
     <div class="col-12 mb-3">
         <h3 class="mb-3">ច្បាប់ឈប់សម្រាកថ្ងៃនេះ</h3>
         <div class="card">
             <div class="list-group list-group-flush overflow-auto" style="max-height: 35rem">
                 <?php foreach ($getUserApprove as $request): ?>
-                    <a href="/elms/hoffice-view-leave?leave_id=<?= $request['leave_request_id'] ?>"
+                    <a href="/elms/view-leave-detail?leave_id=<?= $request['leave_request_id'] ?>"
                         class="list-group-item list-group-item-action border-left-light">
                         <!-- <div class="list-group-item"> -->
                         <div class="row align-items-center">
@@ -322,8 +354,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                 <small class="text-muted text-truncate mt-n1">ឈប់សម្រាក ចំនួន <strong
                                         class="text-success"><?= $request['num_date'] ?></strong> ថ្ងៃ ចាប់ពី <strong
                                         class="text-success"><?= $request['start_date'] ?></strong> ដល់ <strong
-                                        class="text-success"><?= $request['end_date'] ?></strong>
-                                </small>
+                                        class="text-success"><?= $request['end_date'] ?></strong></small>
                             </div>
                         </div>
                         <!-- </div> -->
@@ -360,7 +391,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <path d="M10.01 17h.005" />
                 </svg>
             </div>
-            <strong>ច្បាប់ឈប់សម្រាក</strong>
+            <strong>សំណើច្បាប់ឈប់សម្រាក</strong>
         </a>
     </div>
 
@@ -378,7 +409,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <path d="M12 7v5l2.5 2.5" />
                 </svg>
             </div>
-            <strong>លិខិតចូលយឺត</strong>
+            <strong>សំណើចូលយឺត</strong>
         </a>
     </div>
 

@@ -65,7 +65,7 @@
                         <div class="col-lg-6">
                             <label class="form-check cursor-pointer">
                                 <input class="form-check-input" type="checkbox" name="agree" <?= isset($_POST['agree']) ? 'checked' : ''; ?>>
-                                <span class="form-check-label">យល់ព្រមលើកាបញ្ចូល<span
+                                <span class="form-check-label">យល់ព្រមលើការបញ្ចូល<span
                                         class="text-danger fw-bold mx-1">*</span></span>
                             </label>
                         </div>
@@ -147,10 +147,10 @@
                         <textarea autocomplete="off" placeholder="មូលហេតុ" class="form-control" id="reason"
                             name="reason"><?= htmlspecialchars($_POST['reason'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-0">
                         <label class="form-check cursor-pointer">
                             <input class="form-check-input" type="checkbox" name="agree" <?= isset($_POST['agree']) ? 'checked' : ''; ?>>
-                            <span class="form-check-label">យល់ព្រមលើកាបញ្ចូល<span
+                            <span class="form-check-label">យល់ព្រមលើការបញ្ចូល<span
                                     class="text-danger fw-bold mx-1">*</span></span>
                         </label>
                     </div>
@@ -231,7 +231,7 @@
                     <div class="mb-3">
                         <label class="form-check cursor-pointer">
                             <input class="form-check-input" type="checkbox" name="agree" <?= isset($_POST['agree']) ? 'checked' : ''; ?>>
-                            <span class="form-check-label">យល់ព្រមលើកាបញ្ចូល<span
+                            <span class="form-check-label">យល់ព្រមលើការបញ្ចូល<span
                                     class="text-danger fw-bold mx-1">*</span></span>
                         </label>
                     </div>
@@ -344,8 +344,9 @@
                     <div class="mb-3">
                         <label class="form-check cursor-pointer">
                             <input class="form-check-input" type="checkbox" name="agree" <?= isset($_POST['agree']) ? 'checked' : ''; ?>>
-                            <span class="form-check-label">យល់ព្រមលើកាបញ្ចូល<span
-                                    class="text-danger fw-bold mx-1">*</span></span>
+                            <span class="form-check-label">យល់ព្រមលើការបញ្ចូល
+                                <span class="text-danger fw-bold mx-1">*</span>
+                            </span>
                         </label>
                     </div>
                 </div>

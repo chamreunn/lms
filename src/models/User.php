@@ -18,13 +18,6 @@ class User
         $this->pdo = $pdo;
     }
 
-    public function findByEmail($email)
-    {
-        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE email = ?');
-        $stmt->execute([$email]);
-        return $stmt->fetch();
-    }
-
     public function authenticateUser($email, $password)
     {
         $url = "{$this->api}/api/login";
@@ -169,58 +162,6 @@ class User
         return $stmt->execute([$profilePicturePath, $userId]);
     }
 
-    public function getAllUsers()
-    {
-        $query = "
-        SELECT 
-            users.*, 
-            departments.name AS department_name, 
-            offices.name AS office_name, 
-            positions.name AS position_name,
-            positions.color AS position_color
-        FROM 
-            users
-        LEFT JOIN 
-            departments ON users.department_id = departments.id
-        LEFT JOIN 
-            offices ON users.office_id = offices.id
-        LEFT JOIN 
-            positions ON users.position_id = positions.id
-    ";
-
-        $stmt = $this->pdo->query($query);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC); // Use FETCH_ASSOC to get an associative array
-    }
-
-    public function getUserByPosition($id = null)
-    {
-        if ($id === null) {
-            // Assuming $_SESSION['user_id'] is set and contains the user ID
-            $id = $_SESSION['user_id'];
-        }
-
-        $stmt = $this->pdo->prepare("
-        SELECT users.*, positions.name AS position_name, positions.color AS color 
-        FROM users 
-        JOIN positions ON users.position_id = positions.id 
-        WHERE users.id = :id
-    ");
-        $stmt->execute(['id' => $id]);
-        $result = $stmt->fetch();
-
-        if ($result && !empty($result['position_name'])) {
-            return $result;
-        } else {
-            // Position is not valid, handle the error
-            $_SESSION['error'] = [
-                'title' => "Position Error",
-                'message' => "The user's position is not valid or does not exist"
-            ];
-            header('Location: /elms/error'); // Redirect to an error page or handle it appropriately
-            exit;
-        }
-    }
-
     public function getAllUserApi($token)
     {
         $url = "{$this->api}/api/v1/users/";
@@ -282,6 +223,90 @@ class User
             return [
                 'http_code' => $httpCode,
                 'response' => $responseData
+            ];
+        }
+    }
+
+    public function getDepOfficAndDepartment($token, $officeName, $roleName)
+    {
+        $url = "{$this->api}/api/v1/fetch-deputy-office-department";
+
+        // Prepare query parameters
+        $queryParams = [
+            'officeName' => $officeName,
+            'roleName' => $roleName,
+        ];
+
+        // Build the URL with encoded query parameters
+        $url .= '?' . http_build_query($queryParams);
+
+        // Initialize cURL session
+        $ch = curl_init($url);
+
+        // Set cURL options
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $token,
+            'Content-Type: application/json' // Added in case the API expects this header
+        ]);
+
+        // Execute the cURL request
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+
+        // Handle cURL errors
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            curl_close($ch);
+            return [
+                'success' => false,
+                'error' => $error,
+                'http_code' => $httpCode
+            ];
+        }
+
+        curl_close($ch);
+
+        // Decode the JSON response
+        $responseData = json_decode($response, true);
+
+        // Log the raw response for debugging
+        error_log("API Raw Response: " . print_r($responseData, true));
+
+        // Handle JSON decode errors
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return [
+                'success' => false,
+                'error' => json_last_error_msg(),
+                'http_code' => $httpCode
+            ];
+        }
+
+        // Check if the response contains the expected 'data' field
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            // Return the correct data with a success message
+            return [
+                'success' => true,
+                'http_code' => $httpCode,
+                'data' => $responseData['data'],
+            ];
+        } else {
+            // Handle unexpected API response
+            if ($httpCode === 404) {
+                error_log("Data not found for office: $officeName and role: $roleName.");
+            } elseif ($httpCode === 500) {
+                error_log("Internal Server Error from API.");
+            } else {
+                error_log("Unexpected API response: " . print_r($responseData, true));
+            }
+
+            return [
+                'success' => false,
+                'http_code' => $httpCode,
+                'response' => $responseData,
+                'error' => isset($responseData['message']) ? $responseData['message'] : 'Unexpected API response'
             ];
         }
     }

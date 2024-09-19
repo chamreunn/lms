@@ -76,17 +76,18 @@ class DashboardController
                     require 'src/views/dashboard/users/dashboard.php';
                     break;
                 case 'Deputy Head Of Office':
-                    $leaveRequestModel = new DepDepartmentModel();
                     $lateModel = new LateModel();
                     $countRequestModel = new LeaveRequest();
                     $notification = new Notification();
                     $leavetypeModel = new Leavetype();
                     $getAllMission = new MissionModel();
+                    $leaveRequestModel = new DepDepartmentModel();
+                    $leaves = $leaveRequestModel->getTodayLeaveById($_SESSION['user_id']);
                     $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
                     $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
-                    $getUserApprove = $countRequestModel->leaveUserApproved($_SESSION['token']);
+                    $getUserApprove = $leaveRequestModel->leaveUserApproved($_SESSION['token']);
                     $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
                     $leavetypes = $leavetypeModel->getAllLeavetypes();
                     $getMissionCount = $getAllMission->missionCount($_SESSION['user_id']);
@@ -95,16 +96,17 @@ class DashboardController
                     break;
                 case 'Head Of Office':
                     $leaveRequestModel = new HeadOfficeModel();
-                    $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
                     $lateModel = new LateModel();
+                    $countRequestModel = new LeaveRequest();
+                    $notification = new Notification();
+                    $leavetypeModel = new Leavetype();
+                    $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
+                    $leaves = $countRequestModel->getTodayLeaveById($_SESSION['user_id']);
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
-                    $countRequestModel = new LeaveRequest();
                     $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
-                    $getUserApprove = $countRequestModel->leaveUserApproved($_SESSION['token']);
-                    $notification = new Notification();
+                    $getUserApprove = $leaveRequestModel->leaveUserApproved($_SESSION['token']);
                     $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
-                    $leavetypeModel = new Leavetype();
                     $leavetypes = $leavetypeModel->getAllLeavetypes();
                     require 'src/views/dashboard/offices-h/dashboard.php';
                     break;
@@ -144,6 +146,8 @@ class DashboardController
                     $lateModel = new LateModel();
                     $countRequestModel = new LeaveRequest();
                     $leavetypeModel = new Leavetype();
+                    $leaves = $countRequestModel->getTodayLeaveById($_SESSION['user_id']);
+                    $getUserApprove = $leaveRequestModel->leaveUserApproved($_SESSION['token']);
                     $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
@@ -168,6 +172,7 @@ class DashboardController
                     $lateModel = new LateModel();
                     $countRequestModel = new LeaveRequest();
                     $leavetypeModel = new Leavetype();
+                    $getUserApprove = $leaveRequestModel->leaveUserApproved($_SESSION['token']);
                     $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);

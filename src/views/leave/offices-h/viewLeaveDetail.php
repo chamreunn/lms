@@ -565,8 +565,8 @@ function convertToKhmerNumerals($number)
                             <?= translateDateToKhmer($request['end_date'], 'F') ?> ឆ្នាំ
                             <?= translateDateToKhmer($request['end_date'], 'Y') ?>
                             ដូចមូលហេតុ និងកាលបរិច្ឆេទក្នុងកម្មវត្ថុខាងលើ។ក្នុងរយៈពេលអវត្តមាននេះ ខ្ញុំសូមប្រគល់សិទ្ធជូន
-                            ............ មុខងារបច្ចុប្បន្ន ............
-                            នៃ.............ដើម្បីបំពេញភារៈកិច្ចជំនួសជាប្រធានការិយាល័យស្តីទី។
+                            <?= $request['deputy_head_name'] ?> មុខងារបច្ចុប្បន្ន  <?= $request['positionName'] ?>
+                            នៃ <?= $request['departmentName'] ?> ដើម្បីបំពេញភារៈកិច្ចជំនួសជាប្រធានការិយាល័យស្តីទី។
                         </p>
                         <p style="font-family: khmer mef1; font-size:16px; text-align:justify; text-indent: 50px;">
                             សេចក្តីដូចបានជម្រាបជូនខាងលើ សូម ឯកឯត្តមប្រធានអង្គភាព មេត្តាពិនិត្យ
@@ -621,7 +621,7 @@ function convertToKhmerNumerals($number)
                                     ខែ <?= translateDateToKhmer($request['created_at'], 'F') ?>
                                     ឆ្នាំ <?= translateDateToKhmer($request['created_at'], 'Y') ?>
                                 </p>
-                                <strong class="mb-0">ប្រធាន<?= $_SESSION['officeName'] ?></strong>
+                                <strong class="mb-0">ប្រធានការិយាល័យ</strong>
                                 <h3 class="mb-0">
                                     <?= htmlspecialchars($request['khmer_name'] ?? 'Unknown Name', ENT_QUOTES, 'UTF-8') ?>
                                 </h3>

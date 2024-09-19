@@ -44,6 +44,66 @@ class DepUnit1Model
         return $this->pdo->lastInsertId();
     }
 
+    public function leaveUserApprovedByDepartment($token)
+    {
+        $today = date('Y-m-d'); // Get today's date
+
+        $sessionDepartment = $_SESSION['departmentName'];
+
+        // Query to get leave requests that are approved and include today's date
+        $stmt = $this->pdo->prepare(
+            'SELECT lr.id as leave_request_id, lr.user_id, lr.start_date, lr.end_date, lr.num_date,
+                lr.office, lr.department, lr.status
+         FROM leave_requests lr
+         WHERE ? BETWEEN lr.start_date AND lr.end_date
+           AND lr.status = ?
+           AND lr.department = ?'
+        );
+        $stmt->execute([$today, 'Approved', $sessionDepartment]);
+        $leaveRequests = $stmt->fetchAll();
+
+        if (empty($leaveRequests)) {
+            return []; // Return an empty array if no approved leave requests are found
+        }
+
+        $userModel = new User(); // Assuming User class is responsible for API calls to fetch user data
+        $approvals = [];
+
+        foreach ($leaveRequests as $request) {
+            $userId = $request['user_id'];
+            $userApiResponse = $userModel->getUserByIdApi($userId, $token);
+
+            if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                $userData = $userApiResponse['data'];
+                $approvals[] = [
+                    'leave_request_id' => $request['leave_request_id'],
+                    'user_name' => $userData['lastNameKh'] . " " . $userData['firstNameKh'] ?? null,
+                    'profile' => 'https://hrms.iauoffsa.us/images/' . $userData['image'] ?? null,
+                    'position_name' => $userData['position']['name'] ?? null,
+                    'position_color' => $userData['position']['color'] ?? null,
+                    'start_date' => $request['start_date'],
+                    'end_date' => $request['end_date'],
+                    'num_date' => $request['num_date'],
+                ];
+            } else {
+                // Handle API error or missing data
+                error_log("Failed to fetch user data for user ID: $userId");
+                $approvals[] = [
+                    'leave_request_id' => $request['leave_request_id'],
+                    'user_name' => null,
+                    'profile' => null,
+                    'position_name' => null,
+                    'position_color' => null,
+                    'start_date' => $request['start_date'],
+                    'end_date' => $request['end_date'],
+                    'num_date' => $request['num_date'],
+                ];
+            }
+        }
+
+        return $approvals;
+    }
+
     public function sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType)
     {
         $mail = new PHPMailer(true);
@@ -1197,5 +1257,69 @@ class DepUnit1Model
         } else {
             return [];
         }
+    }
+
+    public function leaveUserApproved($token)
+    {
+        $today = date('Y-m-d'); // Get today's date
+
+        // Define multiple departments to check against the session
+        $sessionDepartments = ["នាយកដ្ឋានកិច្ចការទូទៅ", "នាយកដ្ឋានសវនកម្មទី២"];
+
+        // Query to get leave requests that are approved and overlap with today's date
+        $stmt = $this->pdo->prepare(
+            'SELECT lr.id as leave_request_id, lr.user_id, lr.start_date, lr.end_date, lr.num_date,
+                lr.department, lr.status
+         FROM leave_requests lr
+         WHERE ? BETWEEN lr.start_date AND lr.end_date
+           AND lr.status = ?
+           AND lr.department IN (' . implode(',', array_fill(0, count($sessionDepartments), '?')) . ')'
+        );
+
+        // Prepare query parameters (today's date, approved status, and department names)
+        $params = array_merge([$today, 'Approved'], $sessionDepartments);
+        $stmt->execute($params);
+        $leaveRequests = $stmt->fetchAll();
+
+        if (empty($leaveRequests)) {
+            return []; // Return an empty array if no approved leave requests are found
+        }
+
+        $userModel = new User(); // Assuming User class is responsible for API calls to fetch user data
+        $approvals = [];
+
+        foreach ($leaveRequests as $request) {
+            $userId = $request['user_id'];
+            $userApiResponse = $userModel->getUserByIdApi($userId, $token);
+
+            if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                $userData = $userApiResponse['data'];
+                $approvals[] = [
+                    'leave_request_id' => $request['leave_request_id'],
+                    'user_name' => ($userData['lastNameKh'] ?? '') . ' ' . ($userData['firstNameKh'] ?? ''),
+                    'profile' => 'https://hrms.iauoffsa.us/images/' . ($userData['image'] ?? 'default.png'),
+                    'position_name' => $userData['position']['name'] ?? 'N/A',
+                    'position_color' => $userData['position']['color'] ?? '#000000', // Default color if missing
+                    'start_date' => $request['start_date'],
+                    'end_date' => $request['end_date'],
+                    'num_date' => $request['num_date'],
+                ];
+            } else {
+                // Handle API error or missing data
+                error_log("Failed to fetch user data for user ID: $userId");
+                $approvals[] = [
+                    'leave_request_id' => $request['leave_request_id'],
+                    'user_name' => 'Unknown',
+                    'profile' => 'https://hrms.iauoffsa.us/images/default.png',
+                    'position_name' => 'N/A',
+                    'position_color' => '#000000',
+                    'start_date' => $request['start_date'],
+                    'end_date' => $request['end_date'],
+                    'num_date' => $request['num_date'],
+                ];
+            }
+        }
+
+        return $approvals;
     }
 }

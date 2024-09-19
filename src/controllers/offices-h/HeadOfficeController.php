@@ -352,7 +352,7 @@ class HeadOfficeController
     public function viewLeaveDetail()
     {
         if (isset($_GET['leave_id'])) {
-            $leaveRequestModel = new LeaveRequest();
+            $leaveRequestModel = new HeadOfficeModel();
             $leave_id = (int) $_GET['leave_id'];
             $request = $leaveRequestModel->getRequestById($leave_id, $_SESSION['token']);
             $leavetypeModel = new Leavetype();

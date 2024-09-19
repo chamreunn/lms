@@ -76,6 +76,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </div>
     </div>
 </div>
+
 <!-- alert leave count  -->
 <?php if (!empty($requestscount)): ?>
     <div class="col">
@@ -101,6 +102,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </div>
     </div>
 <?php endif; ?>
+
 <div class="row row-card">
     <div class="col-12 mb-3">
         <div class="row row-cards">
@@ -304,6 +306,36 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     </div>
 </div>
 
+<?php if (count($getUserApprove) > 0): ?>
+    <div class="col-12 mb-3">
+        <h3 class="mb-3">ច្បាប់ឈប់សម្រាកថ្ងៃនេះ</h3>
+        <div class="card">
+            <div class="list-group list-group-flush overflow-auto" style="max-height: 35rem">
+                <?php foreach ($getUserApprove as $request): ?>
+                    <a href="/elms/hoffice-view-leave?leave_id=<?= $request['leave_request_id'] ?>"
+                        class="list-group-item list-group-item-action border-left-light">
+                        <!-- <div class="list-group-item"> -->
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <img class="avatar" src="<?= $request['profile'] ?>" style="object-fit: cover;" />
+                            </div>
+                            <div class="col text-truncate">
+                                <h4 class="text-body text-success d-block"><?= $request['user_name'] ?></h4>
+                                <small class="text-muted text-truncate mt-n1">ឈប់សម្រាក ចំនួន <strong
+                                        class="text-success"><?= $request['num_date'] ?></strong> ថ្ងៃ ចាប់ពី <strong
+                                        class="text-success"><?= $request['start_date'] ?></strong> ដល់ <strong
+                                        class="text-success"><?= $request['end_date'] ?></strong>
+                                </small>
+                            </div>
+                        </div>
+                        <!-- </div> -->
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
 <div class="d-flex mb-3">
     <h3 class="mb-0">បង្កើតសំណើ</h3>
 </div>
@@ -349,7 +381,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <path d="M12 7v5l2.5 2.5" />
                 </svg>
             </div>
-            <strong>លិខិតចូលយឺត</strong>
+            <strong>សំណើចូលយឺត</strong>
         </a>
     </div>
 
@@ -370,7 +402,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <path d="M19 16a3 3 0 1 0 2 5.236" />
                 </svg>
             </div>
-            <strong>លិខិតចេញយឺត</strong>
+            <strong>សំណើចេញយឺត</strong>
         </a>
     </div>
 
@@ -388,7 +420,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <path d="M12 7v5l3 3" />
                 </svg>
             </div>
-            <strong>លិខិតចេញមុន</strong>
+            <strong>សំណើចេញមុន</strong>
         </a>
     </div>
 

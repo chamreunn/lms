@@ -892,12 +892,12 @@ class DepDepartmentModel
 
             // Server settings
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com'; // SMTP server to send through
-            $mail->SMTPAuth   = true;
-            $mail->Username   = 'pothhchamreun@gmail.com'; // SMTP username
-            $mail->Password   = 'kyph nvwd ncpa gyzi'; // SMTP password
+            $mail->Host = 'smtp.gmail.com'; // SMTP server to send through
+            $mail->SMTPAuth = true;
+            $mail->Username = 'pothhchamreun@gmail.com'; // SMTP username
+            $mail->Password = 'kyph nvwd ncpa gyzi'; // SMTP password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
+            $mail->Port = 587;
 
             // Set charset to UTF-8 for Unicode support
             $mail->CharSet = 'UTF-8';
@@ -1013,12 +1013,12 @@ class DepDepartmentModel
 
             // Server settings
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com'; // SMTP server to send through
-            $mail->SMTPAuth   = true;
-            $mail->Username   = 'pothhchamreun@gmail.com'; // SMTP username
-            $mail->Password   = 'kyph nvwd ncpa gyzi'; // SMTP password
+            $mail->Host = 'smtp.gmail.com'; // SMTP server to send through
+            $mail->SMTPAuth = true;
+            $mail->Username = 'pothhchamreun@gmail.com'; // SMTP username
+            $mail->Password = 'kyph nvwd ncpa gyzi'; // SMTP password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
+            $mail->Port = 587;
 
             // Set charset to UTF-8 for Unicode support
             $mail->CharSet = 'UTF-8';
@@ -1135,12 +1135,12 @@ class DepDepartmentModel
         try {
             // Server settings
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com';
-            $mail->SMTPAuth   = true;
-            $mail->Username   = 'pothhchamreun@gmail.com';
-            $mail->Password   = 'kyph nvwd ncpa gyzi';
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'pothhchamreun@gmail.com';
+            $mail->Password = 'kyph nvwd ncpa gyzi';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
+            $mail->Port = 587;
 
             // Set charset to UTF-8 for Unicode support
             $mail->CharSet = 'UTF-8';
@@ -1243,4 +1243,119 @@ class DepDepartmentModel
             return false;
         }
     }
+
+    public function leaveUserApproved($token)
+    {
+        $today = date('Y-m-d'); // Get today's date
+
+        // Fetch office and department from the session
+        $sessionOffice = $_SESSION['officeName'];
+        $sessionDepartment = $_SESSION['departmentName'];
+
+        // Query to get leave requests that are approved and include today's date
+        $stmt = $this->pdo->prepare(
+            'SELECT lr.id as leave_request_id, lr.user_id, lr.start_date, lr.end_date, lr.num_date,
+                lr.office, lr.department, lr.status
+         FROM leave_requests lr
+         WHERE ? BETWEEN lr.start_date AND lr.end_date
+           AND lr.status = ?
+           AND lr.office = ?
+           AND lr.department = ?
+           '
+        );
+        $stmt->execute([$today, 'Approved', $sessionOffice, $sessionDepartment]);
+        $leaveRequests = $stmt->fetchAll();
+
+        if (empty($leaveRequests)) {
+            return []; // Return an empty array if no approved leave requests are found
+        }
+
+        $userModel = new User(); // Assuming User class is responsible for API calls to fetch user data
+        $approvals = [];
+
+        foreach ($leaveRequests as $request) {
+            $userId = $request['user_id'];
+            $userApiResponse = $userModel->getUserByIdApi($userId, $token);
+
+            if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                $userData = $userApiResponse['data'];
+                $approvals[] = [
+                    'leave_request_id' => $request['leave_request_id'],
+                    'user_name' => $userData['lastNameKh'] . " " . $userData['firstNameKh'] ?? null,
+                    'profile' => 'https://hrms.iauoffsa.us/images/' . $userData['image'] ?? null,
+                    'position_name' => $userData['position']['name'] ?? null,
+                    'position_color' => $userData['position']['color'] ?? null,
+                    'start_date' => $request['start_date'],
+                    'end_date' => $request['end_date'],
+                    'num_date' => $request['num_date'],
+                ];
+            } else {
+                // Handle API error or missing data
+                error_log("Failed to fetch user data for user ID: $userId");
+                $approvals[] = [
+                    'leave_request_id' => $request['leave_request_id'],
+                    'user_name' => null,
+                    'profile' => null,
+                    'position_name' => null,
+                    'position_color' => null,
+                    'start_date' => $request['start_date'],
+                    'end_date' => $request['end_date'],
+                    'num_date' => $request['num_date'],
+                ];
+            }
+        }
+
+        return $approvals;
+    }
+
+    public function getTodayLeaveById($user_id)
+    {
+        date_default_timezone_set('Asia/Bangkok'); // Ensure timezone is set correctly
+        $today = date('Y-m-d'); // Get today's date
+
+        // SQL query to fetch leave requests for today, with a join on leave_types
+        $sql = '
+        SELECT lr.*, 
+               lt.name AS leave_type_name, 
+               lt.duration, 
+               lt.color, 
+               lr.start_date, 
+               lr.end_date
+        FROM leave_requests lr
+        JOIN leave_types lt ON lr.leave_type_id = lt.id
+        WHERE ? BETWEEN lr.start_date AND lr.end_date
+        AND lr.status = ?
+        AND lr.user_id = ?
+    ';
+
+        try {
+            // Log the final SQL query and variables for debugging
+            error_log("Executing SQL: $sql with values: [$today, 'Approved', $user_id]");
+
+            // Prepare and execute the SQL statement
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$today, 'Approved', $user_id]);
+
+            // Fetch all leave requests that meet the criteria
+            $leaveRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Log the fetched leave requests for debugging
+            error_log("Leave Requests: " . print_r($leaveRequests, true));
+
+            // If no leave requests are found, return an empty array
+            if (empty($leaveRequests)) {
+                error_log("No leave requests found for user ID: $user_id for today.");
+                return [];
+            }
+
+            // Return the fetched leave requests
+            return $leaveRequests;
+
+        } catch (PDOException $e) {
+            // Log any SQL or database-related errors
+            error_log("Database Error while fetching leave requests for user ID: $user_id. Error: " . $e->getMessage());
+            return [];
+        }
+    }
+
 }
