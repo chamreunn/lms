@@ -287,28 +287,50 @@ $action = $_GET['action'] ?? 'latein';
                                 <div class="card">
                                     <div class="card-header">
                                         <h3 class="card-title text-primary mb-0">
-                                            <span>ចេញមុន</span>
+                                            <span>សំណើទាំងអស់</span>
                                         </h3>
                                     </div>
-                                    <?php foreach ($getAlls as $request): ?>
+
+                                    <?php
+                                    $groupedRequests = [];
+                                    $today = date('Y-m-d');
+
+                                    // Group requests by date
+                                    foreach ($getAlls as $request) {
+                                        $date = $request['date'];
+                                        $groupedRequests[$date][] = $request;
+                                    }
+                                    ?>
+
+                                    <!-- Display grouped requests by date -->
+                                    <?php foreach ($groupedRequests as $date => $requests): ?>
                                         <div class="list-group list-group-flush">
-                                            <a href="viewLateDetailAllLate?id=<?= $request['id'] ?>"
-                                                class="list-group-item list-group-item-action" aria-current="true">
-                                                <!-- Profile Picture -->
-                                                <div class="d-flex">
-                                                    <div class="d-flex">
-                                                        <img src="<?= $request['profile_picture'] ?>" class="avatar me-3"
-                                                            style="object-fit: cover;" alt="Profile Picture">
-                                                        <div class="justify-content-between">
-                                                            <h4 class="mb-1 text-primary"><?= $request['khmer_name'] ?></h4>
-                                                            <div class="text-muted"><?= $request['date'] ?></div>
+                                            <h5 class="list-group-header mb-0">
+                                                <!-- Label the current date as 'Today' -->
+                                                <?= ($date == $today) ? 'ថ្ងៃនេះ' : $date ?>
+                                            </h5>
+
+                                            <div class="list-group list-group-flush">
+                                                <!-- Display all requests for the given date -->
+                                                <?php foreach ($requests as $request): ?>
+                                                    <a href="viewLateDetailAllLate?id=<?= $request['id'] ?>"
+                                                        class="list-group-item list-group-item-action" aria-current="true">
+                                                        <div class="d-flex">
+                                                            <div class="d-flex">
+                                                                <img src="<?= $request['profile_picture'] ?>" class="avatar me-3"
+                                                                    style="object-fit: cover;" alt="Profile Picture">
+                                                                <div class="justify-content-between">
+                                                                    <h4 class="mb-1 text-primary"><?= $request['khmer_name'] ?></h4>
+                                                                    <div class="text-muted"><?= $request['date'] ?></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="ms-auto">
+                                                                <div class="badge bg-success"><?= $request['status'] ?></div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <div class="ms-auto">
-                                                        <div class="badge bg-success"><?= $request['status'] ?></div>
-                                                    </div>
-                                                </div>
-                                            </a>
+                                                    </a>
+                                                <?php endforeach; ?>
+                                            </div>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
@@ -323,141 +345,6 @@ $action = $_GET['action'] ?? 'latein';
             </div>
         </div>
     </div>
-</div>
-
-<div id="listView" class="row d-none">
-    <?php foreach ($getAll as $getLate): ?>
-        <div class="col-12">
-            <div class="list-item border rounded p-3 mb-3 shadow-sm">
-                <div class="d-flex align-items-center">
-                    <!-- Profile Picture -->
-                    <img src="<?= $getLate['profile_picture'] ?>" class="avatar avatar-lg me-3 rounded-circle"
-                        style="object-fit: cover; width: 70px; height: 70px;" alt="Profile Picture">
-
-                    <!-- User Information -->
-                    <div class="flex-grow-1">
-                        <div class="d-flex justify-content-between">
-                            <h5 class="mb-1 fw-bold"><?= $getLate['khmer_name'] ?></h5>
-                            <div class="badge bg-primary"><?= $getLate['late_status'] ?></div>
-                        </div>
-                        <p class="text-muted mb-1"><?= $getLate['email'] ?></p>
-                        <p class="text-muted"><strong>កាលបរិច្ឆេទ:</strong> <?= $getLate['date'] ?></p>
-
-                        <!-- Display late in, out or leave early -->
-                        <?php if (!empty($getLate['late_in'])): ?>
-                            <p class="text-muted"><strong>ម៉ោងចូល:</strong> <?= $getLate['late_in'] ?></p>
-                            <p class="text-muted"><strong>រយៈពេលយឺត:</strong> <?= $getLate['late'] ?> នាទី</p>
-                        <?php elseif (!empty($getLate['late_out'])): ?>
-                            <p class="text-muted"><strong>ម៉ោងចេញ:</strong> <?= $getLate['late_out'] ?></p>
-                            <p class="text-muted"><strong>រយៈពេលយឺត:</strong> <?= $getLate['late'] ?> នាទី</p>
-                        <?php elseif (!empty($getLate['leave_early'])): ?>
-                            <p class="text-muted"><strong>ម៉ោងចេញមុន:</strong> <?= $getLate['leave_early'] ?></p>
-                            <p class="text-muted"><strong>រយៈពេល:</strong> <?= $getLate['late'] ?> នាទី</p>
-                        <?php endif; ?>
-
-                        <p class="text-muted"><strong>មូលហេតុ:</strong> <?= $getLate['reasons'] ?></p>
-                    </div>
-                </div>
-
-                <!-- Status Badge and Action Buttons -->
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <div>
-                        <?php if (!empty($getLate['late_in'])): ?>
-                            <span class="badge bg-info">ចូលយឺត</span>
-                        <?php elseif (!empty($getLate['late_out'])): ?>
-                            <span class="badge bg-warning">ចេញយឺត</span>
-                        <?php elseif (!empty($getLate['leave_early'])): ?>
-                            <span class="badge bg-danger">ចេញមុន</span>
-                        <?php endif; ?>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div>
-                        <button type="button" data-bs-toggle="modal" data-bs-target="#approved<?= $getLate['id'] ?>"
-                            class="btn btn-sm btn-outline-success me-2">អនុម័ត</button>
-                        <button type="submit" data-bs-toggle="modal" data-bs-target="#rejected<?= $getLate['id'] ?>"
-                            class="btn btn-sm btn-outline-danger">មិនអនុម័ត</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- approved modal  -->
-        <div class="modal modal-blur fade" id="listapproved<?= $getLate['id'] ?>" data-bs-backdrop="static"
-            data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title" id="staticBackdropLabel">អនុម័ត</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-status bg-success"></div>
-                    <form action="/elms/adminapprovelate" method="POST" enctype="multipart/form-data">
-                        <div class="modal-body text-center py-4">
-                            <input type="hidden" name="id" value="<?= $getLate['late_id'] ?>">
-                            <input type="hidden" name="user_email" value="<?= $getLate['email'] ?>">
-                            <input type="hidden" name="action" value="Approved">
-                            <div class="mb-3">
-                                <label for="" class="form-label text-start fw-bold">មតិយោបល់</label>
-                                <textarea name="comment" id="" placeholder="មតិយោបល់" class="form-control"></textarea>
-                            </div>
-                            <div class="mb-0">
-                                <label for="" class="form-label text-start fw-bold">ហត្ថលេខា<span
-                                        class="text-red mx-1 fw-bolder">*</span></label>
-                                <input type="file" name="signature" class="form-control">
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <div class="w-100">
-                                <div class="row">
-                                    <div class="col">
-                                        <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
-                                    </div>
-                                    <div class="col">
-                                        <button type="submit" class="btn btn-success w-100">អនុម័ត</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- rejected modal  -->
-        <div class="modal modal-blur fade" id="listrejected<?= $getLate['id'] ?>" data-bs-backdrop="static"
-            data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-status bg-red"></div>
-                    <form action="/elms/adminapprovelate" method="POST" enctype="multipart/form-data">
-                        <div class="modal-body text-center py-4">
-                            <input type="hidden" name="id" value="<?= $getLate['late_id'] ?>">
-                            <input type="hidden" name="user_email" value="<?= $getLate['email'] ?>">
-                            <input type="hidden" name="action" value="Rejected">
-                            <div class="col">
-                                <label for="" class="form-label text-start fw-bold">មតិយោបល់<span
-                                        class="text-red mx-1 fw-bolder">*</span></label>
-                                <textarea name="comment" id="" placeholder="មតិយោបល់" class="form-control"></textarea>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <div class="w-100">
-                                <div class="row">
-                                    <div class="col">
-                                        <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
-                                    </div>
-                                    <div class="col">
-                                        <button type="submit" class="btn btn-red w-100">មិនអនុម័ត</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    <?php endforeach; ?>
 </div>
 
 <?php include('src/common/footer.php'); ?>

@@ -103,7 +103,7 @@ class AdminModel
     public function getAllLateById($late_id)
     {
         // Fetch a single late-in record by ID without joining the users table
-        $query = "SELECT * FROM $this->table_name WHERE id = :id";
+        $query = "SELECT * FROM $this->table_name WHERE id = :id ORDER BY id DESC";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $late_id, PDO::PARAM_INT);
@@ -224,7 +224,7 @@ class AdminModel
     public function getAll()
     {
         // Fetch only late-in records without joining the users table
-        $query = "SELECT lt.*, lt.status AS late_status, lt.id AS late_id FROM $this->table_name lt WHERE lt.status != 'Pending'";
+        $query = "SELECT lt.*, lt.status AS late_status, lt.id AS late_id FROM $this->table_name lt WHERE lt.status != 'Pending' ORDER BY lt.id DESC";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();

@@ -79,7 +79,16 @@ include('src/common/header.php');
         <div class="card">
             <div class="card-header d-flex justify-content-between">
                 <h3 class="card-title mb-0">ព័ត៌មានលម្អិត</h3>
-                <div class="badge bg-success-lt"><?= $detail['status'] ?></div>
+                <!-- Check for status, display success badge if approved -->
+                <?php if ($detail['status'] === 'Approved'): ?>
+                    <div class="badge bg-success">
+                        <?= $detail['status'] ?>
+                    </div>
+                <?php else: ?>
+                    <div class="badge bg-danger">
+                        <?= $detail['status'] ?>
+                    </div>
+                <?php endif; ?>
             </div>
             <div class="card-body">
                 <form action="" class="mb-3">
@@ -89,6 +98,7 @@ include('src/common/header.php');
                             <input type="text" class="form-control" value="<?= $detail['date'] ?>" disabled>
                         </div>
 
+                        <!-- Display the time details only if they are not null -->
                         <?php if (!is_null($detail['late_in'])): ?>
                             <div class="col-xl-6 mb-3">
                                 <label class="form-label fw-bold">ម៉ោងចូល</label>
@@ -110,9 +120,9 @@ include('src/common/header.php');
                             </div>
                         <?php endif; ?>
 
-                        <div class="col-xl-12 mb-3 text-red">
+                        <div class="col-xl-12 mb-3 text-success">
                             <label class="form-label fw-bold">រយៈពេលយឺត</label>
-                            <input type="text" class="form-control text-red border-red"
+                            <input type="text" class="form-control text-success border-success"
                                 value="<?= $detail['late'] ?> នាទី" disabled>
                         </div>
 
@@ -125,6 +135,7 @@ include('src/common/header.php');
             </div>
         </div>
     </div>
+
 </div>
 
 <?php include('src/common/footer.php'); ?>
