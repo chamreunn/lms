@@ -277,16 +277,19 @@ class LateController
                 throw new Exception("Unable to fetch admin emails.");
             }
 
+            // Apply the late-in request to the database
+            $lateModel->applyLateIn($userId, $date, $time, $lateMinutes, $reason);
+
             // Use the first admin email or handle multiple emails as needed
             $adminEmail = $adminEmails['emails'][0];
+
+            // create Last ID 
+            // $viewLink = "http://your-domain.com/view-late-request?id=" . $lateModel;
 
             // Send email notification to the admin, including the user's Khmer name
             if (!$this->sendLateInEmail($userNameKh, $adminEmail, $date, $time, $lateMinutes, $reason, $title)) {
                 throw new Exception("Notification email could not be sent.");
             }
-
-            // Apply the late-in request to the database
-            $lateModel->applyLateIn($userId, $date, $time, $lateMinutes, $reason);
 
             // Commit transaction after success
             $lateModel->commitTransaction();
