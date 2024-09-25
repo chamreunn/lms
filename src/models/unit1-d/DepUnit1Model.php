@@ -608,7 +608,7 @@ class DepUnit1Model
                 u.profile_picture AS profile,
                 p.name AS position_name,
                 p.color AS position_color,
-                a.signature,  -- Include the signature column
+                  -- Include the signature column
                 (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
             FROM leave_approvals a
             JOIN users u ON a.approver_id = u.id
@@ -630,7 +630,7 @@ class DepUnit1Model
             u.profile_picture AS profile,
             p.name AS position_name,
             p.color AS position_color,
-            a.signature,  -- Include the signature column
+              -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
@@ -653,7 +653,7 @@ class DepUnit1Model
             u.profile_picture AS profile,
             p.name AS position_name,
             p.color AS position_color,
-            a.signature,  -- Include the signature column
+              -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
@@ -676,7 +676,7 @@ class DepUnit1Model
             u.profile_picture AS profile,
             p.name AS position_name,
             p.color AS position_color,
-            a.signature,  -- Include the signature column
+              -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
@@ -699,7 +699,7 @@ class DepUnit1Model
             u.profile_picture AS profile,
             p.name AS position_name,
             p.color AS position_color,
-            a.signature,  -- Include the signature column
+              -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
@@ -722,7 +722,7 @@ class DepUnit1Model
             u.profile_picture AS profile,
             p.name AS position_name,
             p.color AS position_color,
-            a.signature,  -- Include the signature column
+              -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
@@ -745,7 +745,7 @@ class DepUnit1Model
             u.profile_picture AS profile,
             p.name AS position_name,
             p.color AS position_color,
-            a.signature,  -- Include the signature column
+              -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
@@ -881,14 +881,27 @@ class DepUnit1Model
 
     public function calculateBusinessDays(DateTime $start_date, DateTime $end_date)
     {
+        // Fetch holidays from the database
+        $holidayModel = new CalendarModel();
+        $holidays = $holidayModel->getHoliday(); // Assume this returns an array of holiday dates
+
+        // Convert holidays to DateTime objects for comparison
+        $holidayDates = array_map(function ($holiday) {
+            return new DateTime($holiday['holiday_date']);
+        }, $holidays);
+
+        // Proceed to calculate the number of business days between the start and end date
         $business_days = 0;
         $current_date = clone $start_date;
 
         while ($current_date <= $end_date) {
             $day_of_week = $current_date->format('N');
-            if ($day_of_week < 6) { // Monday to Friday are business days
+
+            // Check if the current date is a weekday and not a holiday
+            if ($day_of_week < 6 && !in_array($current_date, $holidayDates)) {
                 $business_days++;
             }
+
             $current_date->modify('+1 day');
         }
 
@@ -1322,4 +1335,66 @@ class DepUnit1Model
 
         return $approvals;
     }
+
+    // if Manager on leave 
+    public function updateApproval($leave_request_id, $approver_id, $status, $remarks)
+    {
+        // Insert the approval record with the signature
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO ' . $this->approval . ' (leave_request_id, approver_id, status, remarks, updated_at)
+         VALUES (?, ?, ?, ?, NOW())'
+        );
+        $stmt->execute([$leave_request_id, $approver_id, $status, $remarks]);
+
+        // Get the updated_at timestamp
+        $stmt = $this->pdo->prepare(
+            'SELECT updated_at FROM ' . $this->approval . ' WHERE leave_request_id = ? AND approver_id = ? ORDER BY updated_at DESC LIMIT 1'
+        );
+        $stmt->execute([$leave_request_id, $approver_id]);
+        $updatedAt = $stmt->fetchColumn();
+
+        if ($updatedAt === false) {
+            throw new Exception("Unable to fetch updated_at timestamp for approval.");
+        }
+
+        // Update leave request status based on the approval chain
+        $this->updateRequestApproval($leave_request_id, $status);
+
+        return $updatedAt; // Return the updated_at timestamp
+    }
+
+    private function updateRequestApproval($leave_request_id, $latestStatus)
+    {
+        // Fetch the current status of the leave request
+        $stmt = $this->pdo->prepare(
+            'SELECT dhead_unit, num_date FROM ' . $this->table_name . ' WHERE id = ?'
+        );
+        $stmt->execute([$leave_request_id]);
+        $leaveRequest = $stmt->fetch();
+
+        if (!$leaveRequest) {
+            throw new Exception("Invalid leave request ID: $leave_request_id");
+        }
+
+        $currentStatus = $leaveRequest['dhead_unit'];
+        $duration = $leaveRequest['num_date'];
+
+        // If the current status is already 'Rejected', no further updates are needed
+        if ($currentStatus == 'Rejected') {
+            return;
+        }
+
+        // Determine the number of required approvals based on the duration of the leave request
+        $requiredApprovals = $duration < 3 ? 4 : 6;
+
+        // Determine the new status based on the latest approval status
+        $newStatus = ($latestStatus == 'Rejected') ? 'Rejected' : 'Approved';
+
+        // Update the leave request status
+        $stmt = $this->pdo->prepare(
+            'UPDATE ' . $this->table_name . ' SET head_unit = ?, status = ? WHERE id = ?'
+        );
+        $stmt->execute([$newStatus, $newStatus, $leave_request_id]);
+    }
+    //  end if manager on leave 
 }

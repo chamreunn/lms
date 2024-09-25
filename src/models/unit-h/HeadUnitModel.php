@@ -17,12 +17,12 @@ class HeadUnitModel
         $this->pdo = $pdo;
     }
 
-    public function create($user_id, $user_email, $leave_type_id, $position, $department, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment, $signature)
+    public function create($user_id, $user_email, $leave_type_id, $position, $department, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment)
     {
         // Prepare and execute the SQL statement
         $stmt = $this->pdo->prepare("
-            INSERT INTO $this->table_name (user_id, uemails, leave_type_id, position, department, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, head_unit, created_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            INSERT INTO $this->table_name (user_id, uemails, leave_type_id, position, department, leave_type, start_date, end_date, remarks, num_date, attachment, status, head_unit, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
         $stmt->execute([
             $user_id,
@@ -36,7 +36,6 @@ class HeadUnitModel
             $remarks,
             $duration_days,
             $attachment,
-            $signature,
             'Approved',
             'Approved'
         ]);
@@ -549,7 +548,7 @@ class HeadUnitModel
                 u.profile_picture AS profile,
                 p.name AS position_name,
                 p.color AS position_color,
-                a.signature,  -- Include the signature column
+                 -- Include the signature column
                 (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
             FROM leave_approvals a
             JOIN users u ON a.approver_id = u.id
@@ -571,7 +570,7 @@ class HeadUnitModel
             u.profile_picture AS profile,
             p.name AS position_name,
             p.color AS position_color,
-            a.signature,  -- Include the signature column
+             -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
@@ -594,7 +593,7 @@ class HeadUnitModel
             u.profile_picture AS profile,
             p.name AS position_name,
             p.color AS position_color,
-            a.signature,  -- Include the signature column
+             -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
@@ -617,7 +616,7 @@ class HeadUnitModel
             u.profile_picture AS profile,
             p.name AS position_name,
             p.color AS position_color,
-            a.signature,  -- Include the signature column
+             -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
@@ -640,7 +639,7 @@ class HeadUnitModel
             u.profile_picture AS profile,
             p.name AS position_name,
             p.color AS position_color,
-            a.signature,  -- Include the signature column
+             -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
@@ -663,7 +662,7 @@ class HeadUnitModel
             u.profile_picture AS profile,
             p.name AS position_name,
             p.color AS position_color,
-            a.signature,  -- Include the signature column
+             -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
@@ -686,7 +685,7 @@ class HeadUnitModel
             u.profile_picture AS profile,
             p.name AS position_name,
             p.color AS position_color,
-            a.signature,  -- Include the signature column
+             -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
@@ -814,14 +813,27 @@ class HeadUnitModel
 
     public function calculateBusinessDays(DateTime $start_date, DateTime $end_date)
     {
+        // Fetch holidays from the database
+        $holidayModel = new CalendarModel();
+        $holidays = $holidayModel->getHoliday(); // Assume this returns an array of holiday dates
+
+        // Convert holidays to DateTime objects for comparison
+        $holidayDates = array_map(function ($holiday) {
+            return new DateTime($holiday['holiday_date']);
+        }, $holidays);
+
+        // Proceed to calculate the number of business days between the start and end date
         $business_days = 0;
         $current_date = clone $start_date;
 
         while ($current_date <= $end_date) {
             $day_of_week = $current_date->format('N');
-            if ($day_of_week < 6) { // Monday to Friday are business days
+
+            // Check if the current date is a weekday and not a holiday
+            if ($day_of_week < 6 && !in_array($current_date, $holidayDates)) {
                 $business_days++;
             }
+
             $current_date->modify('+1 day');
         }
 

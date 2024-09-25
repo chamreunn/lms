@@ -45,6 +45,28 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </span>
                         </a>
                     </li>
+                    <!-- attendence  -->
+                    <li class="nav-item <?= ($current_page == 'my-attendances') ? 'active' : '' ?>">
+                        <a class="nav-link" href="/elms/my-attendances">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+                                    <path d="M16 3v4" />
+                                    <path d="M8 3v4" />
+                                    <path d="M4 11h16" />
+                                    <path d="M19 22v.01" />
+                                    <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
+                                </svg>
+                            </span>
+                            <span class="nav-link-title">
+                                បញ្ជីវត្តមាន
+                            </span>
+                        </a>
+                    </li>
                     <!-- late & mission  -->
                     <li
                         class="nav-item dropdown <?= ($current_page == 'overtimein' || $current_page == 'overtimeout' || $current_page == 'leaveearly' || $current_page == 'mission') ? 'active' : '' ?>">
@@ -142,33 +164,134 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </div>
                         </div>
                     </li>
-                    <!-- request  -->
+
                     <li
-                        class="nav-item <?= ($current_page == 'adminpending' || $current_page == 'viewLateDetail') ? 'active' : '' ?>">
-                        <a class="nav-link" href="/elms/adminpending">
+                        class="nav-item dropdown <?= ($current_page == 'pending' || $current_page == 'approved' || $current_page == 'rejected' || $current_page == 'adminpending') ? 'active' : '' ?>">
+                        <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-repeat">
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-mail-question">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3" />
-                                    <path d="M16 3v4" />
-                                    <path d="M8 3v4" />
-                                    <path d="M4 11h12" />
-                                    <path d="M20 14l2 2h-3" />
-                                    <path d="M20 18l2 -2" />
-                                    <path d="M19 16a3 3 0 1 0 2 5.236" />
+                                    <path d="M15 19h-10a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v4.5" />
+                                    <path d="M19 22v.01" />
+                                    <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
+                                    <path d="M3 7l9 6l9 -6" />
                                 </svg>
                             </span>
                             <span class="nav-link-title">
                                 គ្រប់គ្រងសំណើ
-                                <span class="badge bg-red text-red-fg"><?= $AllLate ?></span>
+                                <?php if (!empty($requestscount)): ?>
+                                    <span class="badge bg-red text-red-fg ms-2"><?= $requestscount; ?></span>
+                                <?php endif; ?>
                             </span>
                         </a>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column" style="width: 200px;">
+                                    <a class="dropdown-item <?= ($current_page == 'pending') ? 'active' : '' ?>"
+                                        href="/elms/pending">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path
+                                                    d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+                                                <path d="M16 3v4" />
+                                                <path d="M8 3v4" />
+                                                <path d="M4 11h16" />
+                                                <path d="M19 22v.01" />
+                                                <path
+                                                    d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
+                                            </svg>
+                                        </span>
+                                        <span>កំពុងរង់ចាំ</span>
+                                        <?php if ($requestscount > 0): ?>
+                                            <span class="badge bg-red text-red-fg ms-auto"><?= $requestscount; ?></span>
+                                        <?php endif; ?>
+                                    </a>
+                                    <a class="dropdown-item <?= ($current_page == 'approved') ? 'active' : '' ?>"
+                                        href="/elms/approved">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path
+                                                    d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+                                                <path d="M16 3v4" />
+                                                <path d="M8 3v4" />
+                                                <path d="M4 11h16" />
+                                                <path d="M19 22v.01" />
+                                                <path
+                                                    d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
+                                            </svg>
+                                        </span>
+                                        <span>បានអនុម័ត</span>
+                                        <?php if ($approvedCount > 0): ?>
+                                            <span class="badge bg-red text-red-fg ms-auto"><?= $approvedCount; ?></span>
+                                        <?php endif; ?>
+                                    </a>
+                                    <a class="dropdown-item <?= ($current_page == 'rejected') ? 'active' : '' ?>"
+                                        href="/elms/rejected">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-clock-question">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M20.975 11.33a9 9 0 1 0 -5.717 9.06" />
+                                                <path d="M12 7v5l2 2" />
+                                                <path d="M19 22v.01" />
+                                                <path
+                                                    d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
+                                            </svg>
+                                        </span>
+                                        <span>មិនអនុម័ត</span>
+                                        <?php if ($rejectedCount > 0): ?>
+                                            <span class="badge bg-red text-red-fg ms-auto"><?= $rejectedCount; ?></span>
+                                        <?php endif; ?>
+                                    </a>
+                                    <div class="dropdown-divider mt-0 mb-0"></div>
+                                    <a class="dropdown-item <?= ($current_page == 'adminpending') ? 'active' : '' ?>"
+                                        href="/elms/adminpending">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-repeat">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path
+                                                    d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v3" />
+                                                <path d="M16 3v4" />
+                                                <path d="M8 3v4" />
+                                                <path d="M4 11h12" />
+                                                <path d="M20 14l2 2h-3" />
+                                                <path d="M20 18l2 -2" />
+                                                <path d="M19 16a3 3 0 1 0 2 5.236" />
+                                            </svg>
+                                        </span>
+                                        <span>សំណើចេញ ចូលយឺត</span>
+                                        <?php if ($AllLate > 0): ?>
+                                            <span class="badge bg-red text-red-fg ms-auto"><?= $AllLate ?></span>
+                                        <?php endif; ?>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </li>
-                    <!-- <li
-                        class="nav-item dropdown <?= in_array($current_page, ['user_index', 'department_index', 'office', 'leavetype', 'roles', 'positions', 'documents']) ? 'active' : '' ?>">
+                    <!-- request  -->
+                    <li
+                        class="nav-item <?= ($current_page == 'adminpending' || $current_page == 'viewLateDetail') ? 'active' : '' ?>">
+
+                    </li>
+                    <li
+                        class="nav-item dropdown <?= in_array($current_page, ['user_index', 'department_index', 'office', 'leavetype', 'roles', 'positions', 'documents', 'holidays']) ? 'active' : '' ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-extra" data-bs-toggle="dropdown"
                             data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -192,6 +315,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                 គ្រប់គ្រង
                             </span>
                         </a>
+                        <!-- manage  -->
                         <div class="dropdown-menu">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
@@ -199,21 +323,21 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                         href="user_index">
                                         គណនីមន្ត្រី
                                     </a>
-                                    <a class="dropdown-item <?= ($current_page == 'department_index') ? 'active' : '' ?>"
+                                    <!-- <a class="dropdown-item <?= ($current_page == 'department_index') ? 'active' : '' ?>"
                                         href="/elms/department">
                                         នាយកដ្ឋាន
                                     </a>
                                     <a class="dropdown-item <?= ($current_page == 'office') ? 'active' : '' ?>"
                                         href="/elms/office">
                                         ការិយាល័យ
-                                    </a>
+                                    </a> -->
                                     <a class="dropdown-item <?= ($current_page == 'leavetype') ? 'active' : '' ?>"
                                         href="/elms/leavetype">
                                         ប្រភេទច្បាប់
                                     </a>
                                 </div>
                                 <div class="dropdown-menu-column">
-                                    <a class="dropdown-item <?= ($current_page == 'roles') ? 'active' : '' ?>"
+                                    <!-- <a class="dropdown-item <?= ($current_page == 'roles') ? 'active' : '' ?>"
                                         href="/elms/roles">
                                         Role
                                     </a>
@@ -224,11 +348,15 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                     <a class="dropdown-item <?= ($current_page == 'documents') ? 'active' : '' ?>"
                                         href="/elms/documents">
                                         លិខិត
+                                    </a> -->
+                                    <a class="dropdown-item <?= ($current_page == 'holidays') ? 'active' : '' ?>"
+                                        href="/elms/holidays">
+                                        ថ្ងៃឈប់សម្រាក
                                     </a>
                                 </div>
                             </div>
                         </div>
-                    </li> -->
+                    </li>
                 </ul>
             </div>
         </div>

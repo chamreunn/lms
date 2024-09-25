@@ -67,6 +67,9 @@ class DepUnit2Controller
             $message = "$user_khmer_name បានស្នើសុំច្បាប់ឈប់សម្រាក។";
             $activity = "បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
+            $leaveRemarks = "ច្បាប់";
+            $status = "On Leave";
+
             // Handle file upload for attachment
             $attachment_name = $HeadDepartmentModel->handleFileUpload($_FILES['attachment'], ['docx', 'pdf'], 2097152, 'public/uploads/leave_attachments/');
             if ($attachment_name === false) {
@@ -78,14 +81,13 @@ class DepUnit2Controller
                 exit();
             }
 
-            // Handle file upload for signature
-            $signature_name = $HeadDepartmentModel->handleFileUpload($_FILES['signature'], ['png'], 1048576, 'public/uploads/signatures/');
-            if ($signature_name === false) {
+
+            if (new DateTime($end_date) < new DateTime($start_date)) {
                 $_SESSION['error'] = [
-                    'title' => "ហត្ថលេខា",
-                    'message' => "មិនអាចបញ្ចូលហត្ថលេខាបានទេ។​ សូមព្យាយាមម្តងទៀត"
+                    'title' => "កំហុសកាលបរិច្ឆេទ",
+                    'message' => "ថ្ងៃបញ្ចប់មិនអាចតូចជាងថ្ងៃចាប់ផ្ដើម។ សូមពិនិត្យម្តងទៀត"
                 ];
-                header("Location: /elms/dunit2Leave");
+                header("Location: /elms/my-leaves");
                 exit();
             }
 
@@ -128,8 +130,19 @@ class DepUnit2Controller
                 exit();
             }
 
-            // Prepare email details
-            $managerEmail = is_array($userDoffice['emails']) ? implode(',', $userDoffice['emails']) : $userDoffice['emails'];
+            // Use the first available manager's ID and email
+            $managerId = !empty($userDoffice['ids']) ? $userDoffice['ids'][0] : null;
+            $managerEmail = !empty($userDoffice['emails']) ? $userDoffice['emails'][0] : null;
+            $managerName = !empty($userDoffice['lastNameKh']) && !empty($userDoffice['firstNameKh'])
+                ? $userDoffice['lastNameKh'][0] . ' ' . $userDoffice['firstNameKh'][0]
+                : null;
+
+            if (!$managerId || !$managerEmail) {
+                throw new Exception("No valid manager details found.");
+            }
+
+            // Check if the manager is on leave today using the leave_requests table
+            $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
 
             // Create leave request in the database
             $leaveRequestId = $HeadDepartmentModel->create(
@@ -144,7 +157,6 @@ class DepUnit2Controller
                 $remarks,
                 $duration_days,
                 $attachment_name,
-                $signature_name
             );
 
             if (!$leaveRequestId) {
@@ -156,6 +168,17 @@ class DepUnit2Controller
                 exit();
             }
 
+            if ($isManagerOnLeave) {
+                // Submit approval
+                $updatedAt = $HeadDepartmentModel->updateApproval($leaveRequestId, $managerId, $status, $leaveRemarks);
+
+                // Set success message and redirect
+                $_SESSION['success'] = [
+                    'title' => "ជោគជ័យ",
+                    'message' => "ច្បាប់របស់អ្នកត្រូវបានអនុម័ត។"
+                ];
+            }
+
             // Log user activity
             $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
 
@@ -165,7 +188,7 @@ class DepUnit2Controller
                     'title' => "Email Error",
                     'message' => "Notification email could not be sent. Please try again."
                 ];
-                header("Location: /elms/dunit1Leave");
+                header("Location: /elms/dunit2Leave");
                 exit();
             }
 
@@ -173,10 +196,19 @@ class DepUnit2Controller
             $notificationModel = new Notification();
             $notificationModel->createNotification($userDoffice['ids'], $user_id, $leaveRequestId, $message);
 
+            if ($isManagerOnLeave) {
+                // Set success message and redirect
+                $_SESSION['success'] = [
+                    'title' => "ជោគជ័យ",
+                    'message' => "ច្បាប់របស់អ្នកត្រូវបានអនុម័ត។"
+                ];
+                header("Location: /elms/dunit2Leave");
+                exit();
+            }
             // Set success message and redirect
             $_SESSION['success'] = [
                 'title' => "ជោគជ័យ",
-                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
+                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
             ];
             header("Location: /elms/dunit2Leave");
             exit();
@@ -318,7 +350,7 @@ class DepUnit2Controller
                 // Set success message and redirect to the pending page
                 $_SESSION['success'] = [
                     'title' => "សំណើច្បាប់",
-                    'message' => "កំពុងបញ្ជូនទៅកាន់ " .  $managerEmail
+                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
                 ];
                 header('location: /elms/dunit2pending');
                 exit();

@@ -27,6 +27,7 @@ require_once 'src/controllers/SettingController.php';
 require_once 'src/controllers/missions/MissionController.php';
 require_once 'src/controllers/offices-d/DepOfficeController.php';
 require_once 'src/controllers/admin/AdminController.php';
+require_once 'src/controllers/calendar/CalendarController.php';
 
 $uri = parse_url(url: $_SERVER['REQUEST_URI'], component: PHP_URL_PATH);
 
@@ -118,6 +119,18 @@ switch ($uri) {
             }
         });
         break;
+    case $base_url . '/my-attendances':
+        checkSessionAndExecute(function () {
+            $controller = new LeaveController();
+            $controller->displayAttendances();
+        });
+        break;
+    case $base_url . '/filter-attendances':
+        checkSessionAndExecute(function () {
+            $controller = new LeaveController();
+            $controller->filterAttendence();
+        });
+        break;
     case $base_url . '/dofficeLeave':
         checkSessionAndExecute(function () {
             $controller = new DepOfficeController();
@@ -188,6 +201,17 @@ switch ($uri) {
             }
         });
         break;
+    case $base_url . '/hunit-delete':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
+                $controller = new HeadUnitController();
+                $controller->delete($_POST['id']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
+        });
+        break;
     case $base_url . '/adminLeave':
         checkSessionAndExecute(function () {
             $controller = new AdminController();
@@ -226,6 +250,12 @@ switch ($uri) {
                 default:
                     $controller->getPendingLate(); // Default case
             }
+        });
+        break;
+    case $base_url . '/adminApprovedLeave':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->viewAllLeave();
         });
         break;
     case $base_url . '/adminapprovelate':
@@ -367,6 +397,30 @@ switch ($uri) {
         checkSessionAndExecute(function () {
             $controller = new LeaveController();
             $controller->viewCalendar();
+        });
+        break;
+    case $base_url . '/holidays':
+        checkSessionAndExecute(function () {
+            $controller = new CalendarController();
+            $controller->index();
+        });
+        break;
+    case $base_url . '/createHoliday':
+        checkSessionAndExecute(function () {
+            $controller = new CalendarController();
+            $controller->create();
+        });
+        break;
+    case $base_url . '/updateHoliday':
+        checkSessionAndExecute(function () {
+            $controller = new CalendarController();
+            $controller->update();
+        });
+        break;
+    case $base_url . '/deleteHoliday':
+        checkSessionAndExecute(function () {
+            $controller = new CalendarController();
+            $controller->delete();
         });
         break;
     case $base_url . '/view-leave-detail':

@@ -92,17 +92,6 @@ class HeadUnitController
                 exit();
             }
 
-            // គ្រប់គ្រងការផ្ទុកហត្ថលេខា
-            $signature_name = $HeadDepartmentModel->handleFileUpload($_FILES['signature'], ['png'], 1048576, 'public/uploads/signatures/');
-            if ($signature_name === false) {
-                $_SESSION['error'] = [
-                    'title' => "ហត្ថលេខា",
-                    'message' => "មិនអាចបញ្ចូលហត្ថលេខាបានទេ។​ សូមព្យាយាមម្តងទៀត"
-                ];
-                header("Location: /elms/hunitLeave");
-                exit();
-            }
-
             // ទាញយកព័ត៌មានប្រភេទច្បាប់ រួមទាំងរយៈពេលពីមូលដ្ឋានទិន្នន័យ
             $leaveTypeModel = new Leavetype();
             $leaveType = $leaveTypeModel->getLeaveTypeById($leave_type_id);
@@ -142,7 +131,6 @@ class HeadUnitController
                 $remarks,
                 $duration_days,
                 $attachment_name,
-                $signature_name
             );
 
             if (!$leaveRequestId) {
@@ -340,7 +328,7 @@ class HeadUnitController
                 'message' => "មិនអាចលុបសំណើច្បាប់នេះបានទេ។"
             ];
         }
-        header("Location: /elms/dunit1Leave");
+        header("Location: /elms/hunitLeave");
         exit();
     }
 

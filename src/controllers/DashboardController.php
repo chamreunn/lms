@@ -64,6 +64,8 @@ class DashboardController
                     $notification = new Notification();
                     $leavetypes = new Leavetype();
                     $missionCount = new MissionModel();
+                    $userModel = new User();
+                    $getAllManagers = $userModel->getEmailLeaderHUApi($_SESSION['user_id'], $_SESSION['token']);
                     $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
@@ -73,6 +75,8 @@ class DashboardController
                     $leavetype = $leavetypes->getLeaveTypeById($_SESSION['user_id']);
                     $leavetypes = $leavetypes->getAllLeavetypes();
                     $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
+                    $userAttendances = $userModel->getUserAttendanceByIdApi($_SESSION['user_id'],$_SESSION['token']);
+                   
                     require 'src/views/dashboard/users/dashboard.php';
                     break;
                 case 'Deputy Head Of Office':

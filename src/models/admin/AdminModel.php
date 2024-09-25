@@ -677,6 +677,24 @@ class AdminModel
         return $result['AllLate'];
     }
 
+    public function getAllLeave()
+    {
+        // Query to select all leave requests
+        $query = "SELECT * FROM $this->leaveRequest";
+
+        // Prepare the query
+        $stmt = $this->pdo->prepare($query);
+
+        // Execute the query
+        $stmt->execute();
+
+        // Fetch all results as an associative array
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Return the fetched results
+        return $results;
+    }
+
     public function getApprovedLateCount()
     {
         $query = "

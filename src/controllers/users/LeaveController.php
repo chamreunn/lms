@@ -31,7 +31,6 @@ class LeaveController
     public function apply()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
             try {
                 // Start a database transaction
                 $this->pdo->beginTransaction();
@@ -50,6 +49,9 @@ class LeaveController
                 $remarks = $_POST['remarks'];
                 $message = $_SESSION['user_khmer_name'] . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
                 $activity = "បានស្នើសុំច្បាប់ឈប់សម្រាក។";
+
+                $leaveRemarks = "ច្បាប់";
+                $status = "On Leave"; 
 
                 // Validate that the end date is not smaller than the start date
                 if (new DateTime($end_date) < new DateTime($start_date)) {
@@ -88,7 +90,7 @@ class LeaveController
 
                 // Compare duration_days with leave_type_duration
                 if ($duration_days > $leave_type_duration) {
-                    throw new Exception("The selected leave type allows only " . $leave_type_duration . " days. Please check your selection.");
+                    throw new Exception("ប្រភេទច្បាប់ឈប់សម្រាកនេះមានរយៈពេល " . $leave_type_duration . " ថ្ងៃ។ សូមពិនិត្យមើលប្រភេទច្បាប់ដែលអ្នកបានជ្រើសរើសម្តងទៀត");
                 }
 
                 // Fetch the user's office details via API
@@ -97,12 +99,19 @@ class LeaveController
                     throw new Exception("Unable to find office details. Please contact support.");
                 }
 
-                $managerEmail = $userDoffice['emails'];
+                // Use the first available manager's ID and email
+                $managerId = !empty($userDoffice['ids']) ? $userDoffice['ids'][0] : null;
+                $managerEmail = !empty($userDoffice['emails']) ? $userDoffice['emails'][0] : null;
+                $managerName = !empty($userDoffice['lastNameKh']) && !empty($userDoffice['firstNameKh'])
+                    ? $userDoffice['lastNameKh'][0] . ' ' . $userDoffice['firstNameKh'][0]
+                    : null;
 
-                // Convert array to comma-separated string if necessary
-                if (is_array($managerEmail)) {
-                    $managerEmail = implode(',', $managerEmail);
+                if (!$managerId || !$managerEmail) {
+                    throw new Exception("No valid manager details found.");
                 }
+
+                // Check if the manager is on leave today using the leave_requests table
+                $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
 
                 // Create leave request
                 $leaveRequestModel = new LeaveModel();
@@ -118,11 +127,27 @@ class LeaveController
                     $end_date,
                     $remarks,
                     $duration_days,
-                    $attachment_name,
+                    $attachment_name
                 );
 
                 if (!$leaveRequestId) {
                     throw new Exception("Failed to create leave request. Please try again.");
+                }
+
+                if ($isManagerOnLeave) {
+                    // Submit approval
+                    $leaveApproval = new LeaveModel();
+                    $updatedAt = $leaveApproval->submitApproval($leaveRequestId, $managerId, $status, $leaveRemarks);
+
+                    // Fetch another available manager if the current manager is on leave
+                    $backupManager = $userModel->getEmailLeaderHOApi($user_id, $_SESSION['token']);
+                    if (!$backupManager || empty($backupManager['emails'])) {
+                        throw new Exception("Both the primary and backup managers are unavailable. Please contact support.");
+                    }
+
+                    // Update to backup manager's details
+                    $managerEmail = $backupManager['emails'][0];
+                    $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
                 }
 
                 // Send email notification
@@ -132,7 +157,7 @@ class LeaveController
 
                 // Create notification for the user
                 $notificationModel = new Notification();
-                $notificationModel->createNotification($userDoffice['ids'], $user_id, $leaveRequestId, $message);
+                $notificationModel->createNotification([$managerId], $user_id, $leaveRequestId, $message);
 
                 // Log user activity
                 $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
@@ -142,7 +167,7 @@ class LeaveController
 
                 $_SESSION['success'] = [
                     'title' => "ជោគជ័យ",
-                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
+                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
                 ];
                 header("Location: /elms/my-leaves");
                 exit();
@@ -160,7 +185,6 @@ class LeaveController
                 header("Location: /elms/my-leaves");
                 exit();
             }
-
         } else {
             header("Location: /elms/my-leaves");
         }
@@ -287,250 +311,6 @@ class LeaveController
         }
     }
 
-    private function sendEmailNotificationToHOffice($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)
-    {
-        $mail = new PHPMailer(true);
-
-        try {
-            // Enable SMTP debugging
-            $mail->SMTPDebug = 2; // Or set to 3 for more verbose output
-            $mail->Debugoutput = function ($str, $level) {
-                error_log("SMTP Debug level $level; message: $str");
-            };
-
-            // Server settings
-            $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com'; // SMTP server to send through
-            $mail->SMTPAuth = true;
-            $mail->Username = 'pothhchamreun@gmail.com'; // SMTP username
-            $mail->Password = 'kyph nvwd ncpa gyzi'; // SMTP password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
-
-            // Set charset to UTF-8 for Unicode support
-            $mail->CharSet = 'UTF-8';
-
-            // Format dates
-            $start_date_formatted = (new DateTime($start_date))->format('j F, Y');
-            $end_date_formatted = (new DateTime($end_date))->format('j F, Y');
-            $updated_at_formatted = (new DateTime($updatedAt))->format('j F, Y H:i:s');
-
-            // Recipients
-            $mail->setFrom('no-reply@example.com', 'NO REPLY');
-            $mail->addAddress($managerEmail);
-
-            // Content
-            $mail->isHTML(true);
-            $mail->Subject = 'Leave Request Notification';
-            $body = "
-            <html>
-            <head>
-                <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'>
-                <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet'>
-                <style>
-                    .profile-img {
-                        width: 100px;
-                        height: 100px;
-                        border-radius: 50%;
-                    }
-                    .container {
-                        max-width: 600px;
-                        margin: 0 auto;
-                        padding: 20px;
-                        border: 1px solid #e2e2e2;
-                        border-radius: 10px;
-                        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-                    }
-                    .header {
-                        background-color: #007bff;
-                        color: white;
-                        padding: 10px;
-                        border-radius: 10px 10px 0 0;
-                    }
-                    .icon {
-                        vertical-align: middle;
-                        margin-right: 10px;
-                    }
-                    .content {
-                        padding: 20px;
-                        background-color: #f9f9f9;
-                    }
-                    .btn {
-                        display: inline-block;
-                        padding: 10px 20px;
-                        margin-top: 10px;
-                        color: white;
-                        background-color: #007bff;
-                        text-decoration: none;
-                        border-radius: 5px;
-                    }
-                    .footer {
-                        padding: 10px;
-                        text-align: center;
-                        background-color: #f1f1f1;
-                        border-radius: 0 0 10px 10px;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <div class='header'>
-                        <h4>
-                            <img src='http://localhost/elms/public/img/icons/brands/logo2.png' class='icon' alt='Leave Request' /> 
-                            Leave Request Notification
-                        </h4>
-                    </div>
-                    <div class='content'>
-                        <p>$username</p>
-                        <p><strong>រយៈពេល :</strong> $duration_days ថ្ងៃ</p>
-                        <p><strong>ប្រភេទច្បាប់ :</strong> $leaveType</p>
-                        <p><strong>ចាប់ពីថ្ងៃ :</strong> $start_date_formatted</p>
-                        <p><strong>ដល់ថ្ងៃ​ :</strong> $end_date_formatted</p>
-                        <p><strong>មូលហេតុ :</strong> $uremarks</p>
-                        <hr>
-                        <p>$message</p>"
-                . (!empty($remarks) ? "<p><strong>មតិយោបល់ :</strong> $remarks</p>" : "") . "
-                        <p><strong>បានអនុម័តនៅថ្ងៃ:</strong> $updated_at_formatted</p>
-                        <a href='http://localhost/elms/view-leave-detail?leave_id={$leaveRequestId}' class='btn'>ចុចទីនេះ</a>
-                    </div>
-                    <div class='footer'>
-                        <p>&copy; " . date("Y") . " Leave Management System. All rights reserved.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-            ";
-            $mail->Body = $body;
-
-            if ($mail->send()) {
-                error_log("Email sent successfully to $managerEmail");
-                return true;
-            } else {
-                error_log("Email failed to send to $managerEmail: " . $mail->ErrorInfo);
-                return false;
-            }
-        } catch (Exception $e) {
-            error_log("Email Error: {$mail->ErrorInfo}");
-            return false;
-        }
-    }
-
-    private function sendEmailBackToUser($uEmail, $adminApproved, $leaveRequestId, $status, $updatedAt, $remarks)
-    {
-        $mail = new PHPMailer(true);
-
-        try {
-            // Server settings
-            $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'pothhchamreun@gmail.com';
-            $mail->Password = 'kyph nvwd ncpa gyzi';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
-
-            // Set charset to UTF-8 for Unicode support
-            $mail->CharSet = 'UTF-8';
-
-            // Format date
-            $updated_at_formatted = (new DateTime($updatedAt))->format('j F, Y H:i:s');
-
-            // Recipients
-            $mail->setFrom('no-reply@example.com', 'ប្រព័ន្ធគ្រប់គ្រងការសុំច្បាប់');
-            $mail->addAddress($uEmail);
-
-            // Email Content
-            $mail->isHTML(true);
-            $mail->Subject = "ការស្នើសុំច្បាប់ត្រូវបាន $status";
-
-            // Updated body with "khmer MEF1" font
-            $body = "
-        <html>
-        <head>
-            <style>
-                @font-face {
-                    font-family: 'khmer MEF1';
-                    src: url('../../public/dist/fonts/Khmer-MEF1.ttf') format('truetype');
-                }
-                body {
-                    font-family: 'khmer MEF1', Arial, sans-serif;
-                    background-color: #f7f7f7;
-                    margin: 0;
-                    padding: 0;
-                }
-                .container {
-                    max-width: 600px;
-                    margin: 40px auto;
-                    background-color: #ffffff;
-                    border-radius: 8px;
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-                    overflow: hidden;
-                }
-                .header {
-                    background-color: #4CAF50;
-                    color: white;
-                    padding: 20px;
-                    text-align: center;
-                    font-size: 24px;
-                    font-weight: bold;
-                }
-                .content {
-                    padding: 20px;
-                    font-size: 16px;
-                    color: #333333;
-                }
-                .content p {
-                    margin: 0 0 15px;
-                }
-                .status-badge {
-                    display: inline-block;
-                    background-color: " . ($status === 'Approved' ? '#28a745' : '#dc3545') . ";
-                    color: white;
-                    padding: 5px 10px;
-                    border-radius: 4px;
-                    font-weight: bold;
-                    text-transform: uppercase;
-                }
-                .footer {
-                    background-color: #f1f1f1;
-                    text-align: center;
-                    padding: 10px;
-                    font-size: 12px;
-                    color: #666666;
-                    border-top: 1px solid #e2e2e2;
-                }
-            </style>
-        </head>
-        <body>
-            <div class='container-fluid'>
-                <p><strong>Status:</strong> $status</p>
-                <p><strong>Approved by:</strong> $adminApproved</p>
-                <p><strong>Date:</strong> $updated_at_formatted</p>"
-                . (!empty($remarks) ? "<p><strong>Remarks:</strong> $remarks</p>" : "") . "
-            </div>
-            <div class='footer'>
-                &copy; " . date("Y") . " ប្រព័ន្ធគ្រប់គ្រងការសុំច្បាប់។ រក្សាសិទ្ធិគ្រប់យ៉ាង។
-            </div>
-        </body>
-        </html>
-        ";
-
-            $mail->Body = $body;
-
-            // Send email
-            if ($mail->send()) {
-                error_log("Email sent successfully to $uEmail");
-                return true;
-            } else {
-                error_log("Email failed to send to $uEmail: " . $mail->ErrorInfo);
-                return false;
-            }
-        } catch (Exception $e) {
-            error_log("Email Error: {$mail->ErrorInfo}");
-            return false;
-        }
-    }
-
     private function handleFileUpload($file, $allowed_extensions, $max_size, $upload_path)
     {
         $file_name = $file['name'];
@@ -584,14 +364,27 @@ class LeaveController
 
     private function calculateBusinessDays(DateTime $start_date, DateTime $end_date)
     {
+        // Fetch holidays from the database
+        $holidayModel = new CalendarModel();
+        $holidays = $holidayModel->getHoliday(); // Assume this returns an array of holiday dates
+
+        // Convert holidays to DateTime objects for comparison
+        $holidayDates = array_map(function ($holiday) {
+            return new DateTime($holiday['holiday_date']);
+        }, $holidays);
+
+        // Proceed to calculate the number of business days between the start and end date
         $business_days = 0;
         $current_date = clone $start_date;
 
         while ($current_date <= $end_date) {
             $day_of_week = $current_date->format('N');
-            if ($day_of_week < 6) { // Monday to Friday are business days
+
+            // Check if the current date is a weekday and not a holiday
+            if ($day_of_week < 6 && !in_array($current_date, $holidayDates)) {
                 $business_days++;
             }
+
             $current_date->modify('+1 day');
         }
 
@@ -631,149 +424,6 @@ class LeaveController
         // If request not found or leave_id is not provided, redirect or show error
         header('Location: /elms/requests');
         exit();
-    }
-
-    public function pending()
-    {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Validate required POST fields
-            $requiredFields = [
-                'request_id',
-                'status',
-                'remarks',
-                'uremarks',
-                'uname',
-                'uemail',
-                'leaveType',
-                'user_id',
-                'start_date',
-                'end_date',
-                'duration'
-            ];
-
-            foreach ($requiredFields as $field) {
-                if (empty($_POST[$field])) {
-                    $_SESSION['error'] = [
-                        'title' => "Invalid Input",
-                        'message' => "Missing required fields. Please try again."
-                    ];
-                    header("Location: /elms/apply-leave");
-                    exit();
-                }
-            }
-
-            // Initialize variables from POST data
-            $request_id = $_POST['request_id'];
-            $status = $_POST['status'];
-            $remarks = $_POST['remarks'];
-            $uremarks = $_POST['uremarks'];
-            $uname = $_POST['uname'];
-            $uEmail = $_POST['uemail'];
-            $leaveType = $_POST['leaveType'];
-            $user_id = $_POST['user_id']; // ID of the user who applied for leave
-            $start_date = $_POST['start_date'];
-            $end_date = $_POST['end_date'];
-            $duration_days = $_POST['duration'];
-            $approver_id = $_SESSION['user_id']; // Approver's ID (logged-in user)
-            $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
-            $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
-
-            // Start transaction
-            try {
-                $this->pdo->beginTransaction();
-
-                // Create a DepOfficeModel instance and submit approval
-                $leaveApproval = new DepOfficeModel();
-                $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks);
-
-                // Fetch office details via API
-                $userModel = new User();
-                $userHoffice = $userModel->getEmailLeaderHOApi($_SESSION['user_id'], $_SESSION['token']);
-
-                // Validate office details response
-                if (!$userHoffice || $userHoffice['http_code'] !== 200 || empty($userHoffice['emails'])) {
-                    throw new Exception("Unable to find office details. Please contact support.");
-                }
-
-                // Convert emails array to string if necessary
-                $managerEmail = is_array($userHoffice['emails']) ? implode(',', $userHoffice['emails']) : $userHoffice['emails'];
-
-                // Send email notification to HO office
-                if (
-                    !$leaveApproval->sendEmailNotificationToHOffice(
-                        $managerEmail,
-                        $message,
-                        $request_id,
-                        $start_date,
-                        $end_date,
-                        $duration_days,
-                        $leaveType,
-                        $remarks,
-                        $uremarks,
-                        $username,
-                        $updatedAt
-                    )
-                ) {
-                    throw new Exception("Notification email could not be sent to the office. Please try again.");
-                }
-
-                // Send confirmation email to the user
-                if (
-                    !$leaveApproval->sendEmailBackToUser(
-                        $uEmail,
-                        $_SESSION['user_khmer_name'],
-                        $request_id,
-                        $status,
-                        $updatedAt,
-                        $remarks
-                    )
-                ) {
-                    throw new Exception("Notification email to the user could not be sent. Please try again.");
-                }
-
-                // Create notification for the user
-                $notificationModel = new Notification();
-                $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
-
-                // Log the approver's activity
-                $activity = "បាន " . $status . " ច្បាប់ឈប់សម្រាក " . $uname;
-                $userModel->logUserActivity($approver_id, $activity, $_SERVER['REMOTE_ADDR']);
-
-                // Commit the transaction
-                $this->pdo->commit();
-
-                // Set success message and redirect
-                $_SESSION['success'] = [
-                    'title' => "សំណើច្បាប់",
-                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
-                ];
-                header('Location: /elms/pending');
-                exit();
-
-            } catch (Exception $e) {
-                // Rollback transaction in case of any error
-                $this->pdo->rollBack();
-
-                // Log the error and set error message
-                error_log("Error: " . $e->getMessage());
-                $_SESSION['error'] = [
-                    'title' => "កំហុស",
-                    'message' => "មានបញ្ហាក្នុងការបញ្ជូនសំណើ: " . $e->getMessage()
-                ];
-                header("Location: /elms/pending");
-                exit();
-            }
-        } else {
-            // Handle GET request to view pending leave requests
-            $leaveApprovalModel = new DepOfficeModel();
-            $requests = $leaveApprovalModel->getAllLeaveRequests();
-
-            $leavetypeModel = new Leavetype();
-            $leavetypes = $leavetypeModel->getAllLeavetypes();
-
-            // Load the approval view
-            require 'src/views/leave/offices-d/approvals.php';
-        }
     }
 
     public function viewCalendar()
@@ -846,4 +496,26 @@ class LeaveController
             }
         }
     }
+
+    public function displayAttendances()
+    {
+        $userModel = new User();
+        $userAttendances = $userModel->getUserAttendanceByIdApi($_SESSION['user_id'], $_SESSION['token']);
+        require 'src/views/attendence/myAttendance.php';
+    }
+
+    public function filterAttendence()
+    {
+        // Retrieve the start and end dates from the GET request
+        $startDate = $_GET['fromDate'] ?? null;
+        $endDate = $_GET['toDate'] ?? null;
+
+        // If dates are provided, pass them to the model to filter attendance data
+        $userModel = new User();
+        $userAttendances = $userModel->getUserFilterAttendanceByIdApi($_SESSION['user_id'], $_SESSION['token'], $startDate, $endDate);
+
+        // Load the view with the filtered attendance data
+        require 'src/views/attendence/myAttendance.php';
+    }
+
 }

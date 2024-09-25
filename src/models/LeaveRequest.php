@@ -398,8 +398,7 @@ class LeaveRequest
     {
         // Query to get approval details without fetching user and position data directly
         $stmt = $this->pdo->prepare(
-            'SELECT a.*, 
-                a.signature,  -- Include the signature column
+            'SELECT a.*,  -- Include the signature column
                 (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
          FROM leave_approvals a
          WHERE a.leave_request_id = ? ORDER BY id DESC'

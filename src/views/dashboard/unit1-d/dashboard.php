@@ -472,7 +472,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                     <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
                                         data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
                                         <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
-                                        <?= $leavetype['name'] ?> (<?= $leavetype['duration'] ?>ថ្ងៃ)
+                                        <?= $leavetype['name'] ?>     <?= $leavetype['document_status'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>

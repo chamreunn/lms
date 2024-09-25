@@ -26,6 +26,35 @@ $action = $_GET['action'] ?? 'latein';
             <div class="col-md-3 col-lg-3 mb-3">
 
                 <div class="card list-group mb-3">
+                    <a href="/elms/adminpending?action=allLate"
+                        class="list-group-item list-group-item-action <?php echo $action == 'allLate' ? 'active' : ''; ?>">
+                        <!-- SVG and Badge for Late In -->
+                        <div class="d-flex">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path
+                                    d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
+                                <path d="M16 3v4" />
+                                <path d="M8 3v4" />
+                                <path d="M4 11h16" />
+                                <path d="M7 14h.013" />
+                                <path d="M10.01 14h.005" />
+                                <path d="M13.01 14h.005" />
+                                <path d="M16.015 14h.005" />
+                                <path d="M13.015 17h.005" />
+                                <path d="M7.01 17h.005" />
+                                <path d="M10.01 17h.005" />
+                            </svg>
+                            <div class="mx-2">សំណើដែលបានអនុម័ត</div>
+                            <span class="badge bg-danger text-white ms-auto"><?= $getApproved ?></span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="card list-group mb-3">
                     <a href="/elms/adminpending?action=latein"
                         class="list-group-item list-group-item-action <?php echo $action == 'latein' ? 'active' : ''; ?>">
                         <!-- SVG and Badge for Late In -->
@@ -98,12 +127,10 @@ $action = $_GET['action'] ?? 'latein';
                             <span class="badge bg-danger text-white ms-auto"><?= $getLeaveEarlyCount ?></span>
                         </div>
                     </a>
-                </div>
-
-                <div class="card list-group mb-3">
-                    <a href="/elms/adminpending?action=allLate"
-                        class="list-group-item list-group-item-action <?php echo $action == 'allLate' ? 'active' : ''; ?>">
-                        <!-- SVG and Badge for Late In -->
+                    <!-- leave  -->
+                    <a href="/elms/adminApprovedLeave?action=adminLeave" hidden
+                        class="list-group-item list-group-item-action <?php echo $action == 'adminLeave' ? 'active' : ''; ?>">
+                        <!-- SVG and Badge for Leave Early -->
                         <div class="d-flex">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -123,13 +150,16 @@ $action = $_GET['action'] ?? 'latein';
                                 <path d="M7.01 17h.005" />
                                 <path d="M10.01 17h.005" />
                             </svg>
-                            <div class="mx-2">សំណើដែលបានអនុម័ត</div>
-                            <span class="badge bg-danger text-white ms-auto"><?= $getApproved ?></span>
+                            <div class="mx-2">ច្បាប់ឈប់សម្រាក</div>
+                            <?php if (!empty($getLeaveEarlyCount)): ?>
+                                <span class="badge bg-danger text-white ms-auto">
+                                    <?= $getLeaveEarlyCount ?>
+                                </span>
+                            <?php endif; ?>
                         </div>
                     </a>
                 </div>
             </div>
-
 
             <!-- Main Content Area -->
             <div class="col-md-9 col-lg-9">
@@ -304,43 +334,75 @@ $action = $_GET['action'] ?? 'latein';
 
                                     <!-- Display grouped requests by date -->
                                     <?php foreach ($groupedRequests as $date => $requests): ?>
-                                        <div class="list-group list-group-flush">
-                                            <h5 class="list-group-header mb-0">
-                                                <!-- Label the current date as 'Today' -->
-                                                <?= ($date == $today) ? 'ថ្ងៃនេះ' : $date ?>
-                                            </h5>
-
+                                        <!-- Display today's requests normally -->
+                                        <?php if ($date == $today): ?>
                                             <div class="list-group list-group-flush">
-                                                <!-- Display all requests for the given date -->
-                                                <?php foreach ($requests as $request): ?>
-                                                    <a href="viewLateDetailAllLate?id=<?= $request['id'] ?>"
-                                                        class="list-group-item list-group-item-action" aria-current="true">
-                                                        <div class="d-flex">
+                                                <h5 class="list-group-header mb-0">ថ្ងៃនេះ</h5>
+                                                <div class="list-group list-group-flush">
+                                                    <?php foreach ($requests as $request): ?>
+                                                        <a href="viewLateDetailAllLate?id=<?= $request['id'] ?>"
+                                                            class="list-group-item list-group-item-action" aria-current="true">
                                                             <div class="d-flex">
-                                                                <img src="<?= $request['profile_picture'] ?>" class="avatar me-3"
-                                                                    style="object-fit: cover;" alt="Profile Picture">
-                                                                <div class="justify-content-between">
-                                                                    <h4 class="mb-1 text-primary"><?= $request['khmer_name'] ?></h4>
-                                                                    <div class="text-muted"><?= $request['date'] ?></div>
+                                                                <div class="d-flex">
+                                                                    <img src="<?= $request['profile_picture'] ?>" class="avatar me-3"
+                                                                        style="object-fit: cover;" alt="Profile Picture">
+                                                                    <div class="justify-content-between">
+                                                                        <h4 class="mb-1 text-primary"><?= $request['khmer_name'] ?></h4>
+                                                                        <div class="text-muted"><?= $request['date'] ?></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="ms-auto">
+                                                                    <div class="badge bg-success"><?= $request['status'] ?></div>
                                                                 </div>
                                                             </div>
-                                                            <div class="ms-auto">
-                                                                <div class="badge bg-success"><?= $request['status'] ?></div>
-                                                            </div>
-                                                        </div>
-                                                    </a>
-                                                <?php endforeach; ?>
+                                                        </a>
+                                                    <?php endforeach; ?>
+                                                </div>
                                             </div>
-                                        </div>
+
+                                        <?php else: ?>
+                                            <!-- Collapse section for other dates -->
+                                            <div class="list-group list-group-flush">
+                                                <h5 class="list-group-header mb-0">
+                                                    <a data-bs-toggle="collapse" href="#collapse-<?= $date ?>" role="button"
+                                                        aria-expanded="false" aria-controls="collapse-<?= $date ?>">
+                                                        <?= $date ?>
+                                                    </a>
+                                                </h5>
+
+                                                <div class="collapse" id="collapse-<?= $date ?>">
+                                                    <div class="list-group list-group-flush">
+                                                        <!-- Display all requests for the given date -->
+                                                        <?php foreach ($requests as $request): ?>
+                                                            <a href="viewLateDetailAllLate?id=<?= $request['id'] ?>"
+                                                                class="list-group-item list-group-item-action" aria-current="true">
+                                                                <div class="d-flex">
+                                                                    <div class="d-flex">
+                                                                        <img src="<?= $request['profile_picture'] ?>" class="avatar me-3"
+                                                                            style="object-fit: cover;" alt="Profile Picture">
+                                                                        <div class="justify-content-between">
+                                                                            <h4 class="mb-1 text-primary"><?= $request['khmer_name'] ?></h4>
+                                                                            <div class="text-muted"><?= $request['date'] ?></div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="ms-auto">
+                                                                        <div class="badge bg-success"><?= $request['status'] ?></div>
+                                                                    </div>
+                                                                </div>
+                                                            </a>
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        <?php endif; ?>
                                     <?php endforeach; ?>
                                 </div>
                             <?php endif; ?>
                         </ul>
 
-                    <?php else: ?>
-                        <!-- Default Content -->
-                        <p class="text-secondary">Please select an option from the sidebar to view the requests.</p>
                     <?php endif; ?>
+
                 </div>
             </div>
         </div>

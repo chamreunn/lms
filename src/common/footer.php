@@ -9,7 +9,7 @@
     <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><strong>បង្កើតសំណើ</strong></h5>
+                <h5 class="modal-title"><strong>ចូលយឺត</strong></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="POST" action="/elms/apply_latein" enctype="multipart/form-data">
@@ -96,7 +96,7 @@
         <div class="modal-content">
             <form action="/elms/apply_lateout" method="POST">
                 <div class="modal-header">
-                    <h5 class="modal-title">បង្កើតលិខិតថ្មី</h5>
+                    <h5 class="modal-title">ចេញយឺត</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -178,7 +178,7 @@
         <div class="modal-content">
             <form action="/elms/apply_leaveearly" method="POST">
                 <div class="modal-header">
-                    <h5 class="modal-title">បង្កើតលិខិតថ្មី</h5>
+                    <h5 class="modal-title">ចេញមុន</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -259,7 +259,7 @@
         <div class="modal-content">
             <form action="/elms/apply-mission" method="POST" enctype="multipart/form-data">
                 <div class="modal-header">
-                    <h5 class="modal-title">បង្កើតលិខិតថ្មី</h5>
+                    <h5 class="modal-title">បេសកកម្ម</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -572,6 +572,39 @@
     });
     // @formatter:on
 </script>
+
+<!-- ts select  -->
+<script>
+    // @formatter:off
+    document.addEventListener("DOMContentLoaded", function () {
+        var elements = document.querySelectorAll(".ts-select"); // Select all elements with the class ts-select
+        elements.forEach(function (el) {
+            window.TomSelect &&
+                new TomSelect(el, {
+                    copyClassesToDropdown: false,
+                    dropdownClass: "dropdown-menu ts-dropdown",
+                    optionClass: "dropdown-item",
+                    controlInput: "<input>",
+                    render: {
+                        item: function (data, escape) {
+                            if (data.customProperties) {
+                                return '<div><span class="dropdown-item-indicator">' + data.customProperties + "</span>" + escape(data.text) + "</div>";
+                            }
+                            return "<div>" + escape(data.text) + "</div>";
+                        },
+                        option: function (data, escape) {
+                            if (data.customProperties) {
+                                return '<div><span class="dropdown-item-indicator">' + data.customProperties + "</span>" + escape(data.text) + "</div>";
+                            }
+                            return "<div>" + escape(data.text) + "</div>";
+                        },
+                    },
+                });
+        });
+    });
+    // @formatter:on
+</script>
+
 
 </body>
 

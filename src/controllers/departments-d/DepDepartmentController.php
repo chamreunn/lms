@@ -36,12 +36,24 @@ class DepDepartmentController
                 $message = $_SESSION['user_khmer_name'] . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
                 $activity = "បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
+                $leaveRemarks = "ច្បាប់";
+                $status = "On Leave";
+
                 // Validate required fields
                 $requiredFields = ['leave_type_id', 'start_date', 'end_date'];
                 foreach ($requiredFields as $field) {
                     if (empty($_POST[$field])) {
                         throw new Exception("Missing required fields. Please fill out all fields.");
                     }
+                }
+
+                if (new DateTime($end_date) < new DateTime($start_date)) {
+                    $_SESSION['error'] = [
+                        'title' => "កំហុសកាលបរិច្ឆេទ",
+                        'message' => "ថ្ងៃបញ្ចប់មិនអាចតូចជាងថ្ងៃចាប់ផ្ដើម។ សូមពិនិត្យម្តងទៀត"
+                    ];
+                    header("Location: /elms/my-leaves");
+                    exit();
                 }
 
                 // Handle file upload for attachment
@@ -75,7 +87,19 @@ class DepDepartmentController
                     throw new Exception("Unable to find office details. Please contact support.");
                 }
 
-                $managerEmail = $userDoffice['emails'];
+                // Use the first available manager's ID and email
+                $managerId = !empty($userDoffice['ids']) ? $userDoffice['ids'][0] : null;
+                $managerEmail = !empty($userDoffice['emails']) ? $userDoffice['emails'][0] : null;
+                $managerName = !empty($userDoffice['lastNameKh']) && !empty($userDoffice['firstNameKh'])
+                    ? $userDoffice['lastNameKh'][0] . ' ' . $userDoffice['firstNameKh'][0]
+                    : null;
+
+                if (!$managerId || !$managerEmail) {
+                    throw new Exception("No valid manager details found.");
+                }
+
+                // Check if the manager is on leave today using the leave_requests table
+                $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
 
                 // Convert array to comma-separated string if necessary
                 if (is_array($managerEmail)) {
@@ -105,6 +129,28 @@ class DepDepartmentController
                     throw new Exception("Failed to create leave request. Please try again.");
                 }
 
+                if ($isManagerOnLeave) {
+                    // Submit approval
+                    $updatedAt = $model->updateApproval($leaveRequestId, $managerId, $status, $leaveRemarks);
+
+                    // Fetch another available manager if the current manager is on leave
+                    $backupManager = null;
+                    if (in_array($department, ["នាយកដ្ឋានកិច្ចការទូទៅ", "នាយកដ្ឋានសវនកម្មទី២"])) {
+                        // Fetch the user's Unit details
+                        $backupManager = $userModel->getEmailLeaderDHU1Api($user_id, $_SESSION['token']);
+                    } else {
+                        $backupManager = $userModel->getEmailLeaderDHU2Api($user_id, $_SESSION['token']);
+                    }
+                    
+                    if (!$backupManager || empty($backupManager['emails'])) {
+                        throw new Exception("Both the primary and backup managers are unavailable. Please contact support.");
+                    }
+
+                    // Update to backup manager's details
+                    $managerEmail = $backupManager['emails'][0];
+                    $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
+                }
+
                 // Send email notification to the manager
                 if (!$model->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
                     throw new Exception("Notification email could not be sent. Please try again.");
@@ -123,7 +169,7 @@ class DepDepartmentController
                 // Set success message and redirect
                 $_SESSION['success'] = [
                     'title' => "ជោគជ័យ",
-                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
+                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
                 ];
                 header("Location: /elms/ddepartmentLeave");
                 exit();

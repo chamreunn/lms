@@ -5,7 +5,7 @@ class User
 {
     private $pdo;
 
-    public $api = "http://172.25.26.3:8000";
+    public $api = "http://127.0.0.1:8000";
 
     public function getApi()
     {
@@ -634,9 +634,13 @@ class User
                     }
                     if (isset($leader['firstNameKh'])) {
                         $firstNameKh[] = $leader['firstNameKh'];
+                    } else {
+                        $firstNameKh[] = ''; // Fallback to empty if the field is not present
                     }
                     if (isset($leader['lastNameKh'])) {
                         $lastNameKh[] = $leader['lastNameKh'];
+                    } else {
+                        $lastNameKh[] = ''; // Fallback to empty if the field is not present
                     }
                 }
             }
@@ -651,6 +655,71 @@ class User
                 'ids' => $ids,
                 'firstNameKh' => $firstNameKh,
                 'lastNameKh' => $lastNameKh,
+            ];
+        } else {
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            return [
+                'http_code' => $httpCode,
+                'response' => $responseData
+            ];
+        }
+    }
+
+    // ជ្រើសរើសថ្នាក់ដឹកនាំ 
+    public function getAllManager($id, $token)
+    {
+        $url = "{$this->api}/api/v1/users/leader/contact/" . $id;
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . $token));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return null;
+        }
+
+        // Log the raw API response for debugging
+        error_log("API Response: " . $response);
+
+        $responseData = json_decode($response, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return null;
+        }
+
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            $leaders = $responseData['data'];
+
+            // Log the leaders data to ensure it's being received correctly
+            error_log("Leaders Data: " . print_r($leaders, true));
+
+            $managers = []; // Consolidated array
+
+            foreach ($leaders as $leader) {
+                if (isset($leader['email'], $leader['id'], $leader['firstNameKh'], $leader['lastNameKh'])) {
+                    $managers[] = [
+                        'email' => $leader['email'],
+                        'id' => $leader['id'],
+                        'firstNameKh' => $leader['firstNameKh'],
+                        'lastNameKh' => $leader['lastNameKh'],
+                    ];
+                }
+            }
+
+            // Log the filtered managers data to check if they are found correctly
+            error_log("Filtered Managers: " . print_r($managers, true));
+
+            return [
+                'http_code' => $httpCode,
+                'managers' => $managers, // Return consolidated managers array
             ];
         } else {
             error_log("Unexpected API Response: " . print_r($responseData, true));
@@ -1397,5 +1466,166 @@ class User
             'http_code' => $httpCode,
             'response' => $response
         ];
+    }
+
+    public function isManagerOnLeaveToday($managerId)
+    {
+        $today = date('Y-m-d');
+
+        // Check if $managerId is an array
+        if (is_array($managerId)) {
+            // Convert the array to a comma-separated string for the SQL IN clause
+            $placeholders = rtrim(str_repeat('?,', count($managerId)), ',');
+            $sql = "SELECT * FROM leave_requests WHERE user_id IN ($placeholders) AND status = 'Approved' AND ? BETWEEN start_date AND end_date";
+            $stmt = $this->pdo->prepare($sql);
+
+            // Add all the manager IDs to the bind values
+            $stmt->execute(array_merge($managerId, [$today]));
+        } else {
+            // Handle the case where it's a single manager ID
+            $sql = "SELECT * FROM leave_requests WHERE user_id = ? AND status = 'Approved' AND ? BETWEEN start_date AND end_date";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$managerId, $today]);
+        }
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Return true if the manager has an approved leave request for today
+        return !empty($result);
+    }
+
+    public function getUserAttendanceByIdApi($id, $token)
+    {
+        $url = "{$this->api}/api/v1/attendances/user/" . $id;
+
+        // Initialize cURL session
+        $ch = curl_init($url);
+
+        // Set cURL options
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Authorization: Bearer ' . $token
+        ));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+
+        // Execute cURL request
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+
+        // Close the cURL session
+        curl_close($ch);
+
+        // Check for cURL errors
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return [
+                'http_code' => 500,
+                'error' => "CURL Error: $error"
+            ];
+        }
+
+        // Decode the JSON response
+        $responseData = json_decode($response, true);
+
+        // Handle JSON decoding errors
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return [
+                'http_code' => $httpCode,
+                'error' => "JSON Decode Error: " . json_last_error_msg()
+            ];
+        }
+
+        // Check if the response is successful and contains the expected data
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            return [
+                'http_code' => $httpCode,
+                'data' => $responseData['data']
+            ];
+        } else {
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            return [
+                'http_code' => $httpCode,
+                'error' => "Unexpected API Response",
+                'response' => $responseData
+            ];
+        }
+    }
+
+    public function getUserFilterAttendanceByIdApi($userId, $token, $startDate = null, $endDate = null)
+    {
+        // Base URL for the API
+        $url = "{$this->api}/api/v1/attendances/user/" . $userId;
+
+        // Add query parameters for start and end dates if provided
+        $queryParams = [];
+        if ($startDate) {
+            $queryParams['fromDate'] = $startDate;
+        }
+        if ($endDate) {
+            $queryParams['toDate'] = $endDate;
+        }
+
+        // If query parameters exist, append them to the URL
+        if (!empty($queryParams)) {
+            $url .= '?' . http_build_query($queryParams);
+        }
+
+        // Initialize cURL session
+        $ch = curl_init($url);
+
+        // Set cURL options
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $token
+        ]);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);  // Ignore SSL certificate verification (for local dev)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+        // Execute the cURL request
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+
+        // Close the cURL session
+        curl_close($ch);
+
+        // Handle cURL errors
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return [
+                'http_code' => 500,
+                'error' => "CURL Error: $error"
+            ];
+        }
+
+        // Decode the JSON response
+        $responseData = json_decode($response, true);
+
+        // Handle JSON decoding errors
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return [
+                'http_code' => $httpCode,
+                'error' => "JSON Decode Error: " . json_last_error_msg()
+            ];
+        }
+
+        // Check if the response is successful and contains data
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            return [
+                'http_code' => $httpCode,
+                'data' => $responseData['data']
+            ];
+        } else {
+            // Log and return unexpected API response
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            return [
+                'http_code' => $httpCode,
+                'error' => "Unexpected API Response",
+                'response' => $responseData
+            ];
+        }
     }
 }

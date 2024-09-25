@@ -417,6 +417,22 @@ class AdminController
         exit();
     }
 
+    public function viewAllLeave()
+    {
+        $adminModel = new AdminModel();
+        $getAll = $adminModel->getAllLeaveEarly();
+        $getAlls = $adminModel->getAll();
+        $getLateInCount = $adminModel->getLateinCount();
+        $getLateOutCount = $adminModel->getLateoutCount();
+        $getLeaveEarlyCount = $adminModel->getLeaveearlyCount();
+        $getAllLate = $adminModel->getAllLate();
+        $getApproved = $adminModel->getApprovedLateCount();
+        $getAllLeave = $adminModel->getAllLeave();
+
+        require 'src/views/admin/AllLeave.php';
+        return;
+    }
+
     public function viewLateDetailLateOut()
     {
         if (isset($_GET['id'])) {

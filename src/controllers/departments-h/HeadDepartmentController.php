@@ -60,6 +60,18 @@ class HeadDepartmentController
             $message = "$user_khmer_name បានស្នើសុំច្បាប់ឈប់សម្រាក។";
             $activity = "បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
+            $leaveRemarks = "ច្បាប់";
+            $status = "On Leave";
+
+            if (new DateTime($end_date) < new DateTime($start_date)) {
+                $_SESSION['error'] = [
+                    'title' => "កំហុសកាលបរិច្ឆេទ",
+                    'message' => "ថ្ងៃបញ្ចប់មិនអាចតូចជាងថ្ងៃចាប់ផ្ដើម។ សូមពិនិត្យម្តងទៀត"
+                ];
+                header("Location: /elms/my-leaves");
+                exit();
+            }
+
             // Handle file upload for attachment
             $attachment_name = $HeadDepartmentModel->handleFileUpload($_FILES['attachment'], ['docx', 'pdf'], 2097152, 'public/uploads/leave_attachments/');
             if ($attachment_name === false) {
@@ -118,7 +130,19 @@ class HeadDepartmentController
                 exit();
             }
 
-            $managerEmail = is_array($userDoffice['emails']) ? implode(',', $userDoffice['emails']) : $userDoffice['emails'];
+            // Use the first available manager's ID and email
+            $managerId = !empty($userDoffice['ids']) ? $userDoffice['ids'][0] : null;
+            $managerEmail = !empty($userDoffice['emails']) ? $userDoffice['emails'][0] : null;
+            $managerName = !empty($userDoffice['lastNameKh']) && !empty($userDoffice['firstNameKh'])
+                ? $userDoffice['lastNameKh'][0] . ' ' . $userDoffice['firstNameKh'][0]
+                : null;
+
+            if (!$managerId || !$managerEmail) {
+                throw new Exception("No valid manager details found.");
+            }
+
+            // Check if the manager is on leave today using the leave_requests table
+            $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
 
             $leaveRequestId = $HeadDepartmentModel->create(
                 $user_id,
@@ -144,6 +168,21 @@ class HeadDepartmentController
                 exit();
             }
 
+            if ($isManagerOnLeave) {
+                // Submit approval
+                $updatedAt = $HeadDepartmentModel->updateApproval($leaveRequestId, $managerId, $status, $leaveRemarks);
+
+                // Fetch another available manager if the current manager is on leave
+                $backupManager = $userModel->getEmailLeaderHUApi($user_id, $_SESSION['token']);
+                if (!$backupManager || empty($backupManager['emails'])) {
+                    throw new Exception("Both the primary and backup managers are unavailable. Please contact support.");
+                }
+
+                // Update to backup manager's details
+                $managerEmail = $backupManager['emails'][0];
+                $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
+            }
+
             // Log user activity
             $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
 
@@ -163,7 +202,7 @@ class HeadDepartmentController
 
             $_SESSION['success'] = [
                 'title' => "ជោគជ័យ",
-                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
+                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
             ];
             header("Location: /elms/hdepartmentLeave");
             exit();

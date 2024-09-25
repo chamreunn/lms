@@ -97,6 +97,10 @@ if (!isset($_SESSION['user_id'])) {
                     switch ($role) {
                         case 'Admin':
                             $adminModel = new AdminModel();
+                            $leaveRequestModel = new LeaveApproval();
+                            $requestscount = $leaveRequestModel->countPendingRequestsForApprover();
+                            $approvedCount = $leaveRequestModel->approvedCount();
+                            $rejectedCount = $leaveRequestModel->rejectedCount();
                             $getPendingCounts = $adminModel->getLateinCount();
                             $latesToday = $adminModel->getLateCountToday();
                             $AllLate = $adminModel->getAllLate();

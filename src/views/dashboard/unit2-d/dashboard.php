@@ -440,7 +440,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                     <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
                                         data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
                                         <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
-                                        <?= $leavetype['name'] ?> (<?= $leavetype['duration'] ?>ថ្ងៃ)
+                                        <?= $leavetype['name'] ?>     <?= $leavetype['document_status'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -508,33 +508,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                         class="form-control" id="remarks" name="remarks"
                                         required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
-                            </div>
-                            <div class="col-12 mb-1">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="signature"
-                                        onchange="toggleFileInput(this, 'signatureFile')" checked>
-                                    <label class="form-check-label cursor-pointer" for="signature">
-                                        ហត្ថលេខា<span class="text-red fw-bold mx-1">*</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-12 mb-3" id="signatureFile">
-                                <label id="displayName" for="signature_file"
-                                    class="btn w-100 text-start p-3 flex-column text-muted bg-light">
-                                    <span class="p-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round"
-                                            class="icon icon-tabler icons-tabler-outline icon-tabler-signature mx-0">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path
-                                                d="M3 17c3.333 -3.333 5 -6 5 -8c0 -3 -1 -3 -2 -3s-2.032 1.085 -2 3c.034 2.048 1.658 4.877 2.5 6c1.5 2 2.5 2.5 3.5 1l2 -3c.333 2.667 1.333 4 3 4c.53 0 2.639 -2 3 -2c.517 0 1.517 .667 3 2" />
-                                        </svg>
-                                    </span>
-                                    <span>ហត្ថលេខា</span>
-                                </label>
-                                <input type="file" name="signature" id="signature_file" accept="image/png" required
-                                    hidden onchange="displayFileName('signature_file', 'displayName')" />
                             </div>
 
                             <div class="col-12 mb-3">

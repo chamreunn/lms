@@ -6,6 +6,9 @@ class LeaveModel
 
     private $table_name = "leave_requests";
 
+    private $approval = "leave_approvals";
+
+
     public function __construct()
     {
         global $pdo;
@@ -176,6 +179,76 @@ class LeaveModel
         }
 
         return $results;
+    }
+
+    public function submitApproval($leave_request_id, $approver_id, $status, $remarks)
+    {
+        // Log the inputs to check for issues
+        error_log("leave_request_id: " . print_r($leave_request_id, true));
+        error_log("approver_id: " . print_r($approver_id, true));
+        error_log("status: " . print_r($status, true));
+        error_log("remarks: " . print_r($remarks, true));
+
+        // Ensure none of the parameters are arrays
+        if (is_array($leave_request_id) || is_array($approver_id) || is_array($status) || is_array($remarks)) {
+            throw new Exception("One or more input parameters are arrays. Expected scalar values.");
+        }
+
+        // Insert the approval record with the signature
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO ' . $this->approval . ' (leave_request_id, approver_id, status, remarks, updated_at)
+            VALUES (?, ?, ?, ?, NOW())'
+        );
+        $stmt->execute([$leave_request_id, $approver_id, $status, $remarks]);
+
+        // Get the updated_at timestamp
+        $stmt = $this->pdo->prepare(
+            'SELECT updated_at FROM ' . $this->approval . ' WHERE leave_request_id = ? AND approver_id = ? ORDER BY updated_at DESC LIMIT 1'
+        );
+        $stmt->execute([$leave_request_id, $approver_id]);
+        $updatedAt = $stmt->fetchColumn();
+
+        if ($updatedAt === false) {
+            throw new Exception("Unable to fetch updated_at timestamp for approval.");
+        }
+        // Update leave request status based on the approval chain
+        $this->updateLeaveRequestStatus($leave_request_id, $status);
+
+        return $updatedAt; // Return the updated_at timestamp
+    }
+
+    private function updateLeaveRequestStatus($leave_request_id, $latestStatus)
+    {
+        // Fetch the current status of the leave request
+        $stmt = $this->pdo->prepare(
+            'SELECT dhead_office, num_date FROM ' . $this->table_name . ' WHERE id = ?'
+        );
+        $stmt->execute([$leave_request_id]);
+        $leaveRequest = $stmt->fetch();
+
+        if (!$leaveRequest) {
+            throw new Exception("Invalid leave request ID: $leave_request_id");
+        }
+
+        $currentStatus = $leaveRequest['dhead_office'];
+        $duration = $leaveRequest['num_date'];
+
+        // If the current status is already 'Rejected', no further updates are needed
+        if ($currentStatus == 'Rejected') {
+            return;
+        }
+
+        // Determine the number of required approvals based on the duration of the leave request
+        $requiredApprovals = $duration < 3 ? 4 : 6;
+
+        // Determine the new status based on the latest approval status
+        $newStatus = ($latestStatus == 'Rejected') ? 'Rejected' : 'On Leave';
+
+        // Update the leave request status
+        $stmt = $this->pdo->prepare(
+            'UPDATE ' . $this->table_name . ' SET dhead_office = ? WHERE id = ?'
+        );
+        $stmt->execute([$newStatus, $leave_request_id]);
     }
 
     public function pendingCount($user_id)
@@ -372,8 +445,7 @@ class LeaveModel
     {
         // Query to get approval details without fetching user and position data directly
         $stmt = $this->pdo->prepare(
-            'SELECT a.*, 
-                a.signature,  -- Include the signature column
+            'SELECT a.*, -- Include the signature column
                 (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
          FROM leave_approvals a
          WHERE a.leave_request_id = ?'
@@ -511,8 +583,7 @@ class LeaveModel
             u.khmer_name AS approver_name, 
             u.profile_picture AS profile,
             p.name AS position_name,
-            p.color AS position_color,
-            a.signature,  -- Include the signature column
+            p.color AS position_color,  -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
@@ -534,8 +605,7 @@ class LeaveModel
             u.khmer_name AS approver_name, 
             u.profile_picture AS profile,
             p.name AS position_name,
-            p.color AS position_color,
-            a.signature,  -- Include the signature column
+            p.color AS position_color,  -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
@@ -557,8 +627,7 @@ class LeaveModel
             u.khmer_name AS approver_name, 
             u.profile_picture AS profile,
             p.name AS position_name,
-            p.color AS position_color,
-            a.signature,  -- Include the signature column
+            p.color AS position_color,  -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
@@ -580,8 +649,7 @@ class LeaveModel
             u.khmer_name AS approver_name, 
             u.profile_picture AS profile,
             p.name AS position_name,
-            p.color AS position_color,
-            a.signature,  -- Include the signature column
+            p.color AS position_color, -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
@@ -603,8 +671,7 @@ class LeaveModel
             u.khmer_name AS approver_name, 
             u.profile_picture AS profile,
             p.name AS position_name,
-            p.color AS position_color,
-            a.signature,  -- Include the signature column
+            p.color AS position_color,  -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
@@ -626,8 +693,7 @@ class LeaveModel
             u.khmer_name AS approver_name, 
             u.profile_picture AS profile,
             p.name AS position_name,
-            p.color AS position_color,
-            a.signature,  -- Include the signature column
+            p.color AS position_color,  -- Include the signature column
             (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
         FROM leave_approvals a
         JOIN users u ON a.approver_id = u.id
