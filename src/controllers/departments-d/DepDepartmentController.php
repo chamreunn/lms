@@ -238,7 +238,6 @@ class DepDepartmentController
 
             // Create approval record
             $Model = new DepDepartmentModel();
-            // Retrieve POST data
             $request_id = $_POST['request_id'];
             $status = $_POST['status'];
             $remarks = $_POST['remarks'];
@@ -255,7 +254,8 @@ class DepDepartmentController
             $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
             $leaveRemarks = "ច្បាប់";
-            $action = "On Leave";
+            $onLeave = "On Leave";
+            $onMission = "On Mission"; // New variable for mission check 
             $department = $_SESSION['departmentName'];
 
             // Start transaction
@@ -285,16 +285,18 @@ class DepDepartmentController
                     throw new Exception("No valid manager details found.");
                 }
 
-                // Check if the manager is on leave today using the leave_requests table
+                // Check if the manager is on leave or mission today
                 $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+                $isManagerOnMission = $userModel->isManagerOnMission($managerId);
 
-                if ($isManagerOnLeave) {
+                // If manager is on leave or mission, assign a backup manager
+                if ($isManagerOnLeave || $isManagerOnMission) {
+                    $updatedAt = $leaveApproval->updatePendingApproval($request_id, $managerId, $isManagerOnLeave ? $onLeave : $onMission, $leaveRemarks);
 
-                    $updatedAt = $leaveApproval->updatePendingApproval($request_id, $managerId, $action, $leaveRemarks);
-                    // Update approval with backup manager if the current manager is on leave
+                    // Fetch backup manager
                     $backupManager = null;
                     if (in_array($department, ["នាយកដ្ឋានកិច្ចការទូទៅ", "នាយកដ្ឋានសវនកម្មទី២"])) {
-                        // Fetch the user's Unit details
+                        // Fetch the user's Unit details for backup manager
                         $backupManager = $userModel->getEmailLeaderDHU1Api($user_id, $_SESSION['token']);
                     } else {
                         $backupManager = $userModel->getEmailLeaderDHU2Api($user_id, $_SESSION['token']);
@@ -302,9 +304,6 @@ class DepDepartmentController
 
                     if (!$backupManager || empty($backupManager['emails'])) {
                         throw new Exception("Both the primary and backup managers are unavailable. Please contact support.");
-                    }
-                    if (!$backupManager || empty($backupManager['emails'])) {
-                        throw new Exception("Both primary and backup managers are unavailable.");
                     }
 
                     // Update to backup manager's details

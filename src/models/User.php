@@ -1494,6 +1494,32 @@ class User
         return !empty($result);
     }
 
+    public function isManagerOnMission($managerId)
+    {
+        $today = date('Y-m-d');
+
+        // Check if $managerId is an array
+        if (is_array($managerId)) {
+            // Convert the array to a comma-separated string for the SQL IN clause
+            $placeholders = rtrim(str_repeat('?,', count($managerId)), ',');
+            $sql = "SELECT * FROM missions WHERE user_id IN ($placeholders) AND ? BETWEEN start_date AND end_date";
+            $stmt = $this->pdo->prepare($sql);
+
+            // Add all the manager IDs to the bind values
+            $stmt->execute(array_merge($managerId, [$today]));
+        } else {
+            // Handle the case where it's a single manager ID
+            $sql = "SELECT * FROM missions WHERE user_id = ? AND ? BETWEEN start_date AND end_date";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$managerId, $today]);
+        }
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Return true if the manager has a mission for today
+        return !empty($result);
+    }
+
     public function getUserAttendanceByIdApi($id, $token)
     {
         $url = "{$this->api}/api/v1/attendances/user/" . $id;

@@ -42,6 +42,8 @@ class HeadOfficeController
 
             $leaveRemarks = "ច្បាប់";
             $status = "On Leave";
+            $mission = "Mission";
+            $missionRemarks = "បេសកកម្ម";
 
             // Validate required fields
             $requiredFields = ['leave_type_id', 'start_date', 'end_date'];
@@ -130,6 +132,7 @@ class HeadOfficeController
 
             // Check if the manager is on leave today using the leave_requests table
             $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+            $isManagerOnMission = $userModel->isManagerOnMission($managerId);
 
             // Convert array to comma-separated string if necessary
             if (is_array($managerEmail)) {
@@ -161,9 +164,9 @@ class HeadOfficeController
                 exit();
             }
 
-            if ($isManagerOnLeave) {
+            if ($isManagerOnLeave ||  $isManagerOnMission) {
                 // Submit approval for manager on leave
-                $updatedAt = $headOfficeModel->updateApproval($leaveRequestId, $managerId, $status, $leaveRemarks);
+                $updatedAt = $headOfficeModel->updateApproval($leaveRequestId, $managerId, $isManagerOnLeave ? $status : $mission, $isManagerOnLeave ? $leaveRemarks : $missionRemarks);
 
                 // Fetch backup manager details
                 $backupManager = $userModel->getEmailLeaderHDApi($user_id, $_SESSION['token']);
@@ -286,6 +289,8 @@ class HeadOfficeController
 
             $leaveRemarks = "ច្បាប់";
             $action = "On Leave";
+            $mission = "Mission";
+            $missionRemarks = "បេសកកម្ម";
 
             // Start transaction
             try {
@@ -314,10 +319,11 @@ class HeadOfficeController
 
                 // Check if the manager is on leave today using the leave_requests table
                 $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+                $isManagerOnMission = $userModel->isManagerOnMission($managerId);
 
-                if ($isManagerOnLeave) {
+                if ($isManagerOnLeave ||  $isManagerOnMission) {
 
-                    $updatedAt = $leaveApproval->updatePendingApproval($request_id, $managerId, $action, $leaveRemarks);
+                    $updatedAt = $leaveApproval->updatePendingApproval($request_id, $managerId, $isManagerOnLeave ? $action : $mission, $isManagerOnLeave ? $leaveRemarks : $missionRemarks);
                     // Update approval with backup manager if the current manager is on leave
                     $backupManager = $userModel->getEmailLeaderHDApi($user_id, $_SESSION['token']);
                     if (!$backupManager || empty($backupManager['emails'])) {
