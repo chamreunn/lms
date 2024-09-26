@@ -177,6 +177,10 @@ class DashboardController
                     $countRequestModel = new LeaveRequest();
                     $leavetypeModel = new Leavetype();
                     $getUserApprove = $leaveRequestModel->leaveUserApproved($_SESSION['token']);
+                    $getMissionToday = $leaveRequestModel->getMissions($_SESSION['token']);
+                    $getLateIn = $leaveRequestModel->getLateIn($_SESSION['token']);
+                    $getLateOut = $leaveRequestModel->getLateOut($_SESSION['token']);
+                    $getLeaveEarly = $leaveRequestModel->getLeaveEarly($_SESSION['token']);
                     $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);

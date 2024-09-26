@@ -234,38 +234,65 @@ class DepOfficeController
             // Initialize variables from POST data
             $request_id = $_POST['request_id'];
             $status = $_POST['status'];
-            $remarks = $_POST['remarks'];
+            $remarks = $_POST['remarks'] ?? ''; // Optional, use default if not provided
             $uremarks = $_POST['uremarks'];
             $uname = $_POST['uname'];
             $uEmail = $_POST['uemail'];
             $leaveType = $_POST['leaveType'];
-            $user_id = $_POST['user_id']; // ID of the user who applied for leave
+            $user_id = $_POST['user_id'];
             $start_date = $_POST['start_date'];
             $end_date = $_POST['end_date'];
             $duration_days = $_POST['duration'];
-            $approver_id = $_SESSION['user_id']; // Approver's ID (logged-in user)
+            $approver_id = $_SESSION['user_id'];
             $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
             $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
-            // Start transaction
+            $leaveRemarks = "ច្បាប់";
+            $action = "On Leave";
+
             try {
+                // Start transaction
                 $this->pdo->beginTransaction();
 
                 // Create a DepOfficeModel instance and submit approval
                 $leaveApproval = new DepOfficeModel();
-                $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks);
+                $updatedAt = $leaveApproval->updateApproval($request_id, $approver_id, $status, $remarks);
 
                 // Fetch office details via API
                 $userModel = new User();
-                $userHoffice = $userModel->getEmailLeaderHOApi($_SESSION['user_id'], $_SESSION['token']);
+                $userDoffice = $userModel->getEmailLeaderHOApi($approver_id, $_SESSION['token']);
 
-                // Validate office details response
-                if (!$userHoffice || $userHoffice['http_code'] !== 200 || empty($userHoffice['emails'])) {
-                    throw new Exception("Unable to find office details. Please contact support.");
+                if (!$userDoffice || $userDoffice['http_code'] !== 200 || empty($userDoffice['emails'])) {
+                    throw new Exception("Unable to retrieve office details. Please contact support.");
                 }
 
-                // Convert emails array to string if necessary
-                $managerEmail = is_array($userHoffice['emails']) ? implode(',', $userHoffice['emails']) : $userHoffice['emails'];
+                // Use the first available manager's ID and email
+                $managerId = $userDoffice['ids'][0] ?? null;
+                $managerEmail = $userDoffice['emails'][0] ?? null;
+                $managerName = isset($userDoffice['lastNameKh'][0]) && isset($userDoffice['firstNameKh'][0])
+                    ? $userDoffice['lastNameKh'][0] . ' ' . $userDoffice['firstNameKh'][0]
+                    : null;
+
+                if (!$managerId || !$managerEmail) {
+                    throw new Exception("No valid manager details found.");
+                }
+
+                // Check if the manager is on leave today using the leave_requests table
+                $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+
+                if ($isManagerOnLeave) {
+
+                    $updatedAt = $leaveApproval->updatePendingApproval($request_id, $managerId, $action, $leaveRemarks);
+                    // Update approval with backup manager if the current manager is on leave
+                    $backupManager = $userModel->getEmailLeaderDDApi($user_id, $_SESSION['token']);
+                    if (!$backupManager || empty($backupManager['emails'])) {
+                        throw new Exception("Both primary and backup managers are unavailable.");
+                    }
+
+                    // Update to backup manager's details
+                    $managerEmail = $backupManager['emails'][0];
+                    $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
+                }
 
                 // Send email notification to HO office
                 if (
@@ -283,7 +310,7 @@ class DepOfficeController
                         $updatedAt
                     )
                 ) {
-                    throw new Exception("Notification email could not be sent to the office. Please try again.");
+                    throw new Exception("Failed to send notification email to the office.");
                 }
 
                 // Send confirmation email to the user
@@ -297,7 +324,7 @@ class DepOfficeController
                         $remarks
                     )
                 ) {
-                    throw new Exception("Notification email to the user could not be sent. Please try again.");
+                    throw new Exception("Failed to send notification email to the user.");
                 }
 
                 // Create notification for the user
@@ -308,26 +335,26 @@ class DepOfficeController
                 $activity = "បាន " . $status . " ច្បាប់ឈប់សម្រាក " . $uname;
                 $userModel->logUserActivity($approver_id, $activity, $_SERVER['REMOTE_ADDR']);
 
-                // Commit the transaction
+                // Commit transaction
                 $this->pdo->commit();
 
                 // Set success message and redirect
                 $_SESSION['success'] = [
                     'title' => "សំណើច្បាប់",
-                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
+                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
                 ];
                 header('Location: /elms/pending');
                 exit();
 
             } catch (Exception $e) {
-                // Rollback transaction in case of any error
+                // Rollback transaction in case of error
                 $this->pdo->rollBack();
 
                 // Log the error and set error message
                 error_log("Error: " . $e->getMessage());
                 $_SESSION['error'] = [
                     'title' => "កំហុស",
-                    'message' => "មានបញ្ហាក្នុងការបញ្ជូនសំណើ: " . $e->getMessage()
+                    'message' => "បញ្ហាក្នុងការបញ្ជូនសំណើ: " . $e->getMessage()
                 ];
                 header("Location: /elms/pending");
                 exit();
@@ -387,7 +414,7 @@ class DepOfficeController
     public function viewLeaveDetail()
     {
         if (isset($_GET['leave_id'])) {
-            $leaveRequestModel = new LeaveRequest();
+            $leaveRequestModel = new DepOfficeModel();
             $leave_id = (int) $_GET['leave_id'];
             $request = $leaveRequestModel->getRequestById($leave_id, $_SESSION['token']);
             $leavetypeModel = new Leavetype();

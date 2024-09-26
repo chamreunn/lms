@@ -232,11 +232,17 @@ class HeadUnitController
             $approver_id = $_SESSION['user_id'];
             $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
             $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
+            $leave = 1 ?? null;
 
             // Start transaction
             try {
                 $this->pdo->beginTransaction();
 
+                $updateToApi = $Model->updateToApi($user_id, $start_date, $end_date, $leave, $_SESSION['token']);
+
+                if (!$updateToApi) {
+                    throw new Exception("Failed to update leave to API. " . ($updateToApi['error'] ?? 'Unknown error'));
+                }
                 // Create approval record
                 $leaveApproval = new HeadUnitModel();
                 $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks);

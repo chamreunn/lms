@@ -258,6 +258,12 @@ switch ($uri) {
             $controller->viewAllLeave();
         });
         break;
+    case $base_url . '/AllLeavesAdmin':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->AllLeaves();
+        });
+        break;
     case $base_url . '/adminapprovelate':
         checkSessionAndExecute(function () {
             $controller = new AdminController();
@@ -438,6 +444,12 @@ switch ($uri) {
     case $base_url . '/view-leave-detail-h':
         checkSessionAndExecute(function () {
             $controller = new HeadOfficeController();
+            $controller->viewLeaveDetail();
+        });
+        break;
+    case $base_url . '/view-leave-detail-dd':
+        checkSessionAndExecute(function () {
+            $controller = new DepDepartmentController();
             $controller->viewLeaveDetail();
         });
         break;

@@ -274,12 +274,10 @@ class DepUnit1Controller
                 }
             }
 
-            // Create approval record
-            $Model = new DepUnit1Model();
             // Retrieve POST data
             $request_id = $_POST['request_id'];
             $status = $_POST['status'];
-            $remarks = $_POST['remarks'];
+            $remarks = $_POST['remarks'] ?? '';
             $uremarks = $_POST['uremarks'];
             $uname = $_POST['uname'];
             $uEmail = $_POST['uemail'];
@@ -291,6 +289,11 @@ class DepUnit1Controller
             $approver_id = $_SESSION['user_id'];
             $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
             $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
+
+            // Fetch department details
+            $leaveRemarks = "ច្បាប់";
+            $action = "On Leave";
+            $departmentName = $_SESSION['departmentName'] ?? null;
 
             // Start transaction
             try {
@@ -308,19 +311,38 @@ class DepUnit1Controller
                     throw new Exception("Unable to find Department details. Please contact support.");
                 }
 
-                // Convert emails array to string if necessary
-                $managerEmail = $userHoffice['emails'];
-                if (is_array($managerEmail)) {
-                    $managerEmail = implode(',', $managerEmail); // Convert array to comma-separated string
+                // Use the first available manager's ID and email
+                $managerId = $userHoffice['ids'][0] ?? null;
+                $managerEmail = $userHoffice['emails'][0] ?? null;
+                $managerName = isset($userHoffice['lastNameKh'][0]) && isset($userHoffice['firstNameKh'][0])
+                    ? $userHoffice['lastNameKh'][0] . ' ' . $userHoffice['firstNameKh'][0]
+                    : null;
+
+                if (!$managerId || !$managerEmail) {
+                    throw new Exception("No valid manager details found.");
+                }
+
+                // Check if the manager is on leave today using the leave_requests table
+                $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+
+                if ($isManagerOnLeave) {
+                    // Submit approval
+                    $updatedAt = $leaveApproval->updateApproval($request_id, $managerId, $action, $leaveRemarks);
+
+                    // Set success message and redirect
+                    $_SESSION['success'] = [
+                        'title' => "ជោគជ័យ",
+                        'message' => "ច្បាប់របស់អ្នកត្រូវបានអនុម័ត។"
+                    ];
                 }
 
                 // Send email notification
-                if (!$Model->sendEmailNotification($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
+                if (!$leaveApproval->sendEmailNotification($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
                     throw new Exception("Notification email could not be sent. Please try again.");
                 }
 
                 // Send email back to the user
-                if (!$Model->sendEmailBackToUser($uEmail, $_SESSION['user_khmer_name'], $request_id, $status, $updatedAt, $remarks)) {
+                if (!$leaveApproval->sendEmailBackToUser($uEmail, $_SESSION['user_khmer_name'], $request_id, $status, $updatedAt, $remarks)) {
                     throw new Exception("Notification email to user could not be sent. Please try again.");
                 }
 
@@ -338,7 +360,7 @@ class DepUnit1Controller
                 // Set success message and redirect to the pending page
                 $_SESSION['success'] = [
                     'title' => "សំណើច្បាប់",
-                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
+                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
                 ];
                 header('location: /elms/dunit1pending');
                 exit();

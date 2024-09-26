@@ -9,7 +9,9 @@ class HeadUnitModel
     private $pdo;
     private $table_name = "leave_requests";
 
-    private $approval = "leave_approvals";
+    private $missions = "missions";
+
+    private $lateInOut = "late_in_out";
 
     public function __construct()
     {
@@ -1257,4 +1259,225 @@ class HeadUnitModel
 
         return $approvals;
     }
+
+    public function getMissions($token)
+    {
+        $today = date('Y-m-d'); // Get today's date
+
+        // Query to get missions that overlap with today's date
+        $stmt = $this->pdo->prepare(
+            "SELECT m.id as mission_id, m.user_id, m.start_date, m.end_date, m.num_date
+         FROM $this->missions m
+         WHERE ? BETWEEN m.start_date AND m.end_date"
+        );
+
+        // Prepare query parameters (today's date)
+        $params = [$today];
+        $stmt->execute($params);
+        $missions = $stmt->fetchAll();
+
+        if (empty($missions)) {
+            return []; // Return an empty array if no missions are found
+        }
+
+        $userModel = new User(); // Assuming User class is responsible for API calls to fetch user data
+        $approvals = [];
+
+        foreach ($missions as $mission) {
+            $userId = $mission['user_id'];
+            $userApiResponse = $userModel->getUserByIdApi($userId, $token);
+
+            if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                $userData = $userApiResponse['data'];
+                $approvals[] = [
+                    'mission_id' => $mission['mission_id'],
+                    'user_name' => ($userData['lastNameKh'] ?? '') . ' ' . ($userData['firstNameKh'] ?? ''),
+                    'profile' => 'https://hrms.iauoffsa.us/images/' . ($userData['image'] ?? 'default.png'),
+                    'position_name' => $userData['position']['name'] ?? 'N/A',
+                    'position_color' => $userData['position']['color'] ?? '#000000', // Default color if missing
+                    'start_date' => $mission['start_date'],
+                    'end_date' => $mission['end_date'],
+                    'num_date' => $mission['num_date'], // Assuming this represents the duration of the mission
+                ];
+            } else {
+                // Handle API error or missing data
+                error_log("Failed to fetch user data for user ID: $userId");
+                $approvals[] = [
+                    'mission_id' => $mission['mission_id'],
+                    'user_name' => 'Unknown',
+                    'profile' => 'https://hrms.iauoffsa.us/images/default.png',
+                    'position_name' => 'N/A',
+                    'position_color' => '#000000',
+                    'start_date' => $mission['start_date'],
+                    'end_date' => $mission['end_date'],
+                    'num_date' => $mission['num_date'],
+                ];
+            }
+        }
+
+        return $approvals;
+    }
+
+    public function getLateIn($token)
+    {
+        $today = date('Y-m-d'); // Get today's date
+
+        // Query to get late_in records for today with status 'Approved'
+        $stmt = $this->pdo->prepare(
+            "SELECT l.id as late_in_id, l.user_id, l.late_in, l.status
+         FROM $this->lateInOut l
+         WHERE l.date = ? AND l.status = 'Approved' AND l.late_in is not null"
+        );
+
+        // Prepare query parameters (today's date)
+        $params = [$today];
+        $stmt->execute($params);
+        $lateInRecords = $stmt->fetchAll();
+
+        if (empty($lateInRecords)) {
+            return []; // Return an empty array if no late_in records are found
+        }
+
+        $userModel = new User(); // Assuming User class is responsible for API calls to fetch user data
+        $approvals = [];
+
+        foreach ($lateInRecords as $record) {
+            $userId = $record['user_id'];
+            $userApiResponse = $userModel->getUserByIdApi($userId, $token);
+
+            if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                $userData = $userApiResponse['data'];
+                $approvals[] = [
+                    'late_in_id' => $record['late_in_id'],
+                    'user_name' => ($userData['lastNameKh'] ?? '') . ' ' . ($userData['firstNameKh'] ?? ''),
+                    'profile' => 'https://hrms.iauoffsa.us/images/' . ($userData['image'] ?? 'default.png'),
+                    'position_name' => $userData['position']['name'] ?? 'N/A',
+                    'position_color' => $userData['position']['color'] ?? '#000000', // Default color if missing
+                    'late_in_time' => $record['late_in'],
+                ];
+            } else {
+                // Handle API error or missing data
+                error_log("Failed to fetch user data for user ID: $userId");
+                $approvals[] = [
+                    'late_in_id' => $record['late_in_id'],
+                    'user_name' => 'Unknown',
+                    'profile' => 'https://hrms.iauoffsa.us/images/default.png',
+                    'position_name' => 'N/A',
+                    'position_color' => '#000000',
+                    'late_in_time' => $record['late_in_time'],
+                ];
+            }
+        }
+
+        return $approvals;
+    }
+
+    public function getLateOut($token)
+    {
+        $today = date('Y-m-d'); // Get today's date
+
+        // Query to get late_in records for today with status 'Approved'
+        $stmt = $this->pdo->prepare(
+            "SELECT l.id as late_out_id, l.user_id, l.late_out, l.status
+         FROM $this->lateInOut l
+         WHERE l.date = ? AND l.status = 'Approved' AND l.late_out is not null"
+        );
+
+        // Prepare query parameters (today's date)
+        $params = [$today];
+        $stmt->execute($params);
+        $lateInRecords = $stmt->fetchAll();
+
+        if (empty($lateInRecords)) {
+            return []; // Return an empty array if no late_in records are found
+        }
+
+        $userModel = new User(); // Assuming User class is responsible for API calls to fetch user data
+        $approvals = [];
+
+        foreach ($lateInRecords as $record) {
+            $userId = $record['user_id'];
+            $userApiResponse = $userModel->getUserByIdApi($userId, $token);
+
+            if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                $userData = $userApiResponse['data'];
+                $approvals[] = [
+                    'late_in_id' => $record['late_out_id'],
+                    'user_name' => ($userData['lastNameKh'] ?? '') . ' ' . ($userData['firstNameKh'] ?? ''),
+                    'profile' => 'https://hrms.iauoffsa.us/images/' . ($userData['image'] ?? 'default.png'),
+                    'position_name' => $userData['position']['name'] ?? 'N/A',
+                    'position_color' => $userData['position']['color'] ?? '#000000', // Default color if missing
+                    'late_out_time' => $record['late_out'],
+                ];
+            } else {
+                // Handle API error or missing data
+                error_log("Failed to fetch user data for user ID: $userId");
+                $approvals[] = [
+                    'late_in_id' => $record['late_in_id'],
+                    'user_name' => 'Unknown',
+                    'profile' => 'https://hrms.iauoffsa.us/images/default.png',
+                    'position_name' => 'N/A',
+                    'position_color' => '#000000',
+                    'late_in_time' => $record['late_in_time'],
+                ];
+            }
+        }
+
+        return $approvals;
+    }
+
+    public function getLeaveEarly($token)
+    {
+        $today = date('Y-m-d'); // Get today's date
+
+        // Query to get late_in records for today with status 'Approved'
+        $stmt = $this->pdo->prepare(
+            "SELECT l.id as leaveEarlyId, l.user_id, l.leave_early, l.status
+         FROM $this->lateInOut l
+         WHERE l.date = ? AND l.status = 'Approved' AND l.leave_early is not null"
+        );
+
+        // Prepare query parameters (today's date)
+        $params = [$today];
+        $stmt->execute($params);
+        $lateInRecords = $stmt->fetchAll();
+
+        if (empty($lateInRecords)) {
+            return []; // Return an empty array if no late_in records are found
+        }
+
+        $userModel = new User(); // Assuming User class is responsible for API calls to fetch user data
+        $approvals = [];
+
+        foreach ($lateInRecords as $record) {
+            $userId = $record['user_id'];
+            $userApiResponse = $userModel->getUserByIdApi($userId, $token);
+
+            if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                $userData = $userApiResponse['data'];
+                $approvals[] = [
+                    'leaveEarlyId' => $record['leaveEarlyId'],
+                    'user_name' => ($userData['lastNameKh'] ?? '') . ' ' . ($userData['firstNameKh'] ?? ''),
+                    'profile' => 'https://hrms.iauoffsa.us/images/' . ($userData['image'] ?? 'default.png'),
+                    'position_name' => $userData['position']['name'] ?? 'N/A',
+                    'position_color' => $userData['position']['color'] ?? '#000000', // Default color if missing
+                    'leave_early' => $record['leave_early'],
+                ];
+            } else {
+                // Handle API error or missing data
+                error_log("Failed to fetch user data for user ID: $userId");
+                $approvals[] = [
+                    'late_in_id' => $record['late_in_id'],
+                    'user_name' => 'Unknown',
+                    'profile' => 'https://hrms.iauoffsa.us/images/default.png',
+                    'position_name' => 'N/A',
+                    'position_color' => '#000000',
+                    'late_in_time' => $record['late_in_time'],
+                ];
+            }
+        }
+
+        return $approvals;
+    }
+
 }

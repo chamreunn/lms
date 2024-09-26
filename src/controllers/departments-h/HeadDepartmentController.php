@@ -528,6 +528,8 @@ class HeadDepartmentController
                 $leave = 1 ?? null;
 
                 // Fetch department details
+                $leaveRemarks = "ច្បាប់";
+                $action = "On Leave";
                 $departmentName = $_SESSION['departmentName'] ?? null;
 
                 if ($departmentName) {
@@ -542,7 +544,33 @@ class HeadDepartmentController
                         throw new Exception("Unable to find Department details or no emails found.");
                     }
 
-                    $managerEmail = is_array($userDoffice['emails']) ? implode(',', $userDoffice['emails']) : $userDoffice['emails'];
+                    // Use the first available manager's ID and email
+                    $managerId = $userDoffice['ids'][0] ?? null;
+                    $managerEmail = $userDoffice['emails'][0] ?? null;
+                    $managerName = isset($userDoffice['lastNameKh'][0]) && isset($userDoffice['firstNameKh'][0])
+                        ? $userDoffice['lastNameKh'][0] . ' ' . $userDoffice['firstNameKh'][0]
+                        : null;
+
+                    if (!$managerId || !$managerEmail) {
+                        throw new Exception("No valid manager details found.");
+                    }
+
+                    // Check if the manager is on leave today using the leave_requests table
+                    $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+
+                    if ($isManagerOnLeave) {
+
+                        $updatedAt = $HeadDepartmentModel->updatePendingApproval($request_id, $managerId, $action, $leaveRemarks);
+                        // Update approval with backup manager if the current manager is on leave
+                        $backupManager = $userModel->getEmailLeaderHUApi($user_id, $_SESSION['token']);
+                        if (!$backupManager || empty($backupManager['emails'])) {
+                            throw new Exception("Both primary and backup managers are unavailable.");
+                        }
+
+                        // Update to backup manager's details
+                        $managerEmail = $backupManager['emails'][0];
+                        $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
+                    }
                 } else {
                     throw new Exception("Department name not found in session. Please log in again.");
                 }
@@ -612,7 +640,7 @@ class HeadDepartmentController
 
                     $_SESSION['success'] = [
                         'title' => "បរាជ័យ",
-                        'message' => "សំណើច្បាប់ត្រូវបានបញ្ជូនទៅអ្នកដឹកនាំសម្រាប់បន្តដំណើរការ។" . $managerEmail
+                        'message' => "សំណើច្បាប់ត្រូវបានបញ្ជូនទៅអ្នកដឹកនាំសម្រាប់បន្តដំណើរការ។" . $managerName
                     ];
                     header('location: /elms/headdepartmentpending');
                     exit();

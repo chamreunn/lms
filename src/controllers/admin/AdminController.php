@@ -43,6 +43,9 @@ class AdminController
                 $message = $_SESSION['user_khmer_name'] . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
                 $activity = "បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
+                $leaveRemarks = "ច្បាប់";
+                $status = "On Leave";
+
                 // Validate required fields
                 $requiredFields = ['leave_type_id', 'start_date', 'end_date'];
                 foreach ($requiredFields as $field) {
@@ -51,17 +54,21 @@ class AdminController
                     }
                 }
 
+                if (new DateTime($end_date) < new DateTime($start_date)) {
+                    $_SESSION['error'] = [
+                        'title' => "កំហុសកាលបរិច្ឆេទ",
+                        'message' => "ថ្ងៃបញ្ចប់មិនអាចតូចជាងថ្ងៃចាប់ផ្ដើម។ សូមពិនិត្យម្តងទៀត"
+                    ];
+                    header("Location: /elms/my-leaves");
+                    exit();
+                }
+
                 // Handle file upload for attachment
                 $attachment_name = $leaveRequestModel->handleFileUpload($_FILES['attachment'], ['docx', 'pdf'], 2097152, 'public/uploads/leave_attachments/');
                 if ($attachment_name === false) {
                     throw new Exception("Unable to upload attachment. Please try again.");
                 }
 
-                // Handle file upload for signature
-                $signature_name = $leaveRequestModel->handleFileUpload($_FILES['signature'], ['png'], 1048576, 'public/uploads/signatures/');
-                if ($signature_name === false) {
-                    throw new Exception("Unable to upload signature. Please try again.");
-                }
 
                 // Fetch leave type details including duration from database
                 $leaveType = $leaveTypeModel->getLeaveTypeById($leave_type_id);
@@ -87,10 +94,19 @@ class AdminController
                     throw new Exception("Unable to find office details. Please contact support.");
                 }
 
-                $managerEmail = $userDoffice['emails'];
-                if (is_array($managerEmail)) {
-                    $managerEmail = implode(',', $managerEmail);
+                // Use the first available manager's ID and email
+                $managerId = !empty($userDoffice['ids']) ? $userDoffice['ids'][0] : null;
+                $managerEmail = !empty($userDoffice['emails']) ? $userDoffice['emails'][0] : null;
+                $managerName = !empty($userDoffice['lastNameKh']) && !empty($userDoffice['firstNameKh'])
+                    ? $userDoffice['lastNameKh'][0] . ' ' . $userDoffice['firstNameKh'][0]
+                    : null;
+
+                if (!$managerId || !$managerEmail) {
+                    throw new Exception("No valid manager details found.");
                 }
+
+                // Check if the manager is on leave today using the leave_requests table
+                $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
 
                 // Create leave request
                 $leaveRequestId = $leaveRequestModel->create(
@@ -105,12 +121,26 @@ class AdminController
                     end_date: $end_date,
                     remarks: $remarks,
                     duration_days: $duration_days,
-                    attachment: $attachment_name,
-                    signature: $signature_name
+                    attachment: $attachment_name
                 );
 
                 if (!$leaveRequestId) {
                     throw new Exception("Failed to create leave request. Please try again.");
+                }
+
+                if ($isManagerOnLeave) {
+                    // Submit approval
+                    $updatedAt = $leaveRequestModel->updateApproval($leaveRequestId, $managerId, $status, $leaveRemarks);
+
+                    // Fetch another available manager if the current manager is on leave
+                    $backupManager = $userModel->getEmailLeaderDDApi($user_id, $_SESSION['token']);
+                    if (!$backupManager || empty($backupManager['emails'])) {
+                        throw new Exception("Both the primary and backup managers are unavailable. Please contact support.");
+                    }
+
+                    // Update to backup manager's details
+                    $managerEmail = $backupManager['emails'][0];
+                    $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
                 }
 
                 // Send email notification
@@ -130,7 +160,7 @@ class AdminController
                 // Set success message and redirect
                 $_SESSION['success'] = [
                     'title' => "ជោគជ័យ",
-                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
+                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
                 ];
                 header("Location: /elms/adminLeave");
                 exit();
@@ -428,8 +458,18 @@ class AdminController
         $getAllLate = $adminModel->getAllLate();
         $getApproved = $adminModel->getApprovedLateCount();
         $getAllLeave = $adminModel->getAllLeave();
+        $getLeaveCount = $adminModel->countApprovedLeavesToday();
 
         require 'src/views/admin/AllLeave.php';
+        return;
+    }
+
+    public function AllLeaves()
+    {
+        $adminModel = new AdminModel();
+        $getAllLeaves = $adminModel->getAllLeaves();
+
+        require 'src/views/admin/AllLeaves.php';
         return;
     }
 
@@ -494,6 +534,8 @@ class AdminController
         $getLeaveEarlyCount = $adminModel->getLeaveearlyCount();
         $getAllLate = $adminModel->getAllLate();
         $getApproved = $adminModel->getApprovedLateCount();
+        $getAllLeave = $adminModel->getAllLeave();
+        $getLeaveCount = $adminModel->countApprovedLeavesToday();
 
         require 'src/views/admin/lateinpending.php';
     }
@@ -508,6 +550,8 @@ class AdminController
         $getLeaveEarlyCount = $adminModel->getLeaveearlyCount();
         $getAllLate = $adminModel->getAllLate();
         $getApproved = $adminModel->getApprovedLateCount();
+        $getAllLeave = $adminModel->getAllLeave();
+        $getLeaveCount = $adminModel->countApprovedLeavesToday();
 
         require 'src/views/admin/lateinpending.php';
     }
@@ -522,6 +566,8 @@ class AdminController
         $getLeaveEarlyCount = $adminModel->getLeaveearlyCount();
         $getAllLate = $adminModel->getAllLate();
         $getApproved = $adminModel->getApprovedLateCount();
+        $getAllLeave = $adminModel->getAllLeave();
+        $getLeaveCount = $adminModel->countApprovedLeavesToday();
 
         require 'src/views/admin/lateinpending.php';
     }
@@ -536,6 +582,8 @@ class AdminController
         $getLeaveEarlyCount = $adminModel->getLeaveearlyCount();
         $getAllLate = $adminModel->getAllLate();
         $getApproved = $adminModel->getApprovedLateCount();
+        $getAllLeave = $adminModel->getAllLeave();
+        $getLeaveCount = $adminModel->countApprovedLeavesToday();
 
         require 'src/views/admin/lateinpending.php';
     }

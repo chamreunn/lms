@@ -437,12 +437,14 @@ class DepDepartmentModel
             }
 
             // Optional: Add logic to fetch approvals, office positions, etc.
-            $leaveRequest['approvals'] = $this->getApprovalsByLeaveRequestId($leaveRequest['id'], $_SESSION['token']);
-            $leaveRequest['doffice'] = $this->getDOfficePositions($leaveRequest['id']);
-            $leaveRequest['hoffice'] = $this->getHOfficePositions($leaveRequest['id'], $_SESSION['token']);
-            $leaveRequest['hdepartment'] = $this->getHDepartmentPositions($leaveRequest['id']);
-            $leaveRequest['dunit'] = $this->getDUnitPositions($leaveRequest['id']);
-            $leaveRequest['unit'] = $this->getUnitPositions($leaveRequest['id']);
+            // Fetch other details such as approvals, office positions, department, and unit
+            $leaveRequest['approvals'] = $this->getApprovalsByLeaveRequestId($leaveRequest['id'], $token);
+            $leaveRequest['doffice'] = $this->getDOfficePositions($leaveRequest['id'], $token);
+            $leaveRequest['hoffice'] = $this->getHOfficePositions($leaveRequest['id'], $token);
+            $leaveRequest['ddepartment'] = $this->getDDepartmentPositions($leaveRequest['id'], $token);
+            $leaveRequest['hdepartment'] = $this->getHDepartmentPositions($leaveRequest['id'], $token);
+            $leaveRequest['dunit'] = $this->getDUnitPositions($leaveRequest['id'], $token);
+            $leaveRequest['unit'] = $this->getUnitPositions($leaveRequest['id'], $token);
         }
 
         return $leaveRequest;
@@ -1432,4 +1434,64 @@ class DepDepartmentModel
         $stmt->execute([$newStatus, $leave_request_id]);
     }
     //  end if manager on leave 
+
+    public function updatePendingApproval($leave_request_id, $approver_id, $status, $remarks)
+    {
+        // Insert the approval record with the signature
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO ' . $this->approval . ' (leave_request_id, approver_id, status, remarks, updated_at)
+        VALUES (?, ?, ?, ?, NOW())'
+        );
+        $stmt->execute([$leave_request_id, $approver_id, $status, $remarks]);
+
+        // Get the updated_at timestamp
+        $stmt = $this->pdo->prepare(
+            'SELECT updated_at FROM ' . $this->approval . ' WHERE leave_request_id = ? AND approver_id = ? ORDER BY updated_at DESC LIMIT 1'
+        );
+        $stmt->execute([$leave_request_id, $approver_id]);
+        $updatedAt = $stmt->fetchColumn();
+
+        if ($updatedAt === false) {
+            throw new Exception("Unable to fetch updated_at timestamp for approval.");
+        }
+
+        // Update leave request status based on the approval chain
+        $this->updateRequestPendingApproval($leave_request_id, $status);
+
+        return $updatedAt; // Return the updated_at timestamp
+    }
+
+    private function updateRequestPendingApproval($leave_request_id, $latestStatus)
+    {
+        // Fetch the current status of the leave request
+        $stmt = $this->pdo->prepare(
+            'SELECT dhead_department, num_date FROM ' . $this->table_name . ' WHERE id = ?'
+        );
+        $stmt->execute([$leave_request_id]);
+        $leaveRequest = $stmt->fetch();
+
+        if (!$leaveRequest) {
+            throw new Exception("Invalid leave request ID: $leave_request_id");
+        }
+
+        $currentStatus = $leaveRequest['dhead_department'];
+        $duration = $leaveRequest['num_date'];
+
+        // If the current status is already 'Rejected', no further updates are needed
+        if ($currentStatus == 'Rejected') {
+            return;
+        }
+
+        // Determine the number of required approvals based on the duration of the leave request
+        $requiredApprovals = $duration < 3 ? 4 : 6;
+
+        // Determine the new status based on the latest approval status
+        $newStatus = ($latestStatus == 'Rejected') ? 'Rejected' : 'Approved';
+
+        // Update the leave request status
+        $stmt = $this->pdo->prepare(
+            'UPDATE ' . $this->table_name . ' SET dhead_department = ?, head_department = ? WHERE id = ?'
+        );
+        $stmt->execute([$newStatus, $newStatus, $leave_request_id]);
+    }
 }

@@ -56,6 +56,7 @@ class HeadOfficeController
                 }
             }
 
+            // Date validation
             if (new DateTime($end_date) < new DateTime($start_date)) {
                 $_SESSION['error'] = [
                     'title' => "កំហុសកាលបរិច្ឆេទ",
@@ -76,8 +77,7 @@ class HeadOfficeController
                 exit();
             }
 
-            // Fetch leave type details including duration from database
-            $leaveTypeModel = new Leavetype();
+            // Fetch leave type details including duration
             $leaveType = $leaveTypeModel->getLeaveTypeById($leave_type_id);
             if (!$leaveType) {
                 $_SESSION['error'] = [
@@ -90,7 +90,7 @@ class HeadOfficeController
 
             $leave_type_duration = $leaveType['duration'];
 
-            // Calculate duration in business days between start_date and end_date
+            // Calculate business days between start_date and end_date
             $datetime_start = new DateTime($start_date);
             $datetime_end = new DateTime($end_date);
             $duration_days = $headOfficeModel->calculateBusinessDays($datetime_start, $datetime_end);
@@ -105,7 +105,7 @@ class HeadOfficeController
                 exit();
             }
 
-            // Fetch the user's office details
+            // Fetch the user's office details from API
             $userDoffice = $userModel->getEmailLeaderDDApi($user_id, $_SESSION['token']);
             if (!$userDoffice || $userDoffice['http_code'] !== 200 || empty($userDoffice['emails'])) {
                 error_log("API Response: " . print_r($userDoffice, true));
@@ -136,6 +136,7 @@ class HeadOfficeController
                 $managerEmail = implode(',', $managerEmail);
             }
 
+            // Create leave request
             $leaveRequestId = $headOfficeModel->create(
                 $user_id,
                 $user_email,
@@ -161,21 +162,21 @@ class HeadOfficeController
             }
 
             if ($isManagerOnLeave) {
-                // Submit approval
+                // Submit approval for manager on leave
                 $updatedAt = $headOfficeModel->updateApproval($leaveRequestId, $managerId, $status, $leaveRemarks);
 
-                // Fetch another available manager if the current manager is on leave
+                // Fetch backup manager details
                 $backupManager = $userModel->getEmailLeaderHDApi($user_id, $_SESSION['token']);
                 if (!$backupManager || empty($backupManager['emails'])) {
                     throw new Exception("Both the primary and backup managers are unavailable. Please contact support.");
                 }
 
-                // Update to backup manager's details
+                // Update manager details to backup manager's info
                 $managerEmail = $backupManager['emails'][0];
                 $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
             }
 
-            // Send email notification
+            // Send email notification to the manager
             if (!$headOfficeModel->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
                 $_SESSION['error'] = [
                     'title' => "Email Error",
@@ -192,7 +193,7 @@ class HeadOfficeController
             // Log user activity
             $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
 
-            // Set success message and redirect to the leave overview
+            // Set success message and redirect to leave overview
             $_SESSION['success'] = [
                 'title' => "ជោគជ័យ",
                 'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
@@ -200,6 +201,7 @@ class HeadOfficeController
             header("Location: /elms/hofficeLeave");
             exit();
         } else {
+            // If the request method is not POST, redirect to the dashboard
             header("Location: /elms/dashboard");
             exit();
         }
@@ -282,6 +284,9 @@ class HeadOfficeController
             $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
             $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
+            $leaveRemarks = "ច្បាប់";
+            $action = "On Leave";
+
             // Start transaction
             try {
                 $this->pdo->beginTransaction();
@@ -296,10 +301,32 @@ class HeadOfficeController
                     throw new Exception("Unable to find office details. Please contact support.");
                 }
 
-                // Convert emails array to string if necessary
-                $managerEmail = $userHoffice['emails'];
-                if (is_array($managerEmail)) {
-                    $managerEmail = implode(',', $managerEmail); // Convert array to comma-separated string
+                // Use the first available manager's ID and email
+                $managerId = $userHoffice['ids'][0] ?? null;
+                $managerEmail = $userHoffice['emails'][0] ?? null;
+                $managerName = isset($userHoffice['lastNameKh'][0]) && isset($userHoffice['firstNameKh'][0])
+                    ? $userHoffice['lastNameKh'][0] . ' ' . $userHoffice['firstNameKh'][0]
+                    : null;
+
+                if (!$managerId || !$managerEmail) {
+                    throw new Exception("No valid manager details found.");
+                }
+
+                // Check if the manager is on leave today using the leave_requests table
+                $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+
+                if ($isManagerOnLeave) {
+
+                    $updatedAt = $leaveApproval->updatePendingApproval($request_id, $managerId, $action, $leaveRemarks);
+                    // Update approval with backup manager if the current manager is on leave
+                    $backupManager = $userModel->getEmailLeaderHDApi($user_id, $_SESSION['token']);
+                    if (!$backupManager || empty($backupManager['emails'])) {
+                        throw new Exception("Both primary and backup managers are unavailable.");
+                    }
+
+                    // Update to backup manager's details
+                    $managerEmail = $backupManager['emails'][0];
+                    $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
                 }
 
                 // Send email notification
@@ -326,7 +353,7 @@ class HeadOfficeController
                 // Set success message and redirect to the pending page
                 $_SESSION['success'] = [
                     'title' => "សំណើច្បាប់",
-                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
+                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
                 ];
                 header('location: /elms/headofficepending');
                 exit();

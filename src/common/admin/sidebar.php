@@ -166,7 +166,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                     </li>
 
                     <li
-                        class="nav-item dropdown <?= ($current_page == 'pending' || $current_page == 'approved' || $current_page == 'rejected' || $current_page == 'adminpending') ? 'active' : '' ?>">
+                        class="nav-item dropdown <?= ($current_page == 'pending' || $current_page == 'approved' || $current_page == 'rejected' || $current_page == 'adminpending' || $current_page == 'adminApprovedLeave' || $current_page == 'AllLeavesAdmin') ? 'active' : '' ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
                             data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -258,7 +258,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                         <?php endif; ?>
                                     </a>
                                     <div class="dropdown-divider mt-0 mb-0"></div>
-                                    <a class="dropdown-item <?= ($current_page == 'adminpending') ? 'active' : '' ?>"
+                                    <a class="dropdown-item <?= ($current_page == 'adminpending' || $current_page == 'adminApprovedLeave' || $current_page == 'AllLeavesAdmin') ? 'active' : '' ?>"
                                         href="/elms/adminpending">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -286,10 +286,6 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                         </div>
                     </li>
                     <!-- request  -->
-                    <li
-                        class="nav-item <?= ($current_page == 'adminpending' || $current_page == 'viewLateDetail') ? 'active' : '' ?>">
-
-                    </li>
                     <li
                         class="nav-item dropdown <?= in_array($current_page, ['user_index', 'department_index', 'office', 'leavetype', 'roles', 'positions', 'documents', 'holidays']) ? 'active' : '' ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-extra" data-bs-toggle="dropdown"

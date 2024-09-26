@@ -263,7 +263,7 @@ class DepUnit2Controller
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Validate required POST fields
-            $requiredFields = ['request_id', 'status', 'remarks', 'uremarks', 'uname', 'uemail', 'leaveType', 'user_id', 'start_date', 'end_date', 'duration'];
+            $requiredFields = ['request_id', 'status', 'uremarks', 'uname', 'uemail', 'leaveType', 'user_id', 'start_date', 'end_date', 'duration'];
             foreach ($requiredFields as $field) {
                 if (empty($_POST[$field])) {
                     $_SESSION['error'] = [
@@ -275,8 +275,6 @@ class DepUnit2Controller
                 }
             }
 
-            // Create approval record
-            $Model = new DepUnit2Model();
             // Retrieve POST data
             $request_id = $_POST['request_id'];
             $status = $_POST['status'];
@@ -293,24 +291,13 @@ class DepUnit2Controller
             $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
             $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
-            // Handle file upload for manager's signature
-            $signaturePath = $Model->handleFileUpload($_FILES['manager_signature'], ['png'], 1048576, 'public/uploads/signatures/');
-            if ($signaturePath === false) {
-                $_SESSION['error'] = [
-                    'title' => "ហត្ថលេខា",
-                    'message' => "មិនអាចបញ្ចូលហត្ថលេខាបានទេ។​ សូមព្យាយាមម្តងទៀត"
-                ];
-                header('location: /elms/dunit2pending');
-                exit();
-            }
-
             // Start transaction
             try {
                 $this->pdo->beginTransaction();
 
                 // Create approval record
-                $leaveApproval = new DepUnit2Model();
-                $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks, $signaturePath);
+                $Model = new DepUnit2Model();
+                $updatedAt = $Model->submitApproval($request_id, $approver_id, $status, $remarks);
 
                 // Fetch office details using API
                 $userModel = new User();

@@ -565,7 +565,7 @@ function convertToKhmerNumerals($number)
                             <?= translateDateToKhmer($request['end_date'], 'F') ?> ឆ្នាំ
                             <?= translateDateToKhmer($request['end_date'], 'Y') ?>
                             ដូចមូលហេតុ និងកាលបរិច្ឆេទក្នុងកម្មវត្ថុខាងលើ។ក្នុងរយៈពេលអវត្តមាននេះ ខ្ញុំសូមប្រគល់សិទ្ធជូន
-                            <?= $request['deputy_head_name'] ?> មុខងារបច្ចុប្បន្ន  <?= $request['positionName'] ?>
+                            <?= $request['deputy_head_name'] ?> មុខងារបច្ចុប្បន្ន <?= $request['positionName'] ?>
                             នៃ <?= $request['departmentName'] ?> ដើម្បីបំពេញភារៈកិច្ចជំនួសជាប្រធានការិយាល័យស្តីទី។
                         </p>
                         <p style="font-family: khmer mef1; font-size:16px; text-align:justify; text-indent: 50px;">
@@ -599,6 +599,12 @@ function convertToKhmerNumerals($number)
                                                     break;
                                                 case 'Rejected':
                                                     echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
+                                                    break;
+                                                case 'On Leave':
+                                                    echo 'ច្បាប់'; // Khmer for 'Rejected'
+                                                    break;
+                                                case 'Mission':
+                                                    echo 'បេសកកម្ម'; // Khmer for 'Rejected'
                                                     break;
                                                 default:
                                                     echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
@@ -651,6 +657,12 @@ function convertToKhmerNumerals($number)
                                                 case 'Rejected':
                                                     echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
                                                     break;
+                                                case 'On Leave':
+                                                    echo 'ច្បាប់'; // Khmer for 'Rejected'
+                                                    break;
+                                                case 'Mission':
+                                                    echo 'បេសកកម្ម'; // Khmer for 'Rejected'
+                                                    break;
                                                 default:
                                                     echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
                                                     break;
@@ -688,6 +700,12 @@ function convertToKhmerNumerals($number)
                                                 case 'Rejected':
                                                     echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
                                                     break;
+                                                case 'On Leave':
+                                                    echo 'ច្បាប់'; // Khmer for 'Rejected'
+                                                    break;
+                                                case 'Mission':
+                                                    echo 'បេសកកម្ម'; // Khmer for 'Rejected'
+                                                    break;
                                                 default:
                                                     echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
                                                     break;
@@ -713,7 +731,7 @@ function convertToKhmerNumerals($number)
                                             ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'Y') ?>
                                         </p>
                                         <p class="fw-bold" style="margin-bottom: 0;">
-                                            ប្រធាន<?= htmlspecialchars( $request['department_name'] ?? 'Unknown Position', ENT_QUOTES, 'UTF-8') ?>
+                                            ប្រធាន<?= htmlspecialchars($request['department_name'] ?? 'Unknown Position', ENT_QUOTES, 'UTF-8') ?>
                                         </p>
                                         <h3
                                             class="<?= ($approval['approver_status'] ?? '') === 'Approved' ? 'text-success' : 'text-danger' ?>">
@@ -724,6 +742,12 @@ function convertToKhmerNumerals($number)
                                                     break;
                                                 case 'Rejected':
                                                     echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
+                                                    break;
+                                                case 'On Leave':
+                                                    echo 'ច្បាប់'; // Khmer for 'Rejected'
+                                                    break;
+                                                case 'Mission':
+                                                    echo 'បេសកកម្ម'; // Khmer for 'Rejected'
                                                     break;
                                                 default:
                                                     echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
@@ -762,6 +786,12 @@ function convertToKhmerNumerals($number)
                                                 case 'Rejected':
                                                     echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
                                                     break;
+                                                case 'On Leave':
+                                                    echo 'ច្បាប់'; // Khmer for 'Rejected'
+                                                    break;
+                                                case 'Mission':
+                                                    echo 'បេសកកម្ម'; // Khmer for 'Rejected'
+                                                    break;
                                                 default:
                                                     echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
                                                     break;
@@ -787,7 +817,7 @@ function convertToKhmerNumerals($number)
                                             ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'Y') ?>
                                         </p>
                                         <p class="fw-bold" style="margin-bottom: 0;">
-                                            <?= htmlspecialchars(($approval['position_name']) , ENT_QUOTES, 'UTF-8') ?>
+                                            <?= htmlspecialchars(($approval['position_name']), ENT_QUOTES, 'UTF-8') ?>
                                         </p>
                                         <h3
                                             class="<?= ($approval['approver_status'] ?? '') === 'Approved' ? 'text-success' : 'text-danger' ?>">
@@ -798,6 +828,12 @@ function convertToKhmerNumerals($number)
                                                     break;
                                                 case 'Rejected':
                                                     echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
+                                                    break;
+                                                case 'On Leave':
+                                                    echo 'ច្បាប់'; // Khmer for 'Rejected'
+                                                    break;
+                                                case 'Mission':
+                                                    echo 'បេសកកម្ម'; // Khmer for 'Rejected'
                                                     break;
                                                 default:
                                                     echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'

@@ -141,7 +141,7 @@ class DepDepartmentController
                     } else {
                         $backupManager = $userModel->getEmailLeaderDHU2Api($user_id, $_SESSION['token']);
                     }
-                    
+
                     if (!$backupManager || empty($backupManager['emails'])) {
                         throw new Exception("Both the primary and backup managers are unavailable. Please contact support.");
                     }
@@ -254,6 +254,10 @@ class DepDepartmentController
             $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
             $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
+            $leaveRemarks = "ច្បាប់";
+            $action = "On Leave";
+            $department = $_SESSION['departmentName'];
+
             // Start transaction
             try {
                 $this->pdo->beginTransaction();
@@ -270,10 +274,42 @@ class DepDepartmentController
                     throw new Exception("Unable to find Department details. Please contact support.");
                 }
 
-                // Convert emails array to string if necessary
-                $managerEmail = $userHoffice['emails'];
-                if (is_array($managerEmail)) {
-                    $managerEmail = implode(',', $managerEmail); // Convert array to comma-separated string
+                // Use the first available manager's ID and email
+                $managerId = $userHoffice['ids'][0] ?? null;
+                $managerEmail = $userHoffice['emails'][0] ?? null;
+                $managerName = isset($userHoffice['lastNameKh'][0]) && isset($userHoffice['firstNameKh'][0])
+                    ? $userHoffice['lastNameKh'][0] . ' ' . $userHoffice['firstNameKh'][0]
+                    : null;
+
+                if (!$managerId || !$managerEmail) {
+                    throw new Exception("No valid manager details found.");
+                }
+
+                // Check if the manager is on leave today using the leave_requests table
+                $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+
+                if ($isManagerOnLeave) {
+
+                    $updatedAt = $leaveApproval->updatePendingApproval($request_id, $managerId, $action, $leaveRemarks);
+                    // Update approval with backup manager if the current manager is on leave
+                    $backupManager = null;
+                    if (in_array($department, ["នាយកដ្ឋានកិច្ចការទូទៅ", "នាយកដ្ឋានសវនកម្មទី២"])) {
+                        // Fetch the user's Unit details
+                        $backupManager = $userModel->getEmailLeaderDHU1Api($user_id, $_SESSION['token']);
+                    } else {
+                        $backupManager = $userModel->getEmailLeaderDHU2Api($user_id, $_SESSION['token']);
+                    }
+
+                    if (!$backupManager || empty($backupManager['emails'])) {
+                        throw new Exception("Both the primary and backup managers are unavailable. Please contact support.");
+                    }
+                    if (!$backupManager || empty($backupManager['emails'])) {
+                        throw new Exception("Both primary and backup managers are unavailable.");
+                    }
+
+                    // Update to backup manager's details
+                    $managerEmail = $backupManager['emails'][0];
+                    $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
                 }
 
                 // Send email notification
@@ -300,7 +336,7 @@ class DepDepartmentController
                 // Set success message and redirect to the pending page
                 $_SESSION['success'] = [
                     'title' => "សំណើច្បាប់",
-                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
+                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
                 ];
                 header('location: /elms/depdepartmentpending');
                 exit();
@@ -385,6 +421,25 @@ class DepDepartmentController
             ];
         }
         header("Location: /elms/dashboard");
+        exit();
+    }
+
+    public function viewLeaveDetail()
+    {
+        if (isset($_GET['leave_id'])) {
+            $leaveRequestModel = new DepDepartmentModel();
+            $leave_id = (int) $_GET['leave_id'];
+            $request = $leaveRequestModel->getRequestById($leave_id, $_SESSION['token']);
+            $leavetypeModel = new Leavetype();
+            $leavetypes = $leavetypeModel->getAllLeavetypes();
+
+            if ($request) {
+                require 'src/views/leave/departments-d/viewLeaveDetail.php';
+                return;
+            }
+        }
+        // If request not found or leave_id is not provided, redirect or show error
+        header('Location: /elms/requests');
         exit();
     }
 }

@@ -200,7 +200,7 @@ include('src/common/header.php');
                                 <h3 class="text-danger fw-bolder">អនុម័ត</h3>
                                 <div class="text-secondary mb-3">សូមចុច <span class="text-danger fw-bolder">បន្ត</span>
                                     ដើម្បីអនុម័តច្បាប់ឈប់សម្រាកនេះ។</div>
-                                <a class="btn text-green w-100" data-bs-toggle="collapse" href="#approved" role="button"
+                                <a class="btn text-red w-100" data-bs-toggle="collapse" href="#approved" role="button"
                                     aria-expanded="false" aria-controls="multiCollapseExample1">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                         fill="currentColor"
@@ -228,7 +228,7 @@ include('src/common/header.php');
                                             </a>
                                         </div>
                                         <div class="col">
-                                            <button type="submit" class="btn btn-success w-100">
+                                            <button type="submit" class="btn btn-red w-100">
                                                 បន្ត
                                             </button>
                                         </div>

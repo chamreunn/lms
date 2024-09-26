@@ -11,6 +11,8 @@ class AdminModel
 
     private $lateApproval = "late_approvals";
 
+    private $approval = "leave_approvals";
+
     private $leaveRequest = "leave_requests";
 
     private $table = "missions";
@@ -362,12 +364,12 @@ class AdminModel
         return $lateInRecords;
     }
 
-    public function create($user_id, $user_email, $leave_type_id, $position, $office, $department, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment, $signature)
+    public function create($user_id, $user_email, $leave_type_id, $position, $office, $department, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment)
     {
         // Prepare and execute the SQL statement
         $stmt = $this->pdo->prepare("
-            INSERT INTO $this->leaveRequest (user_id, uemails, leave_type_id, position, office, department, leave_type, start_date, end_date, remarks, num_date, attachment, signature, status, dhead_office, created_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            INSERT INTO $this->leaveRequest (user_id, uemails, leave_type_id, position, office, department, leave_type, start_date, end_date, remarks, num_date, attachment, status, dhead_office, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
         $stmt->execute([
             $user_id,
@@ -382,7 +384,6 @@ class AdminModel
             $remarks,
             $duration_days,
             $attachment,
-            $signature,
             'Pending',
             'Approved'
         ]);
@@ -679,8 +680,14 @@ class AdminModel
 
     public function getAllLeave()
     {
-        // Query to select all leave requests
-        $query = "SELECT * FROM $this->leaveRequest";
+        // Query to select leave requests that are 'Approved'
+        $query = "
+        SELECT lr.*, lt.name , lt.color AS ltColor
+        FROM $this->leaveRequest lr
+        JOIN leave_types lt ON lr.leave_type_id = lt.id
+        WHERE lr.status = 'Approved'
+        AND CURDATE() BETWEEN start_date AND end_date
+    ";
 
         // Prepare the query
         $stmt = $this->pdo->prepare($query);
@@ -688,11 +695,171 @@ class AdminModel
         // Execute the query
         $stmt->execute();
 
-        // Fetch all results as an associative array
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Fetch all leave requests as an associative array
+        $leaveRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Return the fetched results
-        return $results;
+        // Create an instance of the User model to fetch user details from the API
+        $userModel = new User();
+        $token = $_SESSION['token']; // Assuming token is available in session
+
+        // Loop through each leave request to fetch user details
+        foreach ($leaveRequests as &$leave) {
+            $user_id = $leave['user_id']; // Assuming 'user_id' is present in each leave request record
+
+            // Fetch user details from the API
+            $userApiResponse = $userModel->getUserByIdApi($user_id, $token);
+
+            // Check if the API response is successful and contains data
+            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+                $user = $userApiResponse['data']; // Assuming the API returns a 'data' object with user details
+
+                // Add user details to the leave record
+                $leave['khmer_name'] = $user['firstNameKh'] ?? 'Unknown';
+                $leave['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $leave['profile'] = 'https://hrms.iauoffsa.us/images/' . $user['image'] ?? 'default-profile.png'; // Default profile image
+                $leave['office_name'] = $user['office']['name'] ?? 'Unknown';
+                $leave['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $leave['email'] = $user['email'] ?? 'Unknown';
+            } else {
+                // Fallback to 'Unknown' if the API call fails
+                $leave['khmer_name'] = 'Unknown';
+                $leave['department_name'] = 'Unknown';
+                $leave['profile'] = 'default-profile.png';
+                $leave['office_name'] = 'Unknown';
+                $leave['position_name'] = 'Unknown';
+                $leave['email'] = 'Unknown';
+            }
+
+            // Fetch approver details if 'approver_id' exists in the leave record
+            if (!empty($leave['approver_id'])) {
+                $approver_id = $leave['approver_id'];
+
+                // Fetch approver details from the API
+                $approverApiResponse = $userModel->getUserByIdApi($approver_id, $token);
+
+                if ($approverApiResponse && $approverApiResponse['http_code'] === 200 && isset($approverApiResponse['data'])) {
+                    $approver = $approverApiResponse['data'];
+
+                    // Add approver details to the leave record
+                    $leave['approver_name'] = $approver['firstNameKh'] ?? 'Unknown';
+                    $leave['approver_email'] = $approver['email'] ?? 'Unknown';
+                } else {
+                    // Fallback to 'Unknown' if the API call fails
+                    $leave['approver_name'] = 'Unknown';
+                    $leave['approver_email'] = 'Unknown';
+                }
+            } else {
+                // If no 'approver_id' exists, set as 'Unknown'
+                $leave['approver_name'] = 'Unknown';
+                $leave['approver_email'] = 'Unknown';
+            }
+        }
+
+        // Return the leave requests with user and approver details
+        return $leaveRequests;
+    }
+
+    public function countApprovedLeavesToday()
+    {
+        // Query to count leave requests that are 'Approved' and where today's date falls between start_date and end_date
+        $query = "
+        SELECT COUNT(*) AS leave_count 
+        FROM $this->leaveRequest 
+        WHERE status = 'Approved'
+        AND CURDATE() BETWEEN start_date AND end_date
+    ";
+
+        // Prepare the query
+        $stmt = $this->pdo->prepare($query);
+
+        // Execute the query
+        $stmt->execute();
+
+        // Fetch the count result
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Return the leave count
+        return $result['leave_count'];
+    }
+
+    public function getAllLeaves()
+    {
+        // Query to select leave requests that are 'Approved'
+        $query = "
+        SELECT lr.*, lt.name , lt.color AS ltColor
+        FROM $this->leaveRequest lr
+        JOIN leave_types lt ON lr.leave_type_id = lt.id
+        WHERE lr.status = 'Approved'
+    ";
+
+        // Prepare the query
+        $stmt = $this->pdo->prepare($query);
+
+        // Execute the query
+        $stmt->execute();
+
+        // Fetch all leave requests as an associative array
+        $leaveRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Create an instance of the User model to fetch user details from the API
+        $userModel = new User();
+        $token = $_SESSION['token']; // Assuming token is available in session
+
+        // Loop through each leave request to fetch user details
+        foreach ($leaveRequests as &$leave) {
+            $user_id = $leave['user_id']; // Assuming 'user_id' is present in each leave request record
+
+            // Fetch user details from the API
+            $userApiResponse = $userModel->getUserByIdApi($user_id, $token);
+
+            // Check if the API response is successful and contains data
+            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+                $user = $userApiResponse['data']; // Assuming the API returns a 'data' object with user details
+
+                // Add user details to the leave record
+                $leave['khmer_name'] = $user['firstNameKh'] ?? 'Unknown';
+                $leave['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $leave['profile'] = 'https://hrms.iauoffsa.us/images/' . $user['image'] ?? 'default-profile.png'; // Default profile image
+                $leave['office_name'] = $user['office']['name'] ?? 'Unknown';
+                $leave['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $leave['email'] = $user['email'] ?? 'Unknown';
+            } else {
+                // Fallback to 'Unknown' if the API call fails
+                $leave['khmer_name'] = 'Unknown';
+                $leave['department_name'] = 'Unknown';
+                $leave['profile'] = 'default-profile.png';
+                $leave['office_name'] = 'Unknown';
+                $leave['position_name'] = 'Unknown';
+                $leave['email'] = 'Unknown';
+            }
+
+            // Fetch approver details if 'approver_id' exists in the leave record
+            if (!empty($leave['approver_id'])) {
+                $approver_id = $leave['approver_id'];
+
+                // Fetch approver details from the API
+                $approverApiResponse = $userModel->getUserByIdApi($approver_id, $token);
+
+                if ($approverApiResponse && $approverApiResponse['http_code'] === 200 && isset($approverApiResponse['data'])) {
+                    $approver = $approverApiResponse['data'];
+
+                    // Add approver details to the leave record
+                    $leave['approver_name'] = $approver['firstNameKh'] ?? 'Unknown';
+                    $leave['approver_email'] = $approver['email'] ?? 'Unknown';
+                } else {
+                    // Fallback to 'Unknown' if the API call fails
+                    $leave['approver_name'] = 'Unknown';
+                    $leave['approver_email'] = 'Unknown';
+                }
+            } else {
+                // If no 'approver_id' exists, set as 'Unknown'
+                $leave['approver_name'] = 'Unknown';
+                $leave['approver_email'] = 'Unknown';
+            }
+        }
+
+        // Return the leave requests with user and approver details
+        return $leaveRequests;
     }
 
     public function getApprovedLateCount()
@@ -908,14 +1075,27 @@ class AdminModel
 
     public function calculateBusinessDays(DateTime $start_date, DateTime $end_date)
     {
+        // Fetch holidays from the database
+        $holidayModel = new CalendarModel();
+        $holidays = $holidayModel->getHoliday(); // Assume this returns an array of holiday dates
+
+        // Convert holidays to DateTime objects for comparison
+        $holidayDates = array_map(function ($holiday) {
+            return new DateTime($holiday['holiday_date']);
+        }, $holidays);
+
+        // Proceed to calculate the number of business days between the start and end date
         $business_days = 0;
         $current_date = clone $start_date;
 
         while ($current_date <= $end_date) {
             $day_of_week = $current_date->format('N');
-            if ($day_of_week < 6) { // Monday to Friday are business days
+
+            // Check if the current date is a weekday and not a holiday
+            if ($day_of_week < 6 && !in_array($current_date, $holidayDates)) {
                 $business_days++;
             }
+
             $current_date->modify('+1 day');
         }
 
@@ -1307,4 +1487,66 @@ class AdminModel
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         return $stmt->execute();
     }
+
+    // if Manager on leave 
+    public function updateApproval($leave_request_id, $approver_id, $status, $remarks)
+    {
+        // Insert the approval record with the signature
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO ' . $this->approval . ' (leave_request_id, approver_id, status, remarks, updated_at)
+        VALUES (?, ?, ?, ?, NOW())'
+        );
+        $stmt->execute([$leave_request_id, $approver_id, $status, $remarks]);
+
+        // Get the updated_at timestamp
+        $stmt = $this->pdo->prepare(
+            'SELECT updated_at FROM ' . $this->approval . ' WHERE leave_request_id = ? AND approver_id = ? ORDER BY updated_at DESC LIMIT 1'
+        );
+        $stmt->execute([$leave_request_id, $approver_id]);
+        $updatedAt = $stmt->fetchColumn();
+
+        if ($updatedAt === false) {
+            throw new Exception("Unable to fetch updated_at timestamp for approval.");
+        }
+
+        // Update leave request status based on the approval chain
+        $this->updateRequestApproval($leave_request_id, $status);
+
+        return $updatedAt; // Return the updated_at timestamp
+    }
+
+    private function updateRequestApproval($leave_request_id, $latestStatus)
+    {
+        // Fetch the current status of the leave request
+        $stmt = $this->pdo->prepare(
+            'SELECT dhead_office, num_date FROM ' . $this->leaveRequest . ' WHERE id = ?'
+        );
+        $stmt->execute([$leave_request_id]);
+        $leaveRequest = $stmt->fetch();
+
+        if (!$leaveRequest) {
+            throw new Exception("Invalid leave request ID: $leave_request_id");
+        }
+
+        $currentStatus = $leaveRequest['dhead_office'];
+        $duration = $leaveRequest['num_date'];
+
+        // If the current status is already 'Rejected', no further updates are needed
+        if ($currentStatus == 'Rejected') {
+            return;
+        }
+
+        // Determine the number of required approvals based on the duration of the leave request
+        $requiredApprovals = $duration < 3 ? 4 : 6;
+
+        // Determine the new status based on the latest approval status
+        $newStatus = ($latestStatus == 'Rejected') ? 'Rejected' : 'Approved';
+
+        // Update the leave request status
+        $stmt = $this->pdo->prepare(
+            'UPDATE ' . $this->leaveRequest . ' SET head_office = ? WHERE id = ?'
+        );
+        $stmt->execute([$newStatus, $leave_request_id]);
+    }
+    //  end if manager on leave 
 }

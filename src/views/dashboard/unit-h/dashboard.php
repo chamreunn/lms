@@ -336,35 +336,139 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     </div>
 </div>
 
-<?php if (count($getUserApprove) > 0): ?>
-    <div class="col-12 mb-3">
-        <h3 class="mb-3">ច្បាប់ឈប់សម្រាកថ្ងៃនេះ</h3>
-        <div class="card">
-            <div class="list-group list-group-flush overflow-auto" style="max-height: 35rem">
-                <?php foreach ($getUserApprove as $request): ?>
-                    <a href="/elms/hoffice-view-leave?leave_id=<?= $request['leave_request_id'] ?>"
-                        class="list-group-item list-group-item-action border-left-light">
-                        <!-- <div class="list-group-item"> -->
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                <img class="avatar" src="<?= $request['profile'] ?>" style="object-fit: cover;" />
+<div class="row row-card g-3">
+    <?php if (count($getUserApprove) > 0): ?>
+        <div class="col-12 col-sm-12 col-md-6 col-lg-4 mb-3">
+            <h3 class="mb-3 text-center text-md-left">ច្បាប់ថ្ងៃនេះ<span
+                    class="mx-2 text-primary"><?= date('Y-m-d') ?></span></h3>
+            <div class="card">
+                <div class="list-group list-group-flush overflow-auto" style="max-height: 35rem">
+                    <?php foreach ($getUserApprove as $request): ?>
+                        <a href="/elms/hoffice-view-leave?leave_id=<?= $request['leave_request_id'] ?>"
+                            class="list-group-item list-group-item-action border-left-light">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <img class="avatar" src="<?= $request['profile'] ?>"
+                                        style="object-fit: cover; width: 50px; height: 50px;" />
+                                </div>
+                                <div class="col text-truncate">
+                                    <h4 class="text-body text-success d-block"><?= $request['user_name'] ?></h4>
+                                    <small class="text-muted text-truncate mt-n1">ឈប់សម្រាក ចំនួន <strong
+                                            class="text-success"><?= $request['num_date'] ?></strong> ថ្ងៃ ចាប់ពី <strong
+                                            class="text-success"><?= $request['start_date'] ?></strong> ដល់ <strong
+                                            class="text-success"><?= $request['end_date'] ?></strong></small>
+                                </div>
                             </div>
-                            <div class="col text-truncate">
-                                <h4 class="text-body text-success d-block"><?= $request['user_name'] ?></h4>
-                                <small class="text-muted text-truncate mt-n1">ឈប់សម្រាក ចំនួន <strong
-                                        class="text-success"><?= $request['num_date'] ?></strong> ថ្ងៃ ចាប់ពី <strong
-                                        class="text-success"><?= $request['start_date'] ?></strong> ដល់ <strong
-                                        class="text-success"><?= $request['end_date'] ?></strong>
-                                </small>
-                            </div>
-                        </div>
-                        <!-- </div> -->
-                    </a>
-                <?php endforeach; ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </div>
-    </div>
-<?php endif; ?>
+    <?php endif; ?>
+
+    <?php if (count($getMissionToday) > 0): ?>
+        <div class="col-12 col-sm-12 col-md-6 col-lg-4 mb-3">
+            <h3 class="mb-3 text-center text-md-left">បេសកកម្ម<span class="mx-2 text-primary"><?= date('Y-m-d') ?></span>
+            </h3>
+            <div class="card">
+                <div class="list-group list-group-flush overflow-auto" style="max-height: 35rem">
+                    <?php foreach ($getMissionToday as $request): ?>
+                        <a href="#" class="list-group-item list-group-item-action border-left-light">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <img class="avatar" src="<?= $request['profile'] ?>"
+                                        style="object-fit: cover; width: 50px; height: 50px;" />
+                                </div>
+                                <div class="col text-truncate">
+                                    <h4 class="text-body text-success d-block"><?= $request['user_name'] ?></h4>
+                                    <small class="text-muted text-truncate mt-n1">បេសកកម្មចំនួន <strong
+                                            class="text-success"><?= $request['num_date'] ?></strong> ថ្ងៃ ចាប់ពី <strong
+                                            class="text-success"><?= $request['start_date'] ?></strong> ដល់ <strong
+                                            class="text-success"><?= $request['end_date'] ?></strong></small>
+                                </div>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if (count($getLateIn) > 0): ?>
+        <div class="col-12 col-sm-12 col-md-6 col-lg-4 mb-3">
+            <h3 class="mb-3 text-center text-md-left">ចូលយឺត<span class="mx-2 text-primary"><?= date('Y-m-d') ?></span></h3>
+            <div class="card">
+                <div class="list-group list-group-flush overflow-auto" style="max-height: 35rem">
+                    <?php foreach ($getLateIn as $request): ?>
+                        <a href="#" class="list-group-item list-group-item-action border-left-light">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <img class="avatar" src="<?= $request['profile'] ?>"
+                                        style="object-fit: cover; width: 50px; height: 50px;" />
+                                </div>
+                                <div class="col text-truncate">
+                                    <h4 class="text-body text-success d-block"><?= $request['user_name'] ?></h4>
+                                    <small class="text-muted text-truncate mt-n1">បានចូលយឺតនៅ <strong
+                                            class="text-success"><?= $request['late_in_time'] ?></strong></small>
+                                </div>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if (count($getLateOut) > 0): ?>
+        <div class="col-12 col-sm-12 col-md-6 col-lg-4 mb-3">
+            <h3 class="mb-3 text-center text-md-left">ចេញយឺត<span class="mx-2 text-primary"><?= date('Y-m-d') ?></span></h3>
+            <div class="card">
+                <div class="list-group list-group-flush overflow-auto" style="max-height: 35rem">
+                    <?php foreach ($getLateOut as $request): ?>
+                        <a href="#" class="list-group-item list-group-item-action border-left-light">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <img class="avatar" src="<?= $request['profile'] ?>"
+                                        style="object-fit: cover; width: 50px; height: 50px;" />
+                                </div>
+                                <div class="col text-truncate">
+                                    <h4 class="text-body text-success d-block"><?= $request['user_name'] ?></h4>
+                                    <small class="text-muted text-truncate mt-n1">បានចេញយឺតនៅ <strong
+                                            class="text-success"><?= $request['late_out_time'] ?></strong></small>
+                                </div>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+
+    <?php if (count($getLeaveEarly) > 0): ?>
+        <div class="col-12 col-sm-12 col-md-6 col-lg-4 mb-3">
+            <h3 class="mb-3 text-center text-md-left">ចេញមុន<span class="mx-2 text-primary"><?= date('Y-m-d') ?></span></h3>
+            <div class="card">
+                <div class="list-group list-group-flush overflow-auto" style="max-height: 35rem">
+                    <?php foreach ($getLeaveEarly as $request): ?>
+                        <a href="#" class="list-group-item list-group-item-action border-left-light">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <img class="avatar" src="<?= $request['profile'] ?>"
+                                        style="object-fit: cover; width: 50px; height: 50px;" />
+                                </div>
+                                <div class="col text-truncate">
+                                    <h4 class="text-body text-success d-block"><?= $request['user_name'] ?></h4>
+                                    <small class="text-muted text-truncate mt-n1">បានចេញមុននៅ <strong
+                                            class="text-success"><?= $request['leave_early'] ?></strong></small>
+                                </div>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+</div>
 
 <div class="d-flex mb-3">
     <h3 class="mb-0">បង្កើតសំណើ</h3>
