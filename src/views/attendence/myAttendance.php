@@ -304,9 +304,9 @@ include('src/common/header.php');
                             <td><?= $attendance['date'] ?></td>
                             <td><?= $attendance['leave'] ?></td>
                             <td class="d-none d-md-table-cell"><?= $attendance['mission'] ?></td>
-                            <td><?= $attendance['checkIn'] ?></td>
+                            <td class="<?= ($attendance['checkIn'] > '09:00:00') ? 'text-danger' : '' ?>"><?= $attendance['checkIn'] ?></td>
                             <td class="d-none d-md-table-cell text-red"><?= $attendance['lateIn'] ?></td>
-                            <td><?= $attendance['checkOut'] ?></td>
+                            <td class="<?= ($attendance['checkOut'] > '17:30:00') ? 'text-danger' : '' ?>"><?= $attendance['checkOut'] ?></td>
                             <td class="d-none d-md-table-cell text-red"><?= $attendance['exitFirst'] ?></td>
                             <td class="d-none d-md-table-cell"><?= $attendance['lateOut'] ?></td>
                             <td><?= $attendance['total'] ?></td>

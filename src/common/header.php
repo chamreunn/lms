@@ -8,6 +8,8 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: /elms/login");
     exit();
 }
+
+date_default_timezone_set('Asia/Bangkok');
 ?>
 
 <!DOCTYPE html>
