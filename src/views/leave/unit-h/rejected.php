@@ -1,14 +1,14 @@
 <?php
-$title = "ច្បាប់ឈប់សម្រាករបស់ខ្ញុំ";
+$title = "មិនអនុម័ត";
 ob_start();
 ?>
 <!-- Page header -->
 <div class="page-header d-print-none">
     <div class="container-xl">
         <div class="row g-2 align-items-center">
-            <div class="col">
+            <div class="col text-primary">
                 <!-- Page pre-title -->
-                <div class="page-pretitle mx-1">
+                <div class="page-pretitle">
                     ទំព័រដើម
                 </div>
                 <h2 class="page-title">
