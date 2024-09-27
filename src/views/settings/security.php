@@ -1,6 +1,7 @@
 <?php
 $title = "កែប្រែព័ត៌មានគណនី";
 include('src/common/header.php');
+
 function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 {
     // Define Khmer translations for days and months
@@ -142,10 +143,10 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <!-- Telegram Connect Button -->
                     <!-- <div class="row mt-3">
                         <div class="col-12">
-                            <a href="https://t.me/your_bot_username?start=(unique_user_token)"
-                                class="btn btn-primary w-100">
-                                Connect Telegram
-                            </a>
+                            <script async src="https://telegram.org/js/telegram-widget.js?"
+                                data-telegram-login="<?=  $_SESSION['BotUsername']  ?>" data-size="large"
+                                data-auth-url="http://127.0.0.1/elms/telegramConnect" data-request-access="write">
+                                </script>
                         </div>
                     </div> -->
 

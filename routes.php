@@ -28,6 +28,7 @@ require_once 'src/controllers/missions/MissionController.php';
 require_once 'src/controllers/offices-d/DepOfficeController.php';
 require_once 'src/controllers/admin/AdminController.php';
 require_once 'src/controllers/calendar/CalendarController.php';
+require_once 'src/controllers/telegram/TelegramController.php';
 
 $uri = parse_url(url: $_SERVER['REQUEST_URI'], component: PHP_URL_PATH);
 
@@ -64,6 +65,12 @@ switch ($uri) {
         checkSessionAndExecute(callback: function (): void {
             $controller = new LeaveController();
             $controller->apply();
+        });
+        break;
+    case $base_url . '/telegramConnect':
+        checkSessionAndExecute(callback: function (): void {
+            $controller = new TelegramController();
+            $controller->telegramAuth($_SESSION['BotUsername']);
         });
         break;
 

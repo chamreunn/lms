@@ -1077,7 +1077,7 @@ class DepUnit2Model
         AND user_id != ?
         ');
 
-        $stmt->execute(['Approved', 'Rejected', 'Pending', 'Approved', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', 'អនុប្រធាននាយកដ្ឋាន', 'ប្រធាននាយកដ្ឋាន', 'សវនកម្មទី១', $user_id]);
+        $stmt->execute(['Approved', 'Rejected', 'Pending', 'Approved', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', 'អនុប្រធាននាយកដ្ឋាន', 'ប្រធាននាយកដ្ឋាន', 'នាយកដ្ឋានសវនកម្មទី១', $user_id]);
         $leaveRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Initialize UserModel
@@ -1134,7 +1134,7 @@ class DepUnit2Model
         AND user_id != ?
         ');
 
-        $stmt->execute(['Approved', 'Rejected', 'Pending', 'Rejected', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', 'អនុប្រធាននាយកដ្ឋាន', 'ប្រធាននាយកដ្ឋាន', 'សវនកម្មទី១', $user_id]);
+        $stmt->execute(['Approved', 'Rejected', 'Pending', 'Rejected', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', 'អនុប្រធាននាយកដ្ឋាន', 'ប្រធាននាយកដ្ឋាន', 'នាយកដ្ឋានសវនកម្មទី១', $user_id]);
         $leaveRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Initialize UserModel
@@ -1210,7 +1210,6 @@ class DepUnit2Model
             return [];
         }
     }
-
 
     // if Manager on leave 
     public function updateApproval($leave_request_id, $approver_id, $status, $remarks)
