@@ -334,6 +334,7 @@ class LeaveRequest
                 $leaveRequest['email'] = $userData['email'] ?? null;
                 $leaveRequest['dob'] = $userData['dateOfBirth'] ?? null;
                 $leaveRequest['deputy_head_name'] = $userData['deputy_head_name'] ?? null;
+                $leaveRequest['profile'] = 'https://hrms.iauoffsa.us/images/' . $userData['image'];
             } else {
                 // Handle API error or missing data
                 error_log("Failed to fetch user data for leave request ID: $leave_id");

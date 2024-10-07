@@ -124,9 +124,9 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                 <h3 class="card-title mt-4">អាសយដ្ឋានអ៊ីម៉ែល</h3>
                 <p class="card-subtitle text-danger">សូមពិនិត្យអាសយដ្ឋានអ៊ីម៉ែលអោយបានត្រឹមត្រូវ។​ ការស្នើសុំច្បាប់
                     ការដាក់លិខិតផ្សេងៗនិងត្រូវបានផ្ញើទៅកាន់អាសយដ្ឋានអ៊ីម៉ែលរបស់អ្នក។</p>
-                <div class="mb-3">
+                <div class="mb-0">
                     <!-- Email Update Form -->
-                    <div class="row">
+                    <div class="row mb-3">
                         <div class="col-10">
                             <input type="email" name="email" disabled class="form-control"
                                 value="<?= htmlspecialchars($userDetails['email'], ENT_QUOTES, 'UTF-8'); ?>"
@@ -140,15 +140,84 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                         </div>
                     </div>
 
-                    <!-- Telegram Connect Button -->
-                    <!-- <div class="row mt-3">
+                    <div class="row mt-3 mb-3">
                         <div class="col-12">
-                            <script async src="https://telegram.org/js/telegram-widget.js?"
-                                data-telegram-login="<?=  $_SESSION['BotUsername']  ?>" data-size="large"
-                                data-auth-url="http://127.0.0.1/elms/telegramConnect" data-request-access="write">
-                                </script>
+                            <div class="card">
+                                <!-- Telegram Connection Section -->
+                                <?php if (!empty($getTelegramId)): ?>
+                                    <div class="card-body rounded-3 d-flex align-items-center"
+                                        style="background-color: #0088cc; color: white;">
+                                        <img src="<?= $getTelegramId['profile_picture'] ?>" alt="Profile Picture"
+                                            class="rounded-circle me-3" style="width: 50px; height: 50px;">
+                                        <div class="me-auto">
+                                            <h5 class="card-title">ការតភ្ជាប់ជាមួយ Telegram</h5>
+                                            <p class="card-text">អ្នកតភ្ជាប់ជាមួយ Telegram ជា
+                                                <strong><?= ($getTelegramId['telegram_username'] ?? $getTelegramId['last_name'] ." ". $getTelegramId['first_name']) ?></strong>។
+                                            </p>
+                                        </div>
+                                        <button class="btn btn-danger" data-bs-toggle="modal"
+                                            data-bs-target="#disconnectModal">បញ្ឈប់ការតភ្ជាប់ Telegram</button>
+                                    </div>
+
+                                    <!-- Disconnect Confirmation Modal -->
+                                    <div class="modal modal-blur fade" id="disconnectModal" tabindex="-1"
+                                        aria-labelledby="disconnectModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-sm modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                                <div class="modal-status bg-danger"></div>
+                                                <div class="modal-body text-center py-4">
+                                                    <img src="<?= $getTelegramId['profile_picture'] ?>"
+                                                        alt="Profile Picture" class="avatar avatar-md rounded-circle mb-2">
+                                                    <h3 class="text-danger">តើអ្នកប្រាកដទេ?</h3>
+                                                    <p>
+                                                        តើអ្នកពិតជាចង់បញ្ឈប់ការតភ្ជាប់តេឡេក្រាម ឈ្មោះ <span
+                                                            class="text-danger fw-bold"><?= ($getTelegramId['telegram_username'] ?? $getTelegramId['last_name'] ." ". $getTelegramId['first_name']) ?></span>
+                                                        នេះ ពិតប្រាកដមែន?
+                                                    </p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <div class="w-100">
+                                                        <div class="row">
+                                                            <div class="col">
+                                                                <button type="button" class="btn w-100"
+                                                                    data-bs-dismiss="modal">បដិសេធ</button>
+                                                            </div>
+                                                            <div class="col">
+                                                                <form method="POST"
+                                                                    action="http://127.0.0.1/elms/telegramDisconnect"
+                                                                    class="d-inline">
+                                                                    <input type="hidden" name="telegram_id"
+                                                                        value="<?= htmlspecialchars($getTelegramId['telegram_id']) ?>">
+                                                                    <button type="submit"
+                                                                        class="btn btn-danger w-100">យល់ព្រម</button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                <?php else: ?>
+                                    <div class="card-body d-flex align-items-center justify-content-center">
+                                        <div class="text-center">
+                                            <h5 class="card-title">ភ្ជាប់គណនី Telegram របស់អ្នក</h5>
+                                            <p class="card-text">អ្នកមិនទាន់បានភ្ជាប់ទៅ Telegram ទេ។
+                                                សូមភ្ជាប់ដើម្បីប្រើសេវាកម្ម Telegram។</p>
+                                            <script async src="https://telegram.org/js/telegram-widget.js?"
+                                                data-telegram-login="<?= $_SESSION['BotUsername'] ?>" data-size="large"
+                                                data-auth-url="http://127.0.0.1/elms/telegramConnect"
+                                                data-request-access="write">
+                                                </script>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
                         </div>
-                    </div> -->
+                    </div>
 
                     <!-- Modal Structure -->
                     <div class="modal modal-blur fade" id="emailUpdateModal" tabindex="-1"
@@ -182,7 +251,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                         </div>
                     </div>
                 </div>
-                <hr>
+                <hr class="m-0">
                 <h3 class="card-title mt-4">ពាក្យសម្ងាត់</h3>
                 <p class="card-subtitle text-danger">សូមប្រើប្រាស់ពាក្យសម្ងាត់ដែលមានសុវត្ថិភាពខ្ពស់។ ត្រូវមានអក្សរធំ
                     អក្សរតូច លេខ និងសញ្ញាជាដើម។</p>

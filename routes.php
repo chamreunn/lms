@@ -62,15 +62,21 @@ switch ($uri) {
         header(header: "Location: $base_url/login");
         exit();
     case $base_url . '/apply-leave':
-        checkSessionAndExecute(callback: function (): void {
+        checkSessionAndExecute(function () {
             $controller = new LeaveController();
             $controller->apply();
         });
         break;
     case $base_url . '/telegramConnect':
-        checkSessionAndExecute(callback: function (): void {
+        checkSessionAndExecute(function () {
             $controller = new TelegramController();
             $controller->telegramAuth($_SESSION['BotUsername']);
+        });
+        break;
+    case $base_url . '/telegramDisconnect':
+        checkSessionAndExecute(function () {
+            $controller = new TelegramController();
+            $controller->telegramDisconnect();
         });
         break;
 
@@ -130,6 +136,12 @@ switch ($uri) {
         checkSessionAndExecute(function () {
             $controller = new LeaveController();
             $controller->displayAttendances();
+        });
+        break;
+    case $base_url . '/admin-attendances':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->displayAllAttendances();
         });
         break;
     case $base_url . '/filter-attendances':
@@ -235,28 +247,72 @@ switch ($uri) {
             $controller->apply();
         });
         break;
+    case $base_url . '/adminleaves':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->getLeaveFilter();
+            } else {
+                $controller->getAllLeaves();
+            }
+        });
+        break;
+    case $base_url . '/adminleavetoday':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->getLeaveFilter();
+            } else {
+                $controller->getAllLeaveToday();
+            }
+        });
+        break;
+    case $base_url . '/adminmissions':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->getMissionTodayFilter();
+            } else {
+                $controller->getAllMissions();
+            }
+        });
+        break;
+    case $base_url . '/admintodaymissions':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->getMissionFilter();
+            } else {
+                $controller->getAllMissionTodays();
+            }
+        });
+        break;
     case $base_url . '/adminpending':
         checkSessionAndExecute(function () {
             $controller = new AdminController();
-            // Check if action is set in the query parameters
-            $action = $_GET['action'] ?? 'latein'; // Default to 'latein' if no action is set
-
-            switch ($action) {
-                case 'latein':
-                    $controller->getPendingLate();
-                    break;
-                case 'lateout':
-                    $controller->getPendingLateOut();
-                    break;
-                case 'leaveearly':
-                    $controller->getPendingLeaveEarly();
-                    break;
-                case 'allLate':
-                    $controller->getAllLate();
-                    break;
-                default:
-                    $controller->getPendingLate(); // Default case
+            $controller->getPendingLate();
+        });
+        break;
+    case $base_url . '/adminapproved':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $controller->getApprovedLateFilter();
+            } else {
+                $controller->getApprovedLate();
             }
+        });
+        break;
+    case $base_url . '/admintodaylate':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->getTodayLate();
+        });
+        break;
+    case $base_url . '/adminrejected':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->getRejectedLate();
         });
         break;
     case $base_url . '/adminApprovedLeave':
@@ -466,6 +522,12 @@ switch ($uri) {
             $controller->viewDetail();
         });
         break;
+    case $base_url . '/admin-view-leave':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->viewLeavesDetail();
+        });
+        break;
     case $base_url . '/view-leave':
         checkSessionAndExecute(function () {
             $controller = new DepOfficeController();
@@ -501,6 +563,17 @@ switch ($uri) {
         checkSessionAndExecute(function () {
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
                 $controller = new DepOfficeController();
+                $controller->delete($_POST['id']);
+            } else {
+                header("Location: /elms/login");
+                exit();
+            }
+        });
+        break;
+    case $base_url . '/ddepart-delete':
+        checkSessionAndExecute(function () {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['id'])) {
+                $controller = new DepDepartmentController();
                 $controller->delete($_POST['id']);
             } else {
                 header("Location: /elms/login");
@@ -825,6 +898,24 @@ switch ($uri) {
                 header("Location: /elms/login");
                 exit();
             }
+        });
+        break;
+    case $base_url . '/edit_latein':
+        checkSessionAndExecute(function () {
+            $userController = new LateController();
+            $userController->editLateIn();
+        });
+        break;
+    case $base_url . '/edit_lateout':
+        checkSessionAndExecute(function () {
+            $userController = new LateController();
+            $userController->editLateOut();
+        });
+        break;
+    case $base_url . '/edit_leaveearly':
+        checkSessionAndExecute(function () {
+            $userController = new LateController();
+            $userController->editLeaveEarly();
         });
         break;
     case $base_url . '/apply_lateout':

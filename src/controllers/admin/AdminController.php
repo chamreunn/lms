@@ -1,5 +1,6 @@
 <?php
 require_once 'src/models/admin/AdminModel.php';
+require_once 'src/models/telegram/telegramModel.php';
 require_once 'src/vendor/autoload.php'; // Ensure PHPMailer is autoloaded
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -189,24 +190,30 @@ class AdminController
             // Initialize variables
             $approver_id = $_SESSION['user_id'] ?? null; // Ensure session variable is set
             $uEmail = $_POST['uEmail'] ?? null;
-
             $lateId = $_POST['lateId'] ?? null;
             $status = $_POST['status'] ?? null;
-
             $uId = $_POST['uId'] ?? null;
-            $checkIn = $_POST['checkIn'] ?? null;
-            $lateIn = $_POST['lateIn'] ?? null;
+            $comment = $_POST['comment'] ?? ''; // Comment field
+            $reason = $_POST['reasons'] ?? null;
+            $latenessType = $_POST['latenessType'] ?? null; // Lateness type: late_in, late_out, leave_early
 
+            // Initialize variables for lateness time fields
+            $checkIn = $_POST['date'] ?? null; // When the user checks in
+            $checkOut = $_POST['date'] ?? null; // When the user checks out
+            $lateIn = $_POST['lateIn'] ?? null; // Time late for check-in
+            $lateOut = $_POST['lateOut'] ?? null; // Time late for check-out
+            $leaveEarly = $_POST['leaveEarly'] ?? null; // Time left early
+
+            // Title and action for the approval email/message
             $action = "បាន" . $status . "ការចូលយឺត";
-            $comment = $_POST['comment'] ?? ''; // Ensure comment is set (avoid null)
-            $title = "សំណើចូលយឺត";
+            $title = "សំណើចូលយឺត";  // You can customize based on lateness type if necessary
 
             try {
                 // Start transaction
                 $this->pdo->beginTransaction();
 
                 // Ensure all required fields are provided
-                if (empty($lateId) || empty($status) || empty($uId) || empty($checkIn) || empty($lateIn)) {
+                if (empty($lateId) || empty($status) || empty($uId) || empty($latenessType)) {
                     throw new Exception("Missing required fields for processing.");
                 }
 
@@ -222,21 +229,92 @@ class AdminController
                     // Commit the transaction
                     $this->pdo->commit();
 
-                    // If the status is not "Rejected", update the API with late-in information
+                    // If the status is not "Rejected", update the API with late-in/out/leave-early information
                     if ($status !== 'Rejected') {
-                        $updateToApi = $userModel->updateLateInToApi($uId, $checkIn, $lateIn, $_SESSION['token']);
+                        if ($latenessType === 'latein' && $lateIn !== null) {
+                            // Update API with late-in data
+                            $updateToApi = $userModel->updateLateInToApi($uId, $checkIn, $lateIn, $_SESSION['token']);
+                        } elseif ($latenessType === 'lateout' && $lateOut !== null) {
+                            // Update API with late-out data
+                            $updateToApi = $userModel->updateLateOutToApi($uId, $checkOut, $lateOut, $_SESSION['token']);
+                        } elseif ($latenessType === 'leaveearly' && $leaveEarly !== null) {
+                            // Update API with leave-early data
+                            $updateToApi = $userModel->updateLeaveEarlyToApi($uId, $checkOut, $leaveEarly, $_SESSION['token']);
+                        }
 
                         // If API update fails, log or handle the error
                         if (!$updateToApi) {
-                            throw new Exception("Failed to update late-in information to the API.");
+                            throw new Exception("Failed to update lateness information to the API.");
                         }
 
+                        // Fetch Telegram ID to send notification
+                        $telegramUser = $userModel->getTelegramIdByUserId($uId);
+
+                        if ($telegramUser && !empty($telegramUser['telegram_id'])) {
+                            // Log the telegram_id for debugging
+                            error_log("Found telegram_id: " . $telegramUser['telegram_id']);
+
+                            // Prepare the Telegram message based on lateness type
+                            $latenessDetail = '';
+                            $dateTimeDetail = '';
+
+                            if ($latenessType === 'latein') {
+                                $latenessDetail = "បានចូលយឺត: {$lateIn} នាទី";
+                                $dateTimeDetail = "📅 *កាលបរិច្ឆេទចូល:* `{$checkIn}`"; // Only show check-in for late-in
+                            } elseif ($latenessType === 'lateout') {
+                                $latenessDetail = "បានចេញយឺត: {$lateOut} នាទី";
+                                $dateTimeDetail = "📅 *កាលបរិច្ឆេទចេញ:* `{$checkOut}`"; // Only show check-out for late-out
+                            } elseif ($latenessType === 'leaveearly') {
+                                $latenessDetail = "បានចាកចេញមុន: {$leaveEarly} នាទី";
+                                $dateTimeDetail = "📅 *កាលបរិច្ឆេទចេញ:* `{$checkOut}`"; // Only show check-out for leave-early
+                            }
+
+                            // Prepare the status (approved/rejected)
+                            $statusMessage = ($status === 'Approved') ? "ត្រូវបានអនុម័ត" : "ត្រូវបានបដិសេធ"; // Status message in Khmer
+
+                            // Notifications content for Telegram
+                            $notifications = [
+                                "🔔 *ការស្នើសុំចូលយឺត* {$statusMessage}",  // Include whether the request was approved or rejected
+                                "---------------------------------------------",
+                                "👤 *អ្នកអនុម័ត:* `{$_SESSION['user_khmer_name']}`",
+                                $dateTimeDetail, // Display the correct date-time field based on lateness type
+                                "💬 *មូលហេតុ:* `{$reason}`",
+                                "⏰ *ស្ថានភាព:* `{$latenessDetail}`", // Lateness details
+                            ];
+
+                            // Joining notifications into a single message with new lines
+                            $telegramMessage = implode("\n", $notifications);
+
+                            // Send the Telegram notification with the "View the Request" button
+                            $telegramModel = new TelegramModel($this->pdo);
+                            $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage);
+
+                            // Check if the notification was successfully sent
+                            if ($success) {
+                                error_log("Telegram notification sent successfully to user with telegram_id: " . $telegramUser['telegram_id']);
+                            } else {
+                                error_log("Failed to send Telegram notification to user with telegram_id: " . $telegramUser['telegram_id']);
+                                $_SESSION['error'] = [
+                                    'title' => "Telegram Notification Error",
+                                    'message' => "Could not send Telegram notification. Please check your settings or contact support."
+                                ];
+                            }
+                        } else {
+                            // Log the failure to find a valid telegram_id
+                            error_log("No valid telegram_id found for userId: " . $uId);
+                            $_SESSION['error'] = [
+                                'title' => "Telegram",
+                                'message' => "អ្នកប្រើប្រាស់នេះមិនទាន់ភ្ជាប់ទៅកាន់ Telegram ទេ។​ សូមភ្ជាប់ដើម្បីទទួលបានការជូនដំណឹងភ្លាមៗ ។"
+                            ];
+                        }
+
+                        // Send email notification back to the user about the decision
                         $sendEmailBack = $approveModel->sendEmailBackToUser($uEmail, $approvals, $_SESSION['user_khmer_name'], $status, $comment, $title);
-                        // If send update fails, log or handle the error
                         if (!$sendEmailBack) {
-                            throw new Exception("Failed to update late-in information to the API.");
+                            throw new Exception("Failed to send the email update to the user.");
                         }
                     }
+
                     // Set success message in session
                     $_SESSION['success'] = [
                         'title' => "ជោគជ័យ",
@@ -524,68 +602,244 @@ class AdminController
         exit();
     }
 
+    public function getAllMissionTodays()
+    {
+        $adminModel = new AdminModel();
+
+        // Get the current page and set the number of records per page
+        $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $recordsPerPage = 5; // Set the desired number of records per page
+
+        // Calculate the offset for the current page
+        $offset = ($currentPage - 1) * $recordsPerPage;
+
+        // Fetch missions with pagination
+        $getAllMissions = $adminModel->getAllMissionTodays($offset, $recordsPerPage);
+
+        // Fetch total records for pagination calculation
+        $totalRecords = $adminModel->getTotalMissionCount();
+        $getAllMissionCount = $adminModel->getMissionsTodayCount();
+
+        // Calculate total pages
+        $totalPages = ceil($totalRecords / $recordsPerPage);
+
+        // Pass data to the view
+        require 'src/views/admin/allMissionToday.php';
+    }
+
+    public function getAllMissions()
+    {
+        $adminModel = new AdminModel();
+
+        // Get the current page and set the number of records per page
+        $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $recordsPerPage = 5; // Set the desired number of records per page
+
+        // Calculate the offset for the current page
+        $offset = ($currentPage - 1) * $recordsPerPage;
+
+        // Fetch missions with pagination
+        $getAllMissions = $adminModel->getAllMissions($offset, $recordsPerPage);
+
+        // Fetch total records for pagination calculation
+        $totalRecords = $adminModel->getTotalMissionCount();
+        $getAllMissionCount = $adminModel->getMissionsTodayCount();
+
+        // Calculate total pages
+        $totalPages = ceil($totalRecords / $recordsPerPage);
+
+        // Pass data to the view
+        require 'src/views/admin/allMissions.php';
+    }
+
+    public function getAllLeaves()
+    {
+        $adminModel = new AdminModel();
+
+        // Get the current page and set the number of records per page
+        $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $recordsPerPage = 5; // Set the desired number of records per page
+
+        // Calculate the offset for the current page
+        $offset = ($currentPage - 1) * $recordsPerPage;
+
+        // Fetch missions with pagination
+        $getAllLeaves = $adminModel->getLeaves($offset, $recordsPerPage);
+
+        // Fetch total records for pagination calculation
+        $totalRecords = $adminModel->getTotalLeaveCount();
+        $getLeaveTodayCount = $adminModel->getLeaveTodayCount();
+
+        // Calculate total pages
+        $totalPages = ceil($totalRecords / $recordsPerPage);
+
+        // Pass data to the view
+        require 'src/views/admin/leaves/allLeaves.php';
+    }
+
+    public function getLeaveFilter()
+    {
+        // Collect filters from POST request
+        $filters = [
+            'start_date' => $_POST['start_date'] ?? null,
+            'end_date' => $_POST['end_date'] ?? null,
+            'status' => $_POST['status'] ?? null,
+        ];
+
+        $adminModel = new AdminModel();
+
+        // Get the current page from GET request and set records per page
+        $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $recordsPerPage = 5; // Set number of records per page
+
+        // Calculate the offset for pagination
+        $offset = ($currentPage - 1) * $recordsPerPage;
+
+        // Add limit and offset to filters
+        $filters['limit'] = $recordsPerPage;
+        $filters['offset'] = $offset;
+
+        // Fetch leave requests based on the filters and pagination
+        $getAllLeaves = $adminModel->getLeaveFilters($filters);
+
+        // Get the total number of leave records for pagination
+        $totalRecords = $adminModel->getTotalLeaveCount();
+        $getLeaveTodayCount = $adminModel->getLeaveTodayCount();
+
+        // Calculate total pages
+        $totalPages = ceil($totalRecords / $recordsPerPage);
+
+        // Include the view to display the leaves
+        require 'src/views/admin/leaves/allLeaves.php';
+    }
+
+    public function getAllLeaveToday()
+    {
+        $adminModel = new AdminModel();
+
+        // Get the current page and set the number of records per page
+        $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $recordsPerPage = 5; // Set the desired number of records per page
+
+        // Calculate the offset for the current page
+        $offset = ($currentPage - 1) * $recordsPerPage;
+
+        // Fetch missions with pagination
+        $getAllLeaveToday = $adminModel->getLeaveToday($offset, $recordsPerPage);
+
+        // Fetch total records for pagination calculation
+        $totalRecords = $adminModel->getTotalLeaveCount();
+        $getLeaveTodayCount = $adminModel->getLeaveTodayCount();
+
+        // Calculate total pages
+        $totalPages = ceil($totalRecords / $recordsPerPage);
+
+        // Pass data to the view
+        require 'src/views/admin/leaves/allLeaveToday.php';
+    }
+
     public function getPendingLate()
     {
         $adminModel = new AdminModel();
-        $getAll = $adminModel->getAllLatein();
-        $getAlls = $adminModel->getAll();
-        $getLateInCount = $adminModel->getLateinCount();
-        $getLateOutCount = $adminModel->getLateoutCount();
-        $getLeaveEarlyCount = $adminModel->getLeaveearlyCount();
-        $getAllLate = $adminModel->getAllLate();
-        $getApproved = $adminModel->getApprovedLateCount();
-        $getAllLeave = $adminModel->getAllLeave();
+        $getAll = $adminModel->getAllPendingLate();
         $getLeaveCount = $adminModel->countApprovedLeavesToday();
+        // get leaves approved 
+        $getPendingCount = $adminModel->getLateCountByStatus('Pending');
+        $getApprovedCount = $adminModel->getLateCountByStatus('Approved');
+        $getRejectedCount = $adminModel->getLateCountByStatus('Rejected');
+        $getLeavesApproved = $adminModel->getApprovedLeaveCount();
+
+        $gettodaylatecount = $adminModel->getTodayLateCount('Approved');
 
         require 'src/views/admin/lateinpending.php';
     }
 
-    public function getPendingLateOut()
+    public function getApprovedLate()
     {
         $adminModel = new AdminModel();
-        $getAll = $adminModel->getAllLateOut();
-        $getAlls = $adminModel->getAll();
-        $getLateInCount = $adminModel->getLateinCount();
-        $getLateOutCount = $adminModel->getLateoutCount();
-        $getLeaveEarlyCount = $adminModel->getLeaveearlyCount();
-        $getAllLate = $adminModel->getAllLate();
-        $getApproved = $adminModel->getApprovedLateCount();
-        $getAllLeave = $adminModel->getAllLeave();
-        $getLeaveCount = $adminModel->countApprovedLeavesToday();
 
-        require 'src/views/admin/lateinpending.php';
+        // Get the current page and set the number of records per page
+        $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $recordsPerPage = 10; // Set the desired number of records per page
+
+        // Calculate the offset for the current page
+        $offset = ($currentPage - 1) * $recordsPerPage;
+
+        // Fetch approved late records with pagination
+        $getApprovedAll = $adminModel->getAllApprovedLate('Approved', $offset, $recordsPerPage);
+
+        // Fetch total approved records for pagination calculation
+        $totalRecords = $adminModel->getTotalApprovedLate('Approved'); // Get total count of approved records
+        $gettodaylatecount = $adminModel->getTodayLateCount('Approved');
+
+        // Calculate total pages
+        $totalPages = ceil($totalRecords / $recordsPerPage);
+
+        $getPendingCount = $adminModel->getLateCountByStatus('Pending');
+        $getApprovedCount = $adminModel->getLateCountByStatus('Approved');
+        $getRejectedCount = $adminModel->getLateCountByStatus('Rejected');
+
+        // Pass the necessary data to the view
+        require 'src/views/admin/adminApproved.php';
     }
 
-    public function getPendingLeaveEarly()
+    public function getRejectedLate()
     {
         $adminModel = new AdminModel();
-        $getAll = $adminModel->getAllLeaveEarly();
-        $getAlls = $adminModel->getAll();
-        $getLateInCount = $adminModel->getLateinCount();
-        $getLateOutCount = $adminModel->getLateoutCount();
-        $getLeaveEarlyCount = $adminModel->getLeaveearlyCount();
-        $getAllLate = $adminModel->getAllLate();
-        $getApproved = $adminModel->getApprovedLateCount();
-        $getAllLeave = $adminModel->getAllLeave();
-        $getLeaveCount = $adminModel->countApprovedLeavesToday();
 
-        require 'src/views/admin/lateinpending.php';
+        // Get the current page and set the number of records per page
+        $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $recordsPerPage = 5; // Set the desired number of records per page
+
+        // Calculate the offset for the current page
+        $offset = ($currentPage - 1) * $recordsPerPage;
+
+        // Fetch approved late records with pagination
+        $getRejectedAll = $adminModel->getAllApprovedLate('Rejected', $offset, $recordsPerPage);
+
+        // Fetch total approved records for pagination calculation
+        $totalRecords = $adminModel->getTotalApprovedLate('Rejected'); // Get total count of approved records
+
+        // Calculate total pages
+        $totalPages = ceil($totalRecords / $recordsPerPage);
+
+        $getPendingCount = $adminModel->getLateCountByStatus('Pending');
+        $getApprovedCount = $adminModel->getLateCountByStatus('Approved');
+        $getRejectedCount = $adminModel->getLateCountByStatus('Rejected');
+
+        $gettodaylatecount = $adminModel->getTodayLateCount('Approved');
+
+        // Pass the necessary data to the view
+        require 'src/views/admin/adminRejected.php';
     }
 
-    public function getAllLate()
+    public function getTodayLate()
     {
         $adminModel = new AdminModel();
-        $getAll = $adminModel->getAllLeaveEarly();
-        $getAlls = $adminModel->getAll();
-        $getLateInCount = $adminModel->getLateinCount();
-        $getLateOutCount = $adminModel->getLateoutCount();
-        $getLeaveEarlyCount = $adminModel->getLeaveearlyCount();
-        $getAllLate = $adminModel->getAllLate();
-        $getApproved = $adminModel->getApprovedLateCount();
-        $getAllLeave = $adminModel->getAllLeave();
-        $getLeaveCount = $adminModel->countApprovedLeavesToday();
 
-        require 'src/views/admin/lateinpending.php';
+        // Get the current page and set the number of records per page
+        $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $recordsPerPage = 10; // Set the desired number of records per page
+
+        // Calculate the offset for the current page
+        $offset = ($currentPage - 1) * $recordsPerPage;
+
+        // Fetch approved late records with pagination
+        $gettodaylates = $adminModel->getAllTodayLate('Approved', $offset, $recordsPerPage);
+        $gettodaylatecount = $adminModel->getTodayLateCount('Approved');
+
+        // Fetch total approved records for pagination calculation
+        $totalRecords = $adminModel->getTotalTodayLate('Approved'); // Get total count of approved records
+
+        // Calculate total pages
+        $totalPages = ceil($totalRecords / $recordsPerPage);
+
+        $getPendingCount = $adminModel->getLateCountByStatus('Pending');
+        $getApprovedCount = $adminModel->getLateCountByStatus('Approved');
+        $getRejectedCount = $adminModel->getLateCountByStatus('Rejected');
+
+        // Pass the necessary data to the view
+        require 'src/views/admin/adminTodayLate.php';
     }
 
     public function viewDetail()
@@ -609,6 +863,25 @@ class AdminController
                 echo "User ID not provided.";
             }
         }
+    }
+
+    public function viewLeavesDetail()
+    {
+        if (isset($_GET['leave_id'])) {
+            $leaveRequestModel = new AdminModel();
+            $leave_id = (int) $_GET['leave_id'];
+            $request = $leaveRequestModel->getRequestById($leave_id, $_SESSION['token']);
+            $leavetypeModel = new Leavetype();
+            $leavetypes = $leavetypeModel->getAllLeavetypes();
+
+            if ($request) {
+                require 'src/views/admin/leaves/viewLeave.php';
+                return;
+            }
+        }
+        // If request not found or leave_id is not provided, redirect or show error
+        header('Location: /elms/requests');
+        exit();
     }
 
     public function editUserDetail()
@@ -650,6 +923,119 @@ class AdminController
         require 'src/views/leave/admin/myLeave.php';
     }
 
+    public function getApprovedLateFilter()
+    {
+        $filters = [
+            'start_date' => $_POST['start_date'] ?? null,
+            'end_date' => $_POST['end_date'] ?? null,
+            'type' => $_POST['type'] ?? null,
+        ];
+
+        $adminModel = new AdminModel();
+
+        // Get the current page and set the number of records per page
+        $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $recordsPerPage = 5; // Set the desired number of records per page
+
+        // Calculate the offset for the current page
+        $offset = ($currentPage - 1) * $recordsPerPage;
+
+        // Add limit and offset to filters
+        $filters['limit'] = $recordsPerPage;
+        $filters['offset'] = $offset;
+
+        // Fetch approved late records with pagination and filters
+        $getApprovedAll = $adminModel->getApprovedLateByFilter($filters);
+
+        // Fetch total approved records for pagination calculation
+        $totalRecords = $adminModel->getTotalApprovedLate('Approved'); // Get total count of approved records
+
+        // Calculate total pages
+        $totalPages = ceil($totalRecords / $recordsPerPage);
+
+        $getPendingCount = $adminModel->getLateCountByStatus('Pending');
+        $getApprovedCount = $adminModel->getLateCountByStatus('Approved');
+        $getRejectedCount = $adminModel->getLateCountByStatus('Rejected');
+
+        $getLeavesApproved = $adminModel->getApprovedLeaveCount();
+        // get lates in count 
+        $getLatesInCount = $adminModel->getLatesInCount();
+        // get lates out count 
+        $getLatesOutCount = $adminModel->getLatesOutCount();
+        // get leaves early count 
+        $getLeavesEarlyCount = $adminModel->getLeavesEarlyCount();
+        // get missions 
+        $getMissions = $adminModel->getMissions();
+
+        require 'src/views/admin/adminApproved.php';
+    }
+
+    public function getMissionFilter()
+    {
+        $filters = [
+            'start_date' => $_POST['start_date'] ?? null,
+            'end_date' => $_POST['end_date'] ?? null,
+        ];
+
+        $adminModel = new AdminModel();
+
+        // Get the current page and set the number of records per page
+        $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $recordsPerPage = 5; // Set the desired number of records per page
+
+        // Calculate the offset for the current page
+        $offset = ($currentPage - 1) * $recordsPerPage;
+
+        // Add limit and offset to filters
+        $filters['limit'] = $recordsPerPage;
+        $filters['offset'] = $offset;
+
+        // Fetch approved late records with pagination and filters
+        $getAllMissions = $adminModel->getMissionTodayFilter($filters);
+        $getAllMissionCount = $adminModel->getMissionsTodayCount();
+
+        // Fetch total approved records for pagination calculation
+        $totalRecords = $adminModel->getTotalMission(); // Get total count of approved records
+
+        // Calculate total pages
+        $totalPages = ceil($totalRecords / $recordsPerPage);
+
+        require 'src/views/admin/allMissionToday.php';
+    }
+
+    public function getMissionTodayFilter()
+    {
+        $filters = [
+            'start_date' => $_POST['start_date'] ?? null,
+            'end_date' => $_POST['end_date'] ?? null,
+        ];
+
+        $adminModel = new AdminModel();
+
+        // Get the current page and set the number of records per page
+        $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $recordsPerPage = 5; // Set the desired number of records per page
+
+        // Calculate the offset for the current page
+        $offset = ($currentPage - 1) * $recordsPerPage;
+
+        // Add limit and offset to filters
+        $filters['limit'] = $recordsPerPage;
+        $filters['offset'] = $offset;
+
+        // Fetch approved late records with pagination and filters
+        $getAllMissions = $adminModel->getMissionFilter($filters);
+        $getAllMissionCount = $adminModel->getMissionsTodayCount();
+
+        // Fetch total approved records for pagination calculation
+        $totalRecords = $adminModel->getTotalMission(); // Get total count of approved records
+
+        // Calculate total pages
+        $totalPages = ceil($totalRecords / $recordsPerPage);
+
+        require 'src/views/admin/allMissions.php';
+    }
+
     public function viewRequests()
     {
         $leaveRequestModel = new AdminModel();
@@ -661,24 +1047,44 @@ class AdminController
 
     public function security()
     {
-        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
-            // Get user_id from the query string
-            $user_id = $_GET['user_id'] ?? null;
+            // Get user_id from the query string and sanitize it
+            $user_id = isset($_GET['user_id']) ? (int) $_GET['user_id'] : null;
 
             if ($user_id) {
-                $userController = new AdminModel();
-                $userDetails = $userController->getUserById($user_id);
-                $requests = $userController->getUserLeaveRequests($user_id);
-                $getlatein = $userController->getOvertimeIn($user_id);
-                $getleavecounts = $userController->countUserApprovedLeaveRequests($user_id);
-                $getovertimeincount = $userController->getOvertimeInCount($user_id);
+                try {
+                    $userController = new AdminModel();
+                    $telegramModel = new TelegramModel($this->pdo);
 
-                require 'src/views/settings/security.php';
+                    // Fetch user details
+                    $userDetails = $userController->getUserById($user_id);
+                    if (!$userDetails) {
+                        throw new Exception("User not found.");
+                    }
+
+                    // Fetch leave requests and overtime information
+                    $requests = $userController->getUserLeaveRequests($user_id);
+                    $getlatein = $userController->getOvertimeIn($user_id);
+                    $getleavecounts = $userController->countUserApprovedLeaveRequests($user_id);
+                    $getovertimeincount = $userController->getOvertimeInCount($user_id);
+
+                    // Fetch Telegram ID
+                    $getTelegramId = $telegramModel->getTelegramUserData($user_id);
+
+                    // Render the view
+                    require 'src/views/settings/security.php';
+                } catch (Exception $e) {
+                    // Handle any errors that occur, such as missing user data or database issues
+                    echo "Error: " . $e->getMessage();
+                }
             } else {
-                // Handle the case where user_id is not provided
-                echo "User ID not provided.";
+                // Handle the case where user_id is not provided or invalid
+                echo "User ID not provided or invalid.";
             }
+        } else {
+            // Handle invalid request methods (if this endpoint is for GET only)
+            echo "Invalid request method.";
         }
     }
 
@@ -856,5 +1262,25 @@ class AdminController
         }
         header("Location: /elms/adminLeave");
         exit();
+    }
+
+    public function displayAllAttendances()
+    {
+        $userModel = new User();
+        $adminModel = new AdminModel();
+        $userAttendances = $userModel->getAllUserAttendance($_SESSION['token']);
+
+        // get leaves approved 
+        $getLeavesApproved = $adminModel->getApprovedLeaveCount();
+        // get lates in count 
+        $getLatesInCount = $adminModel->getLatesInCount();
+        // get lates out count 
+        $getLatesOutCount = $adminModel->getLatesOutCount();
+        // get lates out count 
+        $getLeavesEarlyCount = $adminModel->getLeavesEarlyCount();
+        // get lates out count 
+        $getMissions = $adminModel->getMissions();
+
+        require 'src/views/attendence/adminAttendance.php';
     }
 }

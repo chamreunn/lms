@@ -5,17 +5,19 @@ class User
 {
     private $pdo;
 
-    public $api = "http://172.25.26.3:8000";
-
-    public function getApi()
-    {
-        return $this->api;
-    }
-
     public function __construct()
     {
         global $pdo;
         $this->pdo = $pdo;
+    }
+
+    public $api = "http://127.0.0.1:8000";
+
+    private $telegramUser = "telegram_users";
+
+    public function getApi()
+    {
+        return $this->api;
     }
 
     public function authenticateUser($email, $password)
@@ -169,12 +171,15 @@ class User
         // Initialize cURL session
         $ch = curl_init($url);
 
+        // Determine if we're on localhost
+        $isLocalhost = ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_ADDR'] == '127.0.0.1');
+
         // Set cURL options
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             'Authorization: Bearer ' . $token
         ));
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !$isLocalhost); // Ignore SSL certificate verification if on localhost
 
         // Execute cURL request
         $response = curl_exec($ch);
@@ -458,31 +463,43 @@ class User
     {
         $url = "{$this->api}/api/v1/roles/" . $id;
 
+        // Initialize cURL session
         $ch = curl_init($url);
 
+        // Determine if we're on localhost
+        $isLocalhost = ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_ADDR'] == '127.0.0.1');
+
+        // Set cURL options
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             'Authorization: Bearer ' . $token
         ));
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !$isLocalhost); // Ignore SSL certificate verification if on localhost
 
+        // Execute cURL request
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
+
+        // Close the cURL session
         curl_close($ch);
 
+        // Check for cURL errors
         if ($response === false) {
             error_log("CURL Error: $error");
             return null;
         }
 
+        // Decode the JSON response
         $responseData = json_decode($response, true);
 
+        // Handle JSON decoding errors
         if (json_last_error() !== JSON_ERROR_NONE) {
             error_log("JSON Decode Error: " . json_last_error_msg());
             return null;
         }
 
+        // Check if the response is successful and contains the expected data
         if ($httpCode === 200 && isset($responseData['data'])) {
             return [
                 'http_code' => $httpCode,
@@ -655,71 +672,6 @@ class User
                 'ids' => $ids,
                 'firstNameKh' => $firstNameKh,
                 'lastNameKh' => $lastNameKh,
-            ];
-        } else {
-            error_log("Unexpected API Response: " . print_r($responseData, true));
-            return [
-                'http_code' => $httpCode,
-                'response' => $responseData
-            ];
-        }
-    }
-
-    // ជ្រើសរើសថ្នាក់ដឹកនាំ 
-    public function getAllManager($id, $token)
-    {
-        $url = "{$this->api}/api/v1/users/leader/contact/" . $id;
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . $token));
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
-        curl_close($ch);
-
-        if ($response === false) {
-            error_log("CURL Error: $error");
-            return null;
-        }
-
-        // Log the raw API response for debugging
-        error_log("API Response: " . $response);
-
-        $responseData = json_decode($response, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log("JSON Decode Error: " . json_last_error_msg());
-            return null;
-        }
-
-        if ($httpCode === 200 && isset($responseData['data'])) {
-            $leaders = $responseData['data'];
-
-            // Log the leaders data to ensure it's being received correctly
-            error_log("Leaders Data: " . print_r($leaders, true));
-
-            $managers = []; // Consolidated array
-
-            foreach ($leaders as $leader) {
-                if (isset($leader['email'], $leader['id'], $leader['firstNameKh'], $leader['lastNameKh'])) {
-                    $managers[] = [
-                        'email' => $leader['email'],
-                        'id' => $leader['id'],
-                        'firstNameKh' => $leader['firstNameKh'],
-                        'lastNameKh' => $leader['lastNameKh'],
-                    ];
-                }
-            }
-
-            // Log the filtered managers data to check if they are found correctly
-            error_log("Filtered Managers: " . print_r($managers, true));
-
-            return [
-                'http_code' => $httpCode,
-                'managers' => $managers, // Return consolidated managers array
             ];
         } else {
             error_log("Unexpected API Response: " . print_r($responseData, true));
@@ -1226,15 +1178,33 @@ class User
 
         if ($httpCode === 200 && isset($responseData['data'])) {
             $emails = [];
+            $ids = [];
+            $firstNameKh = [];
+            $lastNameKh = [];
+
             foreach ($responseData['data'] as $user) {
-                if (isset($user['roleLeave']) && $user['roleLeave'] === 'Admin' && isset($user['email'])) {
-                    $emails[] = $user['email'];
+                if (isset($user['roleLeave']) && $user['roleLeave'] === 'Admin') {
+                    if (isset($user['email'])) {
+                        $emails[] = $user['email'];
+                    }
+                    if (isset($user['id'])) {
+                        $ids[] = $user['id'];
+                    }
+                    if (isset($user['firstNameKh'])) {
+                        $firstNameKh[] = $user['firstNameKh'];
+                    }
+                    if (isset($user['lastNameKh'])) {
+                        $lastNameKh[] = $user['lastNameKh'];
+                    }
                 }
             }
 
             return [
                 'http_code' => $httpCode,
                 'emails' => $emails,
+                'ids' => $ids,
+                'firstNameKh' => $firstNameKh,
+                'lastNameKh' => $lastNameKh,
             ];
         } else {
             error_log("Unexpected API Response: " . print_r($responseData, true));
@@ -1579,6 +1549,65 @@ class User
         }
     }
 
+    public function getAllUserAttendance($token)
+    {
+        $url = "{$this->api}/api/v1/attendances";
+
+        // Initialize cURL session
+        $ch = curl_init($url);
+
+        // Set cURL options
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Authorization: Bearer ' . $token
+        ));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+
+        // Execute cURL request
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+
+        // Close the cURL session
+        curl_close($ch);
+
+        // Check for cURL errors
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return [
+                'http_code' => 500,
+                'error' => "CURL Error: $error"
+            ];
+        }
+
+        // Decode the JSON response
+        $responseData = json_decode($response, true);
+
+        // Handle JSON decoding errors
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return [
+                'http_code' => $httpCode,
+                'error' => "JSON Decode Error: " . json_last_error_msg()
+            ];
+        }
+
+        // Check if the response is successful and contains the expected data
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            return [
+                'http_code' => $httpCode,
+                'data' => $responseData['data']
+            ];
+        } else {
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            return [
+                'http_code' => $httpCode,
+                'error' => "Unexpected API Response",
+                'response' => $responseData
+            ];
+        }
+    }
+
     public function getUserFilterAttendanceByIdApi($userId, $token, $startDate = null, $endDate = null)
     {
         // Base URL for the API
@@ -1652,6 +1681,230 @@ class User
                 'error' => "Unexpected API Response",
                 'response' => $responseData
             ];
+        }
+    }
+
+    // Modify function to get EmailLeaderDOApi using telegram_id
+    public function getTelegramIdByUserId($userId)
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM {$this->telegramUser} WHERE user_id = :user_id");
+
+        // Execute the statement with the user_id from the session or passed argument
+        $stmt->execute(['user_id' => $userId]);
+
+        // Fetch all matching data (assuming one record per user)
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Return the user data if found, otherwise return null
+        return $result ? $result : null;
+    }
+
+    // user telegram apply leave 
+    public function sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link)
+    {
+        $telegramUser = $userModel->getTelegramIdByUserId($managerId);
+        if ($telegramUser && !empty($telegramUser['telegram_id'])) {
+            $notifications = [
+                "🔔 *ស្នើសុំច្បាប់ឈប់សម្រាក*",
+                "---------------------------------------------",
+                "👤 *អ្នកស្នើ:* `{$_SESSION['user_khmer_name']}`",
+                "📅 *ចាប់ពី:* `{$start_date}`",
+                "📅 *ដល់កាលបរិចេ្ឆទ:* `{$end_date}`",
+                "🗓️ *រយៈពេល:* `{$duration_days}` ថ្ងៃ",
+                "💬 *មូលហេតុ:* `{$remarks}`",
+            ];
+
+            // Joining notifications into a single message with new lines
+            $telegramMessage = implode("\n", $notifications);
+
+            // Creating a keyboard for the notification
+            $keyboard = [
+                'inline_keyboard' => [
+                    [
+                        ['text' => 'ពិនិត្យមើលសំណើ', 'url' => $link]
+                    ]
+                ]
+            ];
+
+            // Send the Telegram notification
+            $telegramModel = new TelegramModel($this->pdo);
+            $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage, $keyboard);
+
+            // Log success or failure of the Telegram notification
+            if ($success) {
+                error_log("Telegram notification sent to user ID: {$managerId}");
+            } else {
+                error_log("Failed to send Telegram notification to user ID: {$managerId}");
+            }
+        }
+    }
+
+    // send notification to next Manager 
+    public function sendTelegramNextManager($managerId, $uname, $start_date, $end_date, $duration_days, $uremarks, $status, $link)
+    {
+        // Step 1: Get the Telegram ID for the manager
+        $telegramManager = $this->getTelegramIdByUserId($managerId);
+
+        if ($telegramManager && !empty($telegramManager['telegram_id'])) {
+            // Log the telegram_id for debugging
+            error_log("Found telegram_id: " . $telegramManager['telegram_id']);
+
+            // Step 2: Prepare the Telegram message
+            // Determine dynamic response based on status
+            switch ($status) {
+                case 'Approved':
+                    $dynamicResponse = "`✅{$_SESSION['user_khmer_name']}` *បានអនុម័ត ច្បាប់ឈប់សម្រាកនេះ។*"; // Include approver's name
+                    break;
+                case 'Rejected':
+                    $dynamicResponse = "`❌{$_SESSION['user_khmer_name']}` *មិនអនុម័ត ច្បាប់ឈប់សម្រាកនេះ។*";
+                    break;
+                case 'Pending':
+                default:
+                    $dynamicResponse = "🕒 *Your leave request is still pending.*";
+                    break;
+            }
+
+            // Creating a list of notifications with the status first
+            $notifications = [
+                "🔔 *ស្នើសុំច្បាប់ឈប់សម្រាក*",
+                "---------------------------------------------",
+                "👤 *អ្នកស្នើ:* `{$uname}`",
+                "📅 *ចាប់ពី:* `{$start_date}`",
+                "📅 *ដល់កាលបរិចេ្ឆទ:* `{$end_date}`",
+                "🗓️ *រយៈពេល:* `{$duration_days}` ថ្ងៃ",
+                "💬 *មូលហេតុ:* `{$uremarks}`",
+                "---------------------------------------------",
+                "📋 *ស្ថានភាព:*",
+                "{$dynamicResponse}"
+            ];
+
+            // Joining notifications into a single message with new lines
+            $telegramMessage = implode("\n", $notifications);
+
+            // Step 3: Create the inline keyboard with a single "View the Request" button
+            $keyboard = [
+                'inline_keyboard' => [
+                    [
+                        ['text' => 'ពិនិត្យមើលសំណើ', 'url' => $link] // URL to open the request
+                    ]
+                ]
+            ];
+
+            // Step 4: Attempt to send the Telegram notification with the "View the Request" button
+            $telegramModel = new TelegramModel($this->pdo);
+            $success = $telegramModel->sendTelegramNotification($telegramManager['telegram_id'], $telegramMessage, $keyboard);
+
+            // Step 5: Check if the notification was successfully sent
+            if ($success) {
+                error_log("Telegram notification sent successfully to user with telegram_id: " . $telegramManager['telegram_id']);
+            } else {
+                error_log("Failed to send Telegram notification to user with telegram_id: " . $telegramManager['telegram_id']);
+                $_SESSION['error'] = [
+                    'title' => "Telegram Notification Error",
+                    'message' => "Could not send Telegram notification. Please check your settings or contact support."
+                ];
+            }
+        }
+    }
+
+    // send notification back to User 
+    public function sendBackToUser($userId, $uname, $start_date, $end_date, $duration_days, $uremarks, $status)
+    {
+        // Step 1: Get the Telegram ID for the user
+        $telegramUser = $this->getTelegramIdByUserId($userId);
+
+        if ($telegramUser && !empty($telegramUser['telegram_id'])) {
+            // Log the telegram_id for debugging
+            error_log("Found telegram_id: " . $telegramUser['telegram_id']);
+
+            // Step 2: Prepare the Telegram message
+            // Determine dynamic response based on status
+            switch ($status) {
+                case 'Approved':
+                    $dynamicResponse = "`✅{$_SESSION['user_khmer_name']}` *បានអនុម័ត ច្បាប់ឈប់សម្រាករបស់អ្នក។*"; // Include approver's name
+                    break;
+                case 'Rejected':
+                    $dynamicResponse = "`❌{$_SESSION['user_khmer_name']}` *មិនអនុម័ត ច្បាប់ឈប់សម្រាកនេះ។*";
+                    break;
+                case 'Pending':
+                default:
+                    $dynamicResponse = "🕒 *Your leave request is still pending.*";
+                    break;
+            }
+
+            // Creating a list of notifications with the status first
+            $notifications = [
+                "🔔 *ស្នើសុំច្បាប់ឈប់សម្រាក*",
+                "---------------------------------------------",
+                "👤 *អ្នកស្នើ:* `{$uname}`",
+                "📅 *ចាប់ពី:* `{$start_date}`",
+                "📅 *ដល់កាលបរិចេ្ឆទ:* `{$end_date}`",
+                "🗓️ *រយៈពេល:* `{$duration_days}` ថ្ងៃ",
+                "💬 *មូលហេតុ:* `{$uremarks}`",
+                "---------------------------------------------",
+                "📋 *ស្ថានភាព:*",
+                "{$dynamicResponse}"
+            ];
+
+            // Joining notifications into a single message with new lines
+            $telegramMessage = implode("\n", $notifications);
+
+            // Step 3: Attempt to send the Telegram notification
+            $telegramModel = new TelegramModel($this->pdo);
+            $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage);
+
+            // Step 4: Check if the notification was successfully sent
+            if ($success) {
+                error_log("Telegram notification sent successfully to user with telegram_id: " . $telegramUser['telegram_id']);
+            } else {
+                error_log("Failed to send Telegram notification to user with telegram_id: " . $telegramUser['telegram_id']);
+                $_SESSION['error'] = [
+                    'title' => "Telegram Notification Error",
+                    'message' => "Could not send Telegram notification. Please check your settings or contact support."
+                ];
+            }
+        }
+    }
+
+    // New method to handle Telegram notifications LateOut
+    public function sendTelegramNotificationToAdmin($adminId, $userNameKh, $lateMinutes, $date, $time, $reason)
+    {
+        $userModel = new User();
+        $telegramUser = $userModel->getTelegramIdByUserId($adminId);
+
+        if ($telegramUser && !empty($telegramUser['telegram_id'])) {
+            // Log the Telegram ID for debugging
+            error_log("Found telegram_id: " . $telegramUser['telegram_id']);
+
+            $notifications = [
+                "🔔 *សំណើចេញយឺត*",
+                "---------------------------------------------",
+                "👤 *អ្នកស្នើ: *`{$userNameKh}`",
+                "⏰ *ចេញយឺត:  *`{$lateMinutes} នាទី`",
+                "🗓️ *កាលបរិច្ឆេទ:   *`{$date}`",
+                "🕒 *ម៉ោង:    *`{$time}`",
+                "💬 *មូលហេតុ:  *`{$reason}`",
+            ];
+
+            // Joining notifications into a single message with new lines
+            $telegramMessage = implode("\n", $notifications);
+
+            // Create the inline keyboard with a single "View the Request" button
+            $keyboard = [
+                'inline_keyboard' => [
+                    [
+                        ['text' => 'ពិនិត្យមើលសំណើ', 'url' => 'https://leave.iauoffsa.us/elms/overtimeout/'] // Using URL to open the request
+                    ]
+                ]
+            ];
+
+            // Send the Telegram notification
+            $telegramModel = new TelegramModel($this->pdo);
+            return $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage, $keyboard);
+        } else {
+            // Log the failure to find a valid telegram_id
+            error_log("No valid telegram_id found for adminId: " . $adminId);
+            return false; // Return false if notification could not be sent
         }
     }
 }

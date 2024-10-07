@@ -605,6 +605,30 @@
     // @formatter:on
 </script>
 
+<!-- datatable sort  -->
+<script>
+    document.querySelectorAll('.table-sort').forEach(function (header) {
+        header.addEventListener('click', function () {
+            let table = header.closest('.sortable-table');
+            let columnIndex = [...header.parentNode.children].indexOf(header);
+            let ascending = !header.classList.contains('asc');
+            sortTable(table, columnIndex, ascending);
+            header.classList.toggle('asc', ascending);
+        });
+    });
+
+    function sortTable(table, columnIndex, ascending) {
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        rows.sort((a, b) => {
+            const cellA = a.children[columnIndex].innerText.trim();
+            const cellB = b.children[columnIndex].innerText.trim();
+            return ascending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+        });
+        rows.forEach(row => tbody.appendChild(row));
+    }
+</script>
+
 
 </body>
 

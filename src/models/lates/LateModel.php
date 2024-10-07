@@ -454,21 +454,93 @@ class LateModel
         return $stmt->execute();
     }
 
-    public function applyLateIn($userId, $date, $time, $lateMinutes, $reason)
+    public function applyLateIn($userId, $type, $date, $time, $lateMinutes, $reason)
     {
-        $stmt = $this->pdo->prepare("INSERT INTO $this->table_name (user_id, date, late_in, late, reasons) VALUES (:user_id, :date, :time, :late, :reason)");
-        $stmt->execute(['user_id' => $userId, 'date' => $date, 'time' => $time, 'late' => $lateMinutes, 'reason' => $reason]);
+        $stmt = $this->pdo->prepare("INSERT INTO $this->table_name (user_id, type, date, late_in, late, reasons) VALUES (:user_id, :type, :date, :time, :late, :reason)");
+        $stmt->execute(['user_id' => $userId, 'type' => $type, 'date' => $date, 'time' => $time, 'late' => $lateMinutes, 'reason' => $reason]);
     }
 
-    public function applyLateOut($date, $time24, $overtimeoutMinutes, $reason)
+    public function applyLateOut($date, $type, $time24, $overtimeoutMinutes, $reason)
     {
-        $stmt = $this->pdo->prepare("INSERT INTO late_in_out (user_id, date, late_out, late, reasons) VALUES (:user_id, :date, :time, :late, :reason)");
-        $stmt->execute(['user_id' => $_SESSION['user_id'], 'date' => $date, 'time' => $time24, 'late' => $overtimeoutMinutes, 'reason' => $reason]);
+        $stmt = $this->pdo->prepare("INSERT INTO late_in_out (user_id, type, date, late_out, late, reasons) VALUES (:user_id, :type, :date, :time, :late, :reason)");
+        $stmt->execute(['user_id' => $_SESSION['user_id'], 'type' => $type, 'date' => $date, 'time' => $time24, 'late' => $overtimeoutMinutes, 'reason' => $reason]);
     }
 
-    public function applyLeaveEarly($date, $time24, $leaveEarlyMinutes, $reason)
+    public function applyLeaveEarly($date, $type, $time24, $leaveEarlyMinutes, $reason)
     {
-        $stmt = $this->pdo->prepare("INSERT INTO late_in_out (user_id, date, leave_early, late, reasons) VALUES (:user_id, :date, :time, :late, :reason)");
-        $stmt->execute(['user_id' => $_SESSION['user_id'], 'date' => $date, 'time' => $time24, 'late' => $leaveEarlyMinutes, 'reason' => $reason]);
+        $stmt = $this->pdo->prepare("INSERT INTO late_in_out (user_id, type, date, leave_early, late, reasons) VALUES (:user_id, :type, :date, :time, :late, :reason)");
+        $stmt->execute(['user_id' => $_SESSION['user_id'], 'type' => $type, 'date' => $date, 'time' => $time24, 'late' => $leaveEarlyMinutes, 'reason' => $reason]);
+    }
+
+    // Update late-in request in the database
+    public function updateLateIn($lateId, $userId, $date, $time, $lateMinutes, $reason)
+    {
+        $sql = "UPDATE $this->table_name 
+                SET user_id = :userId, date = :date, late_in = :time, late = :lateMinutes, reasons = :reason, updated_at = NOW()
+                WHERE id = :lateId";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        // Bind parameters
+        $stmt->bindParam(':userId', $userId);
+        $stmt->bindParam(':date', $date);
+        $stmt->bindParam(':time', $time);
+        $stmt->bindParam(':lateMinutes', $lateMinutes);
+        $stmt->bindParam(':reason', $reason);
+        $stmt->bindParam(':lateId', $lateId);
+
+        // Execute the update query
+        return $stmt->execute();
+    }
+
+    public function updateLateOut($lateId, $userId, $date, $time, $lateMinutes, $reason)
+    {
+        $sql = "UPDATE $this->table_name 
+                SET user_id = :userId, date = :date, late_out = :time, late = :lateMinutes, reasons = :reason, updated_at = NOW()
+                WHERE id = :lateId";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        // Bind parameters
+        $stmt->bindParam(':userId', $userId);
+        $stmt->bindParam(':date', $date);
+        $stmt->bindParam(':time', $time);
+        $stmt->bindParam(':lateMinutes', $lateMinutes);
+        $stmt->bindParam(':reason', $reason);
+        $stmt->bindParam(':lateId', $lateId);
+
+        // Execute the update query
+        return $stmt->execute();
+    }
+
+    public function updateLeaveEarly($lateId, $userId, $date, $time, $lateMinutes, $reason)
+    {
+        $sql = "UPDATE $this->table_name 
+                SET user_id = :userId, date = :date, leave_early = :time, late = :lateMinutes, reasons = :reason, updated_at = NOW()
+                WHERE id = :lateId";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        // Bind parameters
+        $stmt->bindParam(':userId', $userId);
+        $stmt->bindParam(':date', $date);
+        $stmt->bindParam(':time', $time);
+        $stmt->bindParam(':lateMinutes', $lateMinutes);
+        $stmt->bindParam(':reason', $reason);
+        $stmt->bindParam(':lateId', $lateId);
+
+        // Execute the update query
+        return $stmt->execute();
+    }
+
+    // Optionally fetch the late-in request by ID for pre-filling the form
+    public function getLateInById($lateId)
+    {
+        $sql = "SELECT * FROM $this->table_name  WHERE id = :lateId";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':lateId', $lateId);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }

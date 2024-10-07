@@ -23,6 +23,8 @@ class MissionController
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
+            $userModel = new User();
+
             $user_id = $_SESSION['user_id'];
             $mission_name = $_POST['mission_name'] ?? "NULL";
             $start_date = $_POST['start_date'];
@@ -41,6 +43,26 @@ class MissionController
                 exit();
             }
 
+            // Generate the URL for the uploaded file
+            $attachment_url = 'https://leave.iauoffsa.us/elms/public/uploads/missions_attachments/' . $attachment_name;
+
+            // Fetch the user's office details via API
+            $userDoffice = $userModel->getAdminEmails($_SESSION['token']);
+            if (!$userDoffice || $userDoffice['http_code'] !== 200 || empty($userDoffice['emails'])) {
+                throw new Exception("Unable to find office details. Please contact support.");
+            }
+
+            // Use the first available manager's ID and email
+            $managerId = !empty($userDoffice['ids']) ? $userDoffice['ids'][0] : null;
+            $managerEmail = !empty($userDoffice['emails']) ? $userDoffice['emails'][0] : null;
+            $managerName = !empty($userDoffice['lastNameKh']) && !empty($userDoffice['firstNameKh'])
+                ? $userDoffice['lastNameKh'][0] . ' ' . $userDoffice['firstNameKh'][0]
+                : null;
+
+            if (!$managerId || !$managerEmail) {
+                throw new Exception("No valid manager details found.");
+            }
+
             try {
                 // Start transaction
                 $this->pdo->beginTransaction();
@@ -54,7 +76,6 @@ class MissionController
                 $createMissionResult = $missionModel->create($user_id, $mission_name, $start_date, $end_date, $attachment_name, $duration_days);
 
                 // Log user activity
-                $userModel = new User();
                 $createActivityResult = $userModel->logUserActivity($user_id, $activity);
 
                 // Check if both operations were successful
@@ -63,9 +84,63 @@ class MissionController
                     $this->pdo->commit();
                     $updateToApi = $userModel->updateMissionToApi($user_id, $start_date, $end_date, $mission, $_SESSION['token']);
 
+                    // Step 1: Check if the manager has a Telegram account
+                    $telegramUser = $userModel->getTelegramIdByUserId($managerId);
+
+                    if ($telegramUser && !empty($telegramUser['telegram_id'])) {
+                        // Step 2: Log the telegram_id for debugging
+                        error_log("Found telegram_id: " . $telegramUser['telegram_id']);
+
+                        // Step 3: Prepare the Telegram message
+                        // Creating a list of notifications
+                        $notifications = [
+                            "🔔 *លិខិតបេសកកម្ម*",
+                            "---------------------------------------------",
+                            "👤 *អ្នកស្នើ:* `{$_SESSION['user_khmer_name']}`",
+                            "📅 *ចាប់ពី:* `{$start_date}`",
+                            "📅 *ដល់កាលបរិចេ្ឆទ:* `{$end_date}`",
+                            "🗓️ *រយៈពេល:* `{$duration_days}` ថ្ងៃ",
+                            "📎 *ឯកសារ:* [ចុចដើម្បីទាញយកឯកសារ]({$attachment_url})", // Adding the clickable attachment link
+                        ];
+
+                        // Joining notifications into a single message with new lines
+                        $telegramMessage = implode("\n", $notifications);
+
+                        // Step 4: Create the inline keyboard with a single "View the Request" button
+                        $keyboard = [
+                            'inline_keyboard' => [
+                                [
+                                    ['text' => 'ពិនិត្យមើល', 'url' => 'https://leave.iauoffsa.us/elms/adminmissions'] // Using URL to open the request
+                                ]
+                            ]
+                        ];
+
+                        // Step 5: Attempt to send the Telegram notification with the "View the Request" button
+                        $telegramModel = new TelegramModel($this->pdo);
+                        $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage, $keyboard);
+
+                        // Step 6: Check if the notification was successfully sent
+                        if ($success) {
+                            error_log("Telegram notification sent successfully to user with telegram_id: " . $telegramUser['telegram_id']);
+                        } else {
+                            error_log("Failed to send Telegram notification to user with telegram_id: " . $telegramUser['telegram_id']);
+                            $_SESSION['success'] = [
+                                'title' => "ជោគជ័យ",
+                                'message' => "បានបង្កើតបេសកកម្មរួចរាល់។"
+                            ];
+                        }
+                    } else {
+                        // Log the failure to find a valid telegram_id
+                        error_log("No valid telegram_id found for managerId: " . $managerId);
+                        $_SESSION['success'] = [
+                            'title' => "ជោគជ័យ",
+                            'message' => "បានបង្កើតបេសកកម្មរួចរាល់។"
+                        ];
+                    }
+
                     $_SESSION['success'] = [
                         'title' => "ជោគជ័យ",
-                        'message' => "បង្កើតបេសកកម្មបានជោគជ័យ។"
+                        'message' => "បង្កើតបេសកកម្មបានជោគជ័យ។" . $managerName
                     ];
                 } else {
                     // If either operation fails, roll back
@@ -243,7 +318,30 @@ class MissionController
 
     private function calculateTotalDays(DateTime $start_date, DateTime $end_date)
     {
-        $interval = $start_date->diff($end_date);
-        return $interval->days + 1; // +1 to include both start and end date
+        // Fetch holidays from the database
+        $holidayModel = new CalendarModel();
+        $holidays = $holidayModel->getHoliday(); // Assume this returns an array of holiday dates
+
+        // Convert holidays to DateTime objects for comparison
+        $holidayDates = array_map(function ($holiday) {
+            return new DateTime($holiday['holiday_date']);
+        }, $holidays);
+
+        // Proceed to calculate the number of business days between the start and end date
+        $business_days = 0;
+        $current_date = clone $start_date;
+
+        while ($current_date <= $end_date) {
+            $day_of_week = $current_date->format('N');
+
+            // Check if the current date is a weekday and not a holiday
+            if ($day_of_week < 6 && !in_array($current_date, $holidayDates)) {
+                $business_days++;
+            }
+
+            $current_date->modify('+1 day');
+        }
+
+        return $business_days;
     }
 }

@@ -176,10 +176,10 @@ class AdminModel
         }
     }
 
-    public function getAllLatein()
+    public function getAllPendingLate()
     {
         // Fetch only late-in records without joining the users table
-        $query = "SELECT lt.*, lt.status AS late_status, lt.id AS late_id FROM $this->table_name lt WHERE lt.status = 'Pending' AND lt.late_in is NOT NULL";
+        $query = "SELECT * FROM $this->table_name WHERE status = 'Pending'";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
@@ -205,6 +205,7 @@ class AdminModel
                     ? $user['lastNameKh'] . " " . $user['firstNameKh']
                     : 'Unknown';
                 $record['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $record['uId'] = $user['id'] ?? 'Unknown';
                 $record['email'] = $user['email'] ?? 'Unknown';
                 $record['department_name'] = $user['department']['name'] ?? 'Unknown';
                 $record['position_name'] = $user['position']['name'] ?? 'Unknown';
@@ -221,6 +222,209 @@ class AdminModel
         }
 
         return $lateInRecords;
+    }
+
+    public function getAllApprovedLate($status, $offset, $limit)
+    {
+        // Fetch only late-in records with status 'Approved' and apply pagination
+        $query = "SELECT * FROM $this->table_name WHERE status = '$status' ORDER BY id DESC LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->pdo->prepare($query);
+
+        // Bind the parameters to prevent SQL injection
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        $lateInRecords = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $userModel = new User();
+
+        // Add user information and additional data to each approved late-in record
+        foreach ($lateInRecords as &$record) {
+            // Fetch user_id from the current late-in record
+            $user_id = $record['user_id'];
+
+            // Fetch user data from API using the user_id
+            $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+            // Check if the API response is successful
+            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+                $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+                // Add user information to the approved late-in record
+                $record['khmer_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh'])
+                    ? $user['lastNameKh'] . " " . $user['firstNameKh']
+                    : 'Unknown';
+                $record['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $record['uId'] = $user['id'] ?? 'Unknown';
+                $record['email'] = $user['email'] ?? 'Unknown';
+                $record['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $record['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $record['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png'); // Use a default profile image if none exists
+            } else {
+                // Handle cases where the API call fails or returns no data
+                $record['khmer_name'] = 'Unknown';
+                $record['dob'] = 'Unknown';
+                $record['email'] = 'Unknown';
+                $record['department_name'] = 'Unknown';
+                $record['position_name'] = 'Unknown';
+                $record['profile_picture'] = 'default-profile.png'; // Use a default profile image if API fails
+            }
+        }
+
+        return $lateInRecords;
+    }
+
+    public function getAllTodayLate($status, $offset, $limit)
+    {
+        // Fetch only late-in records with status 'Approved' for today and apply pagination
+        $query = "SELECT * FROM $this->table_name 
+              WHERE status = :status AND DATE(date) = CURDATE() 
+              ORDER BY id DESC 
+              LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->pdo->prepare($query);
+
+        // Bind the parameters to prevent SQL injection
+        $stmt->bindParam(':status', $status, PDO::PARAM_STR);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        $lateInRecords = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $userModel = new User();
+
+        // Add user information and additional data to each approved late-in record
+        foreach ($lateInRecords as &$record) {
+            // Fetch user_id from the current late-in record
+            $user_id = $record['user_id'];
+
+            // Fetch user data from API using the user_id
+            $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+            // Check if the API response is successful
+            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+                $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+                // Add user information to the approved late-in record
+                $record['khmer_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh'])
+                    ? $user['lastNameKh'] . " " . $user['firstNameKh']
+                    : 'Unknown';
+                $record['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $record['uId'] = $user['id'] ?? 'Unknown';
+                $record['email'] = $user['email'] ?? 'Unknown';
+                $record['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $record['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $record['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png'); // Use a default profile image if none exists
+            } else {
+                // Handle cases where the API call fails or returns no data
+                $record['khmer_name'] = 'Unknown';
+                $record['dob'] = 'Unknown';
+                $record['email'] = 'Unknown';
+                $record['department_name'] = 'Unknown';
+                $record['position_name'] = 'Unknown';
+                $record['profile_picture'] = 'default-profile.png'; // Use a default profile image if API fails
+            }
+        }
+
+        return $lateInRecords;
+    }
+
+    public function getTodayLateCount($status)
+    {
+        // Query to count late-in records with status 'Approved' for today
+        $query = "SELECT COUNT(*) AS late_count FROM $this->table_name 
+              WHERE status = :status AND DATE(date) = CURDATE()";
+
+        $stmt = $this->pdo->prepare($query);
+
+        // Bind the status parameter
+        $stmt->bindParam(':status', $status, PDO::PARAM_STR);
+
+        // Execute the query
+        $stmt->execute();
+
+        // Fetch the count result
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Return the count of late-in records
+        return $result['late_count'];
+    }
+
+
+    public function getTotalTodayLate($status)
+    {
+        // Count only the late-in records with the given status for today
+        $query = "SELECT COUNT(*) FROM $this->table_name 
+              WHERE status = :status AND DATE(date) = CURDATE()";
+
+        $stmt = $this->pdo->prepare($query);
+
+        // Bind the status parameter to prevent SQL injection
+        $stmt->bindParam(':status', $status, PDO::PARAM_STR);
+
+        $stmt->execute();
+
+        return $stmt->fetchColumn();
+    }
+
+    public function getTotalApprovedLate($status)
+    {
+        $query = "SELECT COUNT(*) FROM $this->table_name WHERE status = '$status' ORDER BY id DESC";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetchColumn();
+    }
+
+    public function getTotalMission()
+    {
+        $query = "SELECT COUNT(*) FROM $this->table ORDER BY id DESC";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetchColumn();
+    }
+
+    public function getMissionsTodayCount()
+    {
+        // Query to count missions active today
+        $query = "SELECT COUNT(*) FROM $this->table 
+              WHERE start_date <= CURDATE() 
+              AND end_date >= CURDATE()";
+
+        // Prepare the query
+        $stmt = $this->pdo->prepare($query);
+
+        // Execute the query
+        $stmt->execute();
+
+        // Fetch and return the count as an integer
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function getLateCountByStatus($status)
+    {
+        // SQL query to count records with the given status and where updated_at is today
+        $query = "SELECT COUNT(*) as count 
+              FROM $this->table_name 
+              WHERE status = :status 
+              AND DATE(updated_at) = CURDATE()";
+
+        // Prepare and execute the statement
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':status', $status, PDO::PARAM_STR);
+        $stmt->execute();
+
+        // Fetch the count result
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // If the result is empty or null, default to 0
+        return $result['count'] ?? 0;
     }
 
     public function getAll()
@@ -950,6 +1154,452 @@ class AdminModel
         return $results;
     }
 
+    public function getRequestById($leave_id, $token)
+    {
+        // Query to fetch the leave request and related data, including the attachment requirement
+        $stmt = $this->pdo->prepare(
+            'SELECT lr.*, 
+                lt.name as leave_type_name, 
+                lt.duration, 
+                lt.color, 
+                lt.attachment_required AS attRequired, 
+                lr.department AS department_name, 
+                lr.office AS office_name, 
+                lr.position AS position_name
+         FROM ' . $this->leaveRequest . ' lr
+         JOIN leave_types lt ON lr.leave_type_id = lt.id
+         WHERE lr.id = ?'
+        );
+        $stmt->execute([$leave_id]);
+        $leaveRequest = $stmt->fetch();
+
+        if ($leaveRequest) {
+            // Check if an attachment is required and if it is missing
+            if ($leaveRequest['attRequired'] === 'Yes') {
+                if (empty($leaveRequest['attachment'])) {
+                    // Handle the case where attachment is required but missing
+                    error_log("Attachment required for leave request ID: $leave_id but is missing.");
+                    $leaveRequest['attachment_error'] = "Attachment is required for this leave type.";
+                } else {
+                    $leaveRequest['attachment_error'] = null; // No issues regarding attachment
+                }
+            } else {
+                $leaveRequest['attachment_error'] = null; // No attachment required
+            }
+
+            // Fetch user information using the API
+            $userModel = new User();
+            $userApiResponse = $userModel->getUserByIdApi($leaveRequest['user_id'], $token);
+
+            if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                $userData = $userApiResponse['data'];
+                // Add user information to the leave request array
+                $leaveRequest['khmer_name'] = $userData['lastNameKh'] . " " . $userData['firstNameKh'] ?? null;
+                $leaveRequest['phone_number'] = $userData['phoneNumber'] ?? null;
+                $leaveRequest['email'] = $userData['email'] ?? null;
+                $leaveRequest['dob'] = $userData['date_of_birth'] ?? null;
+                $leaveRequest['deputy_head_name'] = $userData['deputy_head_name'] ?? null;
+
+                // Set profile image or first letter of the name if image is not found
+                $profileImage = 'https://hrms.iauoffsa.us/images/' . $userData['image'] ?? null;
+
+                if (empty($userData['image'])) {
+                    // Generate the first alphabet of the Khmer name
+                    $firstLetter = mb_substr($userData['lastNameKh'] ?? '', 0, 1, 'UTF-8') ?: mb_substr($userData['firstNameKh'] ?? '', 0, 1, 'UTF-8');
+                    $leaveRequest['profile'] = '<div class="avatar">' . $firstLetter . '</div>'; // Placeholder for initials
+                } else {
+                    $leaveRequest['profile'] = $profileImage; // Set profile image
+                }
+            } else {
+                // Handle API error or missing data
+                error_log("Failed to fetch user data for leave request ID: $leave_id");
+                $leaveRequest['khmer_name'] = null;
+                $leaveRequest['phone_number'] = null;
+                $leaveRequest['dob'] = null;
+                $leaveRequest['deputy_head_name'] = null;
+                $leaveRequest['profile'] = '<div class="avatar-placeholder">N/A</div>'; // Placeholder for missing profile
+            }
+
+            // Optional: Add logic to fetch approvals, office positions, etc.
+            $leaveRequest['approvals'] = $this->getApprovalsByLeaveRequestId($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['doffice'] = $this->getDOfficePositions($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['hoffice'] = $this->getHOfficePositions($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['ddepartment'] = $this->getDDepartmentPositions($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['hdepartment'] = $this->getHDepartmentPositions($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['dunit'] = $this->getDUnitPositions($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['unit'] = $this->getUnitPositions($leaveRequest['id'], $_SESSION['token']);
+        }
+
+        return $leaveRequest;
+    }
+
+
+    public function getApprovalsByLeaveRequestId($leave_request_id, $token)
+    {
+        // Query to get approval details without fetching user and position data directly
+        $stmt = $this->pdo->prepare(
+            'SELECT a.*,   -- Include the signature column
+                (SELECT COUNT(*) FROM ' . $this->approval . ' WHERE leave_request_id = ?) AS approval_count FROM leave_approvals a WHERE a.leave_request_id = ? ORDER BY id DESC'
+        );
+
+        // Execute the query with the leave request ID parameter
+        $stmt->execute([$leave_request_id, $leave_request_id]);
+        $approvals = $stmt->fetchAll();
+
+        // Check if an attachment is required for the leave type
+        $attachmentStmt = $this->pdo->prepare(
+            'SELECT lt.attachment_required 
+         FROM ' . $this->leaveRequest . ' lr
+         JOIN leave_types lt ON lr.leave_type_id = lt.id
+         WHERE lr.id = ?'
+        );
+        $attachmentStmt->execute([$leave_request_id]);
+        $attachmentRequired = $attachmentStmt->fetchColumn();
+
+        // If attachment is required, fetch attachment data
+        if ($attachmentRequired === 'YES') {
+            $attachmentData = $this->fetchAttachmentsByLeaveRequestId($leave_request_id);
+            if (empty($attachmentData)) {
+                // Log error or handle missing attachment
+                error_log("Attachment is required but not found for leave request ID: $leave_request_id");
+                // Optionally, you could return an error response or adjust the approvals data to reflect this issue.
+            }
+        }
+
+        $userModel = new User(); // Assuming User class is responsible for API calls to fetch user data
+
+        // Fetch approver information using API
+        foreach ($approvals as &$approval) {
+            $approverId = $approval['approver_id'];
+
+            // Use the API to get the user details
+            $userApiResponse = $userModel->getUserByIdApi($approverId, $token);
+
+            if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                $userData = $userApiResponse['data'];
+                $approval['approver_name'] = $userData['lastNameKh'] . " " . $userData['firstNameKh'] ?? null;
+                $approval['profile'] = 'https://hrms.iauoffsa.us/images/' . $userData['image'] ?? null;
+                $approval['position_name'] = $userData['position']['name'] ?? null; // Adjust based on your API response structure
+                $approval['position_color'] = $userData['position']['color'] ?? null; // Adjust based on your API response structure
+            } else {
+                // Handle API error or missing data
+                error_log("Failed to fetch user data for approver ID: $approverId");
+                $approval['approver_name'] = null;
+                $approval['profile'] = null;
+                $approval['position_name'] = null;
+                $approval['position_color'] = null;
+            }
+        }
+
+        return $approvals;
+    }
+
+    private function fetchAttachmentsByLeaveRequestId($leave_request_id)
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM leave_attachments WHERE leave_request_id = ?');
+        $stmt->execute([$leave_request_id]);
+        return $stmt->fetchAll();
+    }
+
+    public function getDOfficePositions($leave_request_id, $token)
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT a.approver_id ,a.status AS approver_status
+            FROM leave_approvals a
+            WHERE a.leave_request_id = ?'
+        );
+        $stmt->execute([$leave_request_id]);
+        $approvals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Initialize an array to hold combined results
+        $results = [];
+
+        // Fetch user details and position details for each approver
+        foreach ($approvals as $approval) {
+            // Fetch user information using the API
+            $userModel = new User();
+            $userApiResponse = $userModel->getUserByIdApi($approval['approver_id'], $token);
+
+            if ($userApiResponse && isset($userApiResponse['data'])) {
+                // Fetch position details using the API (position details should be part of user data)
+                $positionApiResponse = $userModel->getRoleApi($userApiResponse['data']['roleId'], $token);
+
+                if ($positionApiResponse && $positionApiResponse['http_code'] === 200 && isset($positionApiResponse['data'])) {
+                    // Check if the position name matches "ប្រធានការិយាល័យ"
+                    if ($positionApiResponse['data']['roleNameKh'] === 'អនុប្រធានការិយាល័យ') {
+                        // Combine approval details with user and position details
+                        $results[] = array_merge($approval, [
+                            'approver_name' => $userApiResponse['data']['firstNameKh'] ?? 'Unknown',
+                            'profile_picture' => $userApiResponse['data']['profile_picture'] ?? null,
+                            'position_name' => $positionApiResponse['data']['roleNameKh'] ?? 'Unknown Position',
+                            'position_color' => $positionApiResponse['data']['color'] ?? 'N/A',
+                            'updated_at' => $positionApiResponse['data']['updated_at'] ?? 'N/A',
+                        ]);
+                    }
+                } else {
+                    // Handle case where position details are not found or do not match
+                    // Note: Here, we skip adding the result if position details are not found or do not match
+                }
+            } else {
+                // Handle case where user details are not found
+                // Note: Here, we skip adding the result if user details are not found
+            }
+        }
+
+        // Return the combined results
+        return $results;
+    }
+
+    public function getHOfficePositions($leave_request_id, $token)
+    {
+        // Query to get the approval details
+        $stmt = $this->pdo->prepare(
+            'SELECT a.approver_id ,a.status AS approver_status
+            FROM leave_approvals a
+            WHERE a.leave_request_id = ?'
+        );
+        $stmt->execute([$leave_request_id]);
+        $approvals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Initialize an array to hold combined results
+        $results = [];
+
+        // Fetch user details and position details for each approver
+        foreach ($approvals as $approval) {
+            // Fetch user information using the API
+            $userModel = new User();
+            $userApiResponse = $userModel->getUserByIdApi($approval['approver_id'], $token);
+
+            if ($userApiResponse && isset($userApiResponse['data'])) {
+                // Fetch position details using the API (position details should be part of user data)
+                $positionApiResponse = $userModel->getRoleApi($userApiResponse['data']['roleId'], $token);
+
+                if ($positionApiResponse && $positionApiResponse['http_code'] === 200 && isset($positionApiResponse['data'])) {
+                    // Check if the position name matches "ប្រធានការិយាល័យ"
+                    if ($positionApiResponse['data']['roleNameKh'] === 'ប្រធានការិយាល័យ') {
+                        // Combine approval details with user and position details
+                        $results[] = array_merge($approval, [
+                            'approver_name' => $userApiResponse['data']['firstNameKh'] ?? 'Unknown',
+                            'profile_picture' => $userApiResponse['data']['profile_picture'] ?? null,
+                            'position_name' => $positionApiResponse['data']['roleNameKh'] ?? 'Unknown Position',
+                            'position_color' => $positionApiResponse['data']['color'] ?? 'N/A',
+                            'updated_at' => $positionApiResponse['data']['updated_at'] ?? 'N/A',
+                        ]);
+                    }
+                } else {
+                    // Handle case where position details are not found or do not match
+                    // Note: Here, we skip adding the result if position details are not found or do not match
+                }
+            } else {
+                // Handle case where user details are not found
+                // Note: Here, we skip adding the result if user details are not found
+            }
+        }
+
+        // Return the combined results
+        return $results;
+    }
+
+    public function getHDepartmentPositions($leave_request_id, $token)
+    {
+        // Query to get the approval details
+        $stmt = $this->pdo->prepare(
+            'SELECT a.approver_id ,a.status AS approver_status
+            FROM leave_approvals a
+            WHERE a.leave_request_id = ?'
+        );
+        $stmt->execute([$leave_request_id]);
+        $approvals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Initialize an array to hold combined results
+        $results = [];
+
+        // Fetch user details and position details for each approver
+        foreach ($approvals as $approval) {
+            // Fetch user information using the API
+            $userModel = new User();
+            $userApiResponse = $userModel->getUserByIdApi($approval['approver_id'], $token);
+
+            if ($userApiResponse && isset($userApiResponse['data'])) {
+                // Fetch position details using the API (position details should be part of user data)
+                $positionApiResponse = $userModel->getRoleApi($userApiResponse['data']['roleId'], $token);
+
+                if ($positionApiResponse && $positionApiResponse['http_code'] === 200 && isset($positionApiResponse['data'])) {
+                    // Check if the position name matches "ប្រធានការិយាល័យ"
+                    if ($positionApiResponse['data']['roleNameKh'] === 'ប្រធាននាយកដ្ឋាន') {
+                        // Combine approval details with user and position details
+                        $results[] = array_merge($approval, [
+                            'approver_name' => $userApiResponse['data']['firstNameKh'] ?? 'Unknown',
+                            'profile_picture' => $userApiResponse['data']['profile_picture'] ?? null,
+                            'position_name' => $positionApiResponse['data']['roleNameKh'] ?? 'Unknown Position',
+                            'position_color' => $positionApiResponse['data']['color'] ?? 'N/A',
+                            'updated_at' => $positionApiResponse['data']['updated_at'] ?? 'N/A',
+                        ]);
+                    }
+                } else {
+                    // Handle case where position details are not found or do not match
+                    // Note: Here, we skip adding the result if position details are not found or do not match
+                }
+            } else {
+                // Handle case where user details are not found
+                // Note: Here, we skip adding the result if user details are not found
+            }
+        }
+
+        // Return the combined results
+        return $results;
+    }
+
+    public function getDDepartmentPositions($leave_request_id, $token)
+    {
+        // Query to get the approval details
+        $stmt = $this->pdo->prepare(
+            'SELECT a.approver_id ,a.status AS approver_status
+            FROM leave_approvals a
+            WHERE a.leave_request_id = ?'
+        );
+        $stmt->execute([$leave_request_id]);
+        $approvals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Initialize an array to hold combined results
+        $results = [];
+
+        // Fetch user details and position details for each approver
+        foreach ($approvals as $approval) {
+            // Fetch user information using the API
+            $userModel = new User();
+            $userApiResponse = $userModel->getUserByIdApi($approval['approver_id'], $token);
+
+            if ($userApiResponse && isset($userApiResponse['data'])) {
+                // Fetch position details using the API (position details should be part of user data)
+                $positionApiResponse = $userModel->getRoleApi($userApiResponse['data']['roleId'], $token);
+
+                if ($positionApiResponse && $positionApiResponse['http_code'] === 200 && isset($positionApiResponse['data'])) {
+                    // Check if the position name matches "ប្រធានការិយាល័យ"
+                    if ($positionApiResponse['data']['roleNameKh'] === 'អនុប្រធាននាយកដ្ឋាន') {
+                        // Combine approval details with user and position details
+                        $results[] = array_merge($approval, [
+                            'approver_name' => $userApiResponse['data']['firstNameKh'] ?? 'Unknown',
+                            'profile_picture' => $userApiResponse['data']['profile_picture'] ?? null,
+                            'position_name' => $positionApiResponse['data']['roleNameKh'] ?? 'Unknown Position',
+                            'position_color' => $positionApiResponse['data']['color'] ?? 'N/A',
+                            'updated_at' => $positionApiResponse['data']['updated_at'] ?? 'N/A',
+                        ]);
+                    }
+                } else {
+                    // Handle case where position details are not found or do not match
+                    // Note: Here, we skip adding the result if position details are not found or do not match
+                }
+            } else {
+                // Handle case where user details are not found
+                // Note: Here, we skip adding the result if user details are not found
+            }
+        }
+
+        // Return the combined results
+        return $results;
+    }
+
+    public function getDUnitPositions($leave_request_id, $token)
+    {
+        // Query to get the approval details
+        $stmt = $this->pdo->prepare(
+            'SELECT a.approver_id ,a.status AS approver_status
+            FROM leave_approvals a
+            WHERE a.leave_request_id = ?'
+        );
+        $stmt->execute([$leave_request_id]);
+        $approvals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Initialize an array to hold combined results
+        $results = [];
+
+        // Fetch user details and position details for each approver
+        foreach ($approvals as $approval) {
+            // Fetch user information using the API
+            $userModel = new User();
+            $userApiResponse = $userModel->getUserByIdApi($approval['approver_id'], $token);
+
+            if ($userApiResponse && isset($userApiResponse['data'])) {
+                // Fetch position details using the API (position details should be part of user data)
+                $positionApiResponse = $userModel->getRoleApi($userApiResponse['data']['roleId'], $token);
+
+                if ($positionApiResponse && $positionApiResponse['http_code'] === 200 && isset($positionApiResponse['data'])) {
+                    // Check if the position name matches "ប្រធានការិយាល័យ"
+                    if ($positionApiResponse['data']['roleNameKh'] === 'អនុប្រធានអង្គភាព') {
+                        // Combine approval details with user and position details
+                        $results[] = array_merge($approval, [
+                            'approver_name' => $userApiResponse['data']['firstNameKh'] ?? 'Unknown',
+                            'profile_picture' => $userApiResponse['data']['profile_picture'] ?? null,
+                            'position_name' => $positionApiResponse['data']['roleNameKh'] ?? 'Unknown Position',
+                            'position_color' => $positionApiResponse['data']['color'] ?? 'N/A',
+                            'updated_at' => $positionApiResponse['data']['updated_at'] ?? 'N/A',
+                        ]);
+                    }
+                } else {
+                    // Handle case where position details are not found or do not match
+                    // Note: Here, we skip adding the result if position details are not found or do not match
+                }
+            } else {
+                // Handle case where user details are not found
+                // Note: Here, we skip adding the result if user details are not found
+            }
+        }
+
+        // Return the combined results
+        return $results;
+    }
+
+    public function getUnitPositions($leave_request_id, $token)
+    {
+        // Query to get the approval details
+        $stmt = $this->pdo->prepare(
+            'SELECT a.approver_id ,a.status AS approver_status
+        FROM leave_approvals a
+        WHERE a.leave_request_id = ?'
+        );
+        $stmt->execute([$leave_request_id]);
+        $approvals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Initialize an array to hold combined results
+        $results = [];
+
+        // Fetch user details and position details for each approver
+        foreach ($approvals as $approval) {
+            // Fetch user information using the API
+            $userModel = new User();
+            $userApiResponse = $userModel->getUserByIdApi($approval['approver_id'], $token);
+
+            if ($userApiResponse && isset($userApiResponse['data'])) {
+                // Fetch position details using the API (position details should be part of user data)
+                $positionApiResponse = $userModel->getRoleApi($userApiResponse['data']['roleId'], $token);
+
+                if ($positionApiResponse && $positionApiResponse['http_code'] === 200 && isset($positionApiResponse['data'])) {
+                    // Check if the position name matches "ប្រធានការិយាល័យ"
+                    if ($positionApiResponse['data']['roleNameKh'] === 'ប្រធានអង្គភាព') {
+                        // Combine approval details with user and position details
+                        $results[] = array_merge($approval, [
+                            'approver_name' => $userApiResponse['data']['firstNameKh'] ?? 'Unknown',
+                            'profile_picture' => $userApiResponse['data']['profile_picture'] ?? null,
+                            'position_name' => $positionApiResponse['data']['roleNameKh'] ?? 'Unknown Position',
+                            'position_color' => $positionApiResponse['data']['color'] ?? 'N/A',
+                            'updated_at' => $positionApiResponse['data']['updated_at'] ?? 'N/A',
+                        ]);
+                    }
+                } else {
+                    // Handle case where position details are not found or do not match
+                    // Note: Here, we skip adding the result if position details are not found or do not match
+                }
+            } else {
+                // Handle case where user details are not found
+                // Note: Here, we skip adding the result if user details are not found
+            }
+        }
+
+        // Return the combined results
+        return $results;
+    }
+
     public function getRequestsByFilters($user_id, $filters)
     {
         // Base SQL query (remove JOINs with users, departments, positions, and offices)
@@ -1021,6 +1671,262 @@ class AdminModel
         return $results;
     }
 
+    public function getApprovedLateByFilter($filters)
+    {
+        // Base query for fetching approved late-in records
+        $query = "SELECT * FROM $this->table_name WHERE status = 'Approved'";
+
+        // Initialize an array for the parameters to bind
+        $params = [];
+
+        // Filter by start_date if provided
+        if (!empty($filters['start_date'])) {
+            $query .= " AND date >= :start_date";
+            $params[':start_date'] = $filters['start_date']; // Binding start date parameter
+        }
+
+        // Filter by end_date if provided
+        if (!empty($filters['end_date'])) {
+            $query .= " AND date <= :end_date";
+            $params[':end_date'] = $filters['end_date']; // Binding end date parameter
+        }
+
+        // Filter by type if provided
+        if (!empty($filters['type'])) {
+            $query .= " AND type = :type"; // Add type filter to the query
+            $params[':type'] = $filters['type']; // Binding type parameter
+        }
+
+        // Apply pagination limits
+        $query .= " LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->pdo->prepare($query);
+
+        // Bind the pagination parameters
+        $limit = $filters['limit'] ?? 5; // Default limit to 5 if not specified
+        $offset = $filters['offset'] ?? 0; // Default offset to 0 if not specified
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+
+        // Bind additional parameters if they exist
+        foreach ($params as $key => &$value) {
+            $stmt->bindParam($key, $value);
+        }
+
+        // Execute the statement
+        $stmt->execute();
+
+        // Fetch the results
+        $lateInRecords = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $userModel = new User();
+
+        // Add user information and additional data to each approved late-in record
+        foreach ($lateInRecords as &$record) {
+            // Fetch user_id from the current late-in record
+            $user_id = $record['user_id'];
+
+            // Fetch user data from API using the user_id
+            $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+            // Check if the API response is successful
+            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+                $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+                // Add user information to the approved late-in record
+                $record['khmer_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh'])
+                    ? $user['lastNameKh'] . " " . $user['firstNameKh']
+                    : 'Unknown';
+                $record['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $record['uId'] = $user['id'] ?? 'Unknown';
+                $record['email'] = $user['email'] ?? 'Unknown';
+                $record['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $record['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $record['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png'); // Use a default profile image if none exists
+            } else {
+                // Handle cases where the API call fails or returns no data
+                $record['khmer_name'] = 'Unknown';
+                $record['dob'] = 'Unknown';
+                $record['email'] = 'Unknown';
+                $record['department_name'] = 'Unknown';
+                $record['position_name'] = 'Unknown';
+                $record['profile_picture'] = 'default-profile.png'; // Use a default profile image if API fails
+            }
+        }
+
+        return $lateInRecords;
+    }
+
+    public function getMissionFilter($filters)
+    {
+        // Start with a base query
+        $query = "SELECT * FROM $this->table WHERE 1=1";
+
+        // Prepare parameters for binding
+        $params = [];
+
+        // Filter by start_date if provided
+        if (!empty($filters['start_date'])) {
+            $query .= " AND start_date >= :start_date";
+            $params[':start_date'] = $filters['start_date'];
+        }
+
+        // Filter by end_date if provided
+        if (!empty($filters['end_date'])) {
+            $query .= " AND end_date <= :end_date";
+            $params[':end_date'] = $filters['end_date'];
+        }
+
+        // Apply pagination limits
+        $query .= " LIMIT :limit OFFSET :offset";
+
+        // Prepare the query
+        $stmt = $this->pdo->prepare($query);
+
+        // Bind limit and offset
+        $stmt->bindValue(':limit', $filters['limit'], PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $filters['offset'], PDO::PARAM_INT);
+
+        // Bind additional parameters if provided
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+
+        // Execute the query
+        $stmt->execute();
+
+        // Fetch results
+        $missions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $userModel = new User();
+
+        // Add user information and additional data to each approved late-in record
+        foreach ($missions as &$record) {
+            // Fetch user_id from the current late-in record
+            $user_id = $record['user_id'];
+
+            // Fetch user data from API using the user_id
+            $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+            // Check if the API response is successful
+            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+                $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+                // Add user information to the approved late-in record
+                $record['khmer_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh'])
+                    ? $user['lastNameKh'] . " " . $user['firstNameKh']
+                    : 'Unknown';
+                $record['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $record['uId'] = $user['id'] ?? 'Unknown';
+                $record['email'] = $user['email'] ?? 'Unknown';
+                $record['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $record['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $record['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png'); // Use a default profile image if none exists
+            } else {
+                // Handle cases where the API call fails or returns no data
+                $record['khmer_name'] = 'Unknown';
+                $record['dob'] = 'Unknown';
+                $record['email'] = 'Unknown';
+                $record['department_name'] = 'Unknown';
+                $record['position_name'] = 'Unknown';
+                $record['profile_picture'] = 'default-profile.png'; // Use a default profile image if API fails
+            }
+        }
+
+        return $missions;
+    }
+
+    public function getMissionTodayFilter($filters)
+    {
+        // Start with a base query to fetch all missions
+        $query = "SELECT * FROM $this->table WHERE 1=1"; // `1=1` allows easy appending of additional conditions
+
+        // Prepare parameters for binding
+        $params = [];
+
+        // Filter by start_date if provided
+        if (!empty($filters['start_date'])) {
+            $query .= " AND start_date >= :start_date";
+            $params[':start_date'] = $filters['start_date'];
+        }
+
+        // Filter by end_date if provided
+        if (!empty($filters['end_date'])) {
+            $query .= " AND end_date <= :end_date";
+            $params[':end_date'] = $filters['end_date'];
+        }
+
+        // Apply pagination limits
+        $query .= " LIMIT :limit OFFSET :offset";
+
+        // Prepare the query
+        $stmt = $this->pdo->prepare($query);
+
+        // Bind limit and offset parameters for pagination
+        $stmt->bindValue(':limit', $filters['limit'], PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $filters['offset'], PDO::PARAM_INT);
+
+        // Bind any additional parameters (start_date and end_date) if provided
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+
+        // Execute the query
+        $stmt->execute();
+
+        // Fetch the result set as an associative array
+        $missions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Assuming you want to fetch additional user details for each mission
+        $userModel = new User();
+
+        // Add user information to each mission record
+        foreach ($missions as &$mission) {
+            // Check if 'user_id' exists in the current mission
+            if (isset($mission['user_id'])) {
+                $user_id = $mission['user_id'];
+
+                // Fetch user data from API using the user_id and session token
+                $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+                // Check if the API response is successful and contains data
+                if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+                    $user = $userApiResponse['data']; // API returns user data
+
+                    // Append user info to the mission record
+                    $mission['khmer_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh'])
+                        ? $user['lastNameKh'] . " " . $user['firstNameKh']
+                        : 'Unknown';
+                    $mission['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                    $mission['uId'] = $user['id'] ?? 'Unknown';
+                    $mission['email'] = $user['email'] ?? 'Unknown';
+                    $mission['department_name'] = $user['department']['name'] ?? 'Unknown';
+                    $mission['position_name'] = $user['position']['name'] ?? 'Unknown';
+                    $mission['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png');
+                } else {
+                    // Handle cases where the API call fails or returns no data
+                    $mission['khmer_name'] = 'Unknown';
+                    $mission['dob'] = 'Unknown';
+                    $mission['email'] = 'Unknown';
+                    $mission['department_name'] = 'Unknown';
+                    $mission['position_name'] = 'Unknown';
+                    $mission['profile_picture'] = 'default-profile.png'; // Use a default profile image if API fails
+                }
+            }
+        }
+
+        return $missions;
+    }
+
+    public function getTotalMissionCount()
+    {
+        // Query to count total records
+        $query = "SELECT COUNT(*) AS total FROM $this->table";
+        $stmt = $this->pdo->query($query);
+
+        // Fetch the total count
+        return $stmt->fetchColumn();
+    }
 
     public function handleFileUpload($file, $allowed_extensions, $max_size, $upload_path)
     {
@@ -1549,4 +2455,438 @@ class AdminModel
         $stmt->execute([$newStatus, $leave_request_id]);
     }
     //  end if manager on leave 
+
+    public function getApprovedLeaveCount()
+    {
+        $query = "
+        SELECT COUNT(*) as approved_count
+        FROM $this->leaveRequest
+        WHERE status = 'Approved'
+        AND MONTH(start_date) = MONTH(CURRENT_DATE())
+        AND YEAR(start_date) = YEAR(CURRENT_DATE())
+        AND MONTH(end_date) = MONTH(CURRENT_DATE())
+        AND YEAR(end_date) = YEAR(CURRENT_DATE())
+        ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC)['approved_count'];
+    }
+
+    public function getLatesInCount()
+    {
+        $query = "
+    SELECT COUNT(*) as late_in_count
+    FROM $this->table_name
+    WHERE late_in IS NOT NULL
+    AND status = 'Approved'
+    AND MONTH(date) = MONTH(CURRENT_DATE())
+    AND YEAR(date) = YEAR(CURRENT_DATE())
+    ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC)['late_in_count'];
+    }
+
+    public function getLatesOutCount()
+    {
+        $query = "
+        SELECT COUNT(*) as late_out_count
+        FROM $this->table_name
+        WHERE late_out IS NOT NULL
+        AND status = 'Approved'
+        AND MONTH(date) = MONTH(CURRENT_DATE())
+        AND YEAR(date) = YEAR(CURRENT_DATE())
+        ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC)['late_out_count'];
+    }
+
+    public function getLeavesEarlyCount()
+    {
+        $query = "
+        SELECT COUNT(*) as leave_early_count
+        FROM $this->table_name
+        WHERE leave_early IS NOT NULL
+        AND status = 'Approved'
+        AND MONTH(date) = MONTH(CURRENT_DATE())
+        AND YEAR(date) = YEAR(CURRENT_DATE())
+        ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC)['leave_early_count'];
+    }
+
+    public function getMissions()
+    {
+        $query = "
+        SELECT COUNT(*) as missions
+        FROM $this->table
+        WHERE MONTH(start_date) = MONTH(CURRENT_DATE())
+        AND YEAR(start_date) = YEAR(CURRENT_DATE())
+         AND MONTH(end_date) = YEAR(CURRENT_DATE())
+          AND YEAR(end_date) = YEAR(CURRENT_DATE())
+        ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC)['missions'];
+    }
+
+    public function getAllMissions($offset, $limit)
+    {
+        // Fetch all missions from the missions table
+        $query = "SELECT * FROM $this->table ORDER BY id DESC LIMIT :limit OFFSET :offset"; // Assuming 'missions' is the correct table name
+
+        $stmt = $this->pdo->prepare($query);
+
+        // Bind the parameters to prevent SQL injection
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        $missions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // If you need to fetch additional data for each mission, use the following loop
+        // Assuming you want to fetch user details for the missions
+        $userModel = new User();
+
+        foreach ($missions as &$mission) {
+            // Fetch user_id from the current mission record if it exists
+            if (isset($mission['user_id'])) {
+                $user_id = $mission['user_id'];
+
+                // Fetch user data from API using the user_id
+                $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+                // Check if the API response is successful
+                if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+                    $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+                    // Add user information to the mission record
+                    $mission['khmer_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh'])
+                        ? $user['lastNameKh'] . " " . $user['firstNameKh']
+                        : 'Unknown';
+                    $mission['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                    $mission['uId'] = $user['id'] ?? 'Unknown';
+                    $mission['email'] = $user['email'] ?? 'Unknown';
+                    $mission['department_name'] = $user['department']['name'] ?? 'Unknown';
+                    $mission['position_name'] = $user['position']['name'] ?? 'Unknown';
+                    $mission['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png'); // Use a default profile image if none exists
+                } else {
+                    // Handle cases where the API call fails or returns no data
+                    $mission['khmer_name'] = 'Unknown';
+                    $mission['dob'] = 'Unknown';
+                    $mission['email'] = 'Unknown';
+                    $mission['department_name'] = 'Unknown';
+                    $mission['position_name'] = 'Unknown';
+                    $mission['profile_picture'] = 'default-profile.png'; // Use a default profile image if API fails
+                }
+            }
+        }
+
+        return $missions;
+    }
+
+    public function getAllMissionTodays($offset, $limit)
+    {
+        // Query to fetch all missions where today's date falls between start_date and end_date
+        $query = "SELECT * FROM $this->table 
+              WHERE start_date <= CURDATE() 
+              AND end_date >= CURDATE() ORDER BY id DESC
+              LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->pdo->prepare($query);
+
+        // Bind the parameters to prevent SQL injection
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+
+        // Execute the query
+        $stmt->execute();
+
+        // Fetch all matching missions
+        $missions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Assuming you want to fetch additional user details for each mission
+        $userModel = new User();
+
+        foreach ($missions as &$mission) {
+            // Check if 'user_id' exists in the current mission
+            if (isset($mission['user_id'])) {
+                $user_id = $mission['user_id'];
+
+                // Fetch user data from API using the user_id and session token
+                $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+                // Process API response and append user details to the mission
+                if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+                    $user = $userApiResponse['data']; // API returns user data
+
+                    // Append user info to the mission record
+                    $mission['khmer_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh'])
+                        ? $user['lastNameKh'] . " " . $user['firstNameKh']
+                        : 'Unknown';
+                    $mission['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                    $mission['uId'] = $user['id'] ?? 'Unknown';
+                    $mission['email'] = $user['email'] ?? 'Unknown';
+                    $mission['department_name'] = $user['department']['name'] ?? 'Unknown';
+                    $mission['position_name'] = $user['position']['name'] ?? 'Unknown';
+                    $mission['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png');
+                } else {
+                    // If API call fails or no data is returned, set default values
+                    $mission['khmer_name'] = 'Unknown';
+                    $mission['dob'] = 'Unknown';
+                    $mission['email'] = 'Unknown';
+                    $mission['department_name'] = 'Unknown';
+                    $mission['position_name'] = 'Unknown';
+                    $mission['profile_picture'] = 'default-profile.png'; // Default image
+                }
+            }
+        }
+
+        return $missions;
+    }
+
+    public function getLeaves($offset, $limit)
+    {
+        // Fetch all leave requests from the leave_requests table and join with leave_types table
+        $query = "SELECT lr.*, lt.name AS leave_type_name, lt.color AS leaveTypeColor
+              FROM leave_requests lr
+              LEFT JOIN leave_types lt ON lr.leave_type_id = lt.id
+              LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->pdo->prepare($query);
+
+        // Bind the parameters to prevent SQL injection
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        $leaveRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Assuming you want to fetch user details for the leave requests
+        $userModel = new User();
+
+        foreach ($leaveRequests as &$leaveRequest) {
+            // Fetch user_id from the current leave request record if it exists
+            if (isset($leaveRequest['user_id'])) {
+                $user_id = $leaveRequest['user_id'];
+
+                // Fetch user data from API using the user_id
+                $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+                // Check if the API response is successful
+                if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+                    $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+                    // Add user information to the leave request record
+                    $leaveRequest['khmer_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh'])
+                        ? $user['lastNameKh'] . " " . $user['firstNameKh']
+                        : 'Unknown';
+                    $leaveRequest['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                    $leaveRequest['uId'] = $user['id'] ?? 'Unknown';
+                    $leaveRequest['email'] = $user['email'] ?? 'Unknown';
+                    $leaveRequest['department_name'] = $user['department']['name'] ?? 'Unknown';
+                    $leaveRequest['position_name'] = $user['position']['name'] ?? 'Unknown';
+                    $leaveRequest['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png'); // Use a default profile image if none exists
+                } else {
+                    // Handle cases where the API call fails or returns no data
+                    $leaveRequest['khmer_name'] = 'Unknown';
+                    $leaveRequest['dob'] = 'Unknown';
+                    $leaveRequest['email'] = 'Unknown';
+                    $leaveRequest['department_name'] = 'Unknown';
+                    $leaveRequest['position_name'] = 'Unknown';
+                    $leaveRequest['profile_picture'] = 'default-profile.png'; // Use a default profile image if API fails
+                }
+            }
+        }
+
+        return $leaveRequests;
+    }
+
+    public function getTotalLeaveCount()
+    {
+        // Query to count total records in the leave table
+        $query = "SELECT COUNT(*) AS total FROM $this->leaveRequest";
+
+        // Use prepared statement for safety and avoid side effects
+        $stmt = $this->pdo->query($query);
+
+        // Fetch the total count
+        return $stmt->fetchColumn();
+    }
+
+    public function getLeaveFilters($filters)
+    {
+        // Start with a base query
+        $query = "SELECT lr.*, lt.name AS leave_type_name, lt.color AS leaveTypeColor
+              FROM $this->leaveRequest lr
+              LEFT JOIN leave_types lt ON lr.leave_type_id = lt.id
+              WHERE 1=1";
+
+        // Prepare parameters for binding
+        $params = [];
+
+        // Filter by start_date if provided
+        if (!empty($filters['start_date'])) {
+            $query .= " AND start_date >= :start_date";
+            $params[':start_date'] = $filters['start_date'];
+        }
+
+        // Filter by end_date if provided
+        if (!empty($filters['end_date'])) {
+            $query .= " AND end_date <= :end_date";
+            $params[':end_date'] = $filters['end_date'];
+        }
+
+        // Filter by status if provided
+        if (!empty($filters['status'])) {
+            $query .= " AND status = :status";
+            $params[':status'] = $filters['status'];
+        }
+
+        // Apply pagination limits
+        $query .= " LIMIT :limit OFFSET :offset";
+
+        // Prepare the query
+        $stmt = $this->pdo->prepare($query);
+
+        // Bind limit and offset
+        $stmt->bindValue(':limit', $filters['limit'], PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $filters['offset'], PDO::PARAM_INT);
+
+        // Bind additional parameters if provided
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+
+        // Execute the query
+        $stmt->execute();
+
+        // Fetch results
+        $leaves = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $userModel = new User();
+
+        // Add user information and additional data to each leave record
+        foreach ($leaves as &$record) {
+            // Fetch user_id from the current leave record
+            $user_id = $record['user_id'];
+
+            // Fetch user data from API using the user_id
+            $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+            // Check if the API response is successful
+            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+                $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+                // Add user information to the leave record
+                $record['khmer_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh'])
+                    ? $user['lastNameKh'] . " " . $user['firstNameKh']
+                    : 'Unknown';
+                $record['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $record['uId'] = $user['id'] ?? 'Unknown';
+                $record['email'] = $user['email'] ?? 'Unknown';
+                $record['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $record['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $record['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png'); // Use a default profile image if none exists
+            } else {
+                // Handle cases where the API call fails or returns no data
+                $record['khmer_name'] = 'Unknown';
+                $record['dob'] = 'Unknown';
+                $record['email'] = 'Unknown';
+                $record['department_name'] = 'Unknown';
+                $record['position_name'] = 'Unknown';
+                $record['profile_picture'] = 'default-profile.png'; // Use a default profile image if API fails
+            }
+        }
+
+        return $leaves;
+    }
+
+    public function getLeaveToday($offset, $limit)
+    {
+        $query = "SELECT lr.*, lt.name AS leave_type_name, lt.color AS leaveTypeColor
+              FROM leave_requests lr
+              LEFT JOIN leave_types lt ON lr.leave_type_id = lt.id
+              WHERE CURDATE() BETWEEN lr.start_date AND lr.end_date AND lr.status = 'Approved'
+              LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->pdo->prepare($query);
+
+        // Bind the parameters to prevent SQL injection
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        $leaveRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Assuming you want to fetch user details for the leave requests
+        $userModel = new User();
+
+        foreach ($leaveRequests as &$leaveRequest) {
+            // Fetch user_id from the current leave request record if it exists
+            if (isset($leaveRequest['user_id'])) {
+                $user_id = $leaveRequest['user_id'];
+
+                // Fetch user data from API using the user_id
+                $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+                // Check if the API response is successful
+                if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+                    $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+                    // Add user information to the leave request record
+                    $leaveRequest['khmer_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh'])
+                        ? $user['lastNameKh'] . " " . $user['firstNameKh']
+                        : 'Unknown';
+                    $leaveRequest['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                    $leaveRequest['uId'] = $user['id'] ?? 'Unknown';
+                    $leaveRequest['email'] = $user['email'] ?? 'Unknown';
+                    $leaveRequest['department_name'] = $user['department']['name'] ?? 'Unknown';
+                    $leaveRequest['position_name'] = $user['position']['name'] ?? 'Unknown';
+                    $leaveRequest['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png'); // Use a default profile image if none exists
+                } else {
+                    // Handle cases where the API call fails or returns no data
+                    $leaveRequest['khmer_name'] = 'Unknown';
+                    $leaveRequest['dob'] = 'Unknown';
+                    $leaveRequest['email'] = 'Unknown';
+                    $leaveRequest['department_name'] = 'Unknown';
+                    $leaveRequest['position_name'] = 'Unknown';
+                    $leaveRequest['profile_picture'] = 'default-profile.png'; // Use a default profile image if API fails
+                }
+            }
+        }
+
+        return $leaveRequests;
+    }
+
+    public function getLeaveTodayCount()
+    {
+        $query = "SELECT COUNT(*) AS leave_count
+              FROM leave_requests lr
+              WHERE CURDATE() BETWEEN lr.start_date AND lr.end_date
+              AND lr.status = 'Approved'";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $result['leave_count'] ?? 0; // Return the count or 0 if no result found
+    }
+
 }

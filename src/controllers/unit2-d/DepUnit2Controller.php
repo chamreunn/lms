@@ -36,6 +36,7 @@ class DepUnit2Controller
             $department = $_SESSION['departmentName'] ?? null;
             $token = $_SESSION['token'] ?? null;
             $user_khmer_name = $_SESSION['user_khmer_name'] ?? null;
+            $leave = '1' ?? "NULL";
 
             // Check if essential session data is available
             if (!$user_id || !$position || !$token || !$user_khmer_name) {
@@ -136,13 +137,15 @@ class DepUnit2Controller
             $managerName = !empty($userDoffice['lastNameKh']) && !empty($userDoffice['firstNameKh'])
                 ? $userDoffice['lastNameKh'][0] . ' ' . $userDoffice['firstNameKh'][0]
                 : null;
+            $link = "https://leave.iauoffsa.us/elms/hunitpending";
 
             if (!$managerId || !$managerEmail) {
                 throw new Exception("No valid manager details found.");
             }
 
-            // Check if the manager is on leave today using the leave_requests table
+            // Check if the manager is on leave or mission
             $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+            $isManagerOnMission = $userModel->isManagerOnMission($managerId);
 
             // Create leave request in the database
             $leaveRequestId = $HeadDepartmentModel->create(
@@ -168,43 +171,32 @@ class DepUnit2Controller
                 exit();
             }
 
-            if ($isManagerOnLeave) {
-                // Submit approval
-                $updatedAt = $HeadDepartmentModel->updateApproval($leaveRequestId, $managerId, $status, $leaveRemarks);
+            // If the manager is on leave or mission, update approval and API
+            if ($isManagerOnLeave || $isManagerOnMission) {
+                $status = $isManagerOnLeave ? "On Leave" : "Mission";
+                $remarksText = $isManagerOnLeave ? "ច្បាប់" : "បេសកកម្ម";
+                $HeadDepartmentModel->updateApproval($leaveRequestId, $managerId, $status, $remarksText);
+                $HeadDepartmentModel->updateToApi($user_id, $start_date, $end_date, $leave, $token);
 
-                // Set success message and redirect
                 $_SESSION['success'] = [
                     'title' => "ជោគជ័យ",
                     'message' => "ច្បាប់របស់អ្នកត្រូវបានអនុម័ត។"
                 ];
-            }
-
-            // Log user activity
-            $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
-
-            // Send email notification
-            if (!$HeadDepartmentModel->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
-                $_SESSION['error'] = [
-                    'title' => "Email Error",
-                    'message' => "Notification email could not be sent. Please try again."
-                ];
                 header("Location: /elms/dunit2Leave");
                 exit();
             }
+
+            // Send notifications
+            $userModel->sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link);
+            $HeadDepartmentModel->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name']);
+
+            // Log user activity
+            $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
 
             // Create notification for the user
             $notificationModel = new Notification();
             $notificationModel->createNotification($userDoffice['ids'], $user_id, $leaveRequestId, $message);
 
-            if ($isManagerOnLeave) {
-                // Set success message and redirect
-                $_SESSION['success'] = [
-                    'title' => "ជោគជ័យ",
-                    'message' => "ច្បាប់របស់អ្នកត្រូវបានអនុម័ត។"
-                ];
-                header("Location: /elms/dunit2Leave");
-                exit();
-            }
             // Set success message and redirect
             $_SESSION['success'] = [
                 'title' => "ជោគជ័យ",
@@ -261,7 +253,7 @@ class DepUnit2Controller
 
     public function pending()
     {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Validate required POST fields
             $requiredFields = ['request_id', 'status', 'uremarks', 'uname', 'uemail', 'leaveType', 'user_id', 'start_date', 'end_date', 'duration'];
             foreach ($requiredFields as $field) {
@@ -278,58 +270,98 @@ class DepUnit2Controller
             // Retrieve POST data
             $request_id = $_POST['request_id'];
             $status = $_POST['status'];
-            $remarks = $_POST['remarks'];
+            $remarks = $_POST['remarks'] ?? ''; // Optional remarks field
             $uremarks = $_POST['uremarks'];
             $uname = $_POST['uname'];
             $uEmail = $_POST['uemail'];
             $leaveType = $_POST['leaveType'];
-            $user_id = $_POST['user_id']; // ID of the user who applied for leave
+            $user_id = $_POST['user_id'];
             $start_date = $_POST['start_date'];
             $end_date = $_POST['end_date'];
             $duration_days = $_POST['duration'];
             $approver_id = $_SESSION['user_id'];
             $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
             $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
+            $leave = '1'; // Assuming '1' represents leave status
+            $token = $_SESSION['token'];
 
-            // Start transaction
             try {
+                // Start transaction
                 $this->pdo->beginTransaction();
 
                 // Create approval record
-                $Model = new DepUnit2Model();
-                $updatedAt = $Model->submitApproval($request_id, $approver_id, $status, $remarks);
+                $leaveApproval = new DepUnit2Model();
+                $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks);
 
-                // Fetch office details using API
+                // Fetch office/manager details using API
                 $userModel = new User();
-                $userHoffice = $userModel->getEmailLeaderHUApi($_SESSION['user_id'], $_SESSION['token']);
+                $userHoffice = $userModel->getEmailLeaderHUApi($_SESSION['user_id'], $token);
 
                 if (!is_array($userHoffice) || !isset($userHoffice['ids'])) {
-                    throw new Exception("Unable to find Department details. Please contact support.");
+                    throw new Exception("Unable to find department details. Please contact support.");
                 }
 
-                // Convert emails array to string if necessary
-                $managerEmail = $userHoffice['emails'];
-                if (is_array($managerEmail)) {
-                    $managerEmail = implode(',', $managerEmail); // Convert array to comma-separated string
+                // Use the first available manager's ID and email
+                $managerId = $userHoffice['ids'][0] ?? null;
+                $managerEmail = $userHoffice['emails'][0] ?? null;
+                $managerName = isset($userHoffice['lastNameKh'][0]) && isset($userHoffice['firstNameKh'][0])
+                    ? $userHoffice['lastNameKh'][0] . ' ' . $userHoffice['firstNameKh'][0]
+                    : null;
+                $link = "https://leave.iauoffsa.us/elms/hunitpending";
+
+                if (!$managerId || !$managerEmail) {
+                    throw new Exception("No valid manager details found.");
                 }
 
-                // Send email notification
-                if (!$Model->sendEmailNotification($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
-                    throw new Exception("Notification email could not be sent. Please try again.");
+                // Check if the manager is on leave or on a mission today
+                $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+                $isManagerOnMission = $userModel->isManagerOnMission($managerId);
+
+                if ($isManagerOnLeave || $isManagerOnMission) {
+                    $action = $isManagerOnLeave ? "On Leave" : "Mission";
+                    $remarksText = $isManagerOnLeave ? "ច្បាប់" : "បេសកកម្ម";
+
+                    // Update approval status
+                    $leaveApproval->updateApproval($request_id, $managerId, $action, $remarksText);
+
+                    // Update the status to the API
+                    $leaveApproval->updateToApi($user_id, $start_date, $end_date, $leave, $token);
+
+                    // Notify the user
+                    $userModel->sendBackToUser($user_id, $uname, $start_date, $end_date, $duration_days, $uremarks, $status);
+
+                    $_SESSION['success'] = [
+                        'title' => "ជោគជ័យ",
+                        'message' => "ច្បាប់របស់អ្នកត្រូវបានអនុម័ត។"
+                    ];
+                } else {
+                    // Notify the next manager via Telegram or other methods
+                    $userModel->sendTelegramNextManager($managerId, $uname, $start_date, $end_date, $duration_days, $uremarks, $status, $link);
+                    $userModel->sendBackToUser($user_id, $uname, $start_date, $end_date, $duration_days, $uremarks, $status);
+
+                    // Send email notification to the manager
+                    if (!$leaveApproval->sendEmailNotification($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
+                        throw new Exception("Notification email could not be sent. Please try again.");
+                    }
+
+                    // Send email notification to the user
+                    if (!$leaveApproval->sendEmailBackToUser($uEmail, $_SESSION['user_khmer_name'], $request_id, $status, $updatedAt, $remarks)) {
+                        throw new Exception("Notification email to user could not be sent. Please try again.");
+                    }
+
+                    // Create user notification
+                    $notificationModel = new Notification();
+                    $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
+
+                    // Log the approver's activity
+                    $activity = "បាន " . $status . " ច្បាប់ឈប់សម្រាក " . $uname;
+                    $userModel->logUserActivity($approver_id, $activity, $_SERVER['REMOTE_ADDR']);
+
+                    $_SESSION['success'] = [
+                        'title' => "សំណើច្បាប់",
+                        'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
+                    ];
                 }
-
-                // Send email back to the user
-                if (!$Model->sendEmailBackToUser($uEmail, $_SESSION['user_khmer_name'], $request_id, $status, $updatedAt, $remarks)) {
-                    throw new Exception("Notification email to user could not be sent. Please try again.");
-                }
-
-                // Create notification for the user
-                $notificationModel = new Notification();
-                $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
-
-                // Log the user's activity
-                $activity = "បាន " . $status . " ច្បាប់ឈប់សម្រាក " . $uname;
-                $userModel->logUserActivity($approver_id, $activity, $_SERVER['REMOTE_ADDR']);
 
                 // Commit transaction
                 $this->pdo->commit();
@@ -339,7 +371,7 @@ class DepUnit2Controller
                     'title' => "សំណើច្បាប់",
                     'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerEmail
                 ];
-                header('location: /elms/dunit2pending');
+                header('Location: /elms/dunit2pending');
                 exit();
             } catch (Exception $e) {
                 // Rollback transaction in case of failure

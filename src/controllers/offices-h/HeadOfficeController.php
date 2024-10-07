@@ -125,6 +125,7 @@ class HeadOfficeController
             $managerName = !empty($userDoffice['lastNameKh']) && !empty($userDoffice['firstNameKh'])
                 ? $userDoffice['lastNameKh'][0] . ' ' . $userDoffice['firstNameKh'][0]
                 : null;
+            $link = "https://leave.iauoffsa.us/elms/depdepartmentpending";
 
             if (!$managerId || !$managerEmail) {
                 throw new Exception("No valid manager details found.");
@@ -164,7 +165,7 @@ class HeadOfficeController
                 exit();
             }
 
-            if ($isManagerOnLeave ||  $isManagerOnMission) {
+            if ($isManagerOnLeave || $isManagerOnMission) {
                 // Submit approval for manager on leave
                 $updatedAt = $headOfficeModel->updateApproval($leaveRequestId, $managerId, $isManagerOnLeave ? $status : $mission, $isManagerOnLeave ? $leaveRemarks : $missionRemarks);
 
@@ -175,18 +176,33 @@ class HeadOfficeController
                 }
 
                 // Update manager details to backup manager's info
+                $managerId = !empty($backupManager['ids']) ? $backupManager['ids'][0] : null;
                 $managerEmail = $backupManager['emails'][0];
                 $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
-            }
+                $link = "https://leave.iauoffsa.us/elms/headdepartmentpending";
 
-            // Send email notification to the manager
-            if (!$headOfficeModel->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
-                $_SESSION['error'] = [
-                    'title' => "Email Error",
-                    'message' => "Notification email could not be sent. Please try again."
-                ];
-                header("Location: /elms/apply-leave");
-                exit();
+                $userModel->sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link);
+                // Send email notification to the manager
+                if (!$headOfficeModel->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
+                    $_SESSION['error'] = [
+                        'title' => "Email Error",
+                        'message' => "Notification email could not be sent. Please try again."
+                    ];
+                    header("Location: /elms/apply-leave");
+                    exit();
+                }
+            } else {
+                $userModel->sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link);
+
+                // Send email notification to the manager
+                if (!$headOfficeModel->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
+                    $_SESSION['error'] = [
+                        'title' => "Email Error",
+                        'message' => "Notification email could not be sent. Please try again."
+                    ];
+                    header("Location: /elms/apply-leave");
+                    exit();
+                }
             }
 
             // Create notification for the user
@@ -255,7 +271,7 @@ class HeadOfficeController
 
     public function pending()
     {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Validate required POST fields
             $requiredFields = ['request_id', 'status', 'uremarks', 'uname', 'uemail', 'leaveType', 'user_id', 'start_date', 'end_date', 'duration'];
             foreach ($requiredFields as $field) {
@@ -271,11 +287,12 @@ class HeadOfficeController
 
             // Create approval record
             $leaveApproval = new HeadOfficeModel();
+
             // Retrieve POST data
             $request_id = $_POST['request_id'];
             $status = $_POST['status'];
-            $remarks = $_POST['remarks'];
-            $uremarks = $_POST['uremarks'];
+            $remarks = $_POST['remarks'] ?? '';  // Use default empty string if not provided
+            $uremarks = $_POST['uremarks'] ?? ''; // Use default empty string if not provided
             $uname = $_POST['uname'];
             $uEmail = $_POST['uemail'];
             $leaveType = $_POST['leaveType'];
@@ -284,9 +301,12 @@ class HeadOfficeController
             $end_date = $_POST['end_date'];
             $duration_days = $_POST['duration'];
             $approver_id = $_SESSION['user_id'];
+
+            // Prepare messages
             $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
             $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
+            // Define constants for leave remarks and actions
             $leaveRemarks = "ច្បាប់";
             $action = "On Leave";
             $mission = "Mission";
@@ -296,6 +316,7 @@ class HeadOfficeController
             try {
                 $this->pdo->beginTransaction();
 
+                // Submit approval
                 $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks);
 
                 // Fetch office details using API
@@ -313,34 +334,42 @@ class HeadOfficeController
                     ? $userHoffice['lastNameKh'][0] . ' ' . $userHoffice['firstNameKh'][0]
                     : null;
 
-                if (!$managerId || !$managerEmail) {
-                    throw new Exception("No valid manager details found.");
-                }
-
                 // Check if the manager is on leave today using the leave_requests table
                 $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
                 $isManagerOnMission = $userModel->isManagerOnMission($managerId);
 
-                if ($isManagerOnLeave ||  $isManagerOnMission) {
+                // If the manager is unavailable, fetch backup manager details
+                if ($isManagerOnLeave || $isManagerOnMission) {
+                    $updatedAt = $leaveApproval->updatePendingApproval(
+                        $request_id,
+                        $managerId,
+                        $isManagerOnLeave ? $action : $mission,
+                        $isManagerOnLeave ? $leaveRemarks : $missionRemarks
+                    );
 
-                    $updatedAt = $leaveApproval->updatePendingApproval($request_id, $managerId, $isManagerOnLeave ? $action : $mission, $isManagerOnLeave ? $leaveRemarks : $missionRemarks);
-                    // Update approval with backup manager if the current manager is on leave
                     $backupManager = $userModel->getEmailLeaderHDApi($user_id, $_SESSION['token']);
                     if (!$backupManager || empty($backupManager['emails'])) {
                         throw new Exception("Both primary and backup managers are unavailable.");
                     }
 
                     // Update to backup manager's details
+                    $managerId = $backupManager['ids'][0] ?? null;
                     $managerEmail = $backupManager['emails'][0];
                     $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
+                    $link = "https://leave.iauoffsa.us/elms/headdepartmentpending";
+                } else {
+                    $link = "https://leave.iauoffsa.us/elms/depdepartmentpending";
                 }
 
-                // Send email notification
+                // Send notifications
+                $userModel->sendTelegramNextManager($managerId, $uname, $start_date, $end_date, $duration_days, $uremarks, $status, $link);
+                $userModel->sendBackToUser($user_id, $uname, $start_date, $end_date, $duration_days, $uremarks, $status);
+
+                // Send email notifications
                 if (!$leaveApproval->sendEmailNotificationToHOffice($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
-                    throw new Exception("Notification email could not be sent. Please try again.");
+                    throw new Exception("Notification email could not be sent to the manager. Please try again.");
                 }
 
-                // Send email back to the user
                 if (!$leaveApproval->sendEmailBackToUser($uEmail, $_SESSION['user_khmer_name'], $request_id, $status, $updatedAt, $remarks)) {
                     throw new Exception("Notification email to user could not be sent. Please try again.");
                 }

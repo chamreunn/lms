@@ -38,6 +38,8 @@ class DepDepartmentController
 
                 $leaveRemarks = "ច្បាប់";
                 $status = "On Leave";
+                $mission = "Mission";
+                $missionRemarks = "បេសកកម្ម";
 
                 // Validate required fields
                 $requiredFields = ['leave_type_id', 'start_date', 'end_date'];
@@ -93,6 +95,7 @@ class DepDepartmentController
                 $managerName = !empty($userDoffice['lastNameKh']) && !empty($userDoffice['firstNameKh'])
                     ? $userDoffice['lastNameKh'][0] . ' ' . $userDoffice['firstNameKh'][0]
                     : null;
+                $link = "https://leave.iauoffsa.us/elms/headdepartmentpending";
 
                 if (!$managerId || !$managerEmail) {
                     throw new Exception("No valid manager details found.");
@@ -100,6 +103,7 @@ class DepDepartmentController
 
                 // Check if the manager is on leave today using the leave_requests table
                 $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+                $isManagerOnMission = $userModel->isManagerOnMission($managerId);
 
                 // Convert array to comma-separated string if necessary
                 if (is_array($managerEmail)) {
@@ -129,31 +133,54 @@ class DepDepartmentController
                     throw new Exception("Failed to create leave request. Please try again.");
                 }
 
-                if ($isManagerOnLeave) {
+                if ($isManagerOnLeave || $isManagerOnMission) {
                     // Submit approval
-                    $updatedAt = $model->updateApproval($leaveRequestId, $managerId, $status, $leaveRemarks);
+                    $updatedAt = $model->updateApproval($leaveRequestId, $managerId, $isManagerOnLeave ? $status : $mission, $isManagerOnLeave ? $leaveRemarks : $missionRemarks);
 
                     // Fetch another available manager if the current manager is on leave
                     $backupManager = null;
                     if (in_array($department, ["នាយកដ្ឋានកិច្ចការទូទៅ", "នាយកដ្ឋានសវនកម្មទី២"])) {
                         // Fetch the user's Unit details
                         $backupManager = $userModel->getEmailLeaderDHU1Api($user_id, $_SESSION['token']);
+                        // Update to backup manager's details
+                        $managerId = !empty($backupManager['ids']) ? $backupManager['ids'][0] : null;
+                        $managerEmail = $backupManager['emails'][0];
+                        $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
+                        $link = "https://leave.iauoffsa.us/elms/dunit1pending";
                     } else {
                         $backupManager = $userModel->getEmailLeaderDHU2Api($user_id, $_SESSION['token']);
+                        // Update to backup manager's details
+                        $managerId = !empty($backupManager['ids']) ? $backupManager['ids'][0] : null;
+                        $managerEmail = $backupManager['emails'][0];
+                        $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
+                        $link = "https://leave.iauoffsa.us/elms/dunit2pending";
                     }
 
                     if (!$backupManager || empty($backupManager['emails'])) {
                         throw new Exception("Both the primary and backup managers are unavailable. Please contact support.");
                     }
 
-                    // Update to backup manager's details
-                    $managerEmail = $backupManager['emails'][0];
-                    $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
-                }
-
-                // Send email notification to the manager
-                if (!$model->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
-                    throw new Exception("Notification email could not be sent. Please try again.");
+                    $userModel->sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link);
+                    // Send email notification to the manager
+                    if (!$model->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
+                        $_SESSION['error'] = [
+                            'title' => "Email Error",
+                            'message' => "Notification email could not be sent. Please try again."
+                        ];
+                        header("Location: /elms/apply-leave");
+                        exit();
+                    }
+                } else {
+                    $userModel->sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link);
+                    // Send email notification to the manager
+                    if (!$model->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
+                        $_SESSION['error'] = [
+                            'title' => "Email Error",
+                            'message' => "Notification email could not be sent. Please try again."
+                        ];
+                        header("Location: /elms/apply-leave");
+                        exit();
+                    }
                 }
 
                 // Create notification for the user
@@ -255,7 +282,7 @@ class DepDepartmentController
 
             $leaveRemarks = "ច្បាប់";
             $onLeave = "On Leave";
-            $onMission = "On Mission"; // New variable for mission check 
+            $onMission = "On Mission"; // New variable for mission check  
             $department = $_SESSION['departmentName'];
 
             // Start transaction
@@ -291,25 +318,37 @@ class DepDepartmentController
 
                 // If manager is on leave or mission, assign a backup manager
                 if ($isManagerOnLeave || $isManagerOnMission) {
-                    $updatedAt = $leaveApproval->updatePendingApproval($request_id, $managerId, $isManagerOnLeave ? $onLeave : $onMission, $leaveRemarks);
+                    $updatedAt = $leaveApproval->updatePendingApproval($request_id, $managerId, $isManagerOnLeave ? $onLeave : $onMission, $isManagerOnLeave ? $leaveRemarks : $onMission);
 
                     // Fetch backup manager
                     $backupManager = null;
                     if (in_array($department, ["នាយកដ្ឋានកិច្ចការទូទៅ", "នាយកដ្ឋានសវនកម្មទី២"])) {
                         // Fetch the user's Unit details for backup manager
                         $backupManager = $userModel->getEmailLeaderDHU1Api($user_id, $_SESSION['token']);
+
+                        // Update to backup manager's details
+                        $managerEmail = $backupManager['ids'][0];
+                        $managerEmail = $backupManager['emails'][0];
+                        $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
+                        $link = "https://leave.iauoffsa.us/elms/dunit1pending";
                     } else {
                         $backupManager = $userModel->getEmailLeaderDHU2Api($user_id, $_SESSION['token']);
+
+                        // Update to backup manager's details
+                        $managerEmail = $backupManager['ids'][0];
+                        $managerEmail = $backupManager['emails'][0];
+                        $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
+                        $link = "https://leave.iauoffsa.us/elms/dunit2pending";
                     }
 
                     if (!$backupManager || empty($backupManager['emails'])) {
                         throw new Exception("Both the primary and backup managers are unavailable. Please contact support.");
                     }
-
-                    // Update to backup manager's details
-                    $managerEmail = $backupManager['emails'][0];
-                    $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
                 }
+
+                // Send notifications Telegram
+                $userModel->sendTelegramNextManager($managerId, $uname, $start_date, $end_date, $duration_days, $uremarks, $status, $link);
+                $userModel->sendBackToUser($user_id, $uname, $start_date, $end_date, $duration_days, $uremarks, $status);
 
                 // Send email notification
                 if (!$Model->sendEmailNotification($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
@@ -401,7 +440,7 @@ class DepDepartmentController
                 'message' => "មិនអាចលុបសំណើច្បាប់នេះបានទេ។"
             ];
         }
-        header("Location: /elms/dashboard");
+        header("Location: /elms/ddepartmentLeave");
         exit();
     }
 

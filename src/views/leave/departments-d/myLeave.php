@@ -419,7 +419,8 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                             </td>
                             <td class="d-none d-sm-table-cell">
                                 <div class="badge <?= htmlspecialchars($request['color']) ?>">
-                                    <?= htmlspecialchars($request['leave_type_name']) ?></div>
+                                    <?= htmlspecialchars($request['leave_type_name']) ?>
+                                </div>
                             </td>
                             <td class="d-none d-sm-table-cell"><?= translateDateToKhmer($request['start_date'], 'D,j F Y') ?>
                             </td>
@@ -446,7 +447,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                     title="<?= htmlspecialchars($request['remarks']) ?>"><?= htmlspecialchars($request['remarks']) ?></span>
                             </td>
                             <td class="p-0">
-                                <a href="/elms/view-leave-detail?leave_id=<?= htmlspecialchars($request['id']) ?>"
+                                <a href="/elms/view-leave-detail-dd?leave_id=<?= htmlspecialchars($request['id']) ?>"
                                     title="ពិនិត្យមើល" data-bs-placement="auto" data-bs-toggle="tooltip"
                                     class="icon me-0 edit-btn">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -495,7 +496,8 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                                 <td>
                                                     <strong>ប្រភេទច្បាប់ : </strong>
                                                     <div class="badge <?= htmlspecialchars($request['color']) ?>">
-                                                        <?= htmlspecialchars($request['leave_type']) ?></div>
+                                                        <?= htmlspecialchars($request['leave_type']) ?>
+                                                    </div>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -535,7 +537,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                             <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-status bg-danger"></div>
-                                    <form action="/elms/hoffice-delete" method="POST">
+                                    <form action="/elms/ddepart-delete" method="POST">
                                         <div class="modal-body text-center py-4 mb-0">
                                             <input type="hidden" name="id" value="<?= htmlspecialchars($request['id']) ?>">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"

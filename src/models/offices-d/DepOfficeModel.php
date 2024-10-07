@@ -83,14 +83,14 @@ class DepOfficeModel
                 $leaveRequest['user_profile'] = 'default-profile.png'; // Use a default profile image if API fails
             }
 
-             // Optional: Add logic to fetch approvals, office positions, etc.
-             $leaveRequest['approvals'] = $this->getApprovalsByLeaveRequestId($leaveRequest['id'], $_SESSION['token']);
-             $leaveRequest['doffice'] = $this->getDOfficePositions($leaveRequest['id'], $_SESSION['token']);
-             $leaveRequest['hoffice'] = $this->getHOfficePositions($leaveRequest['id'], $_SESSION['token']);
-             $leaveRequest['ddepartment'] = $this->getDDepartmentPositions($leaveRequest['id'], $_SESSION['token']);
-             $leaveRequest['hdepartment'] = $this->getHDepartmentPositions($leaveRequest['id'], $_SESSION['token']);
-             $leaveRequest['dunit'] = $this->getDUnitPositions($leaveRequest['id'], $_SESSION['token']);
-             $leaveRequest['unit'] = $this->getUnitPositions($leaveRequest['id'], $_SESSION['token']);
+            // Optional: Add logic to fetch approvals, office positions, etc.
+            $leaveRequest['approvals'] = $this->getApprovalsByLeaveRequestId($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['doffice'] = $this->getDOfficePositions($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['hoffice'] = $this->getHOfficePositions($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['ddepartment'] = $this->getDDepartmentPositions($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['hdepartment'] = $this->getHDepartmentPositions($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['dunit'] = $this->getDUnitPositions($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['unit'] = $this->getUnitPositions($leaveRequest['id'], $_SESSION['token']);
         }
 
         return $results;
@@ -165,14 +165,14 @@ class DepOfficeModel
             }
 
             // Fetch additional data using existing methods
-           // Optional: Add logic to fetch approvals, office positions, etc.
-           $leaveRequest['approvals'] = $this->getApprovalsByLeaveRequestId($leaveRequest['id'], $_SESSION['token']);
-           $leaveRequest['doffice'] = $this->getDOfficePositions($leaveRequest['id'], $_SESSION['token']);
-           $leaveRequest['hoffice'] = $this->getHOfficePositions($leaveRequest['id'], $_SESSION['token']);
-           $leaveRequest['ddepartment'] = $this->getDDepartmentPositions($leaveRequest['id'], $_SESSION['token']);
-           $leaveRequest['hdepartment'] = $this->getHDepartmentPositions($leaveRequest['id'], $_SESSION['token']);
-           $leaveRequest['dunit'] = $this->getDUnitPositions($leaveRequest['id'], $_SESSION['token']);
-           $leaveRequest['unit'] = $this->getUnitPositions($leaveRequest['id'], $_SESSION['token']);
+            // Optional: Add logic to fetch approvals, office positions, etc.
+            $leaveRequest['approvals'] = $this->getApprovalsByLeaveRequestId($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['doffice'] = $this->getDOfficePositions($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['hoffice'] = $this->getHOfficePositions($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['ddepartment'] = $this->getDDepartmentPositions($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['hdepartment'] = $this->getHDepartmentPositions($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['dunit'] = $this->getDUnitPositions($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['unit'] = $this->getUnitPositions($leaveRequest['id'], $_SESSION['token']);
         }
 
         return $results;
@@ -294,11 +294,10 @@ class DepOfficeModel
 
         // Update the leave request status
         $stmt = $this->pdo->prepare(
-            'UPDATE ' . $this->table_name . ' SET dhead_office = ? WHERE id = ?'
+            'UPDATE ' . $this->table_name . ' SET head_office = ? WHERE id = ?'
         );
         $stmt->execute([$newStatus, $leave_request_id]);
     }
-    //  end if manager on leave 
 
     // if Manager on leave 
     public function updatePendingApproval($leave_request_id, $approver_id, $status, $remarks)
@@ -1079,6 +1078,7 @@ class DepOfficeModel
                 $leaveRequest['email'] = $userData['email'] ?? null;
                 $leaveRequest['dob'] = $userData['date_of_birth'] ?? null;
                 $leaveRequest['deputy_head_name'] = $userData['deputy_head_name'] ?? null;
+                $leaveRequest['profile'] = 'https://hrms.iauoffsa.us/images/' . $userData['image'];
             } else {
                 // Handle API error or missing data
                 error_log("Failed to fetch user data for leave request ID: $leave_id");

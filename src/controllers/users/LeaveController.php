@@ -1,5 +1,6 @@
 <?php
 require_once 'src/models/users/LeaveModel.php';
+require_once 'src/models/telegram/TelegramModel.php';
 require_once 'src/models/LeaveApproval.php';
 require_once 'src/models/Leavetype.php';
 require_once 'src/models/User.php';
@@ -51,7 +52,8 @@ class LeaveController
                 $activity = "បានស្នើសុំច្បាប់ឈប់សម្រាក។";
 
                 $leaveRemarks = "ច្បាប់";
-                $status = "On Leave"; 
+                $status = "On Leave";
+                $mission = "Mission";
 
                 // Validate that the end date is not smaller than the start date
                 if (new DateTime($end_date) < new DateTime($start_date)) {
@@ -94,24 +96,27 @@ class LeaveController
                 }
 
                 // Fetch the user's office details via API
-                $userDoffice = $userModel->getEmailLeaderDOApi($user_id, $_SESSION['token']);
-                if (!$userDoffice || $userDoffice['http_code'] !== 200 || empty($userDoffice['emails'])) {
+                $Depoffice = $userModel->getEmailLeaderDOApi($user_id, $_SESSION['token']);
+                if (!$Depoffice || $Depoffice['http_code'] !== 200 || empty($Depoffice['ids'])) {
                     throw new Exception("Unable to find office details. Please contact support.");
                 }
 
                 // Use the first available manager's ID and email
-                $managerId = !empty($userDoffice['ids']) ? $userDoffice['ids'][0] : null;
-                $managerEmail = !empty($userDoffice['emails']) ? $userDoffice['emails'][0] : null;
-                $managerName = !empty($userDoffice['lastNameKh']) && !empty($userDoffice['firstNameKh'])
-                    ? $userDoffice['lastNameKh'][0] . ' ' . $userDoffice['firstNameKh'][0]
+                $managerId = !empty($Depoffice['ids']) ? $Depoffice['ids'][0] : null;
+                $managerEmail = !empty($Depoffice['emails']) ? $Depoffice['emails'][0] : null;
+                $managerName = !empty($Depoffice['lastNameKh']) && !empty($Depoffice['firstNameKh'])
+                    ? $Depoffice['lastNameKh'][0] . ' ' . $Depoffice['firstNameKh'][0]
                     : null;
 
                 if (!$managerId || !$managerEmail) {
                     throw new Exception("No valid manager details found.");
                 }
 
-                // Check if the manager is on leave today using the leave_requests table
+                // Check if the manager is on leave or mission today using the leave_requests table
                 $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+                $isManagerOnMission = $userModel->isManagerOnMission($managerId);
+
+                $link = "https://leave.iauoffsa.us/elms/pending";
 
                 // Create leave request
                 $leaveRequestModel = new LeaveModel();
@@ -134,10 +139,10 @@ class LeaveController
                     throw new Exception("Failed to create leave request. Please try again.");
                 }
 
-                if ($isManagerOnLeave) {
-                    // Submit approval
+                if ($isManagerOnLeave || $isManagerOnMission) {
+                    // Submit approval to backup manager if primary is on leave or mission
                     $leaveApproval = new LeaveModel();
-                    $updatedAt = $leaveApproval->submitApproval($leaveRequestId, $managerId, $status, $leaveRemarks);
+                    $leaveApproval->submitApproval($leaveRequestId, $managerId, $isManagerOnLeave ? $status : $mission, $isManagerOnLeave ? $leaveRemarks : $mission);
 
                     // Fetch another available manager if the current manager is on leave
                     $backupManager = $userModel->getEmailLeaderHOApi($user_id, $_SESSION['token']);
@@ -146,8 +151,17 @@ class LeaveController
                     }
 
                     // Update to backup manager's details
+                    $managerId = !empty($backupManager['ids']) ? $backupManager['ids'][0] : null;
                     $managerEmail = $backupManager['emails'][0];
                     $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
+                    $link = "https://leave.iauoffsa.us/elms/headofficepending";
+
+                    // Send Telegram notification for backup manager
+                    $userModel->sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link);
+                } else {
+
+                    // Send Telegram notification for primary manager
+                    $userModel->sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link);
                 }
 
                 // Send email notification

@@ -50,6 +50,7 @@ class AuthController
                         $_SESSION['token'] = $token; // Store the token
 
                         $_SESSION['BotUsername'] = "myelmsbot";
+                        $_SESSION['LateInBot'] = "lateinoutbot";
 
                         // Fetch position_name and store it in session
                         $position = $userModel->getRoleApi($user['roleId'], $token);

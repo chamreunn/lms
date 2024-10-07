@@ -427,6 +427,7 @@ class DepDepartmentModel
                 $leaveRequest['email'] = $userData['email'] ?? null;
                 $leaveRequest['dob'] = $userData['date_of_birth'] ?? null;
                 $leaveRequest['deputy_head_name'] = $userData['deputy_head_name'] ?? null;
+                $leaveRequest['profile'] = 'https://hrms.iauoffsa.us/images/' . $userData['image'] ?? null;
             } else {
                 // Handle API error or missing data
                 error_log("Failed to fetch user data for leave request ID: $leave_id");
@@ -436,7 +437,6 @@ class DepDepartmentModel
                 $leaveRequest['deputy_head_name'] = null;
             }
 
-            // Optional: Add logic to fetch approvals, office positions, etc.
             // Fetch other details such as approvals, office positions, department, and unit
             $leaveRequest['approvals'] = $this->getApprovalsByLeaveRequestId($leaveRequest['id'], $token);
             $leaveRequest['doffice'] = $this->getDOfficePositions($leaveRequest['id'], $token);
@@ -1465,7 +1465,7 @@ class DepDepartmentModel
     {
         // Fetch the current status of the leave request
         $stmt = $this->pdo->prepare(
-            'SELECT dhead_department, num_date FROM ' . $this->table_name . ' WHERE id = ?'
+            'SELECT head_department, num_date FROM ' . $this->table_name . ' WHERE id = ?'
         );
         $stmt->execute([$leave_request_id]);
         $leaveRequest = $stmt->fetch();
@@ -1474,7 +1474,7 @@ class DepDepartmentModel
             throw new Exception("Invalid leave request ID: $leave_request_id");
         }
 
-        $currentStatus = $leaveRequest['dhead_department'];
+        $currentStatus = $leaveRequest['head_department'];
         $duration = $leaveRequest['num_date'];
 
         // If the current status is already 'Rejected', no further updates are needed
@@ -1490,7 +1490,7 @@ class DepDepartmentModel
 
         // Update the leave request status
         $stmt = $this->pdo->prepare(
-            'UPDATE ' . $this->table_name . ' SET dhead_department = ?, head_department = ? WHERE id = ?'
+            'UPDATE ' . $this->table_name . ' SET head_department = ?, head_department = ? WHERE id = ?'
         );
         $stmt->execute([$newStatus, $newStatus, $leave_request_id]);
     }

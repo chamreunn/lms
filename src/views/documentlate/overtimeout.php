@@ -230,6 +230,7 @@ function convertToKhmerNumerals($number)
                 <table id="officeTable" class="table card-table table-vcenter text-nowrap datatable">
                     <thead>
                         <tr>
+                            <th class="d-none d-xl-table-cell">ល.រ</th>
                             <th>ឈ្មោះមន្រ្តី</th>
                             <th class="d-none d-xl-table-cell">កាលបរិច្ឆេទយឺត</th>
                             <th class="d-none d-xl-table-cell">ម៉ោង</th>
@@ -241,8 +242,9 @@ function convertToKhmerNumerals($number)
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($getovertimeout as $getlate): ?>
+                        <?php foreach ($getovertimeout as $key => $getlate): ?>
                             <tr>
+                                <td class="d-none d-xl-table-cell"><?= $key + 1 ?></td>
                                 <td>
                                     <div class="d-flex">
                                         <!-- Plus button for showing hidden data on small screens -->
@@ -269,9 +271,9 @@ function convertToKhmerNumerals($number)
 
                                     <!-- Collapsed content for small screens -->
                                     <div id="details<?= $getlate['id'] ?>" class="collapse d-sm-block d-xl-none mt-2">
-                                        <div class="mb-1"><strong>ម៉ោង:</strong> <?= $getlate['late_out'] ?></div>
+                                        <div class="mb-1 text-red"><strong>ម៉ោង:</strong> <?= $getlate['late_out'] ?></div>
+                                        <div class="mb-1 text-red"><strong>រយៈពេល:</strong> <?= $getlate['late'] ?> នាទី</div>
                                         <div class="mb-1"><strong>ថ្ងៃខែឆ្នាំ:</strong> <?= $getlate['date'] ?></div>
-                                        <div class="mb-1"><strong>រយៈពេល:</strong> <?= $getlate['late'] ?> នាទី</div>
                                         <div class="mb-1"><strong>មូលហេតុ:</strong> <?= $getlate['reasons'] ?></div>
                                         <div class="mb-1"><strong>ស្នើនៅ:</strong> <?= $getlate['created_at'] ?></div>
                                         <div class="mb-0">
@@ -305,28 +307,16 @@ function convertToKhmerNumerals($number)
                                                     </svg>
                                                 </a>
                                             <?php else: ?>
-                                                <a href="#" class="icon me-2 edit-btn text-secondary text-muted">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                        stroke-linecap="round" stroke-linejoin="round"
-                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
+                                                <a href="#" class="icon me-2 edit-btn text-info"
+                                                    data-bs-target="#editlateouts<?= $getlate['id'] ?>" data-bs-toggle="modal">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path
-                                                            d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
-                                                        <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" />
-                                                        <path
-                                                            d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
-                                                    </svg>
-                                                </a>
-                                                <a href="#" class="icon me-2 edit-btn text-secondary text-muted">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                        stroke-linecap="round" stroke-linejoin="round"
-                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-download">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
-                                                        <path d="M7 11l5 5l5 -5" />
-                                                        <path d="M12 4l0 12" />
+                                                        <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                                                        <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                                                        <path d="M16 5l3 3" />
                                                     </svg>
                                                 </a>
                                                 <a href="#" class="icon me-2 edit-btn text-danger"
@@ -343,6 +333,105 @@ function convertToKhmerNumerals($number)
                                                         <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
                                                     </svg>
                                                 </a>
+
+                                                <!-- edit late out responsive  -->
+                                                <div class="modal modal-blur fade" id="editlateouts<?= $getlate['id'] ?>" tabindex="-1"
+                                                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered modal-md">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title"><strong>កែប្រែសំណើចូលយឺត</strong></h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                                    aria-label="Close"></button>
+                                                            </div>
+                                                            <form method="POST" action="/elms/edit_lateout" enctype="multipart/form-data">
+                                                                <input type="hidden" name="lateId" value="<?= $getlate['id'] ?>">
+                                                                <div class="modal-body">
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 mb-3">
+                                                                            <label for="lateindate" class="form-label">កាលបរិច្ឆេទ<span
+                                                                                    class="text-danger mx-1 fw-bold">*</span></label>
+                                                                            <div class="input-icon">
+                                                                                <span class="input-icon-addon">
+                                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon"
+                                                                                        width="24" height="24" viewBox="0 0 24 24"
+                                                                                        stroke-width="2" stroke="currentColor" fill="none"
+                                                                                        stroke-linecap="round" stroke-linejoin="round">
+                                                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none">
+                                                                                        </path>
+                                                                                        <rect x="4" y="5" width="16" height="16" rx="2">
+                                                                                        </rect>
+                                                                                        <line x1="16" y1="3" x2="16" y2="7"></line>
+                                                                                        <line x1="8" y1="3" x2="8" y2="7"></line>
+                                                                                        <line x1="4" y1="11" x2="20" y2="11"></line>
+                                                                                        <rect x="8" y="15" width="2" height="2"></rect>
+                                                                                    </svg>
+                                                                                </span>
+                                                                                <input type="text" autocomplete="off"
+                                                                                    value="<?= $getlate['date'] ?>"
+                                                                                    class="form-control date-picker" name="date">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-lg-12 mb-3">
+                                                                            <label class="form-label">ម៉ោង<span
+                                                                                    class="text-danger mx-1 fw-bold">*</span></label>
+                                                                            <div class="input-icon">
+                                                                                <span class="input-icon-addon">
+                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                                                        height="24" viewBox="0 0 24 24" fill="none"
+                                                                                        stroke="currentColor" stroke-width="2"
+                                                                                        stroke-linecap="round" stroke-linejoin="round"
+                                                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-clock-12">
+                                                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                                        <path
+                                                                                            d="M3 12a9 9 0 0 0 9 9m9 -9a9 9 0 1 0 -18 0" />
+                                                                                        <path d="M12 7v5l.5 .5" />
+                                                                                        <path
+                                                                                            d="M18 15h2a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-1a1 1 0 0 0 -1 1v1a1 1 0 0 0 1 1h2" />
+                                                                                        <path d="M15 21v-6" />
+                                                                                    </svg>
+                                                                                </span>
+                                                                                <input type="text" autocomplete="off"
+                                                                                    value="<?= $getlate['late_out'] ?>" placeholder="ម៉ោង"
+                                                                                    class="form-control time-picker" name="time">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-12 mb-3">
+                                                                            <label for="reason" class="form-label">មូលហេតុ<span
+                                                                                    class="text-danger mx-1 fw-bold">*</span></label>
+                                                                            <textarea autocomplete="off" placeholder="មូលហេតុ"
+                                                                                class="form-control" id="reason"
+                                                                                name="reason"><?= $getlate['reasons'] ?></textarea>
+                                                                        </div>
+                                                                        <div class="col-lg-6">
+                                                                            <label class="form-check cursor-pointer">
+                                                                                <input class="form-check-input" type="checkbox" name="agree"
+                                                                                    <?= isset($_POST['agree']) ? 'checked' : ''; ?>>
+                                                                                <span class="form-check-label">យល់ព្រមលើការបញ្ចូល<span
+                                                                                        class="text-danger fw-bold mx-1">*</span></span>
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer bg-light">
+                                                                    <div class="w-100">
+                                                                        <div class="row">
+                                                                            <div class="col">
+                                                                                <button type="button" class="btn w-100"
+                                                                                    data-bs-dismiss="modal">បោះបង់</button>
+                                                                            </div>
+                                                                            <div class="col">
+                                                                                <button type="submit" class="btn w-100 btn-primary ms-auto">
+                                                                                    បញ្ចូន
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
                                                 <!-- delete  -->
                                                 <div class="modal modal-blur fade" id="deleteMissions<?= $getlate['id'] ?>"
@@ -392,8 +481,8 @@ function convertToKhmerNumerals($number)
                                     </div>
                                 </td>
                                 <td class="d-none d-xl-table-cell"><?= $getlate['date'] ?></td>
-                                <td class="d-none d-xl-table-cell"><?= $getlate['late_out'] ?></td>
-                                <td class="d-none d-xl-table-cell"><?= $getlate['late'] ?>នាទី</td>
+                                <td class="d-none d-xl-table-cell text-red"><?= $getlate['late_out'] ?></td>
+                                <td class="d-none d-xl-table-cell text-red"><?= $getlate['late'] ?>នាទី</td>
                                 <td class="d-none d-xl-table-cell"><?= $getlate['reasons'] ?></td>
                                 <td class="d-none d-xl-table-cell"><?= $getlate['created_at'] ?></td>
                                 <td>
@@ -432,29 +521,73 @@ function convertToKhmerNumerals($number)
                                                 <path d="M12 4l0 12" />
                                             </svg>
                                         </a>
-                                    <?php else: ?>
-                                        <a href="#" class="icon me-2 edit-btn text-secondary text-muted">
+                                        <a href="#" class="icon me-2 edit-btn text-danger"
+                                            data-bs-target="#deleteMissions<?= $getlate['id'] ?>" data-bs-toggle="modal">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                                 stroke-linejoin="round"
-                                                class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path
-                                                    d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
-                                                <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" />
-                                                <path
-                                                    d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
+                                                <path d="M4 7l16 0" />
+                                                <path d="M10 11l0 6" />
+                                                <path d="M14 11l0 6" />
+                                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
                                             </svg>
                                         </a>
-                                        <a href="#" class="icon me-2 edit-btn text-secondary text-muted">
+
+                                        <!-- delete  -->
+                                        <div class="modal modal-blur fade" id="deleteMissions<?= $getlate['id'] ?>" tabindex="-1"
+                                            role="dialog" aria-hidden="true">
+                                            <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-status bg-danger"></div>
+                                                    <form action="/elms/late-out-delete" method="POST">
+                                                        <div class="modal-body text-center py-4 mb-0">
+                                                            <input type="hidden" name="id" value="<?= $getlate['id'] ?>">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                                class="icon mb-2 text-danger icon-lg">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                                <path d="M12 9v4"></path>
+                                                                <path
+                                                                    d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
+                                                                </path>
+                                                                <path d="M12 16h.01"></path>
+                                                            </svg>
+                                                            <h5 class="modal-title fw-bold text-danger">លុបការចូលយឺត</h5>
+                                                            <p class="mb-0">តើអ្នកប្រាកដទេថានិងលុបការចូលយឺតនេះ?</p>
+                                                        </div>
+                                                        <div class="modal-footer bg-light border-top">
+                                                            <div class="w-100">
+                                                                <div class="row">
+                                                                    <div class="col">
+                                                                        <button type="button" class="btn w-100"
+                                                                            data-bs-dismiss="modal">បោះបង់</button>
+                                                                    </div>
+                                                                    <div class="col">
+                                                                        <button type="submit"
+                                                                            class="btn btn-danger ms-auto w-100">បាទ / ចា៎</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php else: ?>
+                                        <a href="#" class="icon me-2 edit-btn text-info"
+                                            data-bs-target="#editlateout<?= $getlate['id'] ?>" data-bs-toggle="modal">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                                 stroke-linejoin="round"
-                                                class="icon icon-tabler icons-tabler-outline icon-tabler-download">
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
-                                                <path d="M7 11l5 5l5 -5" />
-                                                <path d="M12 4l0 12" />
+                                                <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                                                <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                                                <path d="M16 5l3 3" />
                                             </svg>
                                         </a>
                                         <a href="#" class="icon me-2 edit-btn text-danger"
@@ -471,6 +604,105 @@ function convertToKhmerNumerals($number)
                                                 <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
                                             </svg>
                                         </a>
+
+                                        <!-- edit late out  -->
+                                        <div class="modal modal-blur fade" id="editlateout<?= $getlate['id'] ?>" tabindex="-1"
+                                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-md">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title"><strong>កែប្រែសំណើចូលយឺត</strong></h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+                                                    <form method="POST" action="/elms/edit_lateout" enctype="multipart/form-data">
+                                                        <input type="hidden" name="lateId" value="<?= $getlate['id'] ?>">
+                                                        <div class="modal-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-12 mb-3">
+                                                                    <label for="lateindate" class="form-label">កាលបរិច្ឆេទ<span
+                                                                            class="text-danger mx-1 fw-bold">*</span></label>
+                                                                    <div class="input-icon">
+                                                                        <span class="input-icon-addon">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon"
+                                                                                width="24" height="24" viewBox="0 0 24 24"
+                                                                                stroke-width="2" stroke="currentColor" fill="none"
+                                                                                stroke-linecap="round" stroke-linejoin="round">
+                                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none">
+                                                                                </path>
+                                                                                <rect x="4" y="5" width="16" height="16" rx="2">
+                                                                                </rect>
+                                                                                <line x1="16" y1="3" x2="16" y2="7"></line>
+                                                                                <line x1="8" y1="3" x2="8" y2="7"></line>
+                                                                                <line x1="4" y1="11" x2="20" y2="11"></line>
+                                                                                <rect x="8" y="15" width="2" height="2"></rect>
+                                                                            </svg>
+                                                                        </span>
+                                                                        <input type="text" autocomplete="off"
+                                                                            value="<?= $getlate['date'] ?>"
+                                                                            class="form-control date-picker" name="date">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-12 mb-3">
+                                                                    <label class="form-label">ម៉ោង<span
+                                                                            class="text-danger mx-1 fw-bold">*</span></label>
+                                                                    <div class="input-icon">
+                                                                        <span class="input-icon-addon">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                                                height="24" viewBox="0 0 24 24" fill="none"
+                                                                                stroke="currentColor" stroke-width="2"
+                                                                                stroke-linecap="round" stroke-linejoin="round"
+                                                                                class="icon icon-tabler icons-tabler-outline icon-tabler-clock-12">
+                                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                                <path
+                                                                                    d="M3 12a9 9 0 0 0 9 9m9 -9a9 9 0 1 0 -18 0" />
+                                                                                <path d="M12 7v5l.5 .5" />
+                                                                                <path
+                                                                                    d="M18 15h2a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-1a1 1 0 0 0 -1 1v1a1 1 0 0 0 1 1h2" />
+                                                                                <path d="M15 21v-6" />
+                                                                            </svg>
+                                                                        </span>
+                                                                        <input type="text" autocomplete="off"
+                                                                            value="<?= $getlate['late_out'] ?>" placeholder="ម៉ោង"
+                                                                            class="form-control time-picker" name="time">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-12 mb-3">
+                                                                    <label for="reason" class="form-label">មូលហេតុ<span
+                                                                            class="text-danger mx-1 fw-bold">*</span></label>
+                                                                    <textarea autocomplete="off" placeholder="មូលហេតុ"
+                                                                        class="form-control" id="reason"
+                                                                        name="reason"><?= $getlate['reasons'] ?></textarea>
+                                                                </div>
+                                                                <div class="col-lg-6">
+                                                                    <label class="form-check cursor-pointer">
+                                                                        <input class="form-check-input" type="checkbox" name="agree"
+                                                                            <?= isset($_POST['agree']) ? 'checked' : ''; ?>>
+                                                                        <span class="form-check-label">យល់ព្រមលើការបញ្ចូល<span
+                                                                                class="text-danger fw-bold mx-1">*</span></span>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer bg-light">
+                                                            <div class="w-100">
+                                                                <div class="row">
+                                                                    <div class="col">
+                                                                        <button type="button" class="btn w-100"
+                                                                            data-bs-dismiss="modal">បោះបង់</button>
+                                                                    </div>
+                                                                    <div class="col">
+                                                                        <button type="submit" class="btn w-100 btn-primary ms-auto">
+                                                                            បញ្ចូន
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         <!-- delete  -->
                                         <div class="modal modal-blur fade" id="deleteMission<?= $getlate['id'] ?>" tabindex="-1"

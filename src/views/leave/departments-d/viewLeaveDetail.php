@@ -133,304 +133,92 @@ function convertToKhmerNumerals($number)
 <?php endif; ?>
 
 <div class="row">
-    <div class="col-lg-12">
-        <div class="card mb-3">
-            <div class="card-header">
-                <h4 class="text-primary mb-0">ព័ត៌មានលម្អិតអំពីច្បាប់</h4>
-                <!-- Cancel Button -->
-                <?php if ($request['status'] !== 'Approved'): ?>
-                    <div class="ms-auto mb-0">
-                        <button class="btn btn-outline-danger" data-bs-toggle="modal"
-                            data-bs-target="#cancelModal">បោះបង់សំណើ</button>
-                    </div>
-
-                    <div class="modal modal-blur fade" id="cancelModal" tabindex="-1">
-                        <div class="modal-dialog modal-dialog-centered modal-sm">
-                            <div class="modal-content">
-                                <div class="modal-status bg-danger"></div>
-                                <form action="/elms/leave-delete" method="POST">
-                                    <div class="modal-body text-center py-4 mb-0">
-                                        <input type="hidden" name="id" value="<?= $request['id'] ?>">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                            <path d="M12 9v4"></path>
-                                            <path
-                                                d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
-                                            </path>
-                                            <path d="M12 16h.01"></path>
-                                        </svg>
-                                        <h5 class="modal-title fw-bold text-danger">បោះបង់សំណើច្បាប់</h5>
-                                        <p class="mb-0">តើអ្នកប្រាកដទេថានិងបោះបង់សំណើច្បាប់នេះ?</p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <div class="w-100">
-                                            <div class="row">
-                                                <div class="col">
-                                                    <button type="button" class="btn w-100"
-                                                        data-bs-dismiss="modal">បោះបង់</button>
-                                                </div>
-                                                <div class="col">
-                                                    <button type="submit"
-                                                        class="btn btn-danger ms-auto w-100">យល់ព្រម</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                <?php elseif ($request['status'] == 'Approved'): ?>
-                    <div class="mb-3 ms-auto row">
-                        <div class="col-sm-8">
-                            <div class="dropdown">
-                                <button class="btn btn-outline-success dropdown-toggle" type="button"
-                                    id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                    ទាញយកច្បាប់ឈប់សម្រាក
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <li>
-                                        <span class="dropdown-header">ទាញយក បោះពុម្ព</span>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" onclick="printContents(<?= $request['id'] ?>)" href="#">
-                                            <!-- Download SVG icon from http://tabler-icons.io/i/settings -->
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"
-                                                class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path
-                                                    d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
-                                                <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" />
-                                                <path
-                                                    d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
-                                            </svg>
-                                            <span class="mx-2">បោះពុម្ព</span>
-                                        </a>
-                                    </li>
-                                    <li class="dropdown-divider mt-0 mb-0"></li>
-                                    <li>
-                                        <a class="dropdown-item mb-0" href="#"
-                                            onclick="Export2Word('page-contents<?= $request['id'] ?>', 'ច្បាប់ឈប់សម្រាក <?= $request['khmer_name'] ?>');">
-                                            <!-- Download SVG icon from http://tabler-icons.io/i/edit -->
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"
-                                                class="icon icon-tabler icons-tabler-outline icon-tabler-download">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
-                                                <path d="M7 11l5 5l5 -5" />
-                                                <path d="M12 4l0 12" />
-                                            </svg>
-                                            <span class="mx-2">ទាញយក (WORD)</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                <?php endif; ?>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h3 class="text-primary mb-0">ព័ត៌មានលម្អិតអំពីច្បាប់</h3>
             </div>
-            <div class="card-body">
-                <table class="table table-bordered">
+            <div class="card-body text-center">
+                <img class="avatar avatar-md mb-3" src="<?= $request['profile'] ?>" alt="Profile Image"
+                    style="object-fit: cover;">
+                <h3 class="text-primary"><?= $request['khmer_name'] ?></h3>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
                     <tbody>
                         <tr>
-                            <th scope="row">ប្រភេទច្បាប់ :</th>
-                            <td><span
-                                    class="badge badge-primary <?= $request['color'] ?>"><?= $request['leave_type_name'] ?></span>
+                            <th>ប្រភេទច្បាប់ :</th>
+                            <td>
+                                <span
+                                    class="badge bg-primary <?= $request['color'] ?>"><?= $request['leave_type_name'] ?></span>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">ស្ថានភាព :</th>
+                            <th>ស្ថានភាព :</th>
                             <td>
-                                <span class="badge 
-                                    <?php
-                                    $attachmentRequired = $request['attRequired'] == 'YES';
-                                    $attachmentMissing = empty($request['attachment']);
+                                <?php
+                                $attachmentRequired = $request['attRequired'] == 'YES';
+                                $attachmentMissing = empty($request['attachment']);
+                                $statusToDisplay = $request['status'];
 
-                                    // Determine the status to display
-                                    $statusToDisplay = $request['status'];
-
-                                    // If attachment is required but missing, override the status to 'Pending'
-                                    if ($attachmentRequired && $attachmentMissing) {
-                                        $statusToDisplay = 'Pending';
-                                    }
-                                    if ($statusToDisplay == 'Pending') {
-                                        echo 'bg-warning';
-                                    } elseif ($statusToDisplay == 'Approved') {
-                                        echo 'bg-success';
-                                    } elseif ($statusToDisplay == 'Rejected') {
-                                        echo 'bg-danger';
-                                    } else {
-                                        echo 'bg-secondary';
-                                    }
-                                    ?>">
+                                if ($attachmentRequired && $attachmentMissing) {
+                                    $statusToDisplay = 'Pending';
+                                }
+                                ?>
+                                <span
+                                    class="badge <?= $statusToDisplay == 'Pending' ? 'bg-warning' : ($statusToDisplay == 'Approved' ? 'bg-success' : ($statusToDisplay == 'Rejected' ? 'bg-danger' : 'bg-secondary')) ?>">
                                     <?= $statusToDisplay ?>
                                 </span>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">ចាប់ពីកាលបរិច្ឆេទ :</th>
+                            <th>ចាប់ពីកាលបរិច្ឆេទ :</th>
                             <td>
                                 <span class="text-primary">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-event">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path
-                                            d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
-                                        <path d="M16 3l0 4" />
-                                        <path d="M8 3l0 4" />
-                                        <path d="M4 11l16 0" />
-                                        <path d="M8 15h2v2h-2z" />
-                                    </svg>
-                                </span>
-                                <span class="mx-2">
+                                    <i class="ti ti-calendar"></i>
                                     <?= translateDateToKhmer($request['start_date'], 'D, j F Y') ?>
                                 </span>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">ដល់កាលបរិច្ឆេទ :</th>
+                            <th>ដល់កាលបរិច្ឆេទ :</th>
                             <td>
                                 <span class="text-primary">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-event">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path
-                                            d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
-                                        <path d="M16 3l0 4" />
-                                        <path d="M8 3l0 4" />
-                                        <path d="M4 11l16 0" />
-                                        <path d="M8 15h2v2h-2z" />
-                                    </svg>
-                                </span>
-                                <span class="mx-2">
+                                    <i class="ti ti-calendar"></i>
                                     <?= translateDateToKhmer($request['end_date'], 'D, j F Y') ?>
                                 </span>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">រយៈពេល :</th>
+                            <th>រយៈពេល :</th>
                             <td>
                                 <span class="text-primary">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        class="icon icon-tabler icons-tabler-outline icon-tabler-clock-24">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M3 12a9 9 0 0 0 5.998 8.485m12.002 -8.485a9 9 0 1 0 -18 0" />
-                                        <path d="M12 7v5" />
-                                        <path
-                                            d="M12 15h2a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-1a1 1 0 0 0 -1 1v1a1 1 0 0 0 1 1h2" />
-                                        <path d="M18 15v2a1 1 0 0 0 1 1h1" />
-                                        <path d="M21 15v6" />
-                                    </svg>
-                                </span>
-                                <span class="mx-2">
-                                    <?= $request['num_date'] ?> ថ្ងៃ
+                                    <i class="ti ti-clock"></i> <?= $request['num_date'] ?> ថ្ងៃ
                                 </span>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">មូលហេតុ :</th>
+                            <th>មូលហេតុ :</th>
                             <td><?= $request['remarks'] ?></td>
                         </tr>
                         <tr>
-                            <th scope="row">ឯកសារភ្ជាប់ :</th>
+                            <th>ឯកសារភ្ជាប់ :</th>
                             <td>
                                 <?php if ($request['attRequired'] === 'Yes'): ?>
-                                    <?php if (empty($request['attachment'])): ?>
-                                        <span class="text-danger">សូមភ្ជាប់ឯកសារភ្ជាប់</span>
-                                    <?php else: ?>
-                                        <a href="<?= $request['attachment'] ?>" target="_blank">មើលឯកសារ</a>
-                                    <?php endif; ?>
+                                        <?php if (empty($request['attachment'])): ?>
+                                                <span class="text-danger">សូមភ្ជាប់ឯកសារភ្ជាប់</span>
+                                        <?php else: ?>
+                                                <a href="<?= $request['attachment'] ?>" target="_blank"
+                                                    class="text-primary">មើលឯកសារ</a>
+                                        <?php endif; ?>
                                 <?php else: ?>
-                                    <span class="text-muted">មិនត្រូវការភ្ជាប់ឯកសារ</span>
+                                        <span class="text-muted">មិនត្រូវការភ្ជាប់ឯកសារ</span>
                                 <?php endif; ?>
                             </td>
                         </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <!-- Contact Information Section -->
-        <div class="card mb-3">
-            <div class="card-header">
-                <h4 class="text-primary mb-0">ទំនាក់ទំនង</h4>
-            </div>
-            <div class="card-body">
-                <table class="table table-bordered">
-                    <tbody>
                         <tr>
-                            <th scope="row">ឈ្មោះ :</th>
-                            <td>
-                                <span class="text-primary">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        class="icon icon-tabler icons-tabler-outline icon-tabler-user">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
-                                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                    </svg>
-                                </span>
-                                <span class="mx-2">
-                                    <?= $request['khmer_name'] ?>
-                                </span>
-                            </td>
-                        </tr>
-                        <!-- Contact Name -->
-                        <tr>
-                            <th scope="row">
-                                ទំនាក់ទំនង :
-                            </th>
-                            <td>
-                                <span class="text-primary">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        class="icon icon-tabler icons-tabler-outline icon-tabler-phone">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path
-                                            d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" />
-                                    </svg>
-                                </span>
-                                <span class="mx-2">
-                                    <?= $request['phone_number'] ?>
-                                </span>
-                            </td>
-                        </tr>
-
-                        <!-- Contact Name -->
-                        <tr>
-                            <th scope="row">
-                                អាសយដ្ឋានអ៊ីម៉ែល :
-                            </th>
-                            <td>
-                                <span class="text-primary">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        class="icon icon-tabler icons-tabler-outline icon-tabler-mail">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path
-                                            d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" />
-                                        <path d="M3 7l9 6l9 -6" />
-                                    </svg>
-                                </span>
-                                <span class="mx-2">
-                                    <a href="mailto:<?= $request['email'] ?>" class="text-primary">
-                                        <?= $request['email'] ?>
-                                    </a>
-                                </span>
-                            </td>
+                            <th>ទំនាក់ទំនង :</th>
+                            <td><?= $request['phone_number'] ?></td>
                         </tr>
                     </tbody>
                 </table>
@@ -438,62 +226,192 @@ function convertToKhmerNumerals($number)
         </div>
     </div>
 
-    <!-- Steps Vertical -->
-    <div class="col-lg-12">
+    <div class="col-lg-8">
         <div class="card">
-            <div class="card-header">
-                <h4 class="card-title text-primary mb-0">ការអនុម័ត</h4>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <?php if (empty($request['approvals'])): ?>
-                        <div class="d-flex flex-column w-100 justify-content-center align-items-center mb-2">
-                            <img src="public/img/icons/svgs/empty.svg" alt="">
-                            <span class="text-muted">មិនទាន់មានការអនុម័ត</span>
+            <div class="card-header d-flex justify-content-between bg-light">
+                <h3 class="text-primary mb-0">ការអនុម័ត</h3>
+                <?php if ($request['status'] !== 'Approved'): ?>
+                        <div class="ms-auto mb-0">
+                            <button class="btn btn-outline-danger" data-bs-toggle="modal"
+                                data-bs-target="#cancelModal">បោះបង់សំណើ</button>
                         </div>
-                    <?php else: ?>
-                        <!-- Actual items -->
-                        <?php foreach ($request['approvals'] as $index => $approval): ?>
-                            <?php
-                            $isLast = $index == count($request['approvals']) - 1;
-                            $isWaiting = !$isLast && $request['approvals'][$index + 1]['status'] == 'Pending';
-                            ?>
-                            <div class="col-md-4">
-                                <div
-                                    class="card mb-3 <?= $approval['status'] == 'Rejected' ? 'border-danger' : ($approval['status'] == 'Approved' ? 'border-success' : ($approval['status'] == 'Cancelled' ? 'border-secondary' : 'border-warning')) ?>">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center mb-3">
-                                            <img src="<?= $approval['profile'] ?>" class="avatar rounded-circle me-3" alt=""
-                                                style="object-fit: cover;">
-                                            <div>
-                                                <h5 class="mb-0"><?= $approval['approver_name'] ?></h5>
-                                                <small
-                                                    class="text-muted"><?= translateDateToKhmer($approval['updated_at'], 'j F, Y h:i A') ?></small>
+
+                        <div class="modal modal-blur fade" id="cancelModal" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-status bg-danger"></div>
+                                    <form action="/elms/ddepart-delete" method="POST">
+                                        <div class="modal-body text-center py-4 mb-0">
+                                            <input type="hidden" name="id" value="<?= $request['id'] ?>">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path d="M12 9v4"></path>
+                                                <path
+                                                    d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
+                                                </path>
+                                                <path d="M12 16h.01"></path>
+                                            </svg>
+                                            <h5 class="modal-title fw-bold text-danger">បោះបង់សំណើច្បាប់</h5>
+                                            <p class="mb-0">តើអ្នកប្រាកដទេថានិងបោះបង់សំណើច្បាប់នេះ?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <div class="w-100">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <button type="button" class="btn w-100"
+                                                            data-bs-dismiss="modal">បោះបង់</button>
+                                                    </div>
+                                                    <div class="col">
+                                                        <button type="submit"
+                                                            class="btn btn-danger ms-auto w-100">យល់ព្រម</button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <span
-                                                class="badge ms-auto <?= $approval['status'] == 'Pending' ? 'bg-warning' : ($approval['status'] == 'Approved' ? 'bg-success' : ($approval['status'] == 'Rejected' ? 'bg-danger' : 'bg-secondary')) ?>">
-                                                <i
-                                                    class="status-icon <?= $approval['status'] == 'Pending' ? 'ti ti-clock' : ($approval['status'] == 'Approved' ? 'ti ti-check-circle' : ($approval['status'] == 'Rejected' ? 'ti ti-x-circle' : 'ti ti-slash-circle')) ?>"></i>
-                                                <?= $approval['status'] ?>
-                                            </span>
                                         </div>
-                                        <div class="mb-0">
-                                            <textarea id="remarks-<?= $index ?>" class="form-control" rows="3"
-                                                disabled><?= $approval['remarks'] ?? "មិនមានមតិយោបល់" ?></textarea>
-                                        </div>
-                                    </div>
-                                    <?php if ($request['status'] !== 'Approved'): ?>
-                                        <!-- Additional content for pending approval -->
-                                    <?php endif; ?>
+                                    </form>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
+                        </div>
+                <?php elseif ($request['status'] == 'Approved'): ?>
+                        <div class="mb-3 ms-auto row">
+                            <div class="col-sm-8">
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-success dropdown-toggle" type="button"
+                                        id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                        ទាញយកច្បាប់ឈប់សម្រាក
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <li>
+                                            <span class="dropdown-header">ទាញយក បោះពុម្ព</span>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" onclick="printContents(<?= $request['id'] ?>)" href="#">
+                                                <!-- Download SVG icon from http://tabler-icons.io/i/settings -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path
+                                                        d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
+                                                    <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" />
+                                                    <path
+                                                        d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
+                                                </svg>
+                                                <span class="mx-2">បោះពុម្ព</span>
+                                            </a>
+                                        </li>
+                                        <li class="dropdown-divider mt-0 mb-0"></li>
+                                        <li>
+                                            <a class="dropdown-item mb-0" href="#"
+                                                onclick="Export2Word('page-contents<?= $request['id'] ?>', 'ច្បាប់ឈប់សម្រាក <?= $request['khmer_name'] ?>');">
+                                                <!-- Download SVG icon from http://tabler-icons.io/i/edit -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-download">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+                                                    <path d="M7 11l5 5l5 -5" />
+                                                    <path d="M12 4l0 12" />
+                                                </svg>
+                                                <span class="mx-2">ទាញយក (WORD)</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                <?php endif; ?>
+            </div>
+            <div class="card-body">
+                <ul class="steps steps-counter steps-vertical mb-0">
+                    <?php if (empty($request['approvals'])): ?>
+                            <div class="d-flex flex-column w-100 justify-content-center align-items-center mb-3">
+                                <img src="public/img/icons/svgs/empty.svg" alt="No approvals" style="object-fit:cover;">
+                                <p class="text-muted mt-2">មិនទាន់មានការអនុម័ត</p>
+                            </div>
+                    <?php else: ?>
+
+                            <?php
+                            // Check if the overall request status is 'Approved'
+                            $isRequestApproved = trim($request['status']) === 'Approved';
+
+                            // If the request is approved, display the top confirmation step
+                            if ($isRequestApproved): ?>
+                                    <!-- Final step if the request is fully Approved (Displayed at the top) -->
+                                    <li class="step-item steps-green active">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div>
+                                                <h4 class="text-success mb-0">ច្បាប់ឈប់សម្រាកនេះត្រូវបានអនុម័ត</h4>
+                                                <small class="text-success">
+                                                    <strong>អនុម័តនៅ:</strong>
+                                                    <?= translateDateToKhmer($request['updated_at'], 'j F Y h:i A') ?>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </li>
+                            <?php endif; ?>
+
+                            <?php
+                            // Find the last non-approved step if the request is not fully approved
+                            $lastPendingOrRejectedIndex = -1;
+                            if (!$isRequestApproved) {
+                                foreach ($request['approvals'] as $index => $approval) {
+                                    if ($approval['status'] !== 'Approved') {
+                                        $lastPendingOrRejectedIndex = $index;
+                                    }
+                                }
+                            }
+                            ?>
+
+                            <?php foreach ($request['approvals'] as $index => $approval): ?>
+                                    <?php
+                                    // If the request is approved, all steps are active
+                                    if ($isRequestApproved) {
+                                        $isActive = true;
+                                    } else {
+                                        // Only the last non-approved step is active if the request is not approved
+                                        $isActive = $index == $lastPendingOrRejectedIndex;
+                                    }
+                                    ?>
+
+                                    <li
+                                        class="step-item <?= $isActive ? 'active' : ($approval['status'] == 'Rejected' ? 'step-item-danger' : ($approval['status'] == 'Pending' ? 'step-item-warning' : '')) ?>">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <img src="<?= !empty($approval['profile']) ? $approval['profile'] : 'public/img/icons/svgs/default_profile.png'; ?>"
+                                                class="avatar me-3" alt="Profile" style="object-fit: cover;">
+                                            <div>
+                                                <div class="h5 mb-0 d-flex">
+                                                    <h4 class="text-primary mb-0"><?= htmlspecialchars($approval['approver_name']) ?>
+                                                    </h4>
+                                                    <span
+                                                        class="badge mb-0 bg-<?= $approval['status'] == 'Pending' ? 'warning' : ($approval['status'] == 'Approved' ? 'success' : 'danger') ?> ms-2">
+                                                        <?= htmlspecialchars($approval['status']) ?>
+                                                    </span>
+                                                </div>
+                                                <small class="text-muted">
+                                                    <?= translateDateToKhmer($approval['updated_at'], 'j F Y h:i A') ?>
+                                                </small>
+                                            </div>
+                                        </div>
+
+                                        <!-- Display remarks if available -->
+                                        <?php if (!empty($approval['remarks'])): ?>
+                                                <div class="text-secondary mt-2">
+                                                    <strong>មតិយោបល់:</strong> <?= htmlspecialchars($approval['remarks']) ?>
+                                                </div>
+                                        <?php endif; ?>
+                                    </li>
+                            <?php endforeach; ?>
+
                     <?php endif; ?>
-                </div>
+                </ul>
             </div>
         </div>
     </div>
-
 </div>
 
 <div class="col-xl-12 col-md-8 col-12 mb-md-0 mb-4 mt-3" hidden>
@@ -576,39 +494,39 @@ function convertToKhmerNumerals($number)
                         <div class="row">
                             <!-- Department Office Approvals -->
                             <?php if (!empty($request['doffice'])): ?>
-                                <?php foreach ($request['doffice'] as $approval): ?>
-                                    <div class="col-6"
-                                        style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align: justify;">
-                                        <p style="margin-bottom: 5px;">
-                                            រាជធានីភ្នំពេញ ថ្ងៃទី
-                                            <?= translateDateToKhmer($approval['updated_at'] ?? '', 'd') ?>
-                                            ខែ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'F') ?>
-                                            ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'Y') ?>
-                                        </p>
-                                        <p class="fw-bold" style="margin-bottom: 0;">
-                                            <?= htmlspecialchars(($approval['position_name']) . "" . ($request['office_name'] ?? 'Unknown Position'), ENT_QUOTES, 'UTF-8') ?>
-                                        </p>
-                                        <h3
-                                            class="<?= ($approval['approver_status'] ?? '') === 'Approved' ? 'text-success' : 'text-danger' ?>">
-                                            <?php
-                                            switch ($approval['approver_status'] ?? '') {
-                                                case 'Approved':
-                                                    echo 'បានអនុម័ត'; // Khmer for 'Approved'
-                                                    break;
-                                                case 'Rejected':
-                                                    echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
-                                                    break;
-                                                default:
-                                                    echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
-                                                    break;
-                                            }
-                                            ?>
-                                        </h3>
-                                        <h3 class="mb-0">
-                                            <?= htmlspecialchars($approval['approver_name'] ?? 'Unknown Approver', ENT_QUOTES, 'UTF-8') ?>
-                                        </h3>
-                                    </div>
-                                <?php endforeach; ?>
+                                    <?php foreach ($request['doffice'] as $approval): ?>
+                                            <div class="col-6"
+                                                style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align: justify;">
+                                                <p style="margin-bottom: 5px;">
+                                                    រាជធានីភ្នំពេញ ថ្ងៃទី
+                                                    <?= translateDateToKhmer($approval['updated_at'] ?? '', 'd') ?>
+                                                    ខែ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'F') ?>
+                                                    ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'Y') ?>
+                                                </p>
+                                                <p class="fw-bold" style="margin-bottom: 0;">
+                                                    <?= htmlspecialchars(($approval['position_name']) . "" . ($request['office_name'] ?? 'Unknown Position'), ENT_QUOTES, 'UTF-8') ?>
+                                                </p>
+                                                <h3
+                                                    class="<?= ($approval['approver_status'] ?? '') === 'Approved' ? 'text-success' : 'text-danger' ?>">
+                                                    <?php
+                                                    switch ($approval['approver_status'] ?? '') {
+                                                        case 'Approved':
+                                                            echo 'បានអនុម័ត'; // Khmer for 'Approved'
+                                                            break;
+                                                        case 'Rejected':
+                                                            echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
+                                                            break;
+                                                        default:
+                                                            echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
+                                                            break;
+                                                    }
+                                                    ?>
+                                                </h3>
+                                                <h3 class="mb-0">
+                                                    <?= htmlspecialchars($approval['approver_name'] ?? 'Unknown Approver', ENT_QUOTES, 'UTF-8') ?>
+                                                </h3>
+                                            </div>
+                                    <?php endforeach; ?>
                             <?php endif; ?>
 
                             <!-- Staff Information -->
@@ -627,187 +545,187 @@ function convertToKhmerNumerals($number)
 
                             <!-- Office Head Approvals -->
                             <?php if (!empty($request['hoffice'])): ?>
-                                <?php foreach ($request['hoffice'] as $approval): ?>
-                                    <div class="col-6 mb-2"
-                                        style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align: justify; text-align: center;">
-                                        <p style="margin-bottom: 5px;">
-                                            រាជធានីភ្នំពេញ ថ្ងៃទី
-                                            <?= translateDateToKhmer($approval['updated_at'] ?? '', 'd') ?>
-                                            ខែ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'F') ?>
-                                            ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'Y') ?>
-                                        </p>
-                                        <p class="fw-bold" style="margin-bottom: 0;">
-                                            <?= htmlspecialchars(($approval['position_name']) . "" . ($request['office_name'] ?? 'Unknown Position'), ENT_QUOTES, 'UTF-8') ?>
-                                        </p>
-                                        <h3
-                                            class="<?= ($approval['approver_status'] ?? '') === 'Approved' ? 'text-success' : 'text-danger' ?>">
-                                            <?php
-                                            switch ($approval['approver_status'] ?? '') {
-                                                case 'Approved':
-                                                    echo 'បានអនុម័ត'; // Khmer for 'Approved'
-                                                    break;
-                                                case 'Rejected':
-                                                    echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
-                                                    break;
-                                                default:
-                                                    echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
-                                                    break;
-                                            }
-                                            ?>
-                                        </h3>
-                                        <h3 class="mb-0">
-                                            <?= htmlspecialchars($approval['approver_name'] ?? 'Unknown Approver', ENT_QUOTES, 'UTF-8') ?>
-                                        </h3>
-                                    </div>
-                                <?php endforeach; ?>
+                                    <?php foreach ($request['hoffice'] as $approval): ?>
+                                            <div class="col-6 mb-2"
+                                                style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align: justify; text-align: center;">
+                                                <p style="margin-bottom: 5px;">
+                                                    រាជធានីភ្នំពេញ ថ្ងៃទី
+                                                    <?= translateDateToKhmer($approval['updated_at'] ?? '', 'd') ?>
+                                                    ខែ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'F') ?>
+                                                    ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'Y') ?>
+                                                </p>
+                                                <p class="fw-bold" style="margin-bottom: 0;">
+                                                    <?= htmlspecialchars(($approval['position_name']) . "" . ($request['office_name'] ?? 'Unknown Position'), ENT_QUOTES, 'UTF-8') ?>
+                                                </p>
+                                                <h3
+                                                    class="<?= ($approval['approver_status'] ?? '') === 'Approved' ? 'text-success' : 'text-danger' ?>">
+                                                    <?php
+                                                    switch ($approval['approver_status'] ?? '') {
+                                                        case 'Approved':
+                                                            echo 'បានអនុម័ត'; // Khmer for 'Approved'
+                                                            break;
+                                                        case 'Rejected':
+                                                            echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
+                                                            break;
+                                                        default:
+                                                            echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
+                                                            break;
+                                                    }
+                                                    ?>
+                                                </h3>
+                                                <h3 class="mb-0">
+                                                    <?= htmlspecialchars($approval['approver_name'] ?? 'Unknown Approver', ENT_QUOTES, 'UTF-8') ?>
+                                                </h3>
+                                            </div>
+                                    <?php endforeach; ?>
                             <?php endif; ?>
 
                             <!-- Department Head Approvals -->
                             <?php if (!empty($request['ddepartment'])): ?>
-                                <?php foreach ($request['ddepartment'] as $approval): ?>
-                                    <div class="col-6 mb-2"
-                                        style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align: justify; text-align: center;">
-                                        <p style="margin-bottom: 5px;">
-                                            រាជធានីភ្នំពេញ ថ្ងៃទី
-                                            <?= translateDateToKhmer($approval['updated_at'] ?? '', 'd') ?>
-                                            ខែ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'F') ?>
-                                            ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'Y') ?>
-                                        </p>
-                                        <p class="fw-bold" style="margin-bottom: 0;">
-                                            <?= htmlspecialchars(($approval['position_name']) . "" . ($request['department_name'] ?? 'Unknown Position'), ENT_QUOTES, 'UTF-8') ?>
-                                        </p>
-                                        <h3
-                                            class="<?= ($approval['approver_status'] ?? '') === 'Approved' ? 'text-success' : 'text-danger' ?>">
-                                            <?php
-                                            switch ($approval['approver_status'] ?? '') {
-                                                case 'Approved':
-                                                    echo 'បានអនុម័ត'; // Khmer for 'Approved'
-                                                    break;
-                                                case 'Rejected':
-                                                    echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
-                                                    break;
-                                                default:
-                                                    echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
-                                                    break;
-                                            }
-                                            ?>
-                                        </h3>
-                                        <h3 class="mb-0">
-                                            <?= htmlspecialchars($approval['approver_name'] ?? 'Unknown Approver', ENT_QUOTES, 'UTF-8') ?>
-                                        </h3>
-                                    </div>
-                                <?php endforeach; ?>
+                                    <?php foreach ($request['ddepartment'] as $approval): ?>
+                                            <div class="col-6 mb-2"
+                                                style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align: justify; text-align: center;">
+                                                <p style="margin-bottom: 5px;">
+                                                    រាជធានីភ្នំពេញ ថ្ងៃទី
+                                                    <?= translateDateToKhmer($approval['updated_at'] ?? '', 'd') ?>
+                                                    ខែ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'F') ?>
+                                                    ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'Y') ?>
+                                                </p>
+                                                <p class="fw-bold" style="margin-bottom: 0;">
+                                                    <?= htmlspecialchars(($approval['position_name']) . "" . ($request['department_name'] ?? 'Unknown Position'), ENT_QUOTES, 'UTF-8') ?>
+                                                </p>
+                                                <h3
+                                                    class="<?= ($approval['approver_status'] ?? '') === 'Approved' ? 'text-success' : 'text-danger' ?>">
+                                                    <?php
+                                                    switch ($approval['approver_status'] ?? '') {
+                                                        case 'Approved':
+                                                            echo 'បានអនុម័ត'; // Khmer for 'Approved'
+                                                            break;
+                                                        case 'Rejected':
+                                                            echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
+                                                            break;
+                                                        default:
+                                                            echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
+                                                            break;
+                                                    }
+                                                    ?>
+                                                </h3>
+                                                <h3 class="mb-0">
+                                                    <?= htmlspecialchars($approval['approver_name'] ?? 'Unknown Approver', ENT_QUOTES, 'UTF-8') ?>
+                                                </h3>
+                                            </div>
+                                    <?php endforeach; ?>
                             <?php endif; ?>
 
                             <!-- Head Department Approvals -->
                             <?php if (!empty($request['hdepartment'])): ?>
-                                <?php foreach ($request['hdepartment'] as $approval): ?>
-                                    <div class="col-6 mb-2"
-                                        style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align: justify; text-align: center;">
-                                        <p style="margin-bottom: 5px;">
-                                            រាជធានីភ្នំពេញ ថ្ងៃទី
-                                            <?= translateDateToKhmer($approval['updated_at'] ?? '', 'd') ?>
-                                            ខែ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'F') ?>
-                                            ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'Y') ?>
-                                        </p>
-                                        <p class="fw-bold" style="margin-bottom: 0;">
-                                            <?= htmlspecialchars(($approval['position_name']) . "" . ($request['department_name'] ?? 'Unknown Position'), ENT_QUOTES, 'UTF-8') ?>
-                                        </p>
-                                        <h3
-                                            class="<?= ($approval['approver_status'] ?? '') === 'Approved' ? 'text-success' : 'text-danger' ?>">
-                                            <?php
-                                            switch ($approval['approver_status'] ?? '') {
-                                                case 'Approved':
-                                                    echo 'បានអនុម័ត'; // Khmer for 'Approved'
-                                                    break;
-                                                case 'Rejected':
-                                                    echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
-                                                    break;
-                                                default:
-                                                    echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
-                                                    break;
-                                            }
-                                            ?>
-                                        </h3>
-                                        <h3 class="mb-0">
-                                            <?= htmlspecialchars($approval['approver_name'] ?? 'Unknown Approver', ENT_QUOTES, 'UTF-8') ?>
-                                        </h3>
-                                    </div>
-                                <?php endforeach; ?>
+                                    <?php foreach ($request['hdepartment'] as $approval): ?>
+                                            <div class="col-6 mb-2"
+                                                style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align: justify; text-align: center;">
+                                                <p style="margin-bottom: 5px;">
+                                                    រាជធានីភ្នំពេញ ថ្ងៃទី
+                                                    <?= translateDateToKhmer($approval['updated_at'] ?? '', 'd') ?>
+                                                    ខែ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'F') ?>
+                                                    ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'Y') ?>
+                                                </p>
+                                                <p class="fw-bold" style="margin-bottom: 0;">
+                                                    <?= htmlspecialchars(($approval['position_name']) . "" . ($request['department_name'] ?? 'Unknown Position'), ENT_QUOTES, 'UTF-8') ?>
+                                                </p>
+                                                <h3
+                                                    class="<?= ($approval['approver_status'] ?? '') === 'Approved' ? 'text-success' : 'text-danger' ?>">
+                                                    <?php
+                                                    switch ($approval['approver_status'] ?? '') {
+                                                        case 'Approved':
+                                                            echo 'បានអនុម័ត'; // Khmer for 'Approved'
+                                                            break;
+                                                        case 'Rejected':
+                                                            echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
+                                                            break;
+                                                        default:
+                                                            echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
+                                                            break;
+                                                    }
+                                                    ?>
+                                                </h3>
+                                                <h3 class="mb-0">
+                                                    <?= htmlspecialchars($approval['approver_name'] ?? 'Unknown Approver', ENT_QUOTES, 'UTF-8') ?>
+                                                </h3>
+                                            </div>
+                                    <?php endforeach; ?>
                             <?php endif; ?>
 
                             <!-- Deputy Of Unit Approvals -->
                             <?php if (!empty($request['dunit'])): ?>
-                                <?php foreach ($request['dunit'] as $approval): ?>
-                                    <div class="col-6 mb-2"
-                                        style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align: justify; text-align: center;">
-                                        <p style="margin-bottom: 5px;">
-                                            រាជធានីភ្នំពេញ ថ្ងៃទី
-                                            <?= translateDateToKhmer($approval['updated_at'] ?? '', 'd') ?>
-                                            ខែ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'F') ?>
-                                            ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'Y') ?>
-                                        </p>
-                                        <p class="fw-bold" style="margin-bottom: 0;">
-                                            <?= htmlspecialchars(($approval['position_name']) . "" . ($request['department_name'] ?? 'Unknown Position'), ENT_QUOTES, 'UTF-8') ?>
-                                        </p>
-                                        <h3
-                                            class="<?= ($approval['approver_status'] ?? '') === 'Approved' ? 'text-success' : 'text-danger' ?>">
-                                            <?php
-                                            switch ($approval['approver_status'] ?? '') {
-                                                case 'Approved':
-                                                    echo 'បានអនុម័ត'; // Khmer for 'Approved'
-                                                    break;
-                                                case 'Rejected':
-                                                    echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
-                                                    break;
-                                                default:
-                                                    echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
-                                                    break;
-                                            }
-                                            ?>
-                                        </h3>
-                                        <h3 class="mb-0">
-                                            <?= htmlspecialchars($approval['approver_name'] ?? 'Unknown Approver', ENT_QUOTES, 'UTF-8') ?>
-                                        </h3>
-                                    </div>
-                                <?php endforeach; ?>
+                                    <?php foreach ($request['dunit'] as $approval): ?>
+                                            <div class="col-6 mb-2"
+                                                style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align: justify; text-align: center;">
+                                                <p style="margin-bottom: 5px;">
+                                                    រាជធានីភ្នំពេញ ថ្ងៃទី
+                                                    <?= translateDateToKhmer($approval['updated_at'] ?? '', 'd') ?>
+                                                    ខែ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'F') ?>
+                                                    ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'Y') ?>
+                                                </p>
+                                                <p class="fw-bold" style="margin-bottom: 0;">
+                                                    <?= htmlspecialchars(($approval['position_name']) . "" . ($request['department_name'] ?? 'Unknown Position'), ENT_QUOTES, 'UTF-8') ?>
+                                                </p>
+                                                <h3
+                                                    class="<?= ($approval['approver_status'] ?? '') === 'Approved' ? 'text-success' : 'text-danger' ?>">
+                                                    <?php
+                                                    switch ($approval['approver_status'] ?? '') {
+                                                        case 'Approved':
+                                                            echo 'បានអនុម័ត'; // Khmer for 'Approved'
+                                                            break;
+                                                        case 'Rejected':
+                                                            echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
+                                                            break;
+                                                        default:
+                                                            echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
+                                                            break;
+                                                    }
+                                                    ?>
+                                                </h3>
+                                                <h3 class="mb-0">
+                                                    <?= htmlspecialchars($approval['approver_name'] ?? 'Unknown Approver', ENT_QUOTES, 'UTF-8') ?>
+                                                </h3>
+                                            </div>
+                                    <?php endforeach; ?>
                             <?php endif; ?>
 
                             <!-- Head Of Unit Approvals -->
                             <?php if (!empty($request['unit'])): ?>
-                                <?php foreach ($request['unit'] as $approval): ?>
-                                    <div class="col-6 mb-2"
-                                        style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align: justify; text-align: center;">
-                                        <p style="margin-bottom: 5px;">
-                                            រាជធានីភ្នំពេញ ថ្ងៃទី
-                                            <?= translateDateToKhmer($approval['updated_at'] ?? '', 'd') ?>
-                                            ខែ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'F') ?>
-                                            ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'Y') ?>
-                                        </p>
-                                        <p class="fw-bold" style="margin-bottom: 0;">
-                                            <?= htmlspecialchars(($approval['position_name']) . "" . ($request['department_name'] ?? 'Unknown Position'), ENT_QUOTES, 'UTF-8') ?>
-                                        </p>
-                                        <h3
-                                            class="<?= ($approval['approver_status'] ?? '') === 'Approved' ? 'text-success' : 'text-danger' ?>">
-                                            <?php
-                                            switch ($approval['approver_status'] ?? '') {
-                                                case 'Approved':
-                                                    echo 'បានអនុម័ត'; // Khmer for 'Approved'
-                                                    break;
-                                                case 'Rejected':
-                                                    echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
-                                                    break;
-                                                default:
-                                                    echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
-                                                    break;
-                                            }
-                                            ?>
-                                        </h3>
-                                        <h3 class="mb-0">
-                                            <?= htmlspecialchars($approval['approver_name'] ?? 'Unknown Approver', ENT_QUOTES, 'UTF-8') ?>
-                                        </h3>
-                                    </div>
-                                <?php endforeach; ?>
+                                    <?php foreach ($request['unit'] as $approval): ?>
+                                            <div class="col-6 mb-2"
+                                                style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align: justify; text-align: center;">
+                                                <p style="margin-bottom: 5px;">
+                                                    រាជធានីភ្នំពេញ ថ្ងៃទី
+                                                    <?= translateDateToKhmer($approval['updated_at'] ?? '', 'd') ?>
+                                                    ខែ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'F') ?>
+                                                    ឆ្នាំ <?= translateDateToKhmer($approval['updated_at'] ?? '', 'Y') ?>
+                                                </p>
+                                                <p class="fw-bold" style="margin-bottom: 0;">
+                                                    <?= htmlspecialchars(($approval['position_name']) . "" . ($request['department_name'] ?? 'Unknown Position'), ENT_QUOTES, 'UTF-8') ?>
+                                                </p>
+                                                <h3
+                                                    class="<?= ($approval['approver_status'] ?? '') === 'Approved' ? 'text-success' : 'text-danger' ?>">
+                                                    <?php
+                                                    switch ($approval['approver_status'] ?? '') {
+                                                        case 'Approved':
+                                                            echo 'បានអនុម័ត'; // Khmer for 'Approved'
+                                                            break;
+                                                        case 'Rejected':
+                                                            echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
+                                                            break;
+                                                        default:
+                                                            echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
+                                                            break;
+                                                    }
+                                                    ?>
+                                                </h3>
+                                                <h3 class="mb-0">
+                                                    <?= htmlspecialchars($approval['approver_name'] ?? 'Unknown Approver', ENT_QUOTES, 'UTF-8') ?>
+                                                </h3>
+                                            </div>
+                                    <?php endforeach; ?>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -836,11 +754,11 @@ function convertToKhmerNumerals($number)
                             <select class="form-select" id="leave_type" name="leave_type_id" required>
                                 <option value="">ជ្រើសរើសប្រភេទច្បាប់</option>
                                 <?php foreach ($leavetypes as $leavetype): ?>
-                                    <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
-                                        data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
-                                        <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
-                                        <?= $leavetype['name'] ?> (<?= $leavetype['duration'] ?>ថ្ងៃ)
-                                    </option>
+                                        <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
+                                            data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
+                                            <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
+                                            <?= $leavetype['name'] ?> (<?= $leavetype['duration'] ?>ថ្ងៃ)
+                                        </option>
                                 <?php endforeach; ?>
                             </select>
                             <input type="hidden" id="leave_type_name" name="leave_type_name"

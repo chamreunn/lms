@@ -17,6 +17,7 @@ class DepOfficeController
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             try {
+                // Initialize necessary models
                 $userModel = new User();
                 $leaveRequestModel = new DepOfficeModel();
 
@@ -37,6 +38,7 @@ class DepOfficeController
 
                 $leaveRemarks = "ច្បាប់";
                 $status = "On Leave";
+                $mission = "Mission";
 
                 // Validate required fields
                 $requiredFields = ['leave_type_id', 'start_date', 'end_date'];
@@ -46,6 +48,7 @@ class DepOfficeController
                     }
                 }
 
+                // Ensure end_date is not earlier than start_date
                 if (new DateTime($end_date) < new DateTime($start_date)) {
                     $_SESSION['error'] = [
                         'title' => "កំហុសកាលបរិច្ឆេទ",
@@ -61,7 +64,7 @@ class DepOfficeController
                     throw new Exception("មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។​ សូមព្យាយាមម្តងទៀត");
                 }
 
-                // Fetch leave type details including duration from database
+                // Fetch leave type details from the database
                 $leaveTypeModel = new Leavetype();
                 $leaveType = $leaveTypeModel->getLeaveTypeById($leave_type_id);
                 if (!$leaveType) {
@@ -70,14 +73,14 @@ class DepOfficeController
 
                 $leave_type_duration = $leaveType['duration'];
 
-                // Calculate duration in business days between start_date and end_date
+                // Calculate duration in business days
                 $datetime_start = new DateTime($start_date);
                 $datetime_end = new DateTime($end_date);
                 $duration_days = $leaveRequestModel->calculateBusinessDays($datetime_start, $datetime_end);
 
-                // Compare duration_days with leave_type_duration
+                // Check if leave request duration exceeds the leave type's allowed duration
                 if ($duration_days > $leave_type_duration) {
-                    throw new Exception("ប្រភេទច្បាប់ឈប់សម្រាកនេះមានរយៈពេល " . $leave_type_duration . " ថ្ងៃ។ សូមពិនិត្យមើលប្រភេទច្បាប់ដែលអ្នកបានជ្រើសរើសម្តងទៀត");
+                    throw new Exception("ប្រភេទច្បាប់នេះមានរយៈពេល " . $leave_type_duration . " ថ្ងៃ។ សូមពិនិត្យប្រភេទច្បាប់ដែលបានជ្រើសរើសម្តងទៀត");
                 }
 
                 // Fetch the user's office details via API
@@ -86,7 +89,7 @@ class DepOfficeController
                     throw new Exception("Unable to find office details. Please contact support.");
                 }
 
-                // Use the first available manager's ID and email
+                // Get manager's details
                 $managerId = !empty($userDoffice['ids']) ? $userDoffice['ids'][0] : null;
                 $managerEmail = !empty($userDoffice['emails']) ? $userDoffice['emails'][0] : null;
                 $managerName = !empty($userDoffice['lastNameKh']) && !empty($userDoffice['firstNameKh'])
@@ -97,13 +100,10 @@ class DepOfficeController
                     throw new Exception("No valid manager details found.");
                 }
 
-                // Check if the manager is on leave today using the leave_requests table
+                // Check if the manager is on leave today
                 $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
-
-                // Convert array to comma-separated string if necessary
-                if (is_array($managerEmail)) {
-                    $managerEmail = implode(',', $managerEmail);
-                }
+                $isManagerOnMission = $userModel->isManagerOnMission($managerId);
+                $link = "https://leave.iauoffsa.us/elms/headofficepending";
 
                 // Create leave request in the database
                 $leaveRequestId = $leaveRequestModel->create(
@@ -125,10 +125,11 @@ class DepOfficeController
                     throw new Exception("Failed to create leave request. Please try again.");
                 }
 
-                if ($isManagerOnLeave) {
-                    // Submit approval
+                // Handle case where manager is on leave, and backup manager is needed
+                if ($isManagerOnLeave || $isManagerOnMission) {
+                    // Submit approval to backup manager if primary is on leave or mission
                     $leaveApproval = new DepOfficeModel();
-                    $updatedAt = $leaveApproval->updateApproval($leaveRequestId, $managerId, $status, $leaveRemarks);
+                    $updatedAt = $leaveApproval->updateApproval($leaveRequestId, $managerId, $isManagerOnLeave ? $status : $mission, $isManagerOnLeave ? $leaveRemarks : $mission);
 
                     // Fetch another available manager if the current manager is on leave
                     $backupManager = $userModel->getEmailLeaderDDApi($user_id, $_SESSION['token']);
@@ -137,8 +138,16 @@ class DepOfficeController
                     }
 
                     // Update to backup manager's details
+                    $managerId = !empty($backupManager['ids']) ? $backupManager['ids'][0] : null;
                     $managerEmail = $backupManager['emails'][0];
                     $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
+                    $link = "https://leave.iauoffsa.us/elms/depdepartmentpending";
+
+                    // Send Telegram notification for backup manager
+                    $userModel->sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link);
+                } else {
+                    // Send Telegram notification for primary manager
+                    $userModel->sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link);
                 }
 
                 // Send email notification to manager
@@ -146,11 +155,9 @@ class DepOfficeController
                     throw new Exception("Notification email could not be sent. Please try again.");
                 }
 
-                // Create notification for the user
+                // Create user activity log and notifications
                 $notificationModel = new Notification();
                 $notificationModel->createNotification($userDoffice['ids'], $user_id, $leaveRequestId, $message);
-
-                // Log user activity
                 $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
 
                 // Set success message and redirect
@@ -162,7 +169,7 @@ class DepOfficeController
                 exit();
 
             } catch (Exception $e) {
-                // Handle exceptions and display error messages
+                // Handle exceptions and set error message
                 $_SESSION['error'] = [
                     'title' => "Error",
                     'message' => $e->getMessage()
@@ -206,6 +213,7 @@ class DepOfficeController
     public function pending()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
             // Validate required POST fields
             $requiredFields = [
                 'request_id',
@@ -249,6 +257,7 @@ class DepOfficeController
 
             $leaveRemarks = "ច្បាប់";
             $action = "On Leave";
+            $mission = "Mission";
 
             try {
                 // Start transaction
@@ -279,20 +288,34 @@ class DepOfficeController
 
                 // Check if the manager is on leave today using the leave_requests table
                 $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+                $isManagerOnMission = $userModel->isManagerOnMission($managerId);
+                $link = "https://leave.iauoffsa.us/elms/headofficepending";
 
-                if ($isManagerOnLeave) {
+                if ($isManagerOnLeave || $isManagerOnMission) {
+                    // Update approval with backup manager if the current manager is unavailable
+                    $updatedAt = $leaveApproval->updatePendingApproval(
+                        $request_id,
+                        $managerId,
+                        $isManagerOnLeave ? $action : $mission,
+                        $isManagerOnLeave ? $leaveRemarks : $mission
+                    );
 
-                    $updatedAt = $leaveApproval->updatePendingApproval($request_id, $managerId, $action, $leaveRemarks);
-                    // Update approval with backup manager if the current manager is on leave
+                    // Retrieve backup manager details
                     $backupManager = $userModel->getEmailLeaderDDApi($user_id, $_SESSION['token']);
                     if (!$backupManager || empty($backupManager['emails'])) {
                         throw new Exception("Both primary and backup managers are unavailable.");
                     }
 
                     // Update to backup manager's details
+                    $managerId = $backupManager['ids'][0];
                     $managerEmail = $backupManager['emails'][0];
                     $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
+                    $link = "https://leave.iauoffsa.us/elms/depdepartmentpending";
                 }
+
+                // Send notifications
+                $userModel->sendTelegramNextManager($managerId, $uname, $start_date, $end_date, $duration_days, $uremarks, $status, $link);
+                $userModel->sendBackToUser($user_id, $uname, $start_date, $end_date, $duration_days, $uremarks, $status);
 
                 // Send email notification to HO office
                 if (

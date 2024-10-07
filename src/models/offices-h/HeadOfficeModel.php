@@ -578,10 +578,11 @@ class HeadOfficeModel
 
             if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
                 $userData = $userApiResponse['data'];
-                $leaveRequest['khmer_name'] = $userData['firstNameKh'] ?? null;
+                $leaveRequest['khmer_name'] = $userData['lastNameKh'] ." ". $userData['firstNameKh'] ?? null;
                 $leaveRequest['phone_number'] = $userData['phoneNumber'] ?? null;
                 $leaveRequest['email'] = $userData['email'] ?? null;
                 $leaveRequest['dob'] = $userData['dateOfBirth'] ?? null;
+                $leaveRequest['profile'] = 'https://hrms.iauoffsa.us/images/' . $userData['image'] ?? null;
             } else {
                 error_log("Failed to fetch user data for leave request ID: $leave_id");
                 $leaveRequest['khmer_name'] = null;
@@ -1647,8 +1648,6 @@ class HeadOfficeModel
         );
         $stmt->execute([$newStatus, $leave_request_id]);
     }
-    //  end if manager on leave 
-
     // if Manager on leave 
     public function updatePendingApproval($leave_request_id, $approver_id, $status, $remarks)
     {

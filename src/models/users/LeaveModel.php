@@ -242,7 +242,7 @@ class LeaveModel
         $requiredApprovals = $duration < 3 ? 4 : 6;
 
         // Determine the new status based on the latest approval status
-        $newStatus = ($latestStatus == 'Rejected') ? 'Rejected' : 'On Leave';
+        $newStatus = ($latestStatus == 'Rejected') ? 'Rejected' : 'Approved';
 
         // Update the leave request status
         $stmt = $this->pdo->prepare(

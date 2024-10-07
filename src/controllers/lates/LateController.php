@@ -6,6 +6,14 @@ use PHPMailer\PHPMailer\Exception;
 
 class LateController
 {
+    private $pdo;
+
+    public function __construct()
+    {
+        global $pdo;
+        $this->pdo = $pdo;
+    }
+
     public function index()
     {
         $lateModel = new LateModel();
@@ -191,6 +199,7 @@ class LateController
         $reason = trim($reason);
         $userId = $_SESSION['user_id'];
         $title = "សំណើចូលយឺត";
+        $type = "latein";
 
         // Basic validation
         if (empty($date)) {
@@ -220,7 +229,7 @@ class LateController
             exit();
         }
 
-        // Validate date format
+        // Validate date format (Y-m-d)
         $dateObj = DateTime::createFromFormat('Y-m-d', $date);
         if (!$dateObj || $dateObj->format('Y-m-d') !== $date) {
             $_SESSION['error'] = [
@@ -231,7 +240,7 @@ class LateController
             exit();
         }
 
-        // Validate time format
+        // Validate time format (HH:MM)
         if (!preg_match('/^\d{2}:\d{2}$/', $time)) {
             $_SESSION['error'] = [
                 'title' => "Time Error",
@@ -243,7 +252,7 @@ class LateController
 
         // Add seconds to time if necessary
         if (preg_match('/^\d{2}:\d{2}$/', $time)) {
-            $time .= ":00";
+            $time .= ":00"; // Converts HH:MM to HH:MM:SS format
         }
 
         // Calculate late minutes
@@ -253,7 +262,7 @@ class LateController
         $lateMinutes = 0;
         if ($submittedTime > $workStartTime) {
             $interval = $workStartTime->diff($submittedTime);
-            $lateMinutes = $interval->h * 60 + $interval->i;
+            $lateMinutes = $interval->h * 60 + $interval->i; // Total late minutes
         }
 
         // Sanitize reason input
@@ -268,9 +277,12 @@ class LateController
             $userModel = new User();
             $adminEmails = $userModel->getAdminEmails($_SESSION['token']);
 
-            // Fetch the user's name using the user ID and session token
+            // Fetch the user's name in Khmer using the user ID and session token
             $userInfo = $userModel->getUserByIdApi($userId, $_SESSION['token']);
-            $userNameKh = $userInfo['data']['lastNameKh'] . ' ' . $userInfo['data']['firstNameKh']; // Combining first and last name in Khmer
+            if (!$userInfo || empty($userInfo['data'])) {
+                throw new Exception("Unable to fetch user information.");
+            }
+            $userNameKh = $userInfo['data']['lastNameKh'] . ' ' . $userInfo['data']['firstNameKh'];
 
             // Check if fetching the admin emails was successful
             if (!$adminEmails || $adminEmails['http_code'] !== 200 || empty($adminEmails['emails'])) {
@@ -278,13 +290,61 @@ class LateController
             }
 
             // Apply the late-in request to the database
-            $lateModel->applyLateIn($userId, $date, $time, $lateMinutes, $reason);
+            $lateModel->applyLateIn($userId, $type, $date, $time, $lateMinutes, $reason);
 
             // Use the first admin email or handle multiple emails as needed
             $adminEmail = $adminEmails['emails'][0];
+            $adminName = $adminEmails['lastNameKh'][0] . ' ' . $adminEmails['firstNameKh'][0];
+            $adminId = $adminEmails['ids'][0];
 
-            // create Last ID 
-            // $viewLink = "http://your-domain.com/view-late-request?id=" . $lateModel;
+            // Get the admin's Telegram ID
+            $telegramUser = $userModel->getTelegramIdByUserId($adminId);
+            if ($telegramUser && !empty($telegramUser['telegram_id'])) {
+                // Log the Telegram ID for debugging
+                error_log("Found telegram_id: " . $telegramUser['telegram_id']);
+
+                $notifications = [
+                    "🔔 *សំណើចូលយឺត*",
+                    "---------------------------------------------",
+                    "👤 *អ្នកស្នើ: *`{$userNameKh}`",
+                    "⏰ *ចូលយឺត:  *`{$lateMinutes} នាទី`",
+                    "🗓️ *កាលបរិច្ឆេទ:   *`{$date}`",
+                    "🕒 *ម៉ោង:    *`{$time}`",
+                    "💬 *មូលហេតុ:  *`{$reason}`",
+                ];
+
+                // Joining notifications into a single message with new lines
+                $telegramMessage = implode("\n", $notifications);
+
+                // Step 4: Create the inline keyboard with a single "View the Request" button
+                $keyboard = [
+                    'inline_keyboard' => [
+                        [
+                            ['text' => 'ពិនិត្យមើលសំណើ', 'url' => 'https://leave.iauoffsa.us/elms/overtimein/'] // Using URL to open the request
+                        ]
+                    ]
+                ];
+
+                // Send the Telegram notification
+                $telegramModel = new TelegramModel($this->pdo);
+                $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage, $keyboard);
+
+                // Check if the notification was successfully sent
+                if (!$success) {
+                    error_log("Failed to send Telegram notification to user with telegram_id: " . $telegramUser['telegram_id']);
+                    $_SESSION['error'] = [
+                        'title' => "Telegram Notification Error",
+                        'message' => "Could not send Telegram notification. Please check your settings or contact support."
+                    ];
+                }
+            } else {
+                // Log the failure to find a valid telegram_id
+                error_log("No valid telegram_id found for adminId: " . $adminId);
+                $_SESSION['error'] = [
+                    'title' => "Telegram Notification Error",
+                    'message' => "No Telegram ID associated with the admin. Notification could not be sent."
+                ];
+            }
 
             // Send email notification to the admin, including the user's Khmer name
             if (!$this->sendLateInEmail($userNameKh, $adminEmail, $date, $time, $lateMinutes, $reason, $title)) {
@@ -297,7 +357,7 @@ class LateController
             // Optionally display admin email in success message
             $_SESSION['success'] = [
                 'title' => "សំណើចូលយឺត",
-                'message' => "អ្នកបានយឺតចំនួន {$lateMinutes} នាទី។ សំណើបានបញ្ជូនទៅកាន់ " . ($adminEmail ?? "") . ". សូមអរគុណ។"
+                'message' => "អ្នកបានយឺតចំនួន {$lateMinutes} នាទី។ សំណើបានបញ្ជូនទៅកាន់ " . ($adminName ?? "") . ". សូមអរគុណ។"
             ];
             header("Location: /elms/overtimein");
             exit();
@@ -320,6 +380,226 @@ class LateController
         }
     }
 
+    public function editLateIn()
+    {
+        // Get POST data (from form submission)
+        $lateId = $_POST['lateId'];
+        $date = $_POST['date'];
+        $time = $_POST['time'];
+        $reason = $_POST['reason'];
+        $userId = $_SESSION['user_id'];
+
+        // Calculate late minutes (assuming work starts at 9:00 AM)
+        $workStartTime = DateTime::createFromFormat('H:i', '09:00');
+        $submittedTime = DateTime::createFromFormat('H:i:s', $time . ":00");
+        $lateMinutes = 0;
+
+        if ($submittedTime > $workStartTime) {
+            $interval = $workStartTime->diff($submittedTime);
+            $lateMinutes = $interval->h * 60 + $interval->i; // Total late minutes
+        }
+
+        try {
+            // Initialize LateModel and begin transaction
+            $lateModel = new LateModel();
+            $lateModel->beginTransaction();
+
+            // Update the late-in request
+            $updateSuccess = $lateModel->updateLateIn($lateId, $userId, $date, $time, $lateMinutes, $reason);
+
+            if ($updateSuccess) {
+                // Commit transaction
+                $lateModel->commitTransaction();
+
+                // Send notifications or emails here (if needed)
+
+                // Success message
+                $_SESSION['success'] = [
+                    'title' => "សំណើចូលយឺត",
+                    'message' => "សំណើបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ។"
+                ];
+            } else {
+                throw new Exception("Failed to update the late-in request.");
+            }
+
+            // Redirect back to the list or summary page
+            header("Location: /elms/overtimein");
+            exit();
+
+        } catch (Exception $e) {
+            // Rollback transaction on error
+            $lateModel->rollBackTransaction();
+
+            // Log error for debugging
+            error_log("Error updating late-in: " . $e->getMessage());
+
+            // Error message
+            $_SESSION['error'] = [
+                'title' => "កំហុស",
+                'message' => "មានបញ្ហាក្នុងការធ្វើបច្ចុប្បន្នភាពសំណើ: " . $e->getMessage()
+            ];
+
+            // Redirect back to the form
+            header("Location: /elms/overtimein");
+            exit();
+        }
+    }
+
+    public function editLateOut()
+    {
+        // Get POST data (from form submission)
+        $lateId = $_POST['lateId'] ?? null;
+        $date = $_POST['date'] ?? null;
+        $time = $_POST['time'] ?? null;
+        $reason = $_POST['reason'] ?? null;
+        $userId = $_SESSION['user_id'] ?? null;
+
+        // Validate input data
+        if (is_null($lateId) || is_null($date) || is_null($time) || is_null($reason) || is_null($userId)) {
+            $_SESSION['error'] = [
+                'title' => "កំហុស",
+                'message' => "ទិន្នន័យទាំងអស់ត្រូវបានចាំបាច់។"
+            ];
+            header("Location: /elms/overtimeout");
+            exit();
+        }
+
+        $time = date("H:i:s", strtotime($time));
+
+        $workEndTime = DateTime::createFromFormat('H:i', '17:30');
+        $submittedTimeForOvertime = DateTime::createFromFormat('H:i:s', $time);
+
+        if ($submittedTimeForOvertime > $workEndTime) {
+            $intervalOvertime = $workEndTime->diff($submittedTimeForOvertime);
+            $lateMinutes = $intervalOvertime->h * 60 + $intervalOvertime->i;
+        } else {
+            $lateMinutes = 0;
+        }
+
+        try {
+            // Initialize LateModel and begin transaction
+            $lateModel = new LateModel();
+            $lateModel->beginTransaction();
+
+            // Update the late-out request
+            $updateSuccess = $lateModel->updateLateOut($lateId, $userId, $date, $time, $lateMinutes, $reason);
+
+            if ($updateSuccess) {
+                // Commit transaction
+                $lateModel->commitTransaction();
+
+                // Success message
+                $_SESSION['success'] = [
+                    'title' => "សំណើចូលយឺត",
+                    'message' => "សំណើបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ។"
+                ];
+            } else {
+                throw new Exception("Failed to update the late-in request.");
+            }
+
+            // Redirect back to the list or summary page
+            header("Location: /elms/overtimeout");
+            exit();
+
+        } catch (Exception $e) {
+            // Rollback transaction on error
+            $lateModel->rollBackTransaction();
+
+            // Log error for debugging
+            error_log("Error updating late-in: " . $e->getMessage());
+
+            // Error message
+            $_SESSION['error'] = [
+                'title' => "កំហុស",
+                'message' => "មានបញ្ហាក្នុងការធ្វើបច្ចុប្បន្នភាពសំណើ: " . $e->getMessage()
+            ];
+
+            // Redirect back to the form
+            header("Location: /elms/overtimeout");
+            exit();
+        }
+    }
+
+    public function editLeaveEarly()
+    {
+        // Get POST data (from form submission)
+        $lateId = $_POST['lateId'] ?? null;
+        $date = $_POST['date'] ?? null;
+        $time = $_POST['time'] ?? null;
+        $reason = $_POST['reason'] ?? null;
+        $userId = $_SESSION['user_id'] ?? null;
+
+        // Validate input data
+        if (is_null($lateId) || is_null($date) || is_null($time) || is_null($reason) || is_null($userId)) {
+            $_SESSION['error'] = [
+                'title' => "កំហុស",
+                'message' => "ទិន្នន័យទាំងអស់ត្រូវបានចាំបាច់។"
+            ];
+            header("Location: /elms/overtimeout");
+            exit();
+        }
+
+        $time24 = date("H:i:s", strtotime($time));
+
+        // Define the reference time (16:00 or 4:00 PM) in 24-hour format
+        $referenceTime24 = '16:00:00';
+
+        // Create DateTime objects for comparison
+        $referenceDateTime = DateTime::createFromFormat('H:i:s', $referenceTime24);
+        $actualLeaveDateTime = DateTime::createFromFormat('H:i:s', $time24);
+
+        // Calculate how many minutes before the reference time the employee left
+        if ($actualLeaveDateTime < $referenceDateTime) {
+            $interval = $referenceDateTime->diff($actualLeaveDateTime);
+            $lateMinutes = ($interval->h * 60) + $interval->i;
+        } else {
+            $lateMinutes = 0;
+        }
+
+        try {
+            // Initialize LateModel and begin transaction
+            $lateModel = new LateModel();
+            $lateModel->beginTransaction();
+
+            // Update the late-out request
+            $updateSuccess = $lateModel->updateLeaveEarly($lateId, $userId, $date, $time, $lateMinutes, $reason);
+
+            if ($updateSuccess) {
+                // Commit transaction
+                $lateModel->commitTransaction();
+
+                // Success message
+                $_SESSION['success'] = [
+                    'title' => "សំណើចូលយឺត",
+                    'message' => "សំណើបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ។"
+                ];
+            } else {
+                throw new Exception("Failed to update the late-in request.");
+            }
+
+            // Redirect back to the list or summary page
+            header("Location: /elms/leaveearly");
+            exit();
+
+        } catch (Exception $e) {
+            // Rollback transaction on error
+            $lateModel->rollBackTransaction();
+
+            // Log error for debugging
+            error_log("Error updating late-in: " . $e->getMessage());
+
+            // Error message
+            $_SESSION['error'] = [
+                'title' => "កំហុស",
+                'message' => "មានបញ្ហាក្នុងការធ្វើបច្ចុប្បន្នភាពសំណើ: " . $e->getMessage()
+            ];
+
+            // Redirect back to the form
+            header("Location: /elms/leaveearly");
+            exit();
+        }
+    }
+
     public function createLateOut($date, $time, $reason)
     {
         // Validate and sanitize inputs
@@ -328,6 +608,7 @@ class LateController
         $reason = trim($reason);
         $userId = $_SESSION['user_id'];
         $title = "សំណើចេញយឺត";
+        $type = "lateout";
 
         // Check if date field is empty
         if (empty($date)) {
@@ -370,34 +651,26 @@ class LateController
             exit();
         }
 
-        // ស្ទួនពិនិត្យម៉ោងត្រឹមត្រូវ (ឧ. ទ្រង់ទ្រាយ HH:MM)
+        // Validate time format (HH:MM)
         if (!preg_match('/^\d{2}:\d{2}$/', $time)) {
             $_SESSION['error'] = [
                 'title' => "Time Error",
-                'message' => "ទ្រង់ទ្រាយម៉ោងមិនត្រឹមត្រូវ។ ប្រើ HH:MM."
+                'message' => "Invalid time format. Use HH:MM."
             ];
             header("Location: /elms/overtimeout");
             exit();
         }
 
-        // បន្ថែមវិនាទីទៅម៉ោងប្រសិនបើចាំបាច់
-        if (preg_match('/^\d{2}:\d{2}$/', $time)) {
-            $time .= ":00";
-        }
+        // Append seconds to time if necessary
+        $time .= ":00";
 
-        // Convert 12-hour time format to 24-hour format
+        // Convert to 24-hour format
         $time = date("H:i:s", strtotime($time));
 
         // Calculate late minutes
-        $workStartTime = DateTime::createFromFormat('H:i', '05:00');
+        $workStartTime = DateTime::createFromFormat('H:i', '17:30');
         $submittedTime = DateTime::createFromFormat('H:i:s', $time);
-
-        if ($submittedTime > $workStartTime) {
-            $interval = $workStartTime->diff($submittedTime);
-            $lateMinutes = $interval->h * 60 + $interval->i;
-        } else {
-            $lateMinutes = 0;
-        }
+        $lateMinutes = ($submittedTime > $workStartTime) ? $workStartTime->diff($submittedTime)->h * 60 + $workStartTime->diff($submittedTime)->i : 0;
 
         // Usage in your code
         $userModel = new User();
@@ -418,37 +691,41 @@ class LateController
         }
 
         // Extract the first admin email (or handle multiple emails as needed)
-        $adminEmail = $adminEmails['emails'][0]; // Assuming you want the first email
+        $adminEmail = $adminEmails['emails'][0];
+        $adminName = $adminEmails['lastNameKh'][0] . ' ' . $adminEmails['firstNameKh'][0];
+        $adminId = $adminEmails['ids'][0];
 
-        // Calculate overtime
+        // Attempt to send Telegram notification
+        if (!$userModel->sendTelegramNotificationToAdmin($adminId, $userNameKh, $lateMinutes, $date, $time, $reason)) {
+            $_SESSION['error'] = [
+                'title' => "Telegram Notification Error",
+                'message' => "Could not send Telegram notification. Please check your settings or contact support."
+            ];
+        }
+
+        // Calculate overtime (if applicable)
         $workEndTime = DateTime::createFromFormat('H:i', '17:30');
         $submittedTimeForOvertime = DateTime::createFromFormat('H:i:s', $time);
-
-        if ($submittedTimeForOvertime > $workEndTime) {
-            $intervalOvertime = $workEndTime->diff($submittedTimeForOvertime);
-            $lateMinutes = $intervalOvertime->h * 60 + $intervalOvertime->i;
-        } else {
-            $lateMinutes = 0;
-        }
+        $lateMinutes = ($submittedTimeForOvertime > $workEndTime) ? $workEndTime->diff($submittedTimeForOvertime)->h * 60 + $workEndTime->diff($submittedTimeForOvertime)->i : 0;
 
         // Sanitize reason
         $reason = htmlspecialchars($reason, ENT_QUOTES, 'UTF-8');
 
         try {
-
+            // Send notification email
             if (!$this->sendLateOutEmail($userNameKh, $adminEmail, $date, $time, $lateMinutes, $reason, $title)) {
                 $_SESSION['error'] = [
                     'title' => "Email Error",
-                    'message' => "Notification email could not be sent. Please try again.$adminEmail"
+                    'message' => "Notification email could not be sent. Please try again."
                 ];
             }
 
             $lateModel = new LateModel();
-            $lateModel->applyLateOut($date, $time, $lateMinutes, $reason);
+            $lateModel->applyLateOut($date, $type, $time, $lateMinutes, $reason);
 
             $_SESSION['success'] = [
                 'title' => "លិខិតចេញយឺត",
-                'message' => "អ្នកបានយឺតចំនួន {$lateMinutes} នាទី។ សំណើបានបញ្ជូនទៅកាន់ " . $adminEmail . " សូមមេត្តារង់ចាំ។ សូមអរគុណ។"
+                'message' => "អ្នកបានយឺតចំនួន {$lateMinutes} នាទី។ សំណើបានបញ្ជូនទៅកាន់ " . $adminName . " សូមមេត្តារង់ចាំ។ សូមអរគុណ។"
             ];
             header("Location: /elms/overtimeout");
             exit();
@@ -472,6 +749,7 @@ class LateController
         $reason = trim($reason);
         $userId = $_SESSION['user_id'];
         $title = "សំណើចេញមុន";
+        $type = "leaveearly";
 
         // Check if date field is empty
         if (empty($date)) {
@@ -568,6 +846,57 @@ class LateController
 
         // Extract the first admin email (or handle multiple emails as needed)
         $adminEmail = $adminEmails['emails'][0]; // Assuming you want the first email
+        $adminName = $adminEmails['lastNameKh'][0] . ' ' . $adminEmails['firstNameKh'][0];
+        $adminId = $adminEmails['ids'][0];
+
+        // Get the admin's Telegram ID
+        $telegramUser = $userModel->getTelegramIdByUserId($adminId);
+        if ($telegramUser && !empty($telegramUser['telegram_id'])) {
+            // Log the Telegram ID for debugging
+            error_log("Found telegram_id: " . $telegramUser['telegram_id']);
+
+            $notifications = [
+                "🔔 *សំណើចេញមុន*",
+                "---------------------------------------------",
+                "👤 *អ្នកស្នើ: *`{$userNameKh}`",
+                "⏰ *ចេញមុន:  *`{$lateMinutes} នាទី`",
+                "🗓️ *កាលបរិច្ឆេទ:   *`{$date}`",
+                "🕒 *ម៉ោង:    *`{$time}`",
+                "💬 *មូលហេតុ:  *`{$reason}`",
+            ];
+
+            // Joining notifications into a single message with new lines
+            $telegramMessage = implode("\n", $notifications);
+
+            // Step 4: Create the inline keyboard with a single "View the Request" button
+            $keyboard = [
+                'inline_keyboard' => [
+                    [
+                        ['text' => 'ពិនិត្យមើលសំណើ', 'url' => 'https://leave.iauoffsa.us/elms/leaveearly/'] // Using URL to open the request
+                    ]
+                ]
+            ];
+
+            // Send the Telegram notification
+            $telegramModel = new TelegramModel($this->pdo);
+            $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage, $keyboard);
+
+            // Check if the notification was successfully sent
+            if (!$success) {
+                error_log("Failed to send Telegram notification to user with telegram_id: " . $telegramUser['telegram_id']);
+                $_SESSION['error'] = [
+                    'title' => "Telegram Notification Error",
+                    'message' => "Could not send Telegram notification. Please check your settings or contact support."
+                ];
+            }
+        } else {
+            // Log the failure to find a valid telegram_id
+            error_log("No valid telegram_id found for adminId: " . $adminId);
+            $_SESSION['error'] = [
+                'title' => "Telegram Notification Error",
+                'message' => "No Telegram ID associated with the admin. Notification could not be sent."
+            ];
+        }
         // Sanitize reason
         $reason = htmlspecialchars($reason, ENT_QUOTES, 'UTF-8');
 
@@ -581,11 +910,11 @@ class LateController
             }
 
             $lateModel = new LateModel();
-            $lateModel->applyLeaveEarly($date, $time, $lateMinutes, $reason);
+            $lateModel->applyLeaveEarly($date, $type, $time, $lateMinutes, $reason);
 
             $_SESSION['success'] = [
                 'title' => "លិខិតចេញយឺត",
-                'message' => "អ្នកបានចេញមុនចំនួន {$lateMinutes} នាទី។ សំណើបានបញ្ជូនទៅកាន់ " . $adminEmail . " សូមមេត្តារង់ចាំ។ សូមអរគុណ។"
+                'message' => "អ្នកបានចេញមុនចំនួន {$lateMinutes} នាទី។ សំណើបានបញ្ជូនទៅកាន់ " . $adminName . " សូមមេត្តារង់ចាំ។ សូមអរគុណ។"
             ];
             header("Location: /elms/leaveearly");
             exit();
@@ -1052,7 +1381,7 @@ class LateController
         }
     }
 
-    private function sendEmailNotification($userName, $adminEmail, $date, $time, $lateMinutes, $reason)
+    public function sendEmailNotification($userName, $adminEmail, $date, $time, $lateMinutes, $reason)
     {
         $mail = new PHPMailer(true);
 

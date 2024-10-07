@@ -106,6 +106,11 @@ date_default_timezone_set('Asia/Bangkok');
                             $getPendingCounts = $adminModel->getLateinCount();
                             $latesToday = $adminModel->getLateCountToday();
                             $AllLate = $adminModel->getAllLate();
+                            // sidebar count 
+                            $getAllMissionCount = $adminModel->getMissionsTodayCount();
+                            $getLeaveTodayCount = $adminModel->getLeaveTodayCount();
+                            $getPendingCount = $adminModel->getLateCountByStatus('Pending');
+                            // end sidebar count 
                             require 'admin/sidebar.php';
                             break;
                         case 'Deputy Head Of Office':

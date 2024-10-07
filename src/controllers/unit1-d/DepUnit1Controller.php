@@ -25,196 +25,152 @@ class DepUnit1Controller
     public function apply()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            try {
+                $userModel = new User();
+                $HeadDepartmentModel = new DepUnit1Model();
 
-            $userModel = new User();
-            $HeadDepartmentModel = new DepUnit1Model();
+                // Fetch session details
+                $user_id = $_SESSION['user_id'] ?? null;
+                $user_email = $_SESSION['email'] ?? null;
+                $position = $_SESSION['position'] ?? null;
+                $department = $_SESSION['departmentName'] ?? null;
+                $token = $_SESSION['token'] ?? null;
+                $user_khmer_name = $_SESSION['user_khmer_name'] ?? null;
+                $leave = '1' ?? "NULL";
 
-            // Fetch session details
-            $user_id = $_SESSION['user_id'] ?? null;
-            $user_email = $_SESSION['email'] ?? null;
-            $position = $_SESSION['position'] ?? null;
-            $department = $_SESSION['departmentName'] ?? null;
-            $token = $_SESSION['token'] ?? null;
-            $user_khmer_name = $_SESSION['user_khmer_name'] ?? null;
+                // Check if essential session data is available
+                if (!$user_id || !$position || !$token || !$user_khmer_name) {
+                    throw new Exception("Session information is missing. Please log in again.");
+                }
 
-            // Check if essential session data is available
-            if (!$user_id || !$position || !$token || !$user_khmer_name) {
-                $_SESSION['error'] = [
-                    'title' => "Session Error",
-                    'message' => "Session information is missing. Please log in again."
-                ];
-                header("Location: /elms/login");
-                exit();
-            }
+                // Fetch POST data with null fallback if not provided
+                $leave_type_id = $_POST['leave_type_id'] ?? null;
+                $start_date = $_POST['start_date'] ?? null;
+                $end_date = $_POST['end_date'] ?? null;
+                $remarks = $_POST['remarks'] ?? null;
 
-            // Fetch POST data with null fallback if not provided
-            $leave_type_id = $_POST['leave_type_id'] ?? null;
-            $start_date = $_POST['start_date'] ?? null;
-            $end_date = $_POST['end_date'] ?? null;
-            $remarks = $_POST['remarks'] ?? null;
+                // Validate required fields
+                if (!$leave_type_id || !$start_date || !$end_date) {
+                    throw new Exception("Please fill out all required fields.");
+                }
 
-            // Validate required fields
-            if (!$leave_type_id || !$start_date || !$end_date) {
-                $_SESSION['error'] = [
-                    'title' => "Invalid Input",
-                    'message' => "Please fill out all required fields."
-                ];
-                header("Location: /elms/dunit1Leave");
-                exit();
-            }
+                // Handle messages
+                $message = "$user_khmer_name បានស្នើសុំច្បាប់ឈប់សម្រាក។";
+                $activity = "បានស្នើសុំច្បាប់ឈប់សម្រាក។";
+                $status = "On Leave";
 
-            // Handle messages
-            $message = "$user_khmer_name បានស្នើសុំច្បាប់ឈប់សម្រាក។";
-            $activity = "បានស្នើសុំច្បាប់ឈប់សម្រាក។";
+                // Handle file upload for attachment
+                $attachment_name = $HeadDepartmentModel->handleFileUpload($_FILES['attachment'], ['docx', 'pdf'], 2097152, 'public/uploads/leave_attachments/');
+                if ($attachment_name === false) {
+                    throw new Exception("មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។​ សូមព្យាយាមម្តងទៀត");
+                }
 
-            $leaveRemarks = "ច្បាប់";
-            $status = "On Leave";
+                // Check if the end date is after the start date
+                if (new DateTime($end_date) < new DateTime($start_date)) {
+                    throw new Exception("ថ្ងៃបញ្ចប់មិនអាចតូចជាងថ្ងៃចាប់ផ្ដើម។ សូមពិនិត្យម្តងទៀត");
+                }
 
-            // Handle file upload for attachment
-            $attachment_name = $HeadDepartmentModel->handleFileUpload($_FILES['attachment'], ['docx', 'pdf'], 2097152, 'public/uploads/leave_attachments/');
-            if ($attachment_name === false) {
-                $_SESSION['error'] = [
-                    'title' => "ឯកសារភ្ជាប់",
-                    'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។​ សូមព្យាយាមម្តងទៀត"
-                ];
-                header("Location: /elms/dunit1Leave");
-                exit();
-            }
+                // Fetch leave type details
+                $leaveTypeModel = new Leavetype();
+                $leaveType = $leaveTypeModel->getLeaveTypeById($leave_type_id);
+                if (!$leaveType) {
+                    throw new Exception("Invalid leave type selected.");
+                }
 
-            if (new DateTime($end_date) < new DateTime($start_date)) {
-                $_SESSION['error'] = [
-                    'title' => "កំហុសកាលបរិច្ឆេទ",
-                    'message' => "ថ្ងៃបញ្ចប់មិនអាចតូចជាងថ្ងៃចាប់ផ្ដើម។ សូមពិនិត្យម្តងទៀត"
-                ];
-                header("Location: /elms/my-leaves");
-                exit();
-            }
+                // Calculate the duration in business days
+                $datetime_start = new DateTime($start_date);
+                $datetime_end = new DateTime($end_date);
+                $duration_days = $HeadDepartmentModel->calculateBusinessDays($datetime_start, $datetime_end);
 
-            // Fetch leave type details including duration from the database
-            $leaveTypeModel = new Leavetype();
-            $leaveType = $leaveTypeModel->getLeaveTypeById($leave_type_id);
-            if (!$leaveType) {
-                $_SESSION['error'] = [
-                    'title' => "Leave Type Error",
-                    'message' => "Invalid leave type selected."
-                ];
-                header("Location: /elms/dunit1Leave");
-                exit();
-            }
+                // Compare the calculated duration with the allowed duration for the selected leave type
+                $leave_type_duration = $leaveType['duration'];
+                if ($duration_days > $leave_type_duration) {
+                    throw new Exception("ប្រភេទច្បាប់ឈប់សម្រាកនេះមានរយៈពេល " . $leave_type_duration . " ថ្ងៃ។ សូមពិនិត្យមើលប្រភេទច្បាប់ដែលអ្នកបានជ្រើសរើសម្តងទៀត");
+                }
 
-            // Calculate the duration in business days between start_date and end_date
-            $datetime_start = new DateTime($start_date);
-            $datetime_end = new DateTime($end_date);
-            $duration_days = $HeadDepartmentModel->calculateBusinessDays($datetime_start, $datetime_end);
+                // Fetch office details based on department
+                $userDoffice = $userModel->getEmailLeaderHUApi($user_id, $token);
+                if (empty($userDoffice['ids']) || empty($userDoffice['emails'])) {
+                    throw new Exception("Unable to find Head Of Unit details. Please contact support.");
+                }
 
-            // Compare the calculated duration with the allowed duration for the selected leave type
-            $leave_type_duration = $leaveType['duration'];
-            if ($duration_days > $leave_type_duration) {
-                $_SESSION['error'] = [
-                    'title' => "រយៈពេល",
-                    'message' => "ប្រភេទច្បាប់ឈប់សម្រាកនេះមានរយៈពេល " . $leave_type_duration . " ថ្ងៃ។ សូមពិនិត្យមើលប្រភេទច្បាប់ដែលអ្នកបានជ្រើសរើសម្តងទៀត"
-                ];
-                header("Location: /elms/dunit1Leave");
-                exit();
-            }
+                // Use the first available manager's ID and email
+                $managerId = $userDoffice['ids'][0];
+                $managerEmail = $userDoffice['emails'][0];
+                $managerName = $userDoffice['lastNameKh'][0] . ' ' . $userDoffice['firstNameKh'][0];
+                $link = "https://leave.iauoffsa.us/elms/hunitpending";
 
-            // Fetch office details based on department
-            $userDoffice = $userModel->getEmailLeaderHUApi($user_id, $token);
-            if (empty($userDoffice) || empty($userDoffice['ids']) || empty($userDoffice['emails'])) {
-                $_SESSION['error'] = [
-                    'title' => "Office Error",
-                    'message' => "Unable to find Head Of Unit details or no emails found. Please contact support."
-                ];
-                header("Location: /elms/dunit1Leave");
-                exit();
-            }
+                // Check if the manager is on leave or mission
+                $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+                $isManagerOnMission = $userModel->isManagerOnMission($managerId);
 
-            // Use the first available manager's ID and email
-            $managerId = !empty($userDoffice['ids']) ? $userDoffice['ids'][0] : null;
-            $managerEmail = !empty($userDoffice['emails']) ? $userDoffice['emails'][0] : null;
-            $managerName = !empty($userDoffice['lastNameKh']) && !empty($userDoffice['firstNameKh'])
-                ? $userDoffice['lastNameKh'][0] . ' ' . $userDoffice['firstNameKh'][0]
-                : null;
+                // Create leave request in the database
+                $leaveRequestId = $HeadDepartmentModel->create(
+                    $user_id,
+                    $user_email,
+                    $leave_type_id,
+                    $position,
+                    $department,
+                    $leaveType['name'],
+                    $start_date,
+                    $end_date,
+                    $remarks,
+                    $duration_days,
+                    $attachment_name
+                );
 
-            if (!$managerId || !$managerEmail) {
-                throw new Exception("No valid manager details found.");
-            }
+                if (!$leaveRequestId) {
+                    throw new Exception("Failed to create leave request. Please try again.");
+                }
 
-            // Check if the manager is on leave today using the leave_requests table
-            $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+                // If the manager is on leave or mission, update approval and API
+                if ($isManagerOnLeave || $isManagerOnMission) {
+                    $status = $isManagerOnLeave ? "On Leave" : "Mission";
+                    $remarksText = $isManagerOnLeave ? "ច្បាប់" : "បេសកកម្ម";
+                    $HeadDepartmentModel->updateApproval($leaveRequestId, $managerId, $status, $remarksText);
+                    $HeadDepartmentModel->updateToApi($user_id, $start_date, $end_date, $leave, $token);
 
-            // Create leave request in the database
-            $leaveRequestId = $HeadDepartmentModel->create(
-                $user_id,
-                $user_email,
-                $leave_type_id,
-                $position,
-                $department,
-                $leaveType['name'],
-                $start_date,
-                $end_date,
-                $remarks,
-                $duration_days,
-                $attachment_name
-            );
+                    $_SESSION['success'] = [
+                        'title' => "ជោគជ័យ",
+                        'message' => "ច្បាប់របស់អ្នកត្រូវបានអនុម័ត។"
+                    ];
+                    header("Location: /elms/dunit1Leave");
+                    exit();
+                }
 
-            if (!$leaveRequestId) {
-                $_SESSION['error'] = [
-                    'title' => "Leave Request Error",
-                    'message' => "Failed to create leave request. Please try again."
-                ];
-                header("Location: /elms/dunit1Leave");
-                exit();
-            }
+                // Send notifications
+                $userModel->sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link);
+                $HeadDepartmentModel->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name']);
 
-            if ($isManagerOnLeave) {
-                // Submit approval
-                $updatedAt = $HeadDepartmentModel->updateApproval($leaveRequestId, $managerId, $status, $leaveRemarks);
+                // Log user activity
+                $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
+
+                // Create notification for the user
+                $notificationModel = new Notification();
+                $notificationModel->createNotification($userDoffice['ids'], $user_id, $leaveRequestId, $message);
 
                 // Set success message and redirect
                 $_SESSION['success'] = [
                     'title' => "ជោគជ័យ",
-                    'message' => "ច្បាប់របស់អ្នកត្រូវបានអនុម័ត។"
+                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
                 ];
-            }
+                header("Location: /elms/dunit1Leave");
+                exit();
 
-            // Log user activity
-            $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
-
-            // Send email notification
-            if (!$HeadDepartmentModel->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
+            } catch (Exception $e) {
+                // Handle errors
                 $_SESSION['error'] = [
-                    'title' => "Email Error",
-                    'message' => "Notification email could not be sent. Please try again."
+                    'title' => "Error",
+                    'message' => $e->getMessage()
                 ];
                 header("Location: /elms/dunit1Leave");
                 exit();
             }
-
-            // Create notification for the user
-            $notificationModel = new Notification();
-            $notificationModel->createNotification($userDoffice['ids'], $user_id, $leaveRequestId, $message);
-
-            if ($isManagerOnLeave) {
-                // Set success message and redirect
-                $_SESSION['success'] = [
-                    'title' => "ជោគជ័យ",
-                    'message' => "ច្បាប់របស់អ្នកត្រូវបានអនុម័ត។"
-                ];
-                header("Location: /elms/dunit1Leave");
-                exit();
-            }
-            // Set success message and redirect
-            $_SESSION['success'] = [
-                'title' => "ជោគជ័យ",
-                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
-            ];
-            header("Location: /elms/dunit1Leave");
-            exit();
         } else {
             require 'src/views/leave/unit1-d/myLeave.php';
         }
     }
+
 
     public function viewRequestsWithFilters()
     {
@@ -260,9 +216,11 @@ class DepUnit1Controller
 
     public function pending()
     {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Validate required POST fields
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Define the required POST fields for validation
             $requiredFields = ['request_id', 'status', 'uremarks', 'uname', 'uemail', 'leaveType', 'user_id', 'start_date', 'end_date', 'duration'];
+
+            // Validate that all required fields are provided
             foreach ($requiredFields as $field) {
                 if (empty($_POST[$field])) {
                     $_SESSION['error'] = [
@@ -277,38 +235,36 @@ class DepUnit1Controller
             // Retrieve POST data
             $request_id = $_POST['request_id'];
             $status = $_POST['status'];
-            $remarks = $_POST['remarks'] ?? '';
+            $remarks = $_POST['remarks'] ?? ''; // Optional field
             $uremarks = $_POST['uremarks'];
             $uname = $_POST['uname'];
             $uEmail = $_POST['uemail'];
             $leaveType = $_POST['leaveType'];
-            $user_id = $_POST['user_id']; // ID of the user who applied for leave
+            $user_id = $_POST['user_id'];
             $start_date = $_POST['start_date'];
             $end_date = $_POST['end_date'];
             $duration_days = $_POST['duration'];
             $approver_id = $_SESSION['user_id'];
             $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
             $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
+            $token = $_SESSION['token'];
+            $leave = '1';  // Assuming '1' represents leave status
+            $departmentName = $_SESSION['departmentName'] ?? null; // URL to direct the manager
 
-            // Fetch department details
-            $leaveRemarks = "ច្បាប់";
-            $action = "On Leave";
-            $departmentName = $_SESSION['departmentName'] ?? null;
-
-            // Start transaction
             try {
+                // Start the transaction
                 $this->pdo->beginTransaction();
 
                 // Create approval record
                 $leaveApproval = new DepUnit1Model();
                 $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks);
 
-                // Fetch office details using API
+                // Fetch office/manager details using API
                 $userModel = new User();
-                $userHoffice = $userModel->getEmailLeaderHUApi($_SESSION['user_id'], $_SESSION['token']);
+                $userHoffice = $userModel->getEmailLeaderHUApi($approver_id, $token);
 
                 if (!is_array($userHoffice) || !isset($userHoffice['ids'])) {
-                    throw new Exception("Unable to find Department details. Please contact support.");
+                    throw new Exception("Unable to find department details. Please contact support.");
                 }
 
                 // Use the first available manager's ID and email
@@ -317,58 +273,73 @@ class DepUnit1Controller
                 $managerName = isset($userHoffice['lastNameKh'][0]) && isset($userHoffice['firstNameKh'][0])
                     ? $userHoffice['lastNameKh'][0] . ' ' . $userHoffice['firstNameKh'][0]
                     : null;
+                $link = "https://leave.iauoffsa.us/elms/hunitpending";
 
                 if (!$managerId || !$managerEmail) {
                     throw new Exception("No valid manager details found.");
                 }
 
-                // Check if the manager is on leave today using the leave_requests table
+                // Check if the manager is on leave or on a mission today
                 $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+                $isManagerOnMission = $userModel->isManagerOnMission($managerId);
 
-                if ($isManagerOnLeave) {
-                    // Submit approval
-                    $updatedAt = $leaveApproval->updateApproval($request_id, $managerId, $action, $leaveRemarks);
+                if ($isManagerOnLeave || $isManagerOnMission) {
+                    $action = $isManagerOnLeave ? "On Leave" : "Mission";
+                    $remarksText = $isManagerOnLeave ? "ច្បាប់" : "បេសកកម្ម";
 
-                    // Set success message and redirect
+                    // Update approval status
+                    $leaveApproval->updateApproval($request_id, $managerId, $action, $remarksText);
+
+                    // Update the status to the API
+                    $leaveApproval->updateToApi($user_id, $start_date, $end_date, $leave, $token);
+
+                    // Notify the user
+                    $userModel->sendBackToUser($user_id, $uname, $start_date, $end_date, $duration_days, $uremarks, $status);
+
                     $_SESSION['success'] = [
                         'title' => "ជោគជ័យ",
                         'message' => "ច្បាប់របស់អ្នកត្រូវបានអនុម័ត។"
                     ];
+                } else {
+                    // Send notification to the next manager via Telegram or other methods
+                    $userModel->sendTelegramNextManager($managerId, $uname, $start_date, $end_date, $duration_days, $uremarks, $status, $link);
+                    $userModel->sendBackToUser($user_id, $uname, $start_date, $end_date, $duration_days, $uremarks, $status);
+
+                    // Send email notification to the manager
+                    if (!$leaveApproval->sendEmailNotification($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
+                        throw new Exception("Notification email could not be sent. Please try again.");
+                    }
+
+                    // Send email notification to the user
+                    if (!$leaveApproval->sendEmailBackToUser($uEmail, $_SESSION['user_khmer_name'], $request_id, $status, $updatedAt, $remarks)) {
+                        throw new Exception("Notification email to user could not be sent. Please try again.");
+                    }
+
+                    // Create a user notification
+                    $notificationModel = new Notification();
+                    $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
+
+                    // Log the approver's activity
+                    $activity = "បាន " . $status . " ច្បាប់ឈប់សម្រាក " . $uname;
+                    $userModel->logUserActivity($approver_id, $activity, $_SERVER['REMOTE_ADDR']);
+
+                    $_SESSION['success'] = [
+                        'title' => "សំណើច្បាប់",
+                        'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
+                    ];
                 }
 
-                // Send email notification
-                if (!$leaveApproval->sendEmailNotification($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
-                    throw new Exception("Notification email could not be sent. Please try again.");
-                }
-
-                // Send email back to the user
-                if (!$leaveApproval->sendEmailBackToUser($uEmail, $_SESSION['user_khmer_name'], $request_id, $status, $updatedAt, $remarks)) {
-                    throw new Exception("Notification email to user could not be sent. Please try again.");
-                }
-
-                // Create notification for the user
-                $notificationModel = new Notification();
-                $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
-
-                // Log the user's activity
-                $activity = "បាន " . $status . " ច្បាប់ឈប់សម្រាក " . $uname;
-                $userModel->logUserActivity($approver_id, $activity, $_SERVER['REMOTE_ADDR']);
-
-                // Commit transaction
+                // Commit the transaction
                 $this->pdo->commit();
 
-                // Set success message and redirect to the pending page
-                $_SESSION['success'] = [
-                    'title' => "សំណើច្បាប់",
-                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
-                ];
-                header('location: /elms/dunit1pending');
+                // Redirect to the pending page with success message
+                header('Location: /elms/dunit1pending');
                 exit();
             } catch (Exception $e) {
-                // Rollback transaction in case of failure
+                // Rollback the transaction on failure
                 $this->pdo->rollBack();
 
-                // Log error and set error message
+                // Log the error and set error message
                 error_log("Error: " . $e->getMessage());
                 $_SESSION['error'] = [
                     'title' => "កំហុស",
@@ -378,7 +349,7 @@ class DepUnit1Controller
                 exit();
             }
         } else {
-            // Handle GET request
+            // Handle the GET request to load pending requests
             $leaveRequestModel = new DepUnit1Model();
             $requests = $leaveRequestModel->getAllLeaveRequests();
             $leavetypeModel = new Leavetype();
