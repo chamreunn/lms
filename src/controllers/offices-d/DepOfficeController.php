@@ -265,7 +265,7 @@ class DepOfficeController
 
                 // Create a DepOfficeModel instance and submit approval
                 $leaveApproval = new DepOfficeModel();
-                $updatedAt = $leaveApproval->updateApproval($request_id, $approver_id, $status, $remarks);
+                $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks);
 
                 // Fetch office details via API
                 $userModel = new User();
