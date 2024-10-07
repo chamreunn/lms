@@ -119,6 +119,15 @@ $action = $_GET['action'] ?? 'latein';
                     <!-- table  -->
                     <div class="table-responsive">
                         <table class="table table-vcenter table-bordered-less table-striped mb-0 sortable-table">
+                            <thead>
+                                <tr>
+                                    <th><button class="table-sort" data-sort="sort-name">ឈ្មោះ</button></th>
+                                    <th><button class="table-sort" data-sort="sort-date">កាលបរិច្ឆេទ</button></th>
+                                    <th><button class="table-sort" data-sort="sort-type">ប្រភេទ</button></th>
+                                    <th>ស្ថានភាព</th>
+                                    <th><button class="table-sort" data-sort="sort-approved-date">បានអនុម័តនៅ</button></th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 <?php foreach ($gettodaylates as $attendance): ?>
                                     <tr>
