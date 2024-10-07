@@ -151,9 +151,9 @@ class TelegramController
     private function redirectToLogin($errorMessage = null)
     {
         if ($errorMessage) {
-            header('Location: /elms/');
+            header('Location: https://leave.iauoffsa.us/elms/');
         } else {
-            header('Location: /elms/');
+            header('Location: https://leave.iauoffsa.us/elms/');
         }
         exit;
     }
