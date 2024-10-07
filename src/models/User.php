@@ -11,7 +11,7 @@ class User
         $this->pdo = $pdo;
     }
 
-    public $api = "http://172.25.26.3:8000";
+    public $api = "http://172.25.26.6:8000";
 
     private $telegramUser = "telegram_users";
 
