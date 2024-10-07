@@ -186,7 +186,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                                             </div>
                                                             <div class="col">
                                                                 <form method="POST"
-                                                                    action="http://127.0.0.1/elms/telegramDisconnect"
+                                                                    action="https://leave.iauoffsa.us/elms/telegramDisconnect"
                                                                     class="d-inline">
                                                                     <input type="hidden" name="telegram_id"
                                                                         value="<?= htmlspecialchars($getTelegramId['telegram_id']) ?>">
