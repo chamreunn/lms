@@ -108,7 +108,7 @@ class TelegramController
         ];
 
         // Redirect to the appropriate page after success
-        header("Location: https://leave.iauoffsa.us/elms/setting_security?user_id=" . $_SESSION['user_id']);
+        header("Location: /elms/setting_security?user_id=" . $_SESSION['user_id']);
         exit; // Ensure no further code is executed after redirection
     }
 
@@ -151,9 +151,9 @@ class TelegramController
     private function redirectToLogin($errorMessage = null)
     {
         if ($errorMessage) {
-            header('Location: https://leave.iauoffsa.us/elms/');
+            header('Location: /elms/');
         } else {
-            header('Location: https://leave.iauoffsa.us/elms/');
+            header('Location: /elms/');
         }
         exit;
     }

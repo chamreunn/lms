@@ -209,7 +209,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                                 សូមភ្ជាប់ដើម្បីប្រើសេវាកម្ម Telegram។</p>
                                             <script async src="https://telegram.org/js/telegram-widget.js?"
                                                 data-telegram-login="<?= $_SESSION['BotUsername'] ?>" data-size="large"
-                                                data-auth-url="http://127.0.0.1/elms/telegramConnect"
+                                                data-auth-url="https://leave.iauoffsa.us/elms/telegramConnect"
                                                 data-request-access="write">
                                                 </script>
                                         </div>
