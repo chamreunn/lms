@@ -340,9 +340,9 @@ class LateController
             } else {
                 // Log the failure to find a valid telegram_id
                 error_log("No valid telegram_id found for adminId: " . $adminId);
-                $_SESSION['error'] = [
-                    'title' => "Telegram Notification Error",
-                    'message' => "No Telegram ID associated with the admin. Notification could not be sent."
+                $_SESSION['success'] = [
+                    'title' => "សំណើចូលយឺត",
+                    'message' => "អ្នកបានយឺតចំនួន {$lateMinutes} នាទី។ សំណើបានបញ្ជូនទៅកាន់ " . ($adminName ?? "") . ". សូមអរគុណ។"
                 ];
             }
 
