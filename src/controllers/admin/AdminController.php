@@ -1,6 +1,6 @@
 <?php
 require_once 'src/models/admin/AdminModel.php';
-require_once 'src/models/telegram/telegramModel.php';
+require_once 'src/models/telegram/TelegramModel.php';
 require_once 'src/vendor/autoload.php'; // Ensure PHPMailer is autoloaded
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
