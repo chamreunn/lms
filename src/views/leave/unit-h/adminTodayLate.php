@@ -335,6 +335,7 @@ include('src/common/header.php');
                                 <th><button class="table-sort" data-sort="sort-name">ឈ្មោះ</button></th>
                                 <th><button class="table-sort" data-sort="sort-date">កាលបរិច្ឆេទ</button></th>
                                 <th><button class="table-sort" data-sort="sort-type">ប្រភេទ</button></th>
+                                <th><button class="table-sort" data-sort="sort-type">ម៉ោង</button></th>
                                 <th><button class="table-sort" data-sort="sort-type">រយៈពេល</button></th>
                                 <th>ស្ថានភាព</th>
                                 <th><button class="table-sort" data-sort="sort-approved-date">បានអនុម័តនៅ</button></th>
@@ -363,6 +364,18 @@ include('src/common/header.php');
                                             <?= $attendance['type'] == 'latein' ? 'ចូលយឺត' : ($attendance['type'] == 'lateout' ? 'ចេញយឺត' : 'ចេញមុន') ?>
                                         </span>
                                     </td>
+                                    <td>
+                                        <?php
+                                        if ($attendance['type'] == 'latein') {
+                                            echo htmlspecialchars($attendance['late_in']);
+                                        } elseif ($attendance['type'] == 'lateout') {
+                                            echo htmlspecialchars($attendance['late_out']);
+                                        } else {
+                                            echo htmlspecialchars($attendance['leave_early']);
+                                        }
+                                        ?>
+                                    </td>
+
                                     <td><?= htmlspecialchars($attendance['late']) ?></td>
                                     <td><span class="badge bg-success">បានអនុម័ត</span></td>
                                     <td><?= htmlspecialchars($attendance['updated_at']) ?></td>
