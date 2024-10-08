@@ -630,6 +630,7 @@ class AdminController
     public function getAllMissions()
     {
         $adminModel = new AdminModel();
+        $userModel = new User();
 
         // Get the current page and set the number of records per page
         $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
@@ -644,6 +645,8 @@ class AdminController
         // Fetch total records for pagination calculation
         $totalRecords = $adminModel->getTotalMissionCount();
         $getAllMissionCount = $adminModel->getMissionsTodayCount();
+
+        $getAllUser = $userModel->getAllUserApi($_SESSION['token']);
 
         // Calculate total pages
         $totalPages = ceil($totalRecords / $recordsPerPage);

@@ -25,7 +25,7 @@ class MissionController
 
             $userModel = new User();
 
-            $user_id = $_SESSION['user_id'];
+            $user_id = $_POST['user_id'];
             $mission_name = $_POST['mission_name'] ?? "NULL";
             $start_date = $_POST['start_date'];
             $end_date = $_POST['end_date'];
@@ -45,23 +45,6 @@ class MissionController
 
             // Generate the URL for the uploaded file
             $attachment_url = 'https://leave.iauoffsa.us/elms/public/uploads/missions_attachments/' . $attachment_name;
-
-            // Fetch the user's office details via API
-            $userDoffice = $userModel->getAdminEmails($_SESSION['token']);
-            if (!$userDoffice || $userDoffice['http_code'] !== 200 || empty($userDoffice['emails'])) {
-                throw new Exception("Unable to find office details. Please contact support.");
-            }
-
-            // Use the first available manager's ID and email
-            $managerId = !empty($userDoffice['ids']) ? $userDoffice['ids'][0] : null;
-            $managerEmail = !empty($userDoffice['emails']) ? $userDoffice['emails'][0] : null;
-            $managerName = !empty($userDoffice['lastNameKh']) && !empty($userDoffice['firstNameKh'])
-                ? $userDoffice['lastNameKh'][0] . ' ' . $userDoffice['firstNameKh'][0]
-                : null;
-
-            if (!$managerId || !$managerEmail) {
-                throw new Exception("No valid manager details found.");
-            }
 
             try {
                 // Start transaction
@@ -85,7 +68,7 @@ class MissionController
                     $updateToApi = $userModel->updateMissionToApi($user_id, $start_date, $end_date, $mission, $_SESSION['token']);
 
                     // Step 1: Check if the manager has a Telegram account
-                    $telegramUser = $userModel->getTelegramIdByUserId($managerId);
+                    $telegramUser = $userModel->getTelegramIdByUserId($user_id);
 
                     if ($telegramUser && !empty($telegramUser['telegram_id'])) {
                         // Step 2: Log the telegram_id for debugging
@@ -96,7 +79,7 @@ class MissionController
                         $notifications = [
                             "🔔 *លិខិតបេសកកម្ម*",
                             "---------------------------------------------",
-                            "👤 *អ្នកស្នើ:* `{$_SESSION['user_khmer_name']}`",
+                            "👤 *អ្នកបង្កើត:* `{$_SESSION['user_khmer_name']}`",
                             "📅 *ចាប់ពី:* `{$start_date}`",
                             "📅 *ដល់កាលបរិចេ្ឆទ:* `{$end_date}`",
                             "🗓️ *រយៈពេល:* `{$duration_days}` ថ្ងៃ",
@@ -106,18 +89,9 @@ class MissionController
                         // Joining notifications into a single message with new lines
                         $telegramMessage = implode("\n", $notifications);
 
-                        // Step 4: Create the inline keyboard with a single "View the Request" button
-                        $keyboard = [
-                            'inline_keyboard' => [
-                                [
-                                    ['text' => 'ពិនិត្យមើល', 'url' => 'https://leave.iauoffsa.us/elms/adminmissions'] // Using URL to open the request
-                                ]
-                            ]
-                        ];
-
                         // Step 5: Attempt to send the Telegram notification with the "View the Request" button
                         $telegramModel = new TelegramModel($this->pdo);
-                        $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage, $keyboard);
+                        $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage);
 
                         // Step 6: Check if the notification was successfully sent
                         if ($success) {
@@ -131,7 +105,7 @@ class MissionController
                         }
                     } else {
                         // Log the failure to find a valid telegram_id
-                        error_log("No valid telegram_id found for managerId: " . $managerId);
+                        error_log("No valid telegram_id found for managerId: ");
                         $_SESSION['success'] = [
                             'title' => "ជោគជ័យ",
                             'message' => "បានបង្កើតបេសកកម្មរួចរាល់។"
@@ -140,7 +114,7 @@ class MissionController
 
                     $_SESSION['success'] = [
                         'title' => "ជោគជ័យ",
-                        'message' => "បង្កើតបេសកកម្មបានជោគជ័យ។" . $managerName
+                        'message' => "បង្កើតបេសកកម្មបានជោគជ័យ។"
                     ];
                 } else {
                     // If either operation fails, roll back
@@ -157,7 +131,7 @@ class MissionController
             }
 
             // Redirect to mission page
-            header("Location: /elms/mission");
+            header("Location: /elms/adminmissions");
             exit();
         }
     }
@@ -181,7 +155,7 @@ class MissionController
                         'title' => "ឯកសារភ្ជាប់",
                         'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។​ សូមព្យាយាមម្តងទៀត"
                     ];
-                    header("Location: /elms/mission");
+                    header("Location: /elms/adminmissions");
                     exit();
                 }
             }
@@ -214,7 +188,7 @@ class MissionController
                 ];
             }
 
-            header("Location: /elms/mission");
+            header("Location: /elms/adminmissions");
             exit();
         }
     }
@@ -233,7 +207,7 @@ class MissionController
                 'message' => "មានបញ្ហា មិនអាចលុបបេសកកម្មបានទេ។"
             ];
         }
-        header("Location: /elms/mission");
+        header("Location: /elms/adminmissions");
         exit();
     }
 

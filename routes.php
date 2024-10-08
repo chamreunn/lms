@@ -138,6 +138,12 @@ switch ($uri) {
             $controller->displayAttendances();
         });
         break;
+    case $base_url . '/all-attendances':
+        checkSessionAndExecute(function () {
+            $controller = new HeadUnitController();
+            $controller->displayAttendances();
+        });
+        break;
     case $base_url . '/admin-attendances':
         checkSessionAndExecute(function () {
             $controller = new AdminController();
@@ -306,6 +312,12 @@ switch ($uri) {
     case $base_url . '/admintodaylate':
         checkSessionAndExecute(function () {
             $controller = new AdminController();
+            $controller->getTodayLate();
+        });
+        break;
+    case $base_url . '/headunittodaylate':
+        checkSessionAndExecute(function () {
+            $controller = new HeadUnitController();
             $controller->getTodayLate();
         });
         break;

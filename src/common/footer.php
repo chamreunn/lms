@@ -283,6 +283,19 @@
                         </div>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">ជ្រើសរើសគណនី</label>
+                        <select type="text" class="form-select select-people" name="user_id" placeholder="Select a person">
+                            <option value="NULL" selected disable>សូមជ្រើសរើសគណនី</option>
+                            <?php foreach ($getAllUser['data'] as $user): ?>
+                                <option value="<?= htmlspecialchars($user['id'], ENT_QUOTES, 'UTF-8') ?>"
+                                    data-custom-properties="&lt;span class=&quot;avatar avatar-xs&quot; style=&quot;background-image: url('https://hrms.iauoffsa.us/images/<?= htmlspecialchars($user['image'], ENT_QUOTES, 'UTF-8') ?>')&quot;&gt;&lt;/span&gt;">
+                                    <?= htmlspecialchars($user['firstNameKh'], ENT_QUOTES, 'UTF-8') ?>
+                                </option>
+                            <?php endforeach; ?>
+                            <!-- Add more options as needed -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">កាលបរិច្ឆេទចាប់ពី<span
                                 class="text-danger mx-1 fw-bold">*</span></label>
                         <div class="input-icon">
@@ -387,40 +400,6 @@
 <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
 
-<!-- spinner button  -->
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Select all forms
-        const forms = document.querySelectorAll('form');
-
-        forms.forEach(function (form) {
-            // Attach event listener for form submission
-            form.addEventListener('submit', function (event) {
-                const submitBtn = form.querySelector('button[type="submit"]');
-
-                // Check if the spinner already exists; if not, create and append it
-                if (!submitBtn.querySelector('.spinner-border')) {
-                    const spinner = document.createElement('span');
-                    spinner.classList.add('spinner-border', 'spinner-border-sm', 'mx-2');
-                    spinner.setAttribute('role', 'status');
-                    spinner.setAttribute('aria-hidden', 'true');
-                    spinner.style.display = 'none';
-                    submitBtn.appendChild(spinner);
-                }
-
-                // Show the spinner
-                const spinner = submitBtn.querySelector('.spinner-border');
-                spinner.style.display = 'inline-block';
-
-                // Disable the button after a slight delay to allow form submission
-                setTimeout(function () {
-                    submitBtn.setAttribute('disabled', 'true');
-                }, 50); // Delay the button disable by 50ms, giving the form time to submit
-            });
-        });
-    });
-</script>
-
 <!-- Script to hide the loader with delay -->
 <script>
     window.addEventListener('load', function () {
@@ -433,6 +412,7 @@
     });
 </script>
 <!-- end  -->
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         window.Litepicker && new Litepicker({
@@ -629,6 +609,38 @@
     }
 </script>
 
+<!-- for select people dropdown  -->
+<script>
+    // @formatter:off
+    document.addEventListener("DOMContentLoaded", function () {
+        // Select all elements with the class 'select-people'
+        const selectElements = document.querySelectorAll('.select-people');
+
+        selectElements.forEach(el => {
+            window.TomSelect && (new TomSelect(el, {
+                copyClassesToDropdown: false,
+                dropdownClass: 'dropdown-menu ts-dropdown',
+                optionClass: 'dropdown-item',
+                controlInput: '<input>',
+                render: {
+                    item: function (data, escape) {
+                        if (data.customProperties) {
+                            return '<div><span class="dropdown-item-indicator">' + data.customProperties + '</span>' + escape(data.text) + '</div>';
+                        }
+                        return '<div>' + escape(data.text) + '</div>';
+                    },
+                    option: function (data, escape) {
+                        if (data.customProperties) {
+                            return '<div><span class="dropdown-item-indicator">' + data.customProperties + '</span>' + escape(data.text) + '</div>';
+                        }
+                        return '<div>' + escape(data.text) + '</div>';
+                    },
+                },
+            }));
+        });
+    });
+    // @formatter:on
+</script>
 
 </body>
 

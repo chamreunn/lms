@@ -76,6 +76,43 @@ date_default_timezone_set('Asia/Bangkok');
             filter: blur(8px);
         }
     </style>
+
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet">
+    
+    <!-- spinner button  -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Select all forms
+            const forms = document.querySelectorAll('form');
+
+            forms.forEach(function (form) {
+                // Attach event listener for form submission
+                form.addEventListener('submit', function (event) {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+
+                    // Check if the spinner already exists; if not, create and append it
+                    if (!submitBtn.querySelector('.spinner-border')) {
+                        const spinner = document.createElement('span');
+                        spinner.classList.add('spinner-border', 'spinner-border-sm', 'mx-2');
+                        spinner.setAttribute('role', 'status');
+                        spinner.setAttribute('aria-hidden', 'true');
+                        spinner.style.display = 'none';
+                        submitBtn.appendChild(spinner);
+                    }
+
+                    // Show the spinner
+                    const spinner = submitBtn.querySelector('.spinner-border');
+                    spinner.style.display = 'inline-block';
+
+                    // Disable the button after a slight delay to allow form submission
+                    setTimeout(function () {
+                        submitBtn.setAttribute('disabled', 'true');
+                    }, 50); // Delay the button disable by 50ms, giving the form time to submit
+                });
+            });
+        });
+    </script>
 </head>
 
 <body class="loading">

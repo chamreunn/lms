@@ -55,6 +55,7 @@ class AuthController
                         // Fetch position_name and store it in session
                         $position = $userModel->getRoleApi($user['roleId'], $token);
                         $_SESSION['position'] = $position['data']['roleNameKh'];
+                        $_SESSION['position_color'] = $position['data']['color'];
 
                         // get department api 
                         $department = $userModel->getDepartmentApi($user['departmentId'], $token);

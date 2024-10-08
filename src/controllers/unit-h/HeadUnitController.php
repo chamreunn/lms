@@ -397,4 +397,54 @@ class HeadUnitController
         // Return the count of leave requests
         return $result['leave_count'] ?? 0; // Return 0 if the count is not found
     }
+
+    public function displayAttendances()
+    {
+        $userModel = new User();
+        $adminModel = new AdminModel();
+        $userAttendances = $userModel->getAllUserAttendance($_SESSION['token']);
+        $gettodaylatecount = $adminModel->getTodayLateCount('Approved');
+
+        // get leaves approved 
+        $getLeavesApproved = $adminModel->getApprovedLeaveCount();
+        // get lates in count 
+        $getLatesInCount = $adminModel->getLatesInCount();
+        // get lates out count 
+        $getLatesOutCount = $adminModel->getLatesOutCount();
+        // get lates out count 
+        $getLeavesEarlyCount = $adminModel->getLeavesEarlyCount();
+        // get lates out count 
+        $getMissions = $adminModel->getMissions();
+
+        require 'src/views/attendence/HeadUnitAllAttendance.php';
+    }
+
+    public function getTodayLate()
+    {
+        $adminModel = new AdminModel();
+
+        // Get the current page and set the number of records per page
+        $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $recordsPerPage = 10; // Set the desired number of records per page
+
+        // Calculate the offset for the current page
+        $offset = ($currentPage - 1) * $recordsPerPage;
+
+        // Fetch approved late records with pagination
+        $gettodaylates = $adminModel->getAllTodayLate('Approved', $offset, $recordsPerPage);
+        $gettodaylatecount = $adminModel->getTodayLateCount('Approved');
+
+        // Fetch total approved records for pagination calculation
+        $totalRecords = $adminModel->getTotalTodayLate('Approved'); // Get total count of approved records
+
+        // Calculate total pages
+        $totalPages = ceil($totalRecords / $recordsPerPage);
+
+        $getPendingCount = $adminModel->getLateCountByStatus('Pending');
+        $getApprovedCount = $adminModel->getLateCountByStatus('Approved');
+        $getRejectedCount = $adminModel->getLateCountByStatus('Rejected');
+
+        // Pass the necessary data to the view
+        require 'src/views/leave/unit-h/adminTodayLate.php';
+    }
 }

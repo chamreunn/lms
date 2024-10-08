@@ -121,16 +121,19 @@ $action = $_GET['action'] ?? 'latein';
                         <table class="table table-vcenter table-bordered-less table-striped mb-0 sortable-table">
                             <thead>
                                 <tr>
+                                    <th>ល.រ</th>
                                     <th><button class="table-sort" data-sort="sort-name">ឈ្មោះ</button></th>
                                     <th><button class="table-sort" data-sort="sort-date">កាលបរិច្ឆេទ</button></th>
                                     <th><button class="table-sort" data-sort="sort-type">ប្រភេទ</button></th>
+                                    <th><button class="table-sort" data-sort="sort-type">រយៈពេល</button></th>
                                     <th>ស្ថានភាព</th>
                                     <th><button class="table-sort" data-sort="sort-approved-date">បានអនុម័តនៅ</button></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($gettodaylates as $attendance): ?>
+                                <?php foreach ($gettodaylates as $key => $attendance): ?>
                                     <tr>
+                                        <td><?= $key + 1 ?></td>
                                         <td>
                                             <div class="d-flex mb-0">
                                                 <img src="<?= htmlspecialchars($attendance['profile_picture']) ?>"
@@ -150,6 +153,7 @@ $action = $_GET['action'] ?? 'latein';
                                                 <?= $attendance['type'] == 'latein' ? 'ចូលយឺត' : ($attendance['type'] == 'lateout' ? 'ចេញយឺត' : 'ចេញមុន') ?>
                                             </span>
                                         </td>
+                                        <td><?= htmlspecialchars($attendance['late']) ?></td>
                                         <td><span class="badge bg-success">បានអនុម័ត</span></td>
                                         <td><?= htmlspecialchars($attendance['updated_at']) ?></td>
                                     </tr>
