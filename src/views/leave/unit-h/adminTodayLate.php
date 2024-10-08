@@ -364,19 +364,23 @@ include('src/common/header.php');
                                             <?= $attendance['type'] == 'latein' ? 'ចូលយឺត' : ($attendance['type'] == 'lateout' ? 'ចេញយឺត' : 'ចេញមុន') ?>
                                         </span>
                                     </td>
-                                    <td>
+                                    <td class="text-red">
                                         <?php
+                                        // Check the attendance type and append "នាទី" accordingly
                                         if ($attendance['type'] == 'latein') {
-                                            echo htmlspecialchars($attendance['late_in']);
+                                            echo htmlspecialchars($attendance['late_in']) . " នាទី";
                                         } elseif ($attendance['type'] == 'lateout') {
-                                            echo htmlspecialchars($attendance['late_out']);
+                                            echo htmlspecialchars($attendance['late_out']) . " នាទី";
                                         } else {
-                                            echo htmlspecialchars($attendance['leave_early']);
+                                            echo htmlspecialchars($attendance['leave_early']) . " នាទី";
                                         }
                                         ?>
                                     </td>
 
-                                    <td><?= htmlspecialchars($attendance['late']) ?></td>
+                                    <td class="text-red">
+                                        <?= htmlspecialchars($attendance['late']) . " នាទី" ?>
+                                    </td>
+
                                     <td><span class="badge bg-success">បានអនុម័ត</span></td>
                                     <td><?= htmlspecialchars($attendance['updated_at']) ?></td>
                                 </tr>
