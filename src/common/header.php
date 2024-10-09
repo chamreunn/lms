@@ -118,8 +118,8 @@ date_default_timezone_set('Asia/Bangkok');
         // Enable pusher logging - remove this in production
         Pusher.logToConsole = true;
 
-        var pusher = new Pusher('your_app_key', {
-            cluster: 'your_cluster',
+        var pusher = new Pusher('47a9d6e97ab07f5073ab', {
+            cluster: 'ap1',
             encrypted: true
         });
 
