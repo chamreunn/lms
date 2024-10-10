@@ -66,7 +66,6 @@ class DashboardController
                     $missionCount = new MissionModel();
                     $userModel = new User();
                     $getAllManagers = $userModel->getEmailLeaderHUApi($_SESSION['user_id'], $_SESSION['token']);
-                    $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
                     $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
@@ -87,7 +86,6 @@ class DashboardController
                     $getAllMission = new MissionModel();
                     $leaveRequestModel = new DepDepartmentModel();
                     $leaves = $leaveRequestModel->getTodayLeaveById($_SESSION['user_id']);
-                    $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
                     $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
@@ -123,7 +121,6 @@ class DashboardController
                     $getUserApprove = $countRequestModel->leaveUserApprovedByDepartment($_SESSION['token']);
                     $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
                     $leavetypes = $leavetypeModel->getAllLeavetypes();
-                    $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
                     $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
@@ -134,7 +131,6 @@ class DashboardController
                     $lateModel = new LateModel();
                     $countRequestModel = new LeaveRequest();
                     $getUserApprove = $countRequestModel->leaveUserApprovedByDepartment($_SESSION['token']);
-                    $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
                     $countRequestModel = new LeaveRequest();
@@ -189,8 +185,6 @@ class DashboardController
                     require 'src/views/dashboard/unit-h/dashboard.php';
                     break;
                 case 'Admin':
-                    $leaveRequestModel = new LeaveApproval();
-                    $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
                     $lateModel = new LateModel();
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
@@ -201,26 +195,7 @@ class DashboardController
                     $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
                     $leavetypes = new Leavetype();
                     $leavetype = $leavetypes->getLeaveTypeById($_SESSION['user_id']);
-                    $leaveRequestModel = new LeaveApproval();
-                    $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
                     require 'src/views/dashboard/admin/dashboard.php';
-                    break;
-                case 'Super Admin':
-                    $leaveRequestModel = new LeaveApproval();
-                    $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
-                    $lateModel = new LateModel();
-                    $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
-                    $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
-                    $countRequestModel = new LeaveRequest();
-                    $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
-                    $gettoday = $countRequestModel->getTodayLeaveById($_SESSION['user_id']);
-                    $notification = new Notification();
-                    $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
-                    $leavetypes = new Leavetype();
-                    $leavetype = $leavetypes->getLeaveTypeById($_SESSION['user_id']);
-                    $leaveRequestModel = new LeaveApproval();
-                    $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
-                    require 'src/views/dashboard/superAdmin/dashboard.php';
                     break;
                 default:
                     header("Location: /elms/login");

@@ -16,7 +16,7 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-12 mb-3">
-                            <label for="lateindate" class="form-label">កាលបរិច្ឆេទចាប់<span
+                            <label for="lateindate" class="form-label fw-bold">កាលបរិច្ឆេទចាប់<span
                                     class="text-danger mx-1 fw-bold">*</span></label>
                             <div class="input-icon">
                                 <span class="input-icon-addon">
@@ -284,7 +284,8 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">ជ្រើសរើសគណនី</label>
-                        <select type="text" class="form-select select-people" name="user_id" placeholder="Select a person">
+                        <select type="text" class="form-select select-people" name="user_id"
+                            placeholder="Select a person">
                             <option value="NULL" selected disable>សូមជ្រើសរើសគណនី</option>
                             <?php foreach ($getAllUser['data'] as $user): ?>
                                 <option value="<?= htmlspecialchars($user['id'], ENT_QUOTES, 'UTF-8') ?>"
@@ -371,6 +372,109 @@
                             </div>
                             <div class="col">
                                 <button type="submit" class="btn w-100 btn-primary ms-auto">បញ្ចូន</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Apply Hold -->
+<div class="modal modal-blur fade" id="hold" tabindex="-1" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-primary mb-0"><?= $title ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/elms/apply-hold" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="start_date" class="form-label fw-bold">កាលបរិច្ឆេទចាប់ពី
+                            <span class="text-danger mx-1 fw-bold">*</span>
+                        </label>
+                        <div class="input-icon">
+                            <span class="input-icon-addon">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <rect x="4" y="5" width="16" height="16" rx="2"></rect>
+                                    <line x1="16" y1="3" x2="16" y2="7"></line>
+                                    <line x1="8" y1="3" x2="8" y2="7"></line>
+                                    <line x1="4" y1="11" x2="20" y2="11"></line>
+                                    <rect x="8" y="15" width="2" height="2"></rect>
+                                </svg>
+                            </span>
+                            <!-- Retain the value of start_date -->
+                            <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទចាប់ពី"
+                                class="form-control date-picker" name="start_date"
+                                value="<?= isset($_POST['start_date']) ? htmlspecialchars($_POST['start_date']) : '' ?>"
+                                required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="end_date" class="form-label fw-bold">ដល់កាលបរិច្ឆេទ
+                            <span class="text-danger mx-1 fw-bold">*</span>
+                        </label>
+                        <div class="input-icon">
+                            <span class="input-icon-addon">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <rect x="4" y="5" width="16" height="16" rx="2"></rect>
+                                    <line x1="16" y1="3" x2="16" y2="7"></line>
+                                    <line x1="8" y1="3" x2="8" y2="7"></line>
+                                    <line x1="4" y1="11" x2="20" y2="11"></line>
+                                    <rect x="8" y="15" width="2" height="2"></rect>
+                                </svg>
+                            </span>
+                            <!-- Retain the value of end_date -->
+                            <input type="text" autocomplete="off" placeholder="ដល់កាលបរិច្ឆេទ"
+                                class="form-control date-picker" name="end_date"
+                                value="<?= isset($_POST['end_date']) ? htmlspecialchars($_POST['end_date']) : '' ?>"
+                                required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">ឯកសារភ្ជាប់</label>
+                        <div class="row g-2">
+                            <div class="col">
+                                <input type="file" name="attachment" accept=".pdf, .docx, .xlsx" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reason" class="form-label fw-bold">មូលហេតុ
+                            <span class="text-danger mx-1 fw-bold">*</span>
+                        </label>
+                        <div class="input-icon">
+                            <!-- Retain the value of the reason textarea -->
+                            <textarea type="text" rows="5" cols="5" autocomplete="off" placeholder="មូលហេតុ"
+                                class="form-control" name="reason"
+                                required><?= isset($_POST['reason']) ? htmlspecialchars($_POST['reason']) : '' ?></textarea>
+                        </div>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-check">
+                            <input class="form-check-input cursor-pointer" type="checkbox" name="agree" required>
+                            <span class="form-check-label cursor-pointer">ខ្ញុំយល់ព្រម
+                                និងទទួលស្គាល់លើទិន្នន័យដែលបានបញ្ចូល។<span
+                                    class="text-danger mx-1 fw-bold">*</span></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="w-100">
+                        <div class="row">
+                            <div class="col">
+                                <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-primary w-100">បញ្ជូន</button>
                             </div>
                         </div>
                     </div>

@@ -11,7 +11,7 @@ class User
         $this->pdo = $pdo;
     }
 
-    public $api = "http://172.25.26.6:8000";
+    public $api = "http://127.0.0.1:8000";
 
     private $telegramUser = "telegram_users";
 
@@ -1698,6 +1698,46 @@ class User
         // Return the user data if found, otherwise return null
         return $result ? $result : null;
     }
+
+    public function sendDocks($title, $userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link)
+    {
+        $telegramUser = $userModel->getTelegramIdByUserId($managerId);
+        if ($telegramUser && !empty($telegramUser['telegram_id'])) {
+            $notifications = [
+                "🔔 *$title*",
+                "---------------------------------------------",
+                "👤 *អ្នកស្នើ:* `{$_SESSION['user_khmer_name']}`",
+                "📅 *ចាប់ពី:* `{$start_date}`",
+                "📅 *ដល់កាលបរិចេ្ឆទ:* `{$end_date}`",
+                "🗓️ *រយៈពេល:* `{$duration_days}` ថ្ងៃ",
+                "💬 *មូលហេតុ:* `{$remarks}`",
+            ];
+
+            // Joining notifications into a single message with new lines
+            $telegramMessage = implode("\n", $notifications);
+
+            // Creating a keyboard for the notification
+            $keyboard = [
+                'inline_keyboard' => [
+                    [
+                        ['text' => 'ពិនិត្យមើលសំណើ', 'url' => $link]
+                    ]
+                ]
+            ];
+
+            // Send the Telegram notification
+            $telegramModel = new TelegramModel($this->pdo);
+            $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage, $keyboard);
+
+            // Log success or failure of the Telegram notification
+            if ($success) {
+                error_log("Telegram notification sent to user ID: {$managerId}");
+            } else {
+                error_log("Failed to send Telegram notification to user ID: {$managerId}");
+            }
+        }
+    }
+
 
     // user telegram apply leave 
     public function sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link)

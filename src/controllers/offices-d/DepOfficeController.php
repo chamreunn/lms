@@ -103,6 +103,7 @@ class DepOfficeController
                 // Check if the manager is on leave today
                 $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
                 $isManagerOnMission = $userModel->isManagerOnMission($managerId);
+                
                 $link = "https://leave.iauoffsa.us/elms/headofficepending";
 
                 // Create leave request in the database

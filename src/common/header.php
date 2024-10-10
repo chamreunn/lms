@@ -79,7 +79,7 @@ date_default_timezone_set('Asia/Bangkok');
 
     <!-- FullCalendar CSS -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet">
-
+    
     <!-- spinner button  -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -111,27 +111,6 @@ date_default_timezone_set('Asia/Bangkok');
                     }, 50); // Delay the button disable by 50ms, giving the form time to submit
                 });
             });
-        });
-    </script>
-    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
-    <script>
-        // Enable pusher logging - remove this in production
-        Pusher.logToConsole = true;
-
-        var pusher = new Pusher('47a9d6e97ab07f5073ab', {
-            cluster: 'ap1',
-            encrypted: true
-        });
-
-        var channel = pusher.subscribe('private-admin-<?= $_SESSION['user_id'] ?>'); // Replace with admin session ID
-        channel.bind('new_latein', function (data) {
-            alert('🔔 ' + data.title + ': ' + data.message);
-
-            // Optionally: Update the notification section of the UI in real time
-            var notificationList = document.getElementById('notificationList');
-            var newNotification = document.createElement('li');
-            newNotification.innerHTML = `<a href="${data.url}">${data.message}</a>`;
-            notificationList.appendChild(newNotification);
         });
     </script>
 </head>

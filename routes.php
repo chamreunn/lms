@@ -3,32 +3,41 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start(); // Start or resume session
 }
+
 // Define your base URL
 $base_url = '/elms'; // Set your base URL if your application is located under a subdirectory
 
 // Include necessary controllers
-require_once 'src/controllers/auth/AuthController.php';
-require_once 'src/controllers/users/LeaveController.php';
-require_once 'src/controllers/NotificationController.php';
-require_once 'src/controllers/DepartmentController.php';
-require_once 'src/controllers/OfficeController.php';
-require_once 'src/controllers/RoleController.php';
-require_once 'src/controllers/PositionController.php';
-require_once 'src/controllers/UserController.php';
-require_once 'src/controllers/DashboardController.php';
-require_once 'src/controllers/offices-h/HeadOfficeController.php';
-require_once 'src/controllers/departments-d/DepDepartmentController.php';
-require_once 'src/controllers/departments-h/HeadDepartmentController.php';
-require_once 'src/controllers/unit1-d/DepUnit1Controller.php';
-require_once 'src/controllers/unit2-d/DepUnit2Controller.php';
-require_once 'src/controllers/unit-h/HeadUnitController.php';
-require_once 'src/controllers/lates/LateController.php';
-require_once 'src/controllers/SettingController.php';
-require_once 'src/controllers/missions/MissionController.php';
-require_once 'src/controllers/offices-d/DepOfficeController.php';
-require_once 'src/controllers/admin/AdminController.php';
-require_once 'src/controllers/calendar/CalendarController.php';
-require_once 'src/controllers/telegram/TelegramController.php';
+$controllers = [
+    'src/controllers/auth/AuthController.php',
+    'src/controllers/users/LeaveController.php',
+    'src/controllers/NotificationController.php',
+    'src/controllers/DepartmentController.php',
+    'src/controllers/OfficeController.php',
+    'src/controllers/RoleController.php',
+    'src/controllers/PositionController.php',
+    'src/controllers/UserController.php',
+    'src/controllers/DashboardController.php',
+    'src/controllers/offices-h/HeadOfficeController.php',
+    'src/controllers/departments-d/DepDepartmentController.php',
+    'src/controllers/departments-h/HeadDepartmentController.php',
+    'src/controllers/unit1-d/DepUnit1Controller.php',
+    'src/controllers/unit2-d/DepUnit2Controller.php',
+    'src/controllers/unit-h/HeadUnitController.php',
+    'src/controllers/lates/LateController.php',
+    'src/controllers/SettingController.php',
+    'src/controllers/missions/MissionController.php',
+    'src/controllers/offices-d/DepOfficeController.php',
+    'src/controllers/admin/AdminController.php',
+    'src/controllers/calendar/CalendarController.php',
+    'src/controllers/telegram/TelegramController.php',
+    'src/controllers/hold/HoldController.php',
+];
+
+// Require all controllers
+foreach ($controllers as $controller) {
+    require_once $controller;
+}
 
 $uri = parse_url(url: $_SERVER['REQUEST_URI'], component: PHP_URL_PATH);
 
@@ -1160,6 +1169,37 @@ switch ($uri) {
     case $base_url . '/error_page':
         checkSessionAndExecute(function () {
             require 'src/views/errors/error_page.php';
+        });
+        break;
+    case $base_url . '/hold':
+        checkSessionAndExecute(function () {
+            $holdController = new HoldController();
+            $holdController->index();
+        });
+        break;
+    case $base_url . '/apply-hold':
+        checkSessionAndExecute(function () {
+            $holdController = new HoldController();
+            $holdController->create();
+        });
+        break;
+    case $base_url . '/view&edit-hold':
+        checkSessionAndExecute(function () {
+            if (isset($_GET['holdId']) && !empty($_GET['holdId'])) {
+                $holdController = new HoldController();
+                $holdController->view($_GET['holdId']);
+            } else {
+                // Handle error: no valid holdId
+                $_SESSION['error'] = "No valid hold ID provided!";
+                header("Location: /elms/hold");
+                exit();
+            }
+        });
+        break;
+    case $base_url . '/delete-hold':
+        checkSessionAndExecute(function () {
+            $controller = new HoldController();
+            $controller->delete();
         });
         break;
     default:

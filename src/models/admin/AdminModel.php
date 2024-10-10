@@ -699,52 +699,60 @@ class AdminModel
 
     public function getUserLeaveRequests($user_id)
     {
-        $stmt = $this->pdo->prepare(
-            'SELECT 
-            lr.*, 
-            lt.name AS leave_type_name, 
-            lt.duration, 
-            lt.color, 
-            u.khmer_name AS user_name, 
-            u.date_of_birth AS dob, 
-            u.email AS user_email, 
-            u.profile_picture AS user_profile,
-            d.name AS department_name,
-            p.name AS position_name
-        FROM 
-            leave_requests lr
-        JOIN 
-            leave_types lt ON lr.leave_type_id = lt.id
-        JOIN 
-            users u ON lr.user_id = u.id
-        JOIN 
-            departments d ON u.department_id = d.id
-        JOIN 
-            positions p ON u.position_id = p.id
-        WHERE 
-            lr.user_id = ? AND lr.status = "Approved" ORDER BY lr.id DESC'
-        );
+        // Fetch only leave requests without joining the users table
+        $query = "SELECT lr.*, lr.status AS leave_status, lr.id AS leave_id, lr.leave_type_id 
+              FROM leave_requests lr 
+              WHERE lr.user_id = ? AND lr.status = 'Approved' 
+              ORDER BY lr.id DESC";
+
+        $stmt = $this->pdo->prepare($query);
         $stmt->execute([$user_id]);
 
-        // Fetch all results
-        return $stmt->fetchAll(); // Return all leave requests for the user
+        $leaveRequests = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all leave requests for the user
+
+        $userModel = new User();
+
+        // Fetch user data from the API
+        $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+        // Check if the API response is successful
+        if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+            $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+            // Add user information to each leave request record
+            foreach ($leaveRequests as &$record) {
+                $record['khmer_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh'])
+                    ? $user['lastNameKh'] . " " . $user['firstNameKh']
+                    : 'Unknown';
+                $record['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $record['email'] = $user['email'] ?? 'Unknown';
+                $record['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $record['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $record['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png');
+            }
+        } else {
+            // If the API call fails or returns no data, add placeholder data
+            foreach ($leaveRequests as &$record) {
+                $record['khmer_name'] = 'Unknown';
+                $record['dob'] = 'Unknown';
+                $record['email'] = 'Unknown';
+                $record['department_name'] = 'Unknown';
+                $record['position_name'] = 'Unknown';
+                $record['profile_picture'] = 'default-profile.png';
+            }
+        }
+
+        return $leaveRequests;
     }
 
     public function countUserApprovedLeaveRequests($user_id)
     {
+        // Query to count only approved leave requests for the user
         $stmt = $this->pdo->prepare(
             'SELECT 
             COUNT(*) AS leave_request_count
         FROM 
             leave_requests lr
-        JOIN 
-            leave_types lt ON lr.leave_type_id = lt.id
-        JOIN 
-            users u ON lr.user_id = u.id
-        JOIN 
-            departments d ON u.department_id = d.id
-        JOIN 
-            positions p ON u.position_id = p.id
         WHERE 
             lr.user_id = ? AND lr.status = "Approved"'
         );
@@ -756,19 +764,52 @@ class AdminModel
 
     public function getOvertimeIn($user_id)
     {
+        // Fetch overtime records without joining the users table
         $stmt = $this->pdo->prepare('
-            SELECT late_in_out.*, users.khmer_name, departments.name AS department_name, users.profile_picture AS profile,
-                   offices.name AS office_name, positions.name AS position_name, users.email AS email
+            SELECT late_in_out.*, late_in_out.status AS overtime_status, late_in_out.id AS overtime_id
             FROM late_in_out
-            JOIN users ON late_in_out.user_id = users.id
-            LEFT JOIN departments ON users.department_id = departments.id
-            LEFT JOIN offices ON users.office_id = offices.id
-            LEFT JOIN positions ON users.position_id = positions.id
-            WHERE late_in_out.user_id = ? AND late_in_out.late_in IS NOT NULL AND late_in_out.status = "Approved" || late_in_out.status = "Rejected"
+            WHERE late_in_out.user_id = ? 
+            AND late_in_out.late_in IS NOT NULL 
+            AND (late_in_out.status = "Approved" OR late_in_out.status = "Rejected")
             ORDER BY late_in_out.created_at DESC
         ');
         $stmt->execute([$user_id]);
-        return $stmt->fetchAll();
+
+        $overtimeRecords = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all overtime records
+
+        $userModel = new User();
+
+        // Fetch user data from the API
+        $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+        // Check if the API response is successful
+        if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+            $user = $userApiResponse['data']; // Assuming the API returns a single user object
+
+            // Add user information to each overtime record
+            foreach ($overtimeRecords as &$record) {
+                $record['khmer_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh'])
+                    ? $user['lastNameKh'] . " " . $user['firstNameKh']
+                    : 'Unknown';
+                $record['email'] = $user['email'] ?? 'Unknown';
+                $record['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $record['office_name'] = $user['office']['name'] ?? 'Unknown';
+                $record['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $record['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png');
+            }
+        } else {
+            // If the API call fails or returns no data, add placeholder data
+            foreach ($overtimeRecords as &$record) {
+                $record['khmer_name'] = 'Unknown';
+                $record['email'] = 'Unknown';
+                $record['department_name'] = 'Unknown';
+                $record['office_name'] = 'Unknown';
+                $record['position_name'] = 'Unknown';
+                $record['profile_picture'] = 'default-profile.png';
+            }
+        }
+
+        return $overtimeRecords;
     }
 
     public function getOvertimeInCount($user_id)

@@ -1,6 +1,6 @@
 <?php
 require_once 'src/models/lates/LateModel.php';
-require_once 'vendor/autoload.php';  // Ensure PHPMailer is autoloaded
+require_once 'src/vendor/autoload.php'; // Ensure PHPMailer is autoloaded
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -201,22 +201,6 @@ class LateController
         $title = "សំណើចូលយឺត";
         $type = "latein";
 
-        // Send notification through Pusher
-        $pusherOptions = [
-            'cluster' => 'ap1',
-            'useTLS' => true,
-            'curl_options' => [
-                CURLOPT_SSL_VERIFYPEER => false,
-            ]
-        ];
-
-        $pusher = new Pusher\Pusher(
-            '47a9d6e97ab07f5073ab',
-            'e21e8d43b7ec8af7cd42',
-            '1877408',  // Your Pusher App ID
-            $pusherOptions
-        );
-
         // Basic validation
         if (empty($date)) {
             $_SESSION['error'] = [
@@ -312,15 +296,6 @@ class LateController
             $adminEmail = $adminEmails['emails'][0];
             $adminName = $adminEmails['lastNameKh'][0] . ' ' . $adminEmails['firstNameKh'][0];
             $adminId = $adminEmails['ids'][0];
-
-            $notificationData = [
-                'title' => 'សំណើចូលយឺត',
-                'message' => "អ្នកស្នើ: {$userNameKh} ចូលយឺត: {$lateMinutes} នាទី។",
-                'url' => "/elms/overtimein"
-            ];
-
-            // Send the notification to the admin's channel
-            $pusher->trigger('private-admin-' . $adminId, 'new_latein', $notificationData);
 
             // Get the admin's Telegram ID
             $telegramUser = $userModel->getTelegramIdByUserId($adminId);
