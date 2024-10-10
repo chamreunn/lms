@@ -11,7 +11,7 @@ class User
         $this->pdo = $pdo;
     }
 
-    public $api = "http://127.0.0.1:8000";
+    public $api = "http://172.25.26.6:8000";
 
     private $telegramUser = "telegram_users";
 
@@ -1947,4 +1947,14 @@ class User
             return false; // Return false if notification could not be sent
         }
     }
+
+    private $roleToApiMap = [
+        'Deputy Head Of Office' => 'getEmailLeaderHOApi',
+        'Head Of Office' => 'getEmailLeaderDDApi',
+        'Deputy Head Of Department' => 'getEmailLeaderHDApi',
+        'Deputy Head Of Unit 1' => 'getEmailLeaderHUApi',
+        'Deputy Head Of Unit 2' => 'getEmailLeaderHUApi',
+        'Head Of Department' => 'getEmailLeaderDHU1Api',
+        'NULL' => 'getEmailLeaderDOApi'
+    ];
 }

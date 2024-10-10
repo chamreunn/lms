@@ -940,7 +940,7 @@ class HeadDepartmentModel
          AND head_department = ?
          AND position IN (?, ?, ?, ?, ?)
          AND department = ?
-         AND user_id != ?
+         AND user_id != ? ORDER BY id DESC
          ');
         $stmt->execute(['Approved', 'Rejected', 'Approved', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', 'អនុប្រធាននាយកដ្ឋាន', $_SESSION['departmentName'], $approver_id]);
         $leaveRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1134,8 +1134,7 @@ class HeadDepartmentModel
         );
         $stmt->execute([$newStatus, $leave_request_id]);
     }
-    //  end if manager on leave 
-
+    
     // if Manager on leave 
     public function updatePendingApproval($leave_request_id, $approver_id, $status, $remarks)
     {

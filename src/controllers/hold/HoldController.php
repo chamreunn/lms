@@ -28,9 +28,9 @@ class HoldController
     public function create()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
+    
             $userModel = new User();
-
+    
             // Validate required fields
             if (empty($_SESSION['user_id']) || empty($_POST['start_date']) || empty($_POST['end_date']) || empty($_POST['reason'])) {
                 $_SESSION['error'] = [
@@ -40,24 +40,34 @@ class HoldController
                 header("Location: /elms/hold");
                 exit();
             }
-
+    
             // Sanitize and assign input values
             $user_id = $_SESSION['user_id'];
             $start_date = $_POST['start_date'];
             $end_date = $_POST['end_date'];
             $reason = $_POST['reason'];
-
+    
+            // Validate date order
+            if (new DateTime($start_date) > new DateTime($end_date)) {
+                $_SESSION['error'] = [
+                    'title' => "កំហុសកាលបរិច្ឆេទ",
+                    'message' => "កាលបរិច្ឆេទបញ្ចប់គួរត្រូវជាងកាលបរិច្ឆេទចាប់ផ្តើម។"
+                ];
+                header("Location: /elms/hold");
+                exit();
+            }
+    
             $type = 'hold';
             $color = 'bg-primary';
             $role = $_SESSION['role'];
             $departments = $_SESSION['departmentName'];
             $title = "លិខិតព្យួរការងារ";
-
+    
             // Calculate duration between start_date and end_date in months and years
             $startDate = new DateTime($start_date);
             $endDate = new DateTime($end_date);
-            $interval = $startDate->diff($endDate);
-
+            $interval = $startDate->diff($endDate);  // Get DateInterval object
+    
             // Format the duration as X years, Y months
             $years = $interval->y;
             $months = $interval->m;
@@ -68,7 +78,7 @@ class HoldController
             if ($months > 0) {
                 $duration .= $months . " ខែ" . " ";
             }
-
+    
             // Error handling: check if the duration meets the requirement (at least 1 month)
             if ($years === 0 && $months < 1) {
                 $_SESSION['error'] = [
@@ -78,7 +88,7 @@ class HoldController
                 header("Location: /elms/hold");
                 exit();
             }
-
+    
             // Initialize attachment as null (optional field)
             $attachment_name = $this->handleFileUpload($_FILES['attachment'], ['docx', 'pdf'], 5097152, 'public/uploads/hold-attachments/');
             if ($attachment_name === false) {
@@ -89,7 +99,11 @@ class HoldController
                 header("Location: /elms/hold");
                 exit();
             }
-
+    
+            // Get manager's ID based on role and department
+            $getalllevels = $this->getAllRole($user_id, $role, $departments);
+            $managerId = $getalllevels['managerId'];
+    
             // Prepare data for saving
             $data = [
                 'user_id' => $user_id,
@@ -99,18 +113,16 @@ class HoldController
                 'attachment' => $attachment_name, // This will be null if no file was uploaded
                 'duration' => $duration, // Store the calculated duration
                 'type' => $type,
-                'color' => $color
+                'color' => $color,
+                'approver_id' => $managerId
             ];
-
-            $getalllevels = $this->getAllrole($user_id, $role, $departments);
-
+    
             // Call the model method to save the hold request
             $holdRequestModel = new HoldModel($this->pdo); // Assuming $this->pdo is your PDO instance
-
+    
             if ($holdRequestModel->createHoldRequest($data)) {
-
-                $userModel->sendDocks($title, $userModel, $getalllevels['managerId'], $start_date, $end_date, $duration, $reason, $holdRequestModel, 'null');
-                
+                $userModel->sendDocks($title, $userModel, $managerId, $start_date, $end_date, $duration, $reason, $holdRequestModel, null);
+    
                 $_SESSION['success'] = [
                     'title' => "ជោគជ័យ",
                     'message' => "សំណើរបានបញ្ចូលដោយជោគជ័យ"
@@ -125,23 +137,20 @@ class HoldController
             }
         }
     }
-
-    public function getAllrole($user_id, $role, $departments)
+    
+    public function getAllRole($user_id, $role, $departments)
     {
         $userModel = new User();
-        $Depoffice = null;
-
-        // Define a mapping of roles to corresponding API methods
         $roleToApiMap = [
-            'Deputy Head Of Office' => 'getEmailLeaderHOApi',
-            'Head Of Office' => 'getEmailLeaderDDApi',
-            'Deputy Head Of Department' => 'getEmailLeaderHDApi',
+            'Deputy Head Of Office' => 'getEmailLeaderDOApi',
+            'Head Of Office' => 'getEmailLeaderHOApi',
+            'Deputy Head Of Department' => 'getEmailLeaderDDApi',
             'Deputy Head Of Unit 1' => 'getEmailLeaderHUApi',
             'Deputy Head Of Unit 2' => 'getEmailLeaderHUApi',
             'Head Of Department' => 'getEmailLeaderDHU1Api',  // Default for Head Of Department
-            'Default' => 'getEmailLeaderDOApi' // Fallback for any unspecified role
+            'NULL' => 'getEmailLeaderDOApi' // Fallback for any unspecified role
         ];
-
+    
         // Special case for 'Head Of Department' with department-specific APIs
         if ($role == 'Head Of Department') {
             if ($departments == 'នាយកដ្ឋានកិច្ចការទូទៅ' || $departments == 'នាយកដ្ឋានសនវកម្មទី២') {
@@ -151,25 +160,25 @@ class HoldController
             }
         } else {
             // General case for other roles based on mapping
-            $Depoffice = $userModel->{$roleToApiMap[$role] ?? $roleToApiMap['Default']}($user_id, $_SESSION['token']);
+            $Depoffice = $userModel->{$roleToApiMap[$role] ?? $roleToApiMap['NULL']}($user_id, $_SESSION['token']);
         }
-
+    
         // Check if the API response is valid
         if (!$Depoffice || $Depoffice['http_code'] !== 200 || empty($Depoffice['ids'])) {
             throw new Exception("Unable to find office details. Please contact support.");
         }
-
+    
         // Iterate through the list of managers
         foreach ($Depoffice['ids'] as $index => $managerId) {
             $managerEmail = $Depoffice['emails'][$index] ?? null;
             $managerName = (!empty($Depoffice['lastNameKh'][$index]) && !empty($Depoffice['firstNameKh'][$index]))
                 ? $Depoffice['lastNameKh'][$index] . ' ' . $Depoffice['firstNameKh'][$index]
                 : null;
-
+    
             // Check if the manager is on leave or mission
             $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
             $isManagerOnMission = $userModel->isManagerOnMission($managerId);
-
+    
             if (!$isManagerOnLeave && !$isManagerOnMission) {
                 // If the manager is available, return the manager's details
                 return [
@@ -180,8 +189,8 @@ class HoldController
             } else {
                 // Escalate to the next manager if the current one is unavailable
                 $fallbackRole = $this->getFallbackRole($role);
-                $DepofficeFallback = $userModel->{$roleToApiMap[$fallbackRole] ?? $roleToApiMap['Default']}($user_id, $_SESSION['token']);
-
+                $DepofficeFallback = $userModel->{$roleToApiMap[$fallbackRole] ?? $roleToApiMap['NULL']}($user_id, $_SESSION['token']);
+    
                 // Check if fallback manager is available
                 if ($DepofficeFallback && $DepofficeFallback['http_code'] === 200 && !empty($DepofficeFallback['ids'])) {
                     // Return the fallback manager's details
@@ -190,7 +199,7 @@ class HoldController
                     $fallbackManagerName = (!empty($DepofficeFallback['lastNameKh'][0]) && !empty($DepofficeFallback['firstNameKh'][0]))
                         ? $DepofficeFallback['lastNameKh'][0] . ' ' . $DepofficeFallback['firstNameKh'][0]
                         : null;
-
+    
                     return [
                         'managerId' => $fallbackManagerId,
                         'managerEmail' => $fallbackManagerEmail,
@@ -199,36 +208,49 @@ class HoldController
                 }
             }
         }
+    
+        throw new Exception("Unable to find a suitable manager. Please contact support.");
+    }
+    
+    private function handleFileUpload($file, $allowedExtensions, $maxSize, $uploadDir)
+    {
+        if (!empty($file['name'])) {
+            $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
-        // If no manager is available, throw an exception or handle accordingly
-        throw new Exception("No available manager found. All managers are on leave or on a mission.");
+            if (!in_array($fileExtension, $allowedExtensions)) {
+                return false; // Invalid file extension
+            }
+
+            if ($file['size'] > $maxSize) {
+                return false; // File exceeds size limit
+            }
+
+            $fileName = uniqid() . '.' . $fileExtension;
+            $uploadPath = $uploadDir . $fileName;
+
+            if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+                return $fileName;
+            } else {
+                return false; // Failed to upload file
+            }
+        }
+
+        return null; // No file uploaded
     }
 
-    // Helper function to determine fallback role
-    private function getFallbackRole($role, $department = null)
+    private function getFallbackRole($role)
     {
-        // Define the default fallback roles
         $fallbackRoles = [
             'Deputy Head Of Office' => 'Head Of Office',
             'Head Of Office' => 'Deputy Head Of Department',
             'Deputy Head Of Department' => 'Head Of Department',
-            'Head Of Department' => 'Deputy Head Of Unit 1', // General case
+            'Head Of Department' => 'Deputy Head Of Unit 1',
             'Deputy Head Of Unit 1' => 'Deputy Head Of Unit 2',
-            'Deputy Head Of Unit 2' => 'Default', // Fallback to default (lowest level)
-            'Default' => 'Head Of Office', // If no specific role, escalate to Head Of Office
+            'Deputy Head Of Unit 2' => 'NULL',
+            'NULL' => 'Head Of Office'
         ];
 
-        // Special logic based on departments for Head Of Department fallback
-        if ($role == 'Head Of Department') {
-            if ($department == 'នាយកដ្ឋានកិច្ចការទូទៅ' || $department == 'នាយកដ្ឋានសនវកម្មទី២') {
-                return 'Deputy Head Of Unit 1'; // Specific to Unit 1 based on department
-            } else {
-                return 'Deputy Head Of Unit 2'; // Specific to Unit 2 based on other departments
-            }
-        }
-
-        // Return the fallback role based on the role provided, or 'Default' if not found
-        return $fallbackRoles[$role] ?? 'Default';
+        return $fallbackRoles[$role] ?? 'NULL';
     }
 
     public function delete()
@@ -268,69 +290,6 @@ class HoldController
                 header("Location: /elms/hold");
                 exit();
             }
-        }
-    }
-
-    public function handleFileUpload($file, $allowed_extensions, $max_size, $upload_path)
-    {
-        $file_name = $file['name'];
-        $file_tmp_name = $file['tmp_name'];
-        $file_error = $file['error'];
-        $file_size = $file['size'];
-
-        if ($file_error === UPLOAD_ERR_NO_FILE) {
-            // No file was uploaded
-            return null;
-        }
-
-        if ($file_error !== UPLOAD_ERR_OK) {
-            $_SESSION['error'] = [
-                'title' => "File Error",
-                'message' => "An error occurred during the file upload."
-            ];
-            return false;
-        }
-
-        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-        if (!in_array($file_ext, $allowed_extensions)) {
-            $_SESSION['error'] = [
-                'title' => "File Error",
-                'message' => "Invalid attachment file type."
-            ];
-            return false;
-        }
-
-        if ($file_size > $max_size) {
-            $_SESSION['error'] = [
-                'title' => "File Error",
-                'message' => "Attachment file size exceeds the limit."
-            ];
-            return false;
-        }
-
-        // Ensure upload directory exists
-        if (!is_dir($upload_path)) {
-            if (!mkdir($upload_path, 0755, true)) {
-                $_SESSION['error'] = [
-                    'title' => "File Error",
-                    'message' => "Failed to create upload directory."
-                ];
-                return false;
-            }
-        }
-
-        // Preserve the original file name with a unique suffix to avoid overwriting
-        $unique_file_name = pathinfo($file_name, PATHINFO_FILENAME) . '_' . uniqid('', true) . '.' . $file_ext;
-        $destination = $upload_path . DIRECTORY_SEPARATOR . $unique_file_name;
-
-        if (move_uploaded_file($file_tmp_name, $destination)) {
-            return $unique_file_name;
-        } else {
-            $_SESSION['error'] = [
-                'title' => "File Error",
-                'message' => "Failed to move the uploaded file."
-            ];
-            return false;
         }
     }
 }
