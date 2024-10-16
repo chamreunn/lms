@@ -83,203 +83,115 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 </div>
 
 <div class="card">
-    <div class="row g-0">
-        <div class="col-3 d-none d-md-block border-end">
-            <div class="card-body">
-                <h4 class="subheader">គណនីរបស់ខ្ញុំ</h4>
-                <div class="list-group list-group-transparent">
-                    <a href="/elms/edit_user_detail?user_id=<?= $userDetails['user_id'] ?>" class="list-group-item list-group-item-action d-flex align-items-center active">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-circle">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                            <path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-                            <path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" />
-                        </svg>
-                        <span class="mx-2">គណនីរបស់ខ្ញុំ</span>
-                    </a>
-                    <a href="/elms/setting_security?user_id=<?= $userDetails['user_id'] ?>" data-bs-toggle="tooltip" title="ផ្លាស់ប្តូរអ៊ីម៉ែល និងពាក្យសម្ងាត់" data-bs-target="top" class="list-group-item list-group-item-action d-flex align-items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-shield-lock">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3" />
-                            <path d="M12 11m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                            <path d="M12 12l0 2.5" />
-                        </svg>
-                        <span class="mx-2">សុវត្ថិភាព</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="col d-flex flex-column">
-            <div class="card-body">
-                <h2 class="mb-4">គណនីរបស់ខ្ញុំ</h2>
-                <h3 class="card-title">ពត៌មានគណនី</h3>
-                <div class="row align-items-center">
+    <div class="card-body">
+        <!-- Tabs Navigation with Single Link -->
+        <ul class="nav nav-tabs mb-3" id="accountTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#profile-info" role="tab" aria-controls="profile-info" aria-selected="true">
+                    ពត៌មានគណនី
+                </a>
+            </li>
+        </ul>
+
+        <!-- Tab Content (Everything Combined) -->
+        <div class="tab-content mb-3" id="accountTabContent">
+            <!-- Profile Information (All Combined) -->
+            <div class="tab-pane fade show active" id="profile-info" role="tabpanel" aria-labelledby="profile-tab">
+                <div class="row align-items-center mb-3">
                     <div class="col-auto">
-                        <span class="avatar avatar-xl" style="background-image: url('<?= $userDetails['profile_picture'] ?>')" ;></span>
+                        <div class="avatar avatar-xl" style="background-image: url('<?= $userDetails['profile_picture'] ?>');"></div>
                     </div>
-                    <div class="col-auto" hidden>
-                        <!-- Form to change the profile picture -->
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModel">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-refresh">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
-                                <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
-                            </svg>
+                    <div class="col">
+                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModel">
                             ផ្លាស់ប្តូររូបភាព
                         </button>
                     </div>
-                    <div class="col-auto" hidden>
-                        <!-- Form to reset the profile picture -->
-                        <button type="submit" class="btn btn-outline-danger" data-bs-target="#deleteModal" data-bs-toggle="modal">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M4 7l16 0" />
-                                <path d="M10 11l0 6" />
-                                <path d="M14 11l0 6" />
-                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                            </svg>
-                            លុបរូបភាព
-                        </button>
-                    </div>
-
-                    <div class="modal modal-blur fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
-                        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-                            <div class="modal-content">
-                                <div class="modal-status bg-danger"></div>
-                                <form action="/elms/reset-profile-picture" method="POST">
-                                    <div class="modal-body text-center py-4 mb-0">
-                                        <h5 class="modal-title fw-bold text-danger mb-3">លុបរូបភាព</h5>
-                                        <div class="col-auto">
-                                            <span class="avatar avatar-xl mb-3" style="background-image: url('<?= $userDetails['profile_picture'] ?>')" ;></span>
-                                        </div>
-                                        <p class="mb-0">តើអ្នកប្រាកដទេថានិងលុបរូបភាពនេះ?</p>
-                                    </div>
-                                    <div class="modal-footer bg-light border-top">
-                                        <div class="w-100">
-                                            <div class="row">
-                                                <div class="col">
-                                                    <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
-                                                </div>
-                                                <div class="col">
-                                                    <button type="submit" class="btn btn-danger ms-auto w-100">លុប</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- model change pic  -->
-                    <div class="modal modal-blur fade" id="editModel" tabindex="-1" role="dialog" aria-hidden="true">
-                        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-                            <div class="modal-content">
-                                <div class="modal-status bg-danger"></div>
-                                <form action="/elms/reset-profile-picture" method="POST">
-                                    <div class="modal-body text-center py-4 mb-0">
-                                        <h5 class="modal-title fw-bold text-danger mb-3">ផ្លាស់ប្តូររូបភាព</h5>
-                                        <div class="col-auto">
-                                            <span class="avatar avatar-xl mb-3" style="background-image: url('<?= $userDetails['profile_picture'] ?>')" ;></span>
-                                        </div>
-                                        <form action="/elms/change-profile-picture" method="POST" enctype="multipart/form-data">
-                                            <label class="btn">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-refresh">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
-                                                    <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
-                                                </svg>
-                                                ផ្លាស់ប្តូររូបភាព
-                                                <input type="file" name="profile_picture" accept="image/*" onchange="this.form.submit()" style="display:none;">
-                                            </label>
-                                        </form>
-                                    </div>
-                                    <div class="modal-footer bg-light border-top">
-                                        <div class="w-100">
-                                            <div class="row">
-                                                <div class="col">
-                                                    <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
-                                                </div>
-                                                <div class="col">
-                                                    <button type="submit" class="btn btn-danger ms-auto w-100">រក្សាទុក</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <div class="row g-3 mt-3">
+                <!-- Profile Details -->
+                <div class="row g-3 mb-3">
                     <div class="col-md">
-                        <div class="form-label fw-bold">ឈ្មោះមន្ត្រី</div>
+                        <label class="form-label fw-bold">ឈ្មោះមន្ត្រី</label>
                         <input type="text" class="form-control" value="<?= $userDetails['user_name'] ?>" disabled>
                     </div>
                     <div class="col-md">
-                        <div class="form-label fw-bold">USERNAME</div>
+                        <label class="form-label fw-bold">USERNAME</label>
                         <input type="text" class="form-control" value="<?= $userDetails['user_eng_name'] ?>" disabled>
                     </div>
                     <div class="col-md">
-                        <div class="form-label fw-bold">ភេទ</div>
+                        <label class="form-label fw-bold">ភេទ</label>
                         <input type="text" class="form-control" value="<?= $userDetails['gender'] ?>" disabled>
                     </div>
                 </div>
-                <div class="row g-3 mt-3">
+
+                <!-- Role and Department Information -->
+                <div class="row g-3 mb-3">
                     <div class="col-md">
-                        <div class="form-label fw-bold">តួនាទី</div>
+                        <label class="form-label fw-bold">តួនាទី</label>
                         <input type="text" class="form-control" value="<?= $userDetails['rolename'] ?>" disabled>
                     </div>
                     <div class="col-md">
-                        <div class="form-label">នាយកដ្ឋាន</div>
+                        <label class="form-label">នាយកដ្ឋាន</label>
                         <input type="text" class="form-control" value="<?= $userDetails['department_name'] ?>" disabled>
                     </div>
                     <div class="col-md">
-                        <div class="form-label">ការិយាល័យ</div>
+                        <label class="form-label">ការិយាល័យ</label>
                         <input type="text" class="form-control" value="<?= $userDetails['office_name'] ?>" disabled>
                     </div>
                 </div>
-                <div class="row g-3 mt-3">
+
+                <!-- Contact and Address Information -->
+                <div class="row g-3 mb-3">
                     <div class="col-md">
-                        <div class="form-label fw-bold">ទំនាក់ទំនង</div>
+                        <label class="form-label fw-bold">ទំនាក់ទំនង</label>
                         <input type="text" class="form-control" value="<?= $userDetails['phone_number'] ?>" disabled>
                     </div>
                     <div class="col-md">
-                        <div class="form-label">ស្ថានភាពគណនី</div>
-                        <select class="form-select" id="leave_type" name="leave_type_id" required disabled>
-                            <option value="<?= $userDetails['activeStatus'] ?>" selected><?= $userDetails['active'] ?></option>
-                            <option value="1">Active</option>
-                            <option value="0">Inactive</option>
-                        </select>
-                    </div>
-                    <div class="col-md">
-                        <div class="form-label fw-bold">ថ្ងៃខែឆ្នាំកំណើត</div>
+                        <label class="form-label fw-bold">ថ្ងៃខែឆ្នាំកំណើត</label>
                         <input type="text" class="form-control date-picker" value="<?= $userDetails['date_of_birth'] ?>" disabled>
                     </div>
                 </div>
-                <div class="row g-3 mt-3">
+
+                <!-- Address Information -->
+                <div class="row g-3 mb-3">
                     <div class="col-md">
-                        <div class="form-label fw-bold">ទីកន្លែងកំណើត</div>
-                        <textarea type="text" class="form-control" disabled><?= $userDetails['address'] ?></textarea>
+                        <label class="form-label fw-bold">ទីកន្លែងកំណើត</label>
+                        <textarea class="form-control" disabled><?= $userDetails['address'] ?></textarea>
+                    </div>
+                    <div class="col-md">
+                        <label class="form-label fw-bold">អាសយដ្ឋានបច្ចុប្បន្ន</label>
+                        <textarea class="form-control" disabled><?= $userDetails['curaddress'] ?></textarea>
                     </div>
                 </div>
-                <div class="row g-3 mt-3">
-                    <div class="col-md">
-                        <div class="form-label fw-bold">អាសយដ្ឋានបច្ចុប្បន្ន</div>
-                        <textarea type="text" class="form-control" disabled><?= $userDetails['curaddress'] ?></textarea>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="card-footer">
-            <div class="d-flex">
-                <button class="btn btn-danger ms-auto">រក្សាទុក</button>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal to change profile picture -->
+<div class="modal fade" id="editModel" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ផ្លាស់ប្តូររូបភាព</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="avatar avatar-xl mb-3" style="background-image: url('<?= $userDetails['profile_picture'] ?>');"></div>
+                <form action="/elms/change-profile-picture" method="POST" enctype="multipart/form-data">
+                    <label class="btn btn-outline-primary">
+                        ជ្រើសរើសរូបភាព
+                        <input type="file" name="profile_picture" accept="image/*" hidden onchange="this.form.submit()">
+                    </label>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">បោះបង់</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <?php include('src/common/footer.php'); ?>
 

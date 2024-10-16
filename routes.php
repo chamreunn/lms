@@ -540,6 +540,12 @@ switch ($uri) {
             $controller->viewLeaveDetail();
         });
         break;
+    case $base_url . '/view-leave-detail-dh':
+        checkSessionAndExecute(function () {
+            $controller = new HeadDepartmentController();
+            $controller->viewLeaveDetail();
+        });
+        break;
     case $base_url . '/hoffice-view-leave':
         checkSessionAndExecute(function () {
             $controller = new HeadOfficeController();
@@ -707,12 +713,6 @@ switch ($uri) {
         checkSessionAndExecute(function () {
             $controller = new SettingController();
             $controller->updateProfilePicture();
-        });
-        break;
-    case $base_url . '/reset-profile-picture':
-        checkSessionAndExecute(function () {
-            $controller = new SettingController();
-            $controller->resetProfilePicture();
         });
         break;
     case $base_url . '/notifications':

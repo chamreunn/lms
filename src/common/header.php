@@ -177,12 +177,14 @@ date_default_timezone_set('Asia/Bangkok');
                             require 'departments-d/sidebar.php';
                             break;
                         case 'Head Of Department':
+                            $userModel = new User();
                             $leaveRequestModel = new HeadDepartmentModel();
                             $requestscount = $leaveRequestModel->pendingCount();
                             $approvedCount = $leaveRequestModel->approvedCount();
                             $rejectedCount = $leaveRequestModel->rejectedCount();
                             $leavetypeModel = new Leavetype();
                             $leavetypes = $leavetypeModel->getAllLeavetypes();
+                            $depdepart = $userModel->getEmailLeaderDDApi($_SESSION['user_id'], $_SESSION['token']);
                             require 'departments-h/sidebar.php';
                             break;
                         case 'Deputy Head Of Unit 1':

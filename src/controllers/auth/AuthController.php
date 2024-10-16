@@ -40,7 +40,7 @@ class AuthController
                         $_SESSION['email'] = $user['email'];
                         $_SESSION['user_khmer_name'] = $user['lastNameKh'] . ' ' . $user['firstNameKh'];
                         $_SESSION['user_eng_name'] = $user['engName'];
-                        $_SESSION['user_profile'] = 'https://hrms.iauoffsa.us/images/' . $user['image'];
+                        $_SESSION['user_profile'] = 'http://127.0.0.1/images/' . $user['image'];
                         // user role ftor redirec to dashboard 
                         $_SESSION['role'] = $user['roleLeave'] ?? 'NULL';
                         $_SESSION['officeId'] = $user['officeId'];

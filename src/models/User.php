@@ -11,7 +11,7 @@ class User
         $this->pdo = $pdo;
     }
 
-    public $api = "http://127.0.0.1:8000";
+    public $api = "http://172.25.26.6:8000";
 
     private $telegramUser = "telegram_users";
 
@@ -156,12 +156,6 @@ class User
         );
         $stmt->execute([$user_id]);
         return $stmt->fetch();
-    }
-
-    public function updateProfilePicture($userId, $profilePicturePath)
-    {
-        $stmt = $this->pdo->prepare("UPDATE users SET profile_picture = ? WHERE id = ?");
-        return $stmt->execute([$profilePicturePath, $userId]);
     }
 
     public function getAllUserApi($token)
@@ -322,6 +316,48 @@ class User
 
         $data = [
             'email' => $newEmail,
+        ];
+
+        $jsonData = json_encode($data);
+
+        $ch = curl_init($apiUrl);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST"); // Ensure this is correct
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $token, // Using the token from the session
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+
+        // Ignore SSL certificate verification (use only for debugging)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        if (curl_errno($ch)) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            return ['success' => false, 'error' => $error, 'http_code' => $httpCode, 'response' => $response];
+        }
+
+        curl_close($ch);
+
+        return [
+            'success' => $httpCode === 200, // Adjust based on API documentation
+            'http_code' => $httpCode,
+            'response' => $response
+        ];
+    }
+
+    public function updateUserProfileApi($userId, $uploadFile, $token)
+    {
+        $apiUrl = "{$this->api}/api/v1/users/$userId";
+
+        $data = [
+            'img' => $uploadFile,
         ];
 
         $jsonData = json_encode($data);
@@ -920,6 +956,21 @@ class User
                     if (isset($leader['lastNameKh'])) {
                         $lastNameKh[] = $leader['lastNameKh'];
                     }
+                    if (isset($leader['image'])) {
+                        $image[] = $leader['image'];
+                    } else {
+                        $image[] = ''; // Fallback to empty if the field is not present
+                    }
+                    if (isset($leader['roleName'])) {
+                        $roleName[] = $leader['roleName'];
+                    } else {
+                        $roleName[] = ''; // Fallback to empty if the field is not present
+                    }
+                    if (isset($leader['departmentName'])) {
+                        $departmentName[] = $leader['departmentName'];
+                    } else {
+                        $departmentName[] = ''; // Fallback to empty if the field is not present
+                    }
                 }
             }
 
@@ -933,6 +984,9 @@ class User
                 'ids' => $ids,
                 'firstNameKh' => $firstNameKh,
                 'lastNameKh' => $lastNameKh,
+                'image' => $image,
+                'roleName' => $roleName,
+                'departmentName' => $departmentName,
             ];
         } else {
             error_log("Unexpected API Response: " . print_r($responseData, true));

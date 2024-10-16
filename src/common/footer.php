@@ -4,8 +4,7 @@
 </div>
 
 <!-- Head Office Apply Leave -->
-<div class="modal modal-blur fade" id="head-office-apply-leave" tabindex="-1" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
+<div class="modal modal-blur fade" id="head-office-apply-leave" tabindex="-1" aria-labelledby="headOfficeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -17,30 +16,25 @@
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-12">
-                                <label for="leave_type" class="form-label fw-bold">ប្រភេទច្បាប់<span
-                                        class="text-danger mx-1 fw-bold">*</span></label>
-                                <select class="form-select ts-select" name="leave_type_id" required>
+                                <label for="leave_type_hof" class="form-label fw-bold">ប្រភេទច្បាប់<span class="text-danger mx-1 fw-bold">*</span></label>
+                                <select class="form-select ts-select" id="leave_type_hof" name="leave_type_id" required>
                                     <option value="">ជ្រើសរើសប្រភេទច្បាប់</option>
                                     <?php foreach ($leavetypes as $leavetype): ?>
                                         <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
                                             data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
                                             <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
-                                            <?= $leavetype['name'] ?>     <?= $leavetype['document_status'] ?>
+                                            <?= $leavetype['name'] ?> <?= $leavetype['document_status'] ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
-                                <input type="hidden" id="leave_type_name" name="leave_type_name"
-                                    value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                <input type="hidden" id="leave_type_name_hof" name="leave_type_name" value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                             </div>
                             <div class="col-lg-6">
-                                <label for="start_date" class="form-label fw-bold">កាលបរិច្ឆេទចាប់ពី<span
-                                        class="text-danger mx-1 fw-bold">*</span></label>
+                                <label for="start_date_hof" class="form-label fw-bold">កាលបរិច្ឆេទចាប់ពី<span class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
                                     <span class="input-icon-addon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <!-- SVG icon -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <rect x="4" y="5" width="16" height="16" rx="2"></rect>
                                             <line x1="16" y1="3" x2="16" y2="7"></line>
                                             <line x1="8" y1="3" x2="8" y2="7"></line>
@@ -48,21 +42,15 @@
                                             <rect x="8" y="15" width="2" height="2"></rect>
                                         </svg>
                                     </span>
-                                    <input type="text" autocomplete="off"
-                                        value="<?= htmlspecialchars($_POST['start_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                        placeholder="កាលបរិច្ឆេទចាប់ពី" class="form-control date-picker"
-                                        id="lstart_date" name="start_date" required>
+                                    <input type="text" autocomplete="off" value="<?= htmlspecialchars($_POST['start_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="កាលបរិច្ឆេទចាប់ពី" class="form-control date-picker" id="start_date_hof" name="start_date" required>
                                 </div>
                             </div>
                             <div class="col-lg-6">
-                                <label for="end_date" class="form-label fw-bold">ដល់កាលបរិច្ឆេទ<span
-                                        class="text-danger mx-1 fw-bold">*</span></label>
+                                <label for="end_date_hof" class="form-label fw-bold">ដល់កាលបរិច្ឆេទ<span class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
                                     <span class="input-icon-addon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <!-- SVG icon -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <rect x="4" y="5" width="16" height="16" rx="2"></rect>
                                             <line x1="16" y1="3" x2="16" y2="7"></line>
                                             <line x1="8" y1="3" x2="8" y2="7"></line>
@@ -70,16 +58,12 @@
                                             <rect x="8" y="15" width="2" height="2"></rect>
                                         </svg>
                                     </span>
-                                    <input type="text" autocomplete="off"
-                                        value="<?= htmlspecialchars($_POST['end_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                        placeholder="ដល់កាលបរិច្ឆេទ" class="form-control date-picker" id="lend_date"
-                                        name="end_date" required>
+                                    <input type="text" autocomplete="off" value="<?= htmlspecialchars($_POST['end_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="ដល់កាលបរិច្ឆេទ" class="form-control date-picker" id="end_date_hof" name="end_date" required>
                                 </div>
                             </div>
-                            <div class="">
-                                <label class="form-label fw-bold">ផ្ទេរសិទ្ធ<span
-                                    class="text-danger mx-1 fw-bold">*</span></label>
-                                <select class="form-select select-people" id="leave_type" name="transferId" required>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">ផ្ទេរសិទ្ធ<span class="text-danger mx-1 fw-bold">*</span></label>
+                                <select class="form-select select-people" id="transfer_id_hof" name="transferId" required>
                                     <option value="">ផ្ទេរសិទ្ធ</option>
                                     <?php foreach ($depoffice['ids'] as $index => $id): ?>
                                         <option value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>"
@@ -88,22 +72,16 @@
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
-                                <input type="hidden" id="leave_type_name" name="leave_type_name"
-                                    value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                <input type="hidden" id="leave_type_name_hof" name="leave_type_name" value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                             </div>
                             <div class="col-lg-12">
-                                <label for="reason" class="form-label fw-bold">មូលហេតុ<span
-                                        class="text-danger mx-1 fw-bold">*</span></label>
+                                <label for="remarks_hof" class="form-label fw-bold">មូលហេតុ<span class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
-                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" rows="5"
-                                        class="form-control" id="remarks" name="remarks"
-                                        required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                    <textarea rows="5" class="form-control" id="remarks_hof" name="remarks" placeholder="មូលហេតុ" required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
                             </div>
                             <div class="col-12 attachment-file-container">
-                                <label class="form-label">
-                                    ឯកសារភ្ជាប់
-                                </label>
+                                <label class="form-label">ឯកសារភ្ជាប់</label>
                                 <input type="file" name="attachment" class="attachment-file form-control" />
                             </div>
                         </div>
@@ -111,9 +89,100 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" data-bs-dismiss="modal">បោះបង់</button>
-                    <button type="submit" class="btn btn-primary">
-                        <span>បង្កើតសំណើ</span>
-                    </button>
+                    <button type="submit" class="btn btn-primary">បង្កើតសំណើ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Head Of Department Apply Leave -->
+<div class="modal modal-blur fade" id="head-of-department" tabindex="-1" aria-labelledby="headOfDepartmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><strong>បង្កើតសំណើ</strong></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/elms/hod-apply-leave" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="leave_type_hod" class="form-label fw-bold">ប្រភេទច្បាប់<span class="text-danger mx-1 fw-bold">*</span></label>
+                            <select class="form-select ts-select" id="leave_type_hod" name="leave_type_id" required>
+                                <option value="">ជ្រើសរើសប្រភេទច្បាប់</option>
+                                <?php foreach ($leavetypes as $leavetype): ?>
+                                    <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
+                                        data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
+                                        <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
+                                        <?= $leavetype['name'] ?> <?= $leavetype['document_status'] ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <input type="hidden" id="leave_type_name_hod" name="leave_type_name" value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-lg-6">
+                                <label for="start_date_hod" class="form-label fw-bold">កាលបរិច្ឆេទចាប់ពី<span class="text-danger mx-1 fw-bold">*</span></label>
+                                <div class="input-icon">
+                                    <span class="input-icon-addon">
+                                        <!-- SVG icon -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="4" y="5" width="16" height="16" rx="2"></rect>
+                                            <line x1="16" y1="3" x2="16" y2="7"></line>
+                                            <line x1="8" y1="3" x2="8" y2="7"></line>
+                                            <line x1="4" y1="11" x2="20" y2="11"></line>
+                                            <rect x="8" y="15" width="2" height="2"></rect>
+                                        </svg>
+                                    </span>
+                                    <input type="text" autocomplete="off" value="<?= htmlspecialchars($_POST['start_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="កាលបរិច្ឆេទចាប់ពី" class="form-control date-picker" id="start_date_hod" name="start_date" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <label for="end_date_hod" class="form-label fw-bold">ដល់កាលបរិច្ឆេទ<span class="text-danger mx-1 fw-bold">*</span></label>
+                                <div class="input-icon">
+                                    <span class="input-icon-addon">
+                                        <!-- SVG icon -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="4" y="5" width="16" height="16" rx="2"></rect>
+                                            <line x1="16" y1="3" x2="16" y2="7"></line>
+                                            <line x1="8" y1="3" x2="8" y2="7"></line>
+                                            <line x1="4" y1="11" x2="20" y2="11"></line>
+                                            <rect x="8" y="15" width="2" height="2"></rect>
+                                        </svg>
+                                    </span>
+                                    <input type="text" autocomplete="off" value="<?= htmlspecialchars($_POST['end_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="ដល់កាលបរិច្ឆេទ" class="form-control date-picker" id="end_date_hod" name="end_date" required>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">ផ្ទេរសិទ្ធ<span class="text-danger mx-1 fw-bold">*</span></label>
+                                <select class="form-select select-people" id="transfer_id_hod" name="transferId" required>
+                                    <option value="">ផ្ទេរសិទ្ធ</option>
+                                    <?php foreach ($depdepart['ids'] as $index => $id): ?>
+                                        <option value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>"
+                                            data-custom-properties="&lt;span class=&quot;avatar avatar-xs&quot; style=&quot;background-image: url('https://hrms.iauoffsa.us/images/<?= htmlspecialchars($depdepart['image'][$index], ENT_QUOTES, 'UTF-8') ?>')&quot;&gt;&lt;/span&gt;">
+                                            <?= htmlspecialchars($depdepart['lastNameKh'][$index], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($depdepart['firstNameKh'][$index], ENT_QUOTES, 'UTF-8') ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <input type="hidden" id="leave_type_name_hod" name="leave_type_name" value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                            </div>
+                            <div class="col-lg-12">
+                                <label for="remarks_hod" class="form-label fw-bold">មូលហេតុ<span class="text-danger mx-1 fw-bold">*</span></label>
+                                <div class="input-icon">
+                                    <textarea rows="5" class="form-control" id="remarks_hod" name="remarks" placeholder="មូលហេតុ" required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                </div>
+                            </div>
+                            <div class="col-12 attachment-file-container">
+                                <label class="form-label">ឯកសារភ្ជាប់</label>
+                                <input type="file" name="attachment" class="attachment-file form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-bs-dismiss="modal">បោះបង់</button>
+                    <button type="submit" class="btn btn-primary">បង្កើតសំណើ</button>
                 </div>
             </form>
         </div>

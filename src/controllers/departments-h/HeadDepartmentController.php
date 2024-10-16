@@ -43,6 +43,7 @@ class HeadDepartmentController
         $department = $_SESSION['departmentName'] ?? null;
         $token = $_SESSION['token'] ?? null;
         $user_khmer_name = $_SESSION['user_khmer_name'] ?? null;
+        $transfer = $_POST['transferId'];
 
         // Check if session information is complete
         if (!$user_id || !$position || !$department || !$token || !$user_khmer_name) {
@@ -155,7 +156,8 @@ class HeadDepartmentController
             $end_date,
             $remarks,
             $duration_days,
-            $attachment_name
+            $attachment_name,
+            $transfer
         );
 
         if (!$leaveRequestId) {
@@ -480,6 +482,8 @@ class HeadDepartmentController
         $requests = $leaveRequestModel->getRequestsByUserId($_SESSION['user_id']);
         $leaveType = new Leavetype();
         $leavetypes = $leaveType->getAllLeavetypes();
+        $userModel = new User();
+        $depdepart = $userModel->getEmailLeaderDDApi($_SESSION['user_id'], $_SESSION['token']);
         require 'src/views/leave/departments-h/myLeave.php';
     }
 
@@ -788,5 +792,24 @@ class HeadDepartmentController
 
         // Return the count of leave requests
         return $result['leave_count'] ?? 0; // Return 0 if the count is not found
+    }
+
+    public function viewLeaveDetail()
+    {
+        if (isset($_GET['leave_id'])) {
+            $leaveRequestModel = new HeadDepartmentModel();
+            $leave_id = (int) $_GET['leave_id'];
+            $request = $leaveRequestModel->getRequestById($leave_id, $_SESSION['token']);
+            $leavetypeModel = new Leavetype();
+            $leavetypes = $leavetypeModel->getAllLeavetypes();
+
+            if ($request) {
+                require 'src/views/leave/departments-h/viewLeaveDetail.php';
+                return;
+            }
+        }
+        // If request not found or leave_id is not provided, redirect or show error
+        header('Location: /elms/requests');
+        exit();
     }
 }

@@ -6,8 +6,8 @@ class SettingController
 {
     public function index()
     {
-        $settingModel = new SettingModel();
-        $myaccounts = $settingModel->getUserById($_SESSION['user_id']);
+        $settingModel = new User();
+        $myaccounts = $settingModel->getAllUserApi($_SESSION['user_id']);
 
         require 'src/views/settings/myaccount.php';
     }
@@ -142,7 +142,7 @@ class SettingController
 
             if (move_uploaded_file($file['tmp_name'], $uploadFile)) {
                 // Update profile picture path in database
-                $userModel->updateProfilePicture($userId, $uploadFile);
+                $userModel->updateUserProfileApi($userId, $uploadFile, $_SESSION['token']);
                 $_SESSION['success'] = [
                     'title' => "ជោគជ័យ",
                     'message' => "កែប្រែរូបភាពបានជោគជ័យ។"
@@ -160,30 +160,7 @@ class SettingController
             ];
         }
         sleep(1);
-        header('Location: /elms/my-account');
-        exit();
-    }
-
-    public function resetProfilePicture()
-    {
-        $userModel = new User();
-        $userId = $_SESSION['user_id'];
-
-        // Remove profile picture from the server
-        $user = $userModel->getUserById($userId);
-        if ($user && $user['profile_picture']) {
-            unlink($user['profile_picture']);
-        }
-
-        // Reset profile picture path in database
-        $userModel->updateProfilePicture($userId, 'public/uploads/profiles/default_image.svg');
-
-        $_SESSION['success'] = [
-            'title' => "ជោគជ័យ",
-            'message' => "លុបរូបភាពបានជោគជ័យ។"
-        ];
-        sleep(1);
-        header('Location: /elms/my-account');
+        header('Location: /elms/edit_user_detail?user_id=' . $userId);
         exit();
     }
 }

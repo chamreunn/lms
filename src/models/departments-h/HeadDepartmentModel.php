@@ -17,12 +17,12 @@ class HeadDepartmentModel
         $this->pdo = $pdo;
     }
 
-    public function create($user_id, $user_email, $leave_type_id, $position, $office, $department, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment)
+    public function create($user_id, $user_email, $leave_type_id, $position, $office, $department, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment, $transfer)
     {
         // Prepare and execute the SQL statement
         $stmt = $this->pdo->prepare("
-            INSERT INTO $this->table_name (user_id, uemails, leave_type_id, position, office, department, leave_type, start_date, end_date, remarks, num_date, attachment, status, head_department, created_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            INSERT INTO $this->table_name (user_id, uemails, leave_type_id, position, office, department, leave_type, start_date, end_date, remarks, num_date, attachment, transfer, status, head_department, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
         $stmt->execute([
             $user_id,
@@ -37,6 +37,7 @@ class HeadDepartmentModel
             $remarks,
             $duration_days,
             $attachment,
+            $transfer,
             'Pending',
             'Approved'
         ]);
@@ -85,12 +86,12 @@ class HeadDepartmentModel
 
             // Fetch additional data using existing methods
             $result['approvals'] = $this->getApprovalsByLeaveRequestId($result['id'], $_SESSION['token']);
-            $result['doffice'] = $this->getDOfficePositions($result['id']);
-            $result['hoffice'] = $this->getHOfficePositions($result['id']);
-            $result['ddepartment'] = $this->getDDepartmentPositions($result['id']);
-            $result['hdepartment'] = $this->getHDepartmentPositions($result['id']);
-            $result['dunit'] = $this->getDUnitPositions($result['id']);
-            $result['unit'] = $this->getUnitPositions($result['id']);
+            $result['doffice'] = $this->getDOfficePositions($result['id'], $_SESSION['token']);
+            $result['hoffice'] = $this->getHOfficePositions($result['id'], $_SESSION['token']);
+            $result['ddepartment'] = $this->getDDepartmentPositions($result['id'], $_SESSION['token']);
+            $result['hdepartment'] = $this->getHDepartmentPositions($result['id'], $_SESSION['token']);
+            $result['dunit'] = $this->getDUnitPositions($result['id'], $_SESSION['token']);
+            $result['unit'] = $this->getUnitPositions($result['id'], $_SESSION['token']);
         }
 
         return $results;
@@ -165,35 +166,84 @@ class HeadDepartmentModel
 
             // Fetch additional data using existing methods
             $result['approvals'] = $this->getApprovalsByLeaveRequestId($result['id'], $_SESSION['token']);
-            $result['doffice'] = $this->getDOfficePositions($result['id']);
-            $result['hoffice'] = $this->getHOfficePositions($result['id']);
-            $result['hdepartment'] = $this->getHDepartmentPositions($result['id']);
-            $result['dunit'] = $this->getDUnitPositions($result['id']);
-            $result['unit'] = $this->getUnitPositions($result['id']);
+            $result['doffice'] = $this->getDOfficePositions($result['id'], $_SESSION['token']);
+            $result['hoffice'] = $this->getHOfficePositions($result['id'], $_SESSION['token']);
+            $result['ddepartment'] = $this->getDDepartmentPositions($result['id'], $_SESSION['token']);
+            $result['hdepartment'] = $this->getHDepartmentPositions($result['id'], $_SESSION['token']);
+            $result['dunit'] = $this->getDUnitPositions($result['id'], $_SESSION['token']);
+            $result['unit'] = $this->getUnitPositions($result['id'], $_SESSION['token']);
         }
 
         return $results;
     }
 
-    public function getApprovalsByLeaveRequestId($leave_request_id)
+    private function fetchAttachmentsByLeaveRequestId($leave_request_id)
     {
-        // Query to get the approval details along with approver's information, position details, and signature
+        $stmt = $this->pdo->prepare('SELECT * FROM leave_attachments WHERE leave_request_id = ?');
+        $stmt->execute([$leave_request_id]);
+        return $stmt->fetchAll();
+    }
+
+    public function getApprovalsByLeaveRequestId($leave_request_id, $token)
+    {
+        // Query to get approval details without fetching user and position data directly
         $stmt = $this->pdo->prepare(
-            'SELECT a.*, 
-                u.khmer_name AS approver_name, 
-                u.profile_picture AS profile,
-                p.name AS position_name,
-                p.color AS position_color, -- Include the signature column
+            'SELECT a.*,   -- Include the signature column
                 (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
-            FROM leave_approvals a
-            JOIN users u ON a.approver_id = u.id
-            JOIN positions p ON u.position_id = p.id
-            WHERE a.leave_request_id = ?'
+         FROM leave_approvals a
+         WHERE a.leave_request_id = ?'
         );
+
         // Execute the query with the leave request ID parameter
         $stmt->execute([$leave_request_id, $leave_request_id]);
-        // Return the fetched results
-        return $stmt->fetchAll();
+        $approvals = $stmt->fetchAll();
+
+        // Check if an attachment is required for the leave type
+        $attachmentStmt = $this->pdo->prepare(
+            'SELECT lt.attachment_required 
+         FROM leave_requests lr
+         JOIN leave_types lt ON lr.leave_type_id = lt.id
+         WHERE lr.id = ?'
+        );
+        $attachmentStmt->execute([$leave_request_id]);
+        $attachmentRequired = $attachmentStmt->fetchColumn();
+
+        // If attachment is required, fetch attachment data
+        if ($attachmentRequired === 'YES') {
+            $attachmentData = $this->fetchAttachmentsByLeaveRequestId($leave_request_id);
+            if (empty($attachmentData)) {
+                // Log error or handle missing attachment
+                error_log("Attachment is required but not found for leave request ID: $leave_request_id");
+                // Optionally, you could return an error response or adjust the approvals data to reflect this issue.
+            }
+        }
+
+        $userModel = new User(); // Assuming User class is responsible for API calls to fetch user data
+
+        // Fetch approver information using API
+        foreach ($approvals as &$approval) {
+            $approverId = $approval['approver_id'];
+
+            // Use the API to get the user details
+            $userApiResponse = $userModel->getUserByIdApi($approverId, $token);
+
+            if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                $userData = $userApiResponse['data'];
+                $approval['approver_name'] = $userData['lastNameKh'] . " " . $userData['firstNameKh'] ?? null;
+                $approval['profile'] = 'https://hrms.iauoffsa.us/images/' . $userData['image'] ?? null;
+                $approval['position_name'] = $userData['position']['name'] ?? null; // Adjust based on your API response structure
+                $approval['position_color'] = $userData['position']['color'] ?? null; // Adjust based on your API response structure
+            } else {
+                // Handle API error or missing data
+                error_log("Failed to fetch user data for approver ID: $approverId");
+                $approval['approver_name'] = null;
+                $approval['profile'] = null;
+                $approval['position_name'] = null;
+                $approval['position_color'] = null;
+            }
+        }
+
+        return $approvals;
     }
 
     public function sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType)
@@ -433,142 +483,303 @@ class HeadDepartmentModel
         }
     }
 
-    public function getDOfficePositions($leave_request_id)
+    public function getDOfficePositions($leave_request_id, $token)
     {
-        // Query to get the approval details along with approver's information, position details, and signature
         $stmt = $this->pdo->prepare(
-            'SELECT a.*, 
-            u.khmer_name AS approver_name, 
-            u.profile_picture AS profile,
-            p.name AS position_name,
-            p.color AS position_color,
-              -- Include the signature column
-            (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
-        FROM leave_approvals a
-        JOIN users u ON a.approver_id = u.id
-        JOIN positions p ON u.position_id = p.id
-        WHERE a.leave_request_id = ?
-        AND p.name = ?'  // Filter by the specific position name
+            'SELECT a.approver_id ,a.status AS approver_status
+            FROM leave_approvals a
+            WHERE a.leave_request_id = ?'
         );
-        // Execute the query with the leave request ID parameter and the position name
-        $stmt->execute([$leave_request_id, $leave_request_id, 'អនុប្រធានការិយាល័យ']);
-        // Return the fetched results
-        return $stmt->fetchAll();
+        $stmt->execute([$leave_request_id]);
+        $approvals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Initialize an array to hold combined results
+        $results = [];
+
+        // Fetch user details and position details for each approver
+        foreach ($approvals as $approval) {
+            // Fetch user information using the API
+            $userModel = new User();
+            $userApiResponse = $userModel->getUserByIdApi($approval['approver_id'], $token);
+
+            if ($userApiResponse && isset($userApiResponse['data'])) {
+                // Fetch position details using the API (position details should be part of user data)
+                $positionApiResponse = $userModel->getRoleApi($userApiResponse['data']['roleId'], $token);
+
+                if ($positionApiResponse && $positionApiResponse['http_code'] === 200 && isset($positionApiResponse['data'])) {
+                    // Check if the position name matches "ប្រធានការិយាល័យ"
+                    if ($positionApiResponse['data']['roleNameKh'] === 'អនុប្រធានការិយាល័យ') {
+                        // Combine approval details with user and position details
+                        $results[] = array_merge($approval, [
+                            'approver_name' => $userApiResponse['data']['firstNameKh'] ?? 'Unknown',
+                            'profile_picture' => $userApiResponse['data']['profile_picture'] ?? null,
+                            'position_name' => $positionApiResponse['data']['roleNameKh'] ?? 'Unknown Position',
+                            'position_color' => $positionApiResponse['data']['color'] ?? 'N/A',
+                            'updated_at' => $positionApiResponse['data']['updated_at'] ?? 'N/A',
+                        ]);
+                    }
+                } else {
+                    // Handle case where position details are not found or do not match
+                    // Note: Here, we skip adding the result if position details are not found or do not match
+                }
+            } else {
+                // Handle case where user details are not found
+                // Note: Here, we skip adding the result if user details are not found
+            }
+        }
+
+        // Return the combined results
+        return $results;
     }
 
-    public function getHOfficePositions($leave_request_id)
+    public function getHOfficePositions($leave_request_id, $token)
     {
-        // Query to get the approval details along with approver's information, position details, and signature
+        // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.*, 
-            u.khmer_name AS approver_name, 
-            u.profile_picture AS profile,
-            p.name AS position_name,
-            p.color AS position_color,
-              -- Include the signature column
-            (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
-        FROM leave_approvals a
-        JOIN users u ON a.approver_id = u.id
-        JOIN positions p ON u.position_id = p.id
-        WHERE a.leave_request_id = ?
-        AND p.name = ?'  // Filter by the specific position name
+            'SELECT a.approver_id ,a.status AS approver_status
+            FROM leave_approvals a
+            WHERE a.leave_request_id = ?'
         );
-        // Execute the query with the leave request ID parameter and the position name
-        $stmt->execute([$leave_request_id, $leave_request_id, 'ប្រធានការិយាល័យ']);
-        // Return the fetched results
-        return $stmt->fetchAll();
+        $stmt->execute([$leave_request_id]);
+        $approvals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Initialize an array to hold combined results
+        $results = [];
+
+        // Fetch user details and position details for each approver
+        foreach ($approvals as $approval) {
+            // Fetch user information using the API
+            $userModel = new User();
+            $userApiResponse = $userModel->getUserByIdApi($approval['approver_id'], $token);
+
+            if ($userApiResponse && isset($userApiResponse['data'])) {
+                // Fetch position details using the API (position details should be part of user data)
+                $positionApiResponse = $userModel->getRoleApi($userApiResponse['data']['roleId'], $token);
+
+                if ($positionApiResponse && $positionApiResponse['http_code'] === 200 && isset($positionApiResponse['data'])) {
+                    // Check if the position name matches "ប្រធានការិយាល័យ"
+                    if ($positionApiResponse['data']['roleNameKh'] === 'ប្រធានការិយាល័យ') {
+                        // Combine approval details with user and position details
+                        $results[] = array_merge($approval, [
+                            'approver_name' => $userApiResponse['data']['firstNameKh'] ?? 'Unknown',
+                            'profile_picture' => $userApiResponse['data']['profile_picture'] ?? null,
+                            'position_name' => $positionApiResponse['data']['roleNameKh'] ?? 'Unknown Position',
+                            'position_color' => $positionApiResponse['data']['color'] ?? 'N/A',
+                            'updated_at' => $positionApiResponse['data']['updated_at'] ?? 'N/A',
+                        ]);
+                    }
+                } else {
+                    // Handle case where position details are not found or do not match
+                    // Note: Here, we skip adding the result if position details are not found or do not match
+                }
+            } else {
+                // Handle case where user details are not found
+                // Note: Here, we skip adding the result if user details are not found
+            }
+        }
+
+        // Return the combined results
+        return $results;
     }
 
-    public function getDDepartmentPositions($leave_request_id)
+    public function getDDepartmentPositions($leave_request_id, $token)
     {
-        // Query to get the approval details along with approver's information, position details, and signature
+        // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.*, 
-            u.khmer_name AS approver_name, 
-            u.profile_picture AS profile,
-            p.name AS position_name,
-            p.color AS position_color,
-              -- Include the signature column
-            (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
-        FROM leave_approvals a
-        JOIN users u ON a.approver_id = u.id
-        JOIN positions p ON u.position_id = p.id
-        WHERE a.leave_request_id = ?
-        AND p.name = ?'  // Filter by the specific position name
+            'SELECT a.approver_id ,a.status AS approver_status
+            FROM leave_approvals a
+            WHERE a.leave_request_id = ?'
         );
-        // Execute the query with the leave request ID parameter and the position name
-        $stmt->execute([$leave_request_id, $leave_request_id, 'អនុប្រធាននាយកដ្ឋាន']);
-        // Return the fetched results
-        return $stmt->fetchAll();
+        $stmt->execute([$leave_request_id]);
+        $approvals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Initialize an array to hold combined results
+        $results = [];
+
+        // Fetch user details and position details for each approver
+        foreach ($approvals as $approval) {
+            // Fetch user information using the API
+            $userModel = new User();
+            $userApiResponse = $userModel->getUserByIdApi($approval['approver_id'], $token);
+
+            if ($userApiResponse && isset($userApiResponse['data'])) {
+                // Fetch position details using the API (position details should be part of user data)
+                $positionApiResponse = $userModel->getRoleApi($userApiResponse['data']['roleId'], $token);
+
+                if ($positionApiResponse && $positionApiResponse['http_code'] === 200 && isset($positionApiResponse['data'])) {
+                    // Check if the position name matches "ប្រធានការិយាល័យ"
+                    if ($positionApiResponse['data']['roleNameKh'] === 'អនុប្រធាននាយកដ្ឋាន') {
+                        // Combine approval details with user and position details
+                        $results[] = array_merge($approval, [
+                            'approver_name' => $userApiResponse['data']['firstNameKh'] ?? 'Unknown',
+                            'profile_picture' => $userApiResponse['data']['profile_picture'] ?? null,
+                            'position_name' => $positionApiResponse['data']['roleNameKh'] ?? 'Unknown Position',
+                            'position_color' => $positionApiResponse['data']['color'] ?? 'N/A',
+                            'updated_at' => $positionApiResponse['data']['updated_at'] ?? 'N/A',
+                        ]);
+                    }
+                } else {
+                    // Handle case where position details are not found or do not match
+                    // Note: Here, we skip adding the result if position details are not found or do not match
+                }
+            } else {
+                // Handle case where user details are not found
+                // Note: Here, we skip adding the result if user details are not found
+            }
+        }
+
+        // Return the combined results
+        return $results;
     }
 
-    public function getHDepartmentPositions($leave_request_id)
+    public function getHDepartmentPositions($leave_request_id, $token)
     {
-        // Query to get the approval details along with approver's information, position details, and signature
+        // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.*, 
-            u.khmer_name AS approver_name, 
-            u.profile_picture AS profile,
-            p.name AS position_name,
-            p.color AS position_color,
-              -- Include the signature column
-            (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
-        FROM leave_approvals a
-        JOIN users u ON a.approver_id = u.id
-        JOIN positions p ON u.position_id = p.id
-        WHERE a.leave_request_id = ?
-        AND p.name = ?'  // Filter by the specific position name
+            'SELECT a.approver_id ,a.status AS approver_status
+            FROM leave_approvals a
+            WHERE a.leave_request_id = ?'
         );
-        // Execute the query with the leave request ID parameter and the position name
-        $stmt->execute([$leave_request_id, $leave_request_id, 'ប្រធាននាយកដ្ឋាន']);
-        // Return the fetched results
-        return $stmt->fetchAll();
+        $stmt->execute([$leave_request_id]);
+        $approvals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Initialize an array to hold combined results
+        $results = [];
+
+        // Fetch user details and position details for each approver
+        foreach ($approvals as $approval) {
+            // Fetch user information using the API
+            $userModel = new User();
+            $userApiResponse = $userModel->getUserByIdApi($approval['approver_id'], $token);
+
+            if ($userApiResponse && isset($userApiResponse['data'])) {
+                // Fetch position details using the API (position details should be part of user data)
+                $positionApiResponse = $userModel->getRoleApi($userApiResponse['data']['roleId'], $token);
+
+                if ($positionApiResponse && $positionApiResponse['http_code'] === 200 && isset($positionApiResponse['data'])) {
+                    // Check if the position name matches "ប្រធានការិយាល័យ"
+                    if ($positionApiResponse['data']['roleNameKh'] === 'ប្រធាននាយកដ្ឋាន') {
+                        // Combine approval details with user and position details
+                        $results[] = array_merge($approval, [
+                            'approver_name' => $userApiResponse['data']['firstNameKh'] ?? 'Unknown',
+                            'profile_picture' => $userApiResponse['data']['profile_picture'] ?? null,
+                            'position_name' => $positionApiResponse['data']['roleNameKh'] ?? 'Unknown Position',
+                            'position_color' => $positionApiResponse['data']['color'] ?? 'N/A',
+                            'updated_at' => $positionApiResponse['data']['updated_at'] ?? 'N/A',
+                        ]);
+                    }
+                } else {
+                    // Handle case where position details are not found or do not match
+                    // Note: Here, we skip adding the result if position details are not found or do not match
+                }
+            } else {
+                // Handle case where user details are not found
+                // Note: Here, we skip adding the result if user details are not found
+            }
+        }
+
+        // Return the combined results
+        return $results;
     }
 
-    public function getDUnitPositions($leave_request_id)
+    public function getDUnitPositions($leave_request_id, $token)
     {
-        // Query to get the approval details along with approver's information, position details, and signature
+        // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.*, 
-            u.khmer_name AS approver_name, 
-            u.profile_picture AS profile,
-            p.name AS position_name,
-            p.color AS position_color,
-              -- Include the signature column
-            (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
-        FROM leave_approvals a
-        JOIN users u ON a.approver_id = u.id
-        JOIN positions p ON u.position_id = p.id
-        WHERE a.leave_request_id = ?
-        AND p.name = ?'  // Filter by the specific position name
+            'SELECT a.approver_id ,a.status AS approver_status
+            FROM leave_approvals a
+            WHERE a.leave_request_id = ?'
         );
-        // Execute the query with the leave request ID parameter and the position name
-        $stmt->execute([$leave_request_id, $leave_request_id, 'អនុប្រធានអង្គភាព']);
-        // Return the fetched results
-        return $stmt->fetchAll();
+        $stmt->execute([$leave_request_id]);
+        $approvals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Initialize an array to hold combined results
+        $results = [];
+
+        // Fetch user details and position details for each approver
+        foreach ($approvals as $approval) {
+            // Fetch user information using the API
+            $userModel = new User();
+            $userApiResponse = $userModel->getUserByIdApi($approval['approver_id'], $token);
+
+            if ($userApiResponse && isset($userApiResponse['data'])) {
+                // Fetch position details using the API (position details should be part of user data)
+                $positionApiResponse = $userModel->getRoleApi($userApiResponse['data']['roleId'], $token);
+
+                if ($positionApiResponse && $positionApiResponse['http_code'] === 200 && isset($positionApiResponse['data'])) {
+                    // Check if the position name matches "ប្រធានការិយាល័យ"
+                    if ($positionApiResponse['data']['roleNameKh'] === 'អនុប្រធានអង្គភាព') {
+                        // Combine approval details with user and position details
+                        $results[] = array_merge($approval, [
+                            'approver_name' => $userApiResponse['data']['firstNameKh'] ?? 'Unknown',
+                            'profile_picture' => $userApiResponse['data']['profile_picture'] ?? null,
+                            'position_name' => $positionApiResponse['data']['roleNameKh'] ?? 'Unknown Position',
+                            'position_color' => $positionApiResponse['data']['color'] ?? 'N/A',
+                            'updated_at' => $positionApiResponse['data']['updated_at'] ?? 'N/A',
+                        ]);
+                    }
+                } else {
+                    // Handle case where position details are not found or do not match
+                    // Note: Here, we skip adding the result if position details are not found or do not match
+                }
+            } else {
+                // Handle case where user details are not found
+                // Note: Here, we skip adding the result if user details are not found
+            }
+        }
+
+        // Return the combined results
+        return $results;
     }
 
-    public function getUnitPositions($leave_request_id)
+    public function getUnitPositions($leave_request_id, $token)
     {
-        // Query to get the approval details along with approver's information, position details, and signature
+        // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.*, 
-            u.khmer_name AS approver_name, 
-            u.profile_picture AS profile,
-            p.name AS position_name,
-            p.color AS position_color,
-              -- Include the signature column
-            (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
+            'SELECT a.approver_id ,a.status AS approver_status
         FROM leave_approvals a
-        JOIN users u ON a.approver_id = u.id
-        JOIN positions p ON u.position_id = p.id
-        WHERE a.leave_request_id = ?
-        AND p.name = ?'  // Filter by the specific position name
+        WHERE a.leave_request_id = ?'
         );
-        // Execute the query with the leave request ID parameter and the position name
-        $stmt->execute([$leave_request_id, $leave_request_id, 'ប្រធានអង្គភាព']);
-        // Return the fetched results
-        return $stmt->fetchAll();
+        $stmt->execute([$leave_request_id]);
+        $approvals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Initialize an array to hold combined results
+        $results = [];
+
+        // Fetch user details and position details for each approver
+        foreach ($approvals as $approval) {
+            // Fetch user information using the API
+            $userModel = new User();
+            $userApiResponse = $userModel->getUserByIdApi($approval['approver_id'], $token);
+
+            if ($userApiResponse && isset($userApiResponse['data'])) {
+                // Fetch position details using the API (position details should be part of user data)
+                $positionApiResponse = $userModel->getRoleApi($userApiResponse['data']['roleId'], $token);
+
+                if ($positionApiResponse && $positionApiResponse['http_code'] === 200 && isset($positionApiResponse['data'])) {
+                    // Check if the position name matches "ប្រធានការិយាល័យ"
+                    if ($positionApiResponse['data']['roleNameKh'] === 'ប្រធានអង្គភាព') {
+                        // Combine approval details with user and position details
+                        $results[] = array_merge($approval, [
+                            'approver_name' => $userApiResponse['data']['firstNameKh'] ?? 'Unknown',
+                            'profile_picture' => $userApiResponse['data']['profile_picture'] ?? null,
+                            'position_name' => $positionApiResponse['data']['roleNameKh'] ?? 'Unknown Position',
+                            'position_color' => $positionApiResponse['data']['color'] ?? 'N/A',
+                            'updated_at' => $positionApiResponse['data']['updated_at'] ?? 'N/A',
+                        ]);
+                    }
+                } else {
+                    // Handle case where position details are not found or do not match
+                    // Note: Here, we skip adding the result if position details are not found or do not match
+                }
+            } else {
+                // Handle case where user details are not found
+                // Note: Here, we skip adding the result if user details are not found
+            }
+        }
+
+        // Return the combined results
+        return $results;
     }
 
     public function getAllLeaveRequests()
@@ -1134,7 +1345,7 @@ class HeadDepartmentModel
         );
         $stmt->execute([$newStatus, $leave_request_id]);
     }
-    
+
     // if Manager on leave 
     public function updatePendingApproval($leave_request_id, $approver_id, $status, $remarks)
     {
@@ -1196,4 +1407,71 @@ class HeadDepartmentModel
         $stmt->execute([$newStatus, $newStatus, $leave_request_id]);
     }
     //  end if manager on leave 
+
+    public function getRequestById($leave_id, $token)
+    {
+        // Query to fetch the leave request and related data, including the attachment requirement
+        $stmt = $this->pdo->prepare(
+            'SELECT lr.*, 
+                lt.name as leave_type_name, 
+                lt.duration, 
+                lt.color, 
+                lt.attachment_required AS attRequired, 
+                lr.department AS department_name, 
+                lr.office AS office_name, 
+                lr.position AS position_name
+         FROM ' . $this->table_name . ' lr
+         JOIN leave_types lt ON lr.leave_type_id = lt.id
+         WHERE lr.id = ?'
+        );
+        $stmt->execute([$leave_id]);
+        $leaveRequest = $stmt->fetch();
+
+        if ($leaveRequest) {
+            // ពិនិត្យមើលថាតើការភ្ជាប់ឯកសារត្រូវការឬអត់ និងវាមាននៅក្នុងសំណើចាកចេញឬអត់
+            if ($leaveRequest['attRequired'] === 'Yes') {
+                if (empty($leaveRequest['attachment'])) {
+                    // ដោះស្រាយករណីដែលត្រូវការភ្ជាប់ឯកសារ ប៉ុន្តែបាត់បង់
+                    error_log("ការភ្ជាប់ឯកសារត្រូវការសម្រាប់សំណើចាកចេញ ID: $leave_id ប៉ុន្តែមិនមាន។");
+                    $leaveRequest['attachment_error'] = "ត្រូវការភ្ជាប់ឯកសារសម្រាប់ប្រភេទច្បាប់នេះ។";
+                } else {
+                    $leaveRequest['attachment_error'] = null; // គ្មានបញ្ហាថាត្រូវការភ្ជាប់ឯកសារនេះ
+                }
+            } else {
+                $leaveRequest['attachment_error'] = null; // មិនត្រូវការភ្ជាប់ឯកសារនេះទេ
+            }
+            // Fetch user information using the API
+            $userModel = new User();
+            $userApiResponse = $userModel->getUserByIdApi($leaveRequest['user_id'], $token);
+
+            if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                $userData = $userApiResponse['data'];
+                // Add user information to the leave request array
+                $leaveRequest['khmer_name'] = $userData['lastNameKh'] . " " . $userData['firstNameKh'] ?? null;
+                $leaveRequest['phone_number'] = $userData['phoneNumber'] ?? null;
+                $leaveRequest['email'] = $userData['email'] ?? null;
+                $leaveRequest['dob'] = $userData['date_of_birth'] ?? null;
+                $leaveRequest['deputy_head_name'] = $userData['deputy_head_name'] ?? null;
+                $leaveRequest['profile'] = 'https://hrms.iauoffsa.us/images/' . $userData['image'] ?? null;
+            } else {
+                // Handle API error or missing data
+                error_log("Failed to fetch user data for leave request ID: $leave_id");
+                $leaveRequest['khmer_name'] = null;
+                $leaveRequest['phone_number'] = null;
+                $leaveRequest['dob'] = null;
+                $leaveRequest['deputy_head_name'] = null;
+            }
+
+            // Fetch other details such as approvals, office positions, department, and unit
+            $leaveRequest['approvals'] = $this->getApprovalsByLeaveRequestId($leaveRequest['id'], $token);
+            $leaveRequest['doffice'] = $this->getDOfficePositions($leaveRequest['id'], $token);
+            $leaveRequest['hoffice'] = $this->getHOfficePositions($leaveRequest['id'], $token);
+            $leaveRequest['ddepartment'] = $this->getDDepartmentPositions($leaveRequest['id'], $token);
+            $leaveRequest['hdepartment'] = $this->getHDepartmentPositions($leaveRequest['id'], $token);
+            $leaveRequest['dunit'] = $this->getDUnitPositions($leaveRequest['id'], $token);
+            $leaveRequest['unit'] = $this->getUnitPositions($leaveRequest['id'], $token);
+        }
+
+        return $leaveRequest;
+    }
 }
