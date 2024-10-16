@@ -3,6 +3,123 @@
 </div>
 </div>
 
+<!-- Head Office Apply Leave -->
+<div class="modal modal-blur fade" id="head-office-apply-leave" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><strong>បង្កើតសំណើ</strong></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/elms/hof-apply-leave" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="leave_type" class="form-label fw-bold">ប្រភេទច្បាប់<span
+                                        class="text-danger mx-1 fw-bold">*</span></label>
+                                <select class="form-select ts-select" name="leave_type_id" required>
+                                    <option value="">ជ្រើសរើសប្រភេទច្បាប់</option>
+                                    <?php foreach ($leavetypes as $leavetype): ?>
+                                        <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
+                                            data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
+                                            <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
+                                            <?= $leavetype['name'] ?>     <?= $leavetype['document_status'] ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <input type="hidden" id="leave_type_name" name="leave_type_name"
+                                    value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                            </div>
+                            <div class="col-lg-6">
+                                <label for="start_date" class="form-label fw-bold">កាលបរិច្ឆេទចាប់ពី<span
+                                        class="text-danger mx-1 fw-bold">*</span></label>
+                                <div class="input-icon">
+                                    <span class="input-icon-addon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <rect x="4" y="5" width="16" height="16" rx="2"></rect>
+                                            <line x1="16" y1="3" x2="16" y2="7"></line>
+                                            <line x1="8" y1="3" x2="8" y2="7"></line>
+                                            <line x1="4" y1="11" x2="20" y2="11"></line>
+                                            <rect x="8" y="15" width="2" height="2"></rect>
+                                        </svg>
+                                    </span>
+                                    <input type="text" autocomplete="off"
+                                        value="<?= htmlspecialchars($_POST['start_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                        placeholder="កាលបរិច្ឆេទចាប់ពី" class="form-control date-picker"
+                                        id="lstart_date" name="start_date" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <label for="end_date" class="form-label fw-bold">ដល់កាលបរិច្ឆេទ<span
+                                        class="text-danger mx-1 fw-bold">*</span></label>
+                                <div class="input-icon">
+                                    <span class="input-icon-addon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <rect x="4" y="5" width="16" height="16" rx="2"></rect>
+                                            <line x1="16" y1="3" x2="16" y2="7"></line>
+                                            <line x1="8" y1="3" x2="8" y2="7"></line>
+                                            <line x1="4" y1="11" x2="20" y2="11"></line>
+                                            <rect x="8" y="15" width="2" height="2"></rect>
+                                        </svg>
+                                    </span>
+                                    <input type="text" autocomplete="off"
+                                        value="<?= htmlspecialchars($_POST['end_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                        placeholder="ដល់កាលបរិច្ឆេទ" class="form-control date-picker" id="lend_date"
+                                        name="end_date" required>
+                                </div>
+                            </div>
+                            <div class="">
+                                <label class="form-label fw-bold">ផ្ទេរសិទ្ធ<span
+                                    class="text-danger mx-1 fw-bold">*</span></label>
+                                <select class="form-select select-people" id="leave_type" name="transferId" required>
+                                    <option value="">ផ្ទេរសិទ្ធ</option>
+                                    <?php foreach ($depoffice['ids'] as $index => $id): ?>
+                                        <option value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>"
+                                            data-custom-properties="&lt;span class=&quot;avatar avatar-xs&quot; style=&quot;background-image: url('https://hrms.iauoffsa.us/images/<?= htmlspecialchars($depoffice['image'][$index], ENT_QUOTES, 'UTF-8') ?>')&quot;&gt;&lt;/span&gt;">
+                                            <?= htmlspecialchars($depoffice['lastNameKh'][$index], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($depoffice['firstNameKh'][$index], ENT_QUOTES, 'UTF-8') ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <input type="hidden" id="leave_type_name" name="leave_type_name"
+                                    value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                            </div>
+                            <div class="col-lg-12">
+                                <label for="reason" class="form-label fw-bold">មូលហេតុ<span
+                                        class="text-danger mx-1 fw-bold">*</span></label>
+                                <div class="input-icon">
+                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" rows="5"
+                                        class="form-control" id="remarks" name="remarks"
+                                        required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                </div>
+                            </div>
+                            <div class="col-12 attachment-file-container">
+                                <label class="form-label">
+                                    ឯកសារភ្ជាប់
+                                </label>
+                                <input type="file" name="attachment" class="attachment-file form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" data-bs-dismiss="modal">បោះបង់</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span>បង្កើតសំណើ</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Apply Late In -->
 <div class="modal modal-blur fade" id="apply-late-in" tabindex="-1" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
@@ -411,8 +528,7 @@
                             <!-- Retain the value of start_date -->
                             <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទចាប់ពី"
                                 class="form-control date-picker" name="start_date"
-                                value="<?= isset($_POST['start_date']) ? htmlspecialchars($_POST['start_date']) : '' ?>"
-                                required>
+                                value="<?= isset($_POST['start_date']) ? htmlspecialchars($_POST['start_date']) : '' ?>">
                         </div>
                     </div>
                     <div class="mb-3">
@@ -435,8 +551,7 @@
                             <!-- Retain the value of end_date -->
                             <input type="text" autocomplete="off" placeholder="ដល់កាលបរិច្ឆេទ"
                                 class="form-control date-picker" name="end_date"
-                                value="<?= isset($_POST['end_date']) ? htmlspecialchars($_POST['end_date']) : '' ?>"
-                                required>
+                                value="<?= isset($_POST['end_date']) ? htmlspecialchars($_POST['end_date']) : '' ?>">
                         </div>
                     </div>
                     <div class="mb-3">
@@ -454,8 +569,8 @@
                         <div class="input-icon">
                             <!-- Retain the value of the reason textarea -->
                             <textarea type="text" rows="5" cols="5" autocomplete="off" placeholder="មូលហេតុ"
-                                class="form-control" name="reason"
-                                required><?= isset($_POST['reason']) ? htmlspecialchars($_POST['reason']) : '' ?></textarea>
+                                class="form-control"
+                                name="reason"><?= isset($_POST['reason']) ? htmlspecialchars($_POST['reason']) : '' ?></textarea>
                         </div>
                     </div>
                     <div class="mb-0">
@@ -465,6 +580,213 @@
                                 និងទទួលស្គាល់លើទិន្នន័យដែលបានបញ្ចូល។<span
                                     class="text-danger mx-1 fw-bold">*</span></span>
                         </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="w-100">
+                        <div class="row">
+                            <div class="col">
+                                <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-primary w-100">បញ្ជូន</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Apply transferout -->
+<div class="modal modal-blur fade" id="transferout" tabindex="-1" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-primary mb-0"><?= $title ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/elms/apply-transferout" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-lg-6 col-sm-12 col-md-12">
+                            <label for="start_date" class="form-label fw-bold">ពីនាយកដ្ឋាន
+                                <span class="text-danger mx-1 fw-bold">*</span>
+                            </label>
+                            <div class="input-icon">
+                                <select name="department" id="department" class="form-select ts-select">
+                                    <option value="<?= $_SESSION['departmentId'] ?>"><?= $_SESSION['departmentName'] ?>
+                                    </option>
+                                    <?php if (!empty($departments['data'])): ?>
+                                        <?php foreach ($departments['data'] as $department): ?>
+                                            <option value="<?= htmlspecialchars($department['id']) ?>">
+                                                <?= htmlspecialchars($department['departmentNameKh']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <option value="">No departments available</option>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-sm-12 col-md-12">
+                            <label for="end_date" class="form-label fw-bold">ទៅនាយកដ្ឋាន
+                                <span class="text-danger mx-1 fw-bold">*</span>
+                            </label>
+                            <div class="input-icon">
+                                <select name="department" id="department" class="form-select ts-select">
+                                    <option selected disabled>ជ្រើសរើសនាយកដ្ឋាន
+                                    </option>
+                                    <?php if (!empty($departments['data'])): ?>
+                                        <?php foreach ($departments['data'] as $department): ?>
+                                            <option value="<?= htmlspecialchars($department['id']) ?>">
+                                                <?= htmlspecialchars($department['departmentNameKh']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <option value="">No departments available</option>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-sm-12 col-md-12">
+                            <label for="start_date" class="form-label fw-bold">ពីការិយាល័យ
+                                <span class="text-danger mx-1 fw-bold">*</span>
+                            </label>
+                            <div class="input-icon">
+                                <select name="offices" id="office" class="form-select ts-select">
+                                    <option value="<?= $_SESSION['officeId'] ?>"><?= $_SESSION['officeName'] ?>
+                                    </option>
+                                    <?php if (!empty($offices['data'])): ?>
+                                        <?php foreach ($offices['data'] as $office): ?>
+                                            <option value="<?= htmlspecialchars($office['id']) ?>">
+                                                <?= htmlspecialchars($office['officeNameKh']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <option value="">No Offices available</option>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-sm-12 col-md-12">
+                            <label for="end_date" class="form-label fw-bold">ទៅការិយាល័យ
+                                <span class="text-danger mx-1 fw-bold">*</span>
+                            </label>
+                            <div class="input-icon">
+                                <select name="offices" id="offices" class="form-select ts-select">
+                                    <option selected disabled>ជ្រើសរើសការិយាល័យ
+                                    </option>
+                                    <?php if (!empty($offices['data'])): ?>
+                                        <?php foreach ($offices['data'] as $office): ?>
+                                            <option value="<?= htmlspecialchars($office['id']) ?>">
+                                                <?= htmlspecialchars($office['officeNameKh']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <option value="">No offices available</option>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label fw-bold">ឯកសារភ្ជាប់</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="file" name="attachment" accept=".pdf, .docx, .xlsx"
+                                        class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="reason" class="form-label fw-bold">មូលហេតុ
+                                <span class="text-danger mx-1 fw-bold">*</span>
+                            </label>
+                            <div class="input-icon">
+                                <!-- Retain the value of the reason textarea -->
+                                <textarea type="text" rows="5" cols="5" autocomplete="off" placeholder="មូលហេតុ"
+                                    class="form-control" name="reason"
+                                    required><?= isset($_POST['reason']) ? htmlspecialchars($_POST['reason']) : '' ?></textarea>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-check">
+                                <input class="form-check-input cursor-pointer" type="checkbox" name="agree" required>
+                                <span class="form-check-label cursor-pointer">ខ្ញុំយល់ព្រម
+                                    និងទទួលស្គាល់លើទិន្នន័យដែលបានបញ្ចូល។<span
+                                        class="text-danger mx-1 fw-bold">*</span></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="w-100">
+                        <div class="row">
+                            <div class="col">
+                                <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-primary w-100">បញ្ជូន</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Apply resign -->
+<div class="modal modal-blur fade" id="resign" tabindex="-1" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-primary mb-0"><?= $title ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/elms/apply-resign" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div>
+                            <label for="reason" class="form-label fw-bold">បទពិសោធន៍ការងារ
+                                <span class="text-danger mx-1 fw-bold">*</span>
+                            </label>
+                            <div class="input-icon">
+                                <!-- Retain the value of the reason textarea -->
+                                <textarea type="text" rows="5" cols="5" autocomplete="off" placeholder="បទពិសោធន៍..."
+                                    class="form-control" name="reason"
+                                    required><?= isset($_POST['reason']) ? htmlspecialchars($_POST['reason']) : '' ?></textarea>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="reason" class="form-label fw-bold">មូលហេតុ
+                                <span class="text-danger mx-1 fw-bold">*</span>
+                            </label>
+                            <div class="input-icon">
+                                <!-- Retain the value of the reason textarea -->
+                                <textarea type="text" rows="5" cols="5" autocomplete="off" placeholder="មូលហេតុ..."
+                                    class="form-control" name="reason"
+                                    required><?= isset($_POST['reason']) ? htmlspecialchars($_POST['reason']) : '' ?></textarea>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label fw-bold">ឯកសារភ្ជាប់</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="file" name="attachment" accept=".pdf, .docx, .xlsx"
+                                        class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-check">
+                                <input class="form-check-input cursor-pointer" type="checkbox" name="agree" required>
+                                <span class="form-check-label cursor-pointer">ខ្ញុំយល់ព្រម
+                                    និងទទួលស្គាល់លើទិន្នន័យដែលបានបញ្ចូល។<span
+                                        class="text-danger mx-1 fw-bold">*</span></span>
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

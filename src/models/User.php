@@ -11,7 +11,7 @@ class User
         $this->pdo = $pdo;
     }
 
-    public $api = "http://172.25.26.6:8000";
+    public $api = "http://127.0.0.1:8000";
 
     private $telegramUser = "telegram_users";
 
@@ -557,9 +557,95 @@ class User
         }
     }
 
+    public function getAllOfficeApi($token)
+    {
+        $url = "{$this->api}/api/v1/offices";
+
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Authorization: Bearer ' . $token
+        ));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return null;
+        }
+
+        $responseData = json_decode($response, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return null;
+        }
+
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            return [
+                'http_code' => $httpCode,
+                'data' => $responseData['data'],
+            ];
+        } else {
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            return [
+                'http_code' => $httpCode,
+                'response' => $responseData
+            ];
+        }
+    }
+
     public function getDepartmentApi($id, $token)
     {
         $url = "{$this->api}/api/v1/departments/" . $id;
+
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Authorization: Bearer ' . $token
+        ));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return null;
+        }
+
+        $responseData = json_decode($response, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            return null;
+        }
+
+        if ($httpCode === 200 && isset($responseData['data'])) {
+            return [
+                'http_code' => $httpCode,
+                'data' => $responseData['data'],
+            ];
+        } else {
+            error_log("Unexpected API Response: " . print_r($responseData, true));
+            return [
+                'http_code' => $httpCode,
+                'response' => $responseData
+            ];
+        }
+    }
+
+    public function getAllDepartmentApi($token)
+    {
+        $url = "{$this->api}/api/v1/departments/";
 
         $ch = curl_init($url);
 
@@ -659,6 +745,21 @@ class User
                     } else {
                         $lastNameKh[] = ''; // Fallback to empty if the field is not present
                     }
+                    if (isset($leader['image'])) {
+                        $image[] = $leader['image'];
+                    } else {
+                        $image[] = ''; // Fallback to empty if the field is not present
+                    }
+                    if (isset($leader['roleName'])) {
+                        $roleName[] = $leader['roleName'];
+                    } else {
+                        $roleName[] = ''; // Fallback to empty if the field is not present
+                    }
+                    if (isset($leader['departmentName'])) {
+                        $departmentName[] = $leader['departmentName'];
+                    } else {
+                        $departmentName[] = ''; // Fallback to empty if the field is not present
+                    }
                 }
             }
 
@@ -672,6 +773,9 @@ class User
                 'ids' => $ids,
                 'firstNameKh' => $firstNameKh,
                 'lastNameKh' => $lastNameKh,
+                'image' => $image,
+                'roleName' => $roleName,
+                'departmentName' => $departmentName,
             ];
         } else {
             error_log("Unexpected API Response: " . print_r($responseData, true));
@@ -1699,9 +1803,10 @@ class User
         return $result ? $result : null;
     }
 
-    public function sendDocks($title, $userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link)
+    public function sendDocks($title, $managerId, $start_date, $end_date, $duration_days, $remarks, $link)
     {
-        $telegramUser = $userModel->getTelegramIdByUserId($managerId);
+
+        $telegramUser = $this->getTelegramIdByUserId($managerId);
         if ($telegramUser && !empty($telegramUser['telegram_id'])) {
             $notifications = [
                 "🔔 *$title*",

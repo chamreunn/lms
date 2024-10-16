@@ -1240,38 +1240,6 @@ class DepUnit1Model
         return $leaveRequests; // Return the modified leave requests
     }
 
-    public function getUserApproveByTeam($approver_id)
-    {
-        // Get the approver's office and department
-        $stmt = $this->pdo->prepare('SELECT office_id, department_id FROM users WHERE id = ?');
-        $stmt->execute([$approver_id]);
-        $approver = $stmt->fetch();
-
-        if ($approver) {
-            $office_id = $approver['office_id'];
-            $department_id = $approver['department_id'];
-            // Query to get pending requests for users in the same office or department as the approver
-            // and who have the specified positions, including additional user details
-            $stmt = $this->pdo->prepare('
-            SELECT lr.*, u.email, u.profile_picture AS profile, u.khmer_name, lt.color
-            FROM leave_requests lr 
-            JOIN users u ON lr.user_id = u.id 
-            JOIN positions p ON u.position_id = p.id 
-            JOIN leave_types lt ON lr.leave_type_id = lt.id
-            WHERE lr.status = ? 
-            AND u.office_id = ? 
-            AND u.department_id = ?
-            AND u.role = ? 
-            AND p.name IN (?, ?, ?) 
-            AND lr.user_id != ?
-        ');
-            $stmt->execute(['Approved', $office_id, $department_id, 'User', 'មន្ត្រីលក្ខខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', $approver_id]);
-            return $stmt->fetchAll();
-        } else {
-            return [];
-        }
-    }
-
     public function leaveUserApproved($token)
     {
         $today = date('Y-m-d'); // Get today's date

@@ -32,6 +32,9 @@ $controllers = [
     'src/controllers/calendar/CalendarController.php',
     'src/controllers/telegram/TelegramController.php',
     'src/controllers/hold/HoldController.php',
+    'src/controllers/transferout/TransferoutController.php',
+    'src/controllers/resign/ResignController.php',
+    'src/controllers/backwork/BackworkController.php',
 ];
 
 // Require all controllers
@@ -1200,6 +1203,24 @@ switch ($uri) {
         checkSessionAndExecute(function () {
             $controller = new HoldController();
             $controller->delete();
+        });
+        break;
+    case $base_url . '/transferout':
+        checkSessionAndExecute(function () {
+            $holdController = new TransferoutController();
+            $holdController->index();
+        });
+        break;
+    case $base_url . '/resign':
+        checkSessionAndExecute(function () {
+            $holdController = new ResignController();
+            $holdController->index();
+        });
+        break;
+    case $base_url . '/backwork':
+        checkSessionAndExecute(function () {
+            $holdController = new BackworkController();
+            $holdController->index();
         });
         break;
     default:

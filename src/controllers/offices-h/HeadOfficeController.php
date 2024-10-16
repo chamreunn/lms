@@ -8,7 +8,6 @@ use PHPMailer\PHPMailer\Exception;
 
 class HeadOfficeController
 {
-
     private $pdo;
 
     public function __construct()
@@ -39,6 +38,7 @@ class HeadOfficeController
             $remarks = $_POST['remarks'];
             $message = $_SESSION['user_khmer_name'] . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
             $activity = "បានស្នើសុំច្បាប់ឈប់សម្រាក។";
+            $transfer = $_POST['transferId'];
 
             $leaveRemarks = "ច្បាប់";
             $status = "On Leave";
@@ -154,6 +154,7 @@ class HeadOfficeController
                 $remarks,
                 $duration_days,
                 $attachment_name,
+                $transfer
             );
 
             if (!$leaveRequestId) {
@@ -232,6 +233,8 @@ class HeadOfficeController
         $requests = $leaveRequestModel->getRequestsByUserId($_SESSION['user_id']);
         $leavetypeModel = new Leavetype();
         $leavetypes = $leavetypeModel->getAllLeavetypes();
+        $userModel = new User();
+        $depoffice = $userModel->getEmailLeaderDOApi($_SESSION['user_id'], $_SESSION['token']);
 
         require 'src/views/leave/offices-h/myLeave.php';
     }
@@ -455,10 +458,19 @@ class HeadOfficeController
         if (isset($_GET['leave_id'])) {
             $leaveRequestModel = new HeadOfficeModel();
             $leave_id = (int) $_GET['leave_id'];
-            $request = $leaveRequestModel->getRequestById($leave_id, $_SESSION['token']);
             $leavetypeModel = new Leavetype();
+            $userModel = new User();
+
+            // Fetch leave request details
+            $request = $leaveRequestModel->getRequestById($leave_id, $_SESSION['token']);
+
+            // Fetch department office leader information
+            $depoffice = $userModel->getEmailLeaderDOApi($_SESSION['user_id'], $_SESSION['token']);
+
+            // Fetch leave types
             $leavetypes = $leavetypeModel->getAllLeavetypes();
 
+            // Check if the request is valid
             if ($request) {
                 require 'src/views/leave/offices-h/viewLeaveDetail.php';
                 return;

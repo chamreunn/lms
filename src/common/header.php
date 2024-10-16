@@ -79,7 +79,7 @@ date_default_timezone_set('Asia/Bangkok');
 
     <!-- FullCalendar CSS -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet">
-    
+
     <!-- spinner button  -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -161,10 +161,12 @@ date_default_timezone_set('Asia/Bangkok');
                             require 'offices-d/sidebar.php';
                             break;
                         case 'Head Of Office':
+                            $userModel = new User();
                             $leaveRequestModel = new HeadOfficeModel();
                             $pendingCount = $leaveRequestModel->pendingCount();
                             $approvedCount = $leaveRequestModel->approvedCount();
                             $rejectedCount = $leaveRequestModel->rejectedCount();
+                            $depoffice = $userModel->getEmailLeaderDOApi($_SESSION['user_id'], $_SESSION['token']);
                             require 'offices-h/sidebar.php';
                             break;
                         case 'Deputy Head Of Department':

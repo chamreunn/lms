@@ -27,7 +27,6 @@ class TelegramModel
         return $result ? $result : null;
     }
 
-
     public function disconnectTelegram($telegram_id)
     {
         // Prepare the SQL statement to delete the record associated with the telegram_id

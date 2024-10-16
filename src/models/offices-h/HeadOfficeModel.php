@@ -17,12 +17,12 @@ class HeadOfficeModel
         $this->pdo = $pdo;
     }
 
-    public function create($user_id, $user_email, $leave_type_id, $position, $office, $department, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment)
+    public function create($user_id, $user_email, $leave_type_id, $position, $office, $department, $leave_type_name, $start_date, $end_date, $remarks, $duration_days, $attachment, $transfer)
     {
         // Prepare and execute the SQL statement
         $stmt = $this->pdo->prepare("
-            INSERT INTO $this->table_name (user_id, uemails, leave_type_id, position, office, department, leave_type, start_date, end_date, remarks, num_date, attachment, status, head_office, created_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            INSERT INTO $this->table_name (user_id, uemails, leave_type_id, position, office, department, leave_type, start_date, end_date, remarks, num_date, attachment, transfer, status, head_office, created_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
         $stmt->execute([
             $user_id,
@@ -37,6 +37,7 @@ class HeadOfficeModel
             $remarks,
             $duration_days,
             $attachment,
+            $transfer,
             'Pending',
             'Approved'
         ]);
@@ -578,7 +579,7 @@ class HeadOfficeModel
 
             if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
                 $userData = $userApiResponse['data'];
-                $leaveRequest['khmer_name'] = $userData['lastNameKh'] ." ". $userData['firstNameKh'] ?? null;
+                $leaveRequest['khmer_name'] = $userData['lastNameKh'] . " " . $userData['firstNameKh'] ?? null;
                 $leaveRequest['phone_number'] = $userData['phoneNumber'] ?? null;
                 $leaveRequest['email'] = $userData['email'] ?? null;
                 $leaveRequest['dob'] = $userData['dateOfBirth'] ?? null;
@@ -590,38 +591,8 @@ class HeadOfficeModel
                 $leaveRequest['dob'] = null;
             }
 
-            // Fetch the deputy head name from the API using the office and department
-            $roleNames = "អនុប្រធានការិយាល័យ"; // Role for deputy head
-            $deputyHeadResponse = $userModel->getDepOfficAndDepartment($token, $leaveRequest['office_name'], $roleNames);
-
-            if ($deputyHeadResponse['http_code'] === 200 && isset($deputyHeadResponse['data'])) {
-                // Log the response data to check the structure
-                error_log("Deputy Head Response Data: " . print_r($deputyHeadResponse['data'], true));
-
-                // Assuming the structure is correct, assign values to $leaveRequest
-                if (isset($deputyHeadResponse['data'][0])) {
-                    $leaveRequest['deputy_head_name'] = $deputyHeadResponse['data'][0]['firstNameKh'] ?? 'N/A';
-                    $leaveRequest['positionName'] = $deputyHeadResponse['data'][0]['roleName'] ?? 'N/A';
-                    $leaveRequest['departmentName'] = $deputyHeadResponse['data'][0]['departmentName'] ?? 'N/A';
-                } else {
-                    // No data found
-                    error_log("No deputy head data found for office: " . $leaveRequest['office_name']);
-                    $leaveRequest['deputy_head_name'] = null;
-                    $leaveRequest['officeId'] = null;
-                    $leaveRequest['positionName'] = null;
-                    $leaveRequest['departmentName'] = null;
-                }
-            } else {
-                // Handle API error or unexpected response
-                error_log("Failed to fetch deputy head. HTTP Code: " . $deputyHeadResponse['http_code']);
-                error_log("Response Details: " . print_r($deputyHeadResponse, true));
-                $leaveRequest['deputy_head_name'] = null;
-                $leaveRequest['officeId'] = null;
-                $leaveRequest['positionName'] = null;
-                $leaveRequest['departmentName'] = null;
-            }
-
             // Fetch other details such as approvals, office positions, department, and unit
+            $leaveRequest['depoffice'] = $userModel->getEmailLeaderDOApi($_SESSION['user_id'],$_SESSION['token']);
             $leaveRequest['approvals'] = $this->getApprovalsByLeaveRequestId($leaveRequest['id'], $token);
             $leaveRequest['doffice'] = $this->getDOfficePositions($leaveRequest['id'], $token);
             $leaveRequest['hoffice'] = $this->getHOfficePositions($leaveRequest['id'], $token);

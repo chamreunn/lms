@@ -21,16 +21,21 @@ class HoldController
     public function view($id)
     {
         $holdModel = new HoldModel($this->pdo);
-        $getHoldById = $holdModel->getHoldById($id);
+        $getHoldById = $holdModel->getHoldById($_SESSION['user_id']);
         require 'src/views/hold/view&edit.php';
     }
 
     public function create()
     {
+        // Ensure the session is started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    
+
             $userModel = new User();
-    
+
             // Validate required fields
             if (empty($_SESSION['user_id']) || empty($_POST['start_date']) || empty($_POST['end_date']) || empty($_POST['reason'])) {
                 $_SESSION['error'] = [
@@ -40,14 +45,14 @@ class HoldController
                 header("Location: /elms/hold");
                 exit();
             }
-    
+
             // Sanitize and assign input values
             $user_id = $_SESSION['user_id'];
             $start_date = $_POST['start_date'];
             $end_date = $_POST['end_date'];
             $reason = $_POST['reason'];
-    
-            // Validate date order
+
+            // Validate date order: start_date should not be greater than end_date
             if (new DateTime($start_date) > new DateTime($end_date)) {
                 $_SESSION['error'] = [
                     'title' => "កំហុសកាលបរិច្ឆេទ",
@@ -56,88 +61,145 @@ class HoldController
                 header("Location: /elms/hold");
                 exit();
             }
-    
+
             $type = 'hold';
             $color = 'bg-primary';
             $role = $_SESSION['role'];
             $departments = $_SESSION['departmentName'];
             $title = "លិខិតព្យួរការងារ";
-    
+
             // Calculate duration between start_date and end_date in months and years
             $startDate = new DateTime($start_date);
             $endDate = new DateTime($end_date);
-            $interval = $startDate->diff($endDate);  // Get DateInterval object
-    
-            // Format the duration as X years, Y months
+            $interval = $startDate->diff($endDate);
+
             $years = $interval->y;
             $months = $interval->m;
+            $days = $interval->d;
+
+            // Count a partial month as a full month
+            if ($days > 0) {
+                $months += 1;
+            }
+
+            // Format the duration as X years, Y months
             $duration = "";
             if ($years > 0) {
-                $duration .= $years . " ឆ្នាំ" . " ";
+                $duration .= $years . " ឆ្នាំ ";
             }
             if ($months > 0) {
-                $duration .= $months . " ខែ" . " ";
+                $duration .= $months . " ខែ ";
             }
-    
-            // Error handling: check if the duration meets the requirement (at least 1 month)
-            if ($years === 0 && $months < 1) {
+
+            // Error handling: check if the duration meets the requirement (at least 6 months)
+            if ($years === 0 && $months < 6) {
                 $_SESSION['error'] = [
                     'title' => "កំហុសវ័យ",
-                    'message' => "ប្រការ: ចំនួនសម្រាប់អារក្សគឺត្រូវតែយ៉ាងហោចណាស់ 1 ខែ។"
+                    'message' => "លិខិតព្យួរត្រូវចាប់ពី ៦ខែ ឡើង។"
                 ];
                 header("Location: /elms/hold");
                 exit();
             }
-    
-            // Initialize attachment as null (optional field)
-            $attachment_name = $this->handleFileUpload($_FILES['attachment'], ['docx', 'pdf'], 5097152, 'public/uploads/hold-attachments/');
-            if ($attachment_name === false) {
-                $_SESSION['error'] = [
-                    'title' => "ឯកសារភ្ជាប់",
-                    'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។​ សូមព្យាយាមម្តងទៀត"
-                ];
-                header("Location: /elms/hold");
-                exit();
+
+            // Handle file attachment upload (optional field)
+            if (!empty($_FILES['attachment']['name'])) {
+                $attachment_name = $this->handleFileUpload($_FILES['attachment'], ['docx', 'pdf'], 5097152, 'public/uploads/hold-attachments/');
+                if ($attachment_name === false) {
+                    $_SESSION['error'] = [
+                        'title' => "ឯកសារភ្ជាប់",
+                        'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។​ សូមព្យាយាមម្តងទៀត"
+                    ];
+                    header("Location: /elms/hold");
+                    exit();
+                }
+            } else {
+                $attachment_name = null; // No file uploaded
             }
-    
+
             // Get manager's ID based on role and department
-            $getalllevels = $this->getAllRole($user_id, $role, $departments);
-            $managerId = $getalllevels['managerId'];
-    
+            try {
+                $getalllevels = $this->getAllRole($user_id, $role, $departments);
+                $managerId = $getalllevels['managerId'];
+            } catch (Exception $e) {
+                $_SESSION['error'] = [
+                    'title' => "កំហុស",
+                    'message' => $e->getMessage()
+                ];
+                header("Location: /elms/hold");
+                exit();
+            }
+
+            // Check if the manager is on leave or mission
+            $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+            $isManagerOnMission = $userModel->isManagerOnMission($managerId);
+
+            // Fallback logic: If manager is on leave or mission, try to escalate to the next available manager
+            if ($isManagerOnLeave || $isManagerOnMission) {
+                $fallbackRole = $this->getFallbackRole($role);
+                try {
+                    $fallbackManagerDetails = $this->getAllRole($user_id, $fallbackRole, $departments);
+                    $managerId = $fallbackManagerDetails['managerId'];
+                } catch (Exception $e) {
+                    $_SESSION['error'] = [
+                        'title' => "កំហុស",
+                        'message' => $e->getMessage()
+                    ];
+                    header("Location: /elms/hold");
+                    exit();
+                }
+
+                // Record the manager's leave or mission status
+                $status = $isManagerOnLeave ? 'leave' : 'mission';
+                $comment = $isManagerOnLeave ? 'Manager is on leave today' : 'Manager is on mission today';
+            } else {
+                // If the manager is available, status and comment are empty
+                $status = '';
+                $comment = '';
+            }
+
             // Prepare data for saving
             $data = [
                 'user_id' => $user_id,
                 'start_date' => $start_date,
                 'end_date' => $end_date,
                 'reason' => $reason,
-                'attachment' => $attachment_name, // This will be null if no file was uploaded
-                'duration' => $duration, // Store the calculated duration
+                'attachment' => $attachment_name,
+                'duration' => $duration,
                 'type' => $type,
                 'color' => $color,
                 'approver_id' => $managerId
             ];
-    
-            // Call the model method to save the hold request
-            $holdRequestModel = new HoldModel($this->pdo); // Assuming $this->pdo is your PDO instance
-    
-            if ($holdRequestModel->createHoldRequest($data)) {
-                $userModel->sendDocks($title, $userModel, $managerId, $start_date, $end_date, $duration, $reason, $holdRequestModel, null);
-    
+
+            try {
+                // Save the hold request using the HoldModel
+                $holdRequestModel = new HoldModel($this->pdo); // Assuming $this->pdo is your PDO instance
+                $hold_id = $holdRequestModel->createHoldRequest($data);
+
+                // If a fallback manager was used, save their status
+                if (!empty($status)) {
+                    $holdRequestModel->insertManagerStatusToHoldsApprovals($hold_id, $managerId, $status, $comment);
+                }
+
+                // Send notification after saving the request
+                $userModel->sendDocks($title, $managerId, $start_date, $end_date, $duration, $reason, $holdRequestModel);
+
                 $_SESSION['success'] = [
                     'title' => "ជោគជ័យ",
                     'message' => "សំណើរបានបញ្ចូលដោយជោគជ័យ"
                 ];
                 header("Location: /elms/hold");
-            } else {
+                exit();
+            } catch (Exception $e) {
                 $_SESSION['error'] = [
                     'title' => "កំហុស",
-                    'message' => "មិនអាចបញ្ចូលសំណើបានទេ។​ សូមព្យាយាមម្តងទៀត"
+                    'message' => $e->getMessage()
                 ];
                 header("Location: /elms/hold");
+                exit();
             }
         }
     }
-    
+
     public function getAllRole($user_id, $role, $departments)
     {
         $userModel = new User();
@@ -147,71 +209,88 @@ class HoldController
             'Deputy Head Of Department' => 'getEmailLeaderDDApi',
             'Deputy Head Of Unit 1' => 'getEmailLeaderHUApi',
             'Deputy Head Of Unit 2' => 'getEmailLeaderHUApi',
-            'Head Of Department' => 'getEmailLeaderDHU1Api',  // Default for Head Of Department
-            'NULL' => 'getEmailLeaderDOApi' // Fallback for any unspecified role
+            'Head Of Department' => 'getEmailLeaderDHU1Api'
         ];
-    
-        // Special case for 'Head Of Department' with department-specific APIs
+
+        $Depoffice = null;
+
+        // Special handling for 'Head Of Department' role based on department
         if ($role == 'Head Of Department') {
-            if ($departments == 'នាយកដ្ឋានកិច្ចការទូទៅ' || $departments == 'នាយកដ្ឋានសនវកម្មទី២') {
-                $Depoffice = $userModel->getEmailLeaderDHU1Api($user_id, $_SESSION['token']);
-            } else {
-                $Depoffice = $userModel->getEmailLeaderDHU2Api($user_id, $_SESSION['token']);
-            }
+            $Depoffice = ($departments == 'នាយកដ្ឋានកិច្ចការទូទៅ' || $departments == 'នាយកដ្ឋានសនវកម្មទី២')
+                ? $userModel->getEmailLeaderDHU1Api($user_id, $_SESSION['token'])
+                : $userModel->getEmailLeaderDHU2Api($user_id, $_SESSION['token']);
+        } elseif (isset($roleToApiMap[$role])) {
+            // Fetch the API method based on the role
+            $apiMethod = $roleToApiMap[$role];
+            $Depoffice = $userModel->{$apiMethod}($user_id, $_SESSION['token']);
         } else {
-            // General case for other roles based on mapping
-            $Depoffice = $userModel->{$roleToApiMap[$role] ?? $roleToApiMap['NULL']}($user_id, $_SESSION['token']);
+            // If role is 'NULL', escalate to fallback role directly
+            return $this->escalateToFallbackRole($user_id, $role, $departments);
         }
-    
-        // Check if the API response is valid
+
+        // Validate the API response
         if (!$Depoffice || $Depoffice['http_code'] !== 200 || empty($Depoffice['ids'])) {
-            throw new Exception("Unable to find office details. Please contact support.");
+            return $this->escalateToFallbackRole($user_id, $role, $departments);
         }
-    
-        // Iterate through the list of managers
+
+        // Loop through the list of potential managers and check availability
         foreach ($Depoffice['ids'] as $index => $managerId) {
             $managerEmail = $Depoffice['emails'][$index] ?? null;
             $managerName = (!empty($Depoffice['lastNameKh'][$index]) && !empty($Depoffice['firstNameKh'][$index]))
                 ? $Depoffice['lastNameKh'][$index] . ' ' . $Depoffice['firstNameKh'][$index]
                 : null;
-    
-            // Check if the manager is on leave or mission
+
             $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
             $isManagerOnMission = $userModel->isManagerOnMission($managerId);
-    
+
+            // Return the manager's details if they are available (not on leave or mission)
             if (!$isManagerOnLeave && !$isManagerOnMission) {
-                // If the manager is available, return the manager's details
                 return [
                     'managerId' => $managerId,
                     'managerEmail' => $managerEmail,
                     'managerName' => $managerName,
                 ];
-            } else {
-                // Escalate to the next manager if the current one is unavailable
-                $fallbackRole = $this->getFallbackRole($role);
-                $DepofficeFallback = $userModel->{$roleToApiMap[$fallbackRole] ?? $roleToApiMap['NULL']}($user_id, $_SESSION['token']);
-    
-                // Check if fallback manager is available
-                if ($DepofficeFallback && $DepofficeFallback['http_code'] === 200 && !empty($DepofficeFallback['ids'])) {
-                    // Return the fallback manager's details
-                    $fallbackManagerId = $DepofficeFallback['ids'][0] ?? null;
-                    $fallbackManagerEmail = $DepofficeFallback['emails'][0] ?? null;
-                    $fallbackManagerName = (!empty($DepofficeFallback['lastNameKh'][0]) && !empty($DepofficeFallback['firstNameKh'][0]))
-                        ? $DepofficeFallback['lastNameKh'][0] . ' ' . $DepofficeFallback['firstNameKh'][0]
-                        : null;
-    
-                    return [
-                        'managerId' => $fallbackManagerId,
-                        'managerEmail' => $fallbackManagerEmail,
-                        'managerName' => $fallbackManagerName,
-                    ];
-                }
             }
         }
-    
+
+        // If no available manager is found, escalate to the fallback role
+        return $this->escalateToFallbackRole($user_id, $role, $departments);
+    }
+
+    private function escalateToFallbackRole($user_id, $role, $departments)
+    {
+        $fallbackRole = $this->getFallbackRole($role, $departments);
+
+        // Log the fallback role for debugging purposes
+        error_log("Escalating to fallback role: $fallbackRole");
+
+        if ($fallbackRole) {
+            // Recursively call getAllRole with the fallback role
+            return $this->getAllRole($user_id, $fallbackRole, $departments);
+        }
+
+        // Log failure to find a suitable manager
+        error_log("Unable to find a suitable manager for role: $role");
+
+        // If no fallback is available, throw an exception
         throw new Exception("Unable to find a suitable manager. Please contact support.");
     }
-    
+
+    private function getFallbackRole($role, $department = null)
+    {
+        $fallbackRoles = [
+            'NULL' => 'Deputy Head Of Office', // For a 'NULL' role, escalate to Deputy Head Of Office
+            'Deputy Head Of Office' => 'Head Of Office',
+            'Head Of Office' => 'Deputy Head Of Department',
+            'Deputy Head Of Department' => 'Head Of Department',
+            'Head Of Department' => $department === 'នាយកដ្ឋានសនវកម្មទី២' ? 'Deputy Head Of Unit 2' : 'Deputy Head Of Unit 1',
+            'Deputy Head Of Unit 1' => 'Head Of Unit',
+            'Deputy Head Of Unit 2' => 'Head Of Unit',
+        ];
+
+        return $fallbackRoles[$role] ?? 'Deputy Head Of Office';
+    }
+
     private function handleFileUpload($file, $allowedExtensions, $maxSize, $uploadDir)
     {
         if (!empty($file['name'])) {
@@ -236,21 +315,6 @@ class HoldController
         }
 
         return null; // No file uploaded
-    }
-
-    private function getFallbackRole($role)
-    {
-        $fallbackRoles = [
-            'Deputy Head Of Office' => 'Head Of Office',
-            'Head Of Office' => 'Deputy Head Of Department',
-            'Deputy Head Of Department' => 'Head Of Department',
-            'Head Of Department' => 'Deputy Head Of Unit 1',
-            'Deputy Head Of Unit 1' => 'Deputy Head Of Unit 2',
-            'Deputy Head Of Unit 2' => 'NULL',
-            'NULL' => 'Head Of Office'
-        ];
-
-        return $fallbackRoles[$role] ?? 'NULL';
     }
 
     public function delete()

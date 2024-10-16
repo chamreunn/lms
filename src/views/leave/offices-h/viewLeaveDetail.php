@@ -228,104 +228,111 @@ function convertToKhmerNumerals($number)
 
     <div class="col-lg-8">
         <div class="card">
-            <div class="card-header d-flex justify-content-between bg-light">
-                <h3 class="text-primary mb-0">ការអនុម័ត</h3>
-                <?php if ($request['status'] !== 'Approved'): ?>
+            <?php if ($request['status'] !== 'Approved'): ?>
+                <div class="card-header d-flex justify-content-between bg-light">
+                    <h3 class="text-primary mb-0">ការអនុម័ត</h3>
                     <div class="ms-auto mb-0">
-                        <button class="btn btn-outline-danger" data-bs-toggle="modal"
-                            data-bs-target="#cancelModal">បោះបង់សំណើ</button>
+                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                            បោះបង់សំណើ
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="icon icon-tabler icons-tabler-outline icon-tabler-square-rounded-minus mx-2 me-0">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M9 12h6" />
+                                <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z" />
+                            </svg>
+                        </button>
                     </div>
-
-                    <div class="modal modal-blur fade" id="cancelModal" tabindex="-1">
-                        <div class="modal-dialog modal-dialog-centered modal-sm">
-                            <div class="modal-content">
-                                <div class="modal-status bg-danger"></div>
-                                <form action="/elms/hoffice-delete" method="POST">
-                                    <div class="modal-body text-center py-4 mb-0">
-                                        <input type="hidden" name="id" value="<?= $request['id'] ?>">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                            <path d="M12 9v4"></path>
-                                            <path
-                                                d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
-                                            </path>
-                                            <path d="M12 16h.01"></path>
-                                        </svg>
-                                        <h5 class="modal-title fw-bold text-danger">បោះបង់សំណើច្បាប់</h5>
-                                        <p class="mb-0">តើអ្នកប្រាកដទេថានិងបោះបង់សំណើច្បាប់នេះ?</p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <div class="w-100">
-                                            <div class="row">
-                                                <div class="col">
-                                                    <button type="button" class="btn w-100"
-                                                        data-bs-dismiss="modal">បោះបង់</button>
-                                                </div>
-                                                <div class="col">
-                                                    <button type="submit"
-                                                        class="btn btn-danger ms-auto w-100">យល់ព្រម</button>
-                                                </div>
+                </div>
+                <div class="modal modal-blur fade" id="cancelModal" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-status bg-danger"></div>
+                            <form action="/elms/hoffice-delete" method="POST">
+                                <div class="modal-body text-center py-4 mb-0">
+                                    <input type="hidden" name="id" value="<?= $request['id'] ?>">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <path d="M12 9v4"></path>
+                                        <path
+                                            d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
+                                        </path>
+                                        <path d="M12 16h.01"></path>
+                                    </svg>
+                                    <h5 class="modal-title fw-bold text-danger">បោះបង់សំណើច្បាប់</h5>
+                                    <p class="mb-0">តើអ្នកប្រាកដទេថានិងបោះបង់សំណើច្បាប់នេះ?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <div class="w-100">
+                                        <div class="row">
+                                            <div class="col">
+                                                <button type="button" class="btn w-100"
+                                                    data-bs-dismiss="modal">បោះបង់</button>
+                                            </div>
+                                            <div class="col">
+                                                <button type="submit" class="btn btn-danger ms-auto w-100">យល់ព្រម</button>
                                             </div>
                                         </div>
                                     </div>
-                                </form>
-                            </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                <?php elseif ($request['status'] == 'Approved'): ?>
-                    <div class="mb-3 ms-auto row">
-                        <div class="col-sm-8">
-                            <div class="dropdown">
-                                <button class="btn btn-outline-success dropdown-toggle" type="button"
-                                    id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                    ទាញយកច្បាប់ឈប់សម្រាក
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <li>
-                                        <span class="dropdown-header">ទាញយក បោះពុម្ព</span>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" onclick="printContents(<?= $request['id'] ?>)" href="#">
-                                            <!-- Download SVG icon from http://tabler-icons.io/i/settings -->
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"
-                                                class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path
-                                                    d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
-                                                <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" />
-                                                <path
-                                                    d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
-                                            </svg>
-                                            <span class="mx-2">បោះពុម្ព</span>
-                                        </a>
-                                    </li>
-                                    <li class="dropdown-divider mt-0 mb-0"></li>
-                                    <li>
-                                        <a class="dropdown-item mb-0" href="#"
-                                            onclick="Export2Word('page-contents<?= $request['id'] ?>', 'ច្បាប់ឈប់សម្រាក <?= $request['khmer_name'] ?>');">
-                                            <!-- Download SVG icon from http://tabler-icons.io/i/edit -->
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"
-                                                class="icon icon-tabler icons-tabler-outline icon-tabler-download">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
-                                                <path d="M7 11l5 5l5 -5" />
-                                                <path d="M12 4l0 12" />
-                                            </svg>
-                                            <span class="mx-2">ទាញយក (WORD)</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
+                </div>
+            <?php elseif ($request['status'] == 'Approved'): ?>
+                <div class="card-header d-flex justify-content-between bg-light">
+                    <h3 class="text-primary mb-0">ការអនុម័ត</h3>
+                    <div class="ms-auto mb-0">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-success dropdown-toggle" type="button"
+                                id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                ទាញយកច្បាប់ឈប់សម្រាក
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <li>
+                                    <span class="dropdown-header">ទាញយក បោះពុម្ព</span>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" onclick="printContents(<?= $request['id'] ?>)" href="#">
+                                        <!-- Download SVG icon from http://tabler-icons.io/i/settings -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path
+                                                d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
+                                            <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" />
+                                            <path
+                                                d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
+                                        </svg>
+                                        <span class="mx-2">បោះពុម្ព</span>
+                                    </a>
+                                </li>
+                                <li class="dropdown-divider mt-0 mb-0"></li>
+                                <li>
+                                    <a class="dropdown-item mb-0" href="#"
+                                        onclick="Export2Word('page-contents<?= $request['id'] ?>', 'ច្បាប់ឈប់សម្រាក <?= $request['khmer_name'] ?>');">
+                                        <!-- Download SVG icon from http://tabler-icons.io/i/edit -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            class="icon icon-tabler icons-tabler-outline icon-tabler-download">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+                                            <path d="M7 11l5 5l5 -5" />
+                                            <path d="M12 4l0 12" />
+                                        </svg>
+                                        <span class="mx-2">ទាញយក (WORD)</span>
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
                     </div>
-                <?php endif; ?>
-            </div>
+                </div>
+            <?php endif; ?>
             <div class="card-body">
                 <ul class="steps steps-counter steps-vertical mb-0">
                     <?php if (empty($request['approvals'])): ?>
@@ -447,7 +454,7 @@ function convertToKhmerNumerals($number)
                             សូមគោរពជូន
                         </center>
                         <center style="text-align: center; font-family: khmer mef2; font-size: 19px;" class="mb-3">
-                            ឯកឯត្តមប្រធានអង្គភាពសវនកម្មផ្ទៃក្នុង
+                            ឯកឧត្តមប្រធានអង្គភាពសវនកម្មផ្ទៃក្នុង
                         </center>
                         <p
                             style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align:justify; white-space: nowrap;">
@@ -468,7 +475,7 @@ function convertToKhmerNumerals($number)
                         </p>
                         <p
                             style="font-family: khmer mef1; font-size: 16px; line-height: 30px; text-align:justify; text-indent: 50px;">
-                            តបតាមកម្មវត្ថុខាងលើ ខ្ញុំសូមគោរពជម្រាបជូន ឯកឯត្តមប្រធានអង្គភាព
+                            តបតាមកម្មវត្ថុខាងលើ ខ្ញុំសូមគោរពជម្រាបជូន ឯកឧត្តមប្រធានអង្គភាព
                             មេត្តាជ្រាបដ៏ខ្ពង់ខ្ពស់ថា៖ខ្ញុំបាទ/ នាងខ្ញុំឈ្មោះ <?= $request['khmer_name'] ?> កើតថ្ងៃទី
                             <?= translateDateToKhmer($request['dob'], 'd') ?> ខែ
                             <?= translateDateToKhmer($request['dob'], 'F') ?> ឆ្នាំ
@@ -483,15 +490,17 @@ function convertToKhmerNumerals($number)
                             <?= translateDateToKhmer($request['end_date'], 'F') ?> ឆ្នាំ
                             <?= translateDateToKhmer($request['end_date'], 'Y') ?>
                             ដូចមូលហេតុ និងកាលបរិច្ឆេទក្នុងកម្មវត្ថុខាងលើ។ក្នុងរយៈពេលអវត្តមាននេះ ខ្ញុំសូមប្រគល់សិទ្ធជូន
-                            <?= $request['deputy_head_name'] ?> មុខងារបច្ចុប្បន្ន <?= $request['positionName'] ?>
-                            នៃ <?= $request['departmentName'] ?> ដើម្បីបំពេញភារៈកិច្ចជំនួសជាប្រធានការិយាល័យស្តីទី។
+                            <?php foreach ($depoffice['ids'] as $index => $id): ?>
+                                <?= htmlspecialchars($depoffice['lastNameKh'][$index], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($depoffice['firstNameKh'][$index], ENT_QUOTES, 'UTF-8') ?>
+                                មុខងារបច្ចុប្បន្ន <?= $depoffice['roleName'][$index] ?> នៃ <?= $depoffice['departmentName'][$index] ?> ដើម្បីបំពេញភារៈកិច្ចជំនួសជាប្រធានការិយាល័យស្តីទី។
+                            <?php endforeach; ?>
                         </p>
                         <p style="font-family: khmer mef1; font-size:16px; text-align:justify; text-indent: 50px;">
-                            សេចក្តីដូចបានជម្រាបជូនខាងលើ សូម ឯកឯត្តមប្រធានអង្គភាព មេត្តាពិនិត្យ
+                            សេចក្តីដូចបានជម្រាបជូនខាងលើ សូម ឯកឧត្តមប្រធានអង្គភាព មេត្តាពិនិត្យ
                             និងសម្រេចអនុញ្ញាតច្បាប់ដោយក្តីអនុគ្រោះ។
                         </p>
                         <p style="font-family: khmer mef1; font-size:16px; text-align:justify; text-indent: 50px;">
-                            សូម <b>ឯកឯត្តមប្រធានអង្គភាព </b> មេត្តាទទួលនូវការគោរពដ៏ខ្ពង់ខ្ពស់អំពីខ្ញុំ ។
+                            សូម <b>ឯកឧត្តមប្រធានអង្គភាព </b> មេត្តាទទួលនូវការគោរពដ៏ខ្ពង់ខ្ពស់អំពីខ្ញុំ ។
                         </p>
                         <div class="row">
                             <!-- Department Office Approvals -->

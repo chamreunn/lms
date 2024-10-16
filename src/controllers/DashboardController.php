@@ -74,8 +74,8 @@ class DashboardController
                     $leavetype = $leavetypes->getLeaveTypeById($_SESSION['user_id']);
                     $leavetypes = $leavetypes->getAllLeavetypes();
                     $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
-                    $userAttendances = $userModel->getUserAttendanceByIdApi($_SESSION['user_id'],$_SESSION['token']);
-                   
+                    $userAttendances = $userModel->getUserAttendanceByIdApi($_SESSION['user_id'], $_SESSION['token']);
+
                     require 'src/views/dashboard/users/dashboard.php';
                     break;
                 case 'Deputy Head Of Office':
@@ -102,6 +102,7 @@ class DashboardController
                     $countRequestModel = new LeaveRequest();
                     $notification = new Notification();
                     $leavetypeModel = new Leavetype();
+                    $userModel = new User();
                     $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
                     $leaves = $countRequestModel->getTodayLeaveById($_SESSION['user_id']);
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
@@ -148,7 +149,6 @@ class DashboardController
                     $leavetypeModel = new Leavetype();
                     $leaves = $countRequestModel->getTodayLeaveById($_SESSION['user_id']);
                     $getUserApprove = $leaveRequestModel->leaveUserApproved($_SESSION['token']);
-                    $getuserapproves = $leaveRequestModel->getUserApproveByTeam($_SESSION['user_id']);
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
                     $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
