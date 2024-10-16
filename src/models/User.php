@@ -352,45 +352,56 @@ class User
         ];
     }
 
-    public function updateUserProfileApi($userId, $uploadFile, $token)
+    public function updateUserProfileApi($userId, $filePath, $token)
     {
         $apiUrl = "{$this->api}/api/v1/users/$userId";
 
-        $data = [
-            'img' => $uploadFile,
-        ];
-
-        $jsonData = json_encode($data);
-
+        // Prepare the cURL request with the file
         $ch = curl_init($apiUrl);
 
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST"); // Ensure this is correct
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $token, // Using the token from the session
-        ]);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+        // Use CURLFile to handle file uploads with multipart/form-data
+        $data = [
+            'img' => new CURLFile($filePath) // This sends the actual file
+        ];
 
-        // Ignore SSL certificate verification (use only for debugging)
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true); // POST request to send the file
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $token, // Pass the token for authentication
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data); // cURL will set the correct multipart/form-data boundary
+
+        // Debugging options (enable these only during debugging)
+        // curl_setopt($ch, CURLOPT_VERBOSE, true);
+
+        // Ignore SSL certificate verification (for testing purposes only)
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
+        // Execute the request
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         if (curl_errno($ch)) {
             $error = curl_error($ch);
             curl_close($ch);
-            return ['success' => false, 'error' => $error, 'http_code' => $httpCode, 'response' => $response];
+            // Log the error
+            error_log("cURL error: $error");
+            return ['success' => false, 'error' => $error, 'http_code' => $httpCode];
         }
 
         curl_close($ch);
 
+        // Decode the response from the API
+        $decodedResponse = json_decode($response, true);
+
+        // Log raw API response for debugging
+        error_log("Raw API Response: " . $response);
+
         return [
-            'success' => $httpCode === 200, // Adjust based on API documentation
+            'success' => $httpCode === 200, // Adjust this condition as per your API
             'http_code' => $httpCode,
-            'response' => $response
+            'response' => $decodedResponse
         ];
     }
 

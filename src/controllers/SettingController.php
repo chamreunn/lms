@@ -128,6 +128,7 @@ class SettingController
         require 'src/views/settings/activity.php';
     }
 
+    // In your controller or wherever the file upload happens
     public function updateProfilePicture()
     {
         if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == UPLOAD_ERR_OK) {
@@ -136,29 +137,43 @@ class SettingController
 
             // Handle file upload
             $file = $_FILES['profile_picture'];
+            $fileTmpPath = $file['tmp_name'];
             $fileName = basename($file['name']);
-            $uploadDir = 'public/uploads/profiles/';
-            $uploadFile = $uploadDir . $fileName;
 
-            if (move_uploaded_file($file['tmp_name'], $uploadFile)) {
-                // Update profile picture path in database
-                $userModel->updateUserProfileApi($userId, $uploadFile, $_SESSION['token']);
-                $_SESSION['success'] = [
-                    'title' => "ជោគជ័យ",
-                    'message' => "កែប្រែរូបភាពបានជោគជ័យ។"
-                ];
+            // Define the target directory to store the uploaded file
+            $uploadDir = 'public/uploads/profiles/'; // Adjust the path as per your setup
+            $uploadFilePath = $uploadDir . $fileName;
+
+            // Move uploaded file to the desired directory
+            if (move_uploaded_file($fileTmpPath, $uploadFilePath)) {
+                // Send the file itself to the API, not just the path
+                $apiResponse = $userModel->updateUserProfileApi($userId, $uploadFilePath, $_SESSION['token']);
+
+                if ($apiResponse['success']) {
+                    $_SESSION['success'] = [
+                        'title' => "Success",
+                        'message' => "Profile picture updated successfully."
+                    ];
+                } else {
+                    error_log("API response: " . print_r($apiResponse, true));
+                    $_SESSION['error'] = [
+                        'title' => "Failed",
+                        'message' => "Failed to update profile picture in the API: " . $apiResponse['response']['message'] ?? $apiResponse['error']
+                    ];
+                }
             } else {
                 $_SESSION['error'] = [
-                    'title' => "បរាជ័យ",
-                    'message' => "មិនអាចបញ្ចូលរូបភាពបានទេ"
+                    'title' => "Failed",
+                    'message' => "Failed to move the uploaded file to the server."
                 ];
             }
         } else {
             $_SESSION['error'] = [
-                'title' => "បរាជ័យ",
-                'message' => "មិនអាចបញ្ចូលរូបភាពបានទេ"
+                'title' => "Failed",
+                'message' => "No file was uploaded or there was an error uploading the file."
             ];
         }
+
         sleep(1);
         header('Location: /elms/edit_user_detail?user_id=' . $userId);
         exit();
