@@ -31,7 +31,7 @@ class AuthController
                     if ($user['active'] === '0') {
                         $_SESSION['user_id'] = $user['id'];
                         $_SESSION['blocked_user'] = true;
-                        $_SESSION['user_khmer_name'] = $user['khmer_name'];
+                        $_SESSION['user_khmer_name'] = $user['lastNameKh'] . ' ' . $user['firstNameKh'];
                         $_SESSION['user_profile'] = 'https://hrms.iauoffsa.us/images/' . $user['image'];
                         
                         // Redirect to the block page instead of using require
