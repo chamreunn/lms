@@ -29,12 +29,16 @@ class AuthController
                     $token = $authResult['token'];
 
                     if ($user['active'] === '0') {
+                        $_SESSION['user_id'] = $user['id'];
                         $_SESSION['blocked_user'] = true;
                         $_SESSION['user_khmer_name'] = $user['khmer_name'];
-                        $_SESSION['user_profile'] = $user['profile_picture'];
-                        require 'src/views/errors/block_page.php';
-                        exit;
-                    } else {
+                        $_SESSION['user_profile'] = 'https://hrms.iauoffsa.us/images/' . $user['image'];
+                        
+                        // Redirect to the block page instead of using require
+                        header('Location: /elms/block_page');
+                        exit(); // Ensure no further code is executed after redirect
+                    }
+                     else {
                         // Store user data and token in session
                         $_SESSION['user_id'] = $user['id'];
                         $_SESSION['email'] = $user['email'];

@@ -1223,6 +1223,11 @@ switch ($uri) {
             $holdController->index();
         });
         break;
+    case $base_url . '/block_page':
+        // Redirect to 404 page for non-existent routes
+        header("HTTP/1.0 404 Not Found");
+        require 'src/views/errors/block_page.php';
+        break;
     default:
         // Redirect to 404 page for non-existent routes
         header("HTTP/1.0 404 Not Found");

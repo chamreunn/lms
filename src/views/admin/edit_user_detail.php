@@ -169,7 +169,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 </div>
 
 <!-- Modal to change profile picture -->
-<div class="modal fade" id="editModel" tabindex="-1" aria-hidden="true">
+<div class="modal modal-blur fade" id="editModel" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -186,7 +186,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">បោះបង់</button>
+                <button type="button" class="btn btn" data-bs-dismiss="modal">បោះបង់</button>
             </div>
         </div>
     </div>
