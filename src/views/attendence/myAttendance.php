@@ -284,7 +284,6 @@ include('src/common/header.php');
         <table class="table table-responsive table-hover mb-0">
             <thead>
                 <tr>
-                    <th>ល.រ</th>
                     <th>កាលបរិច្ឆេទ</th>
                     <th>ច្បាប់ឈប់សម្រាក</th>
                     <th class="d-none d-md-table-cell">បេសកម្ម</th>
@@ -300,7 +299,6 @@ include('src/common/header.php');
                 <?php if (!empty($userAttendances['data'])): ?>
                     <?php foreach ($userAttendances['data'] as $key => $attendance): ?>
                         <tr>
-                            <td><?= $key + 1 ?></td>
                             <td><?= $attendance['date'] ?></td>
                             <td><?= $attendance['leave'] ?></td>
                             <td class="d-none d-md-table-cell"><?= $attendance['mission'] ?></td>
@@ -324,44 +322,71 @@ include('src/common/header.php');
                 <?php endif; ?>
             </tbody>
         </table>
-    </div>
-    <div class="card-footer">
-        <ul class="pagination justify-content-end">
-            <!-- Previous Page -->
-            <?php if ($page > 1): ?>
-                <li class="page-item">
-                    <a class="page-link" href="?page=<?= $page - 1 ?>&limit=<?= $limit ?>">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="icon">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M15 6l-6 6l6 6"></path>
-                        </svg>
-                    </a>
-                </li>
-            <?php endif; ?>
+        <div class="card-footer">
+            <ul class="pagination justify-content-end mb-0">
+                <!-- Previous Page -->
+                <?php if ($page > 1): ?>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<?= $page - 1 ?>&limit=<?= $limit ?>">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="icon">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M15 6l-6 6l6 6"></path>
+                            </svg>
+                        </a>
+                    </li>
+                <?php endif; ?>
 
-            <!-- Page Numbers -->
-            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
-                    <a class="page-link" href="?page=<?= $i ?>&limit=<?= $limit ?>"><?= $i ?></a>
-                </li>
-            <?php endfor; ?>
+                <!-- First Page -->
+                <?php if ($page > 3): ?>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1&limit=<?= $limit ?>">1</a>
+                    </li>
+                    <?php if ($page > 4): ?>
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    <?php endif; ?>
+                <?php endif; ?>
 
-            <!-- Next Page -->
-            <?php if ($page < $totalPages): ?>
-                <li class="page-item">
-                    <a class="page-link" href="?page=<?= $page + 1 ?>&limit=<?= $limit ?>">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="icon">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M9 6l6 6l-6 6"></path>
-                        </svg>
-                    </a>
-                </li>
-            <?php endif; ?>
-        </ul>
+                <!-- Page Numbers -->
+                <?php
+                $start = max(1, $page - 2);
+                $end = min($totalPages, $page + 2);
+                for ($i = $start; $i <= $end; $i++): ?>
+                    <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
+                        <a class="page-link" href="?page=<?= $i ?>&limit=<?= $limit ?>"><?= $i ?></a>
+                    </li>
+                <?php endfor; ?>
+
+                <!-- Last Page -->
+                <?php if ($page < $totalPages - 2): ?>
+                    <?php if ($page < $totalPages - 3): ?>
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    <?php endif; ?>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<?= $totalPages ?>&limit=<?= $limit ?>"><?= $totalPages ?></a>
+                    </li>
+                <?php endif; ?>
+
+                <!-- Next Page -->
+                <?php if ($page < $totalPages): ?>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<?= $page + 1 ?>&limit=<?= $limit ?>">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="icon">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M9 6l6 6l-6 6"></path>
+                            </svg>
+                        </a>
+                    </li>
+                <?php endif; ?>
+            </ul>
+        </div>
     </div>
 </div>
 <?php include('src/common/footer.php'); ?>

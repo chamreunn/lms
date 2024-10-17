@@ -1269,9 +1269,36 @@ class AdminController
 
     public function displayAllAttendances()
     {
-        $userModel = new User();
+
+         // Get the current page and limit from the request, default to 1 and 10 respectively
+         $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+         $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 10;
+ 
+         // Fetch all user attendance data from the model
+         $userModel = new User();
+         $userAttendances = $userModel->getAllUserAttendance($_SESSION['token'],  $page, $limit);
+ 
+         // Check if the API response is valid
+         if (isset($userAttendances['data']['data'])) {
+             // Get total records for pagination
+             $totalRecords = count($userAttendances['data']['data']); // Total records from API response
+ 
+             // Calculate total pages
+             $totalPages = ceil($totalRecords / $limit);
+ 
+             // Calculate the offset for the current page
+             $offset = ($page - 1) * $limit;
+ 
+             // Slice the data for the current page
+             $pagedData = array_slice($userAttendances['data']['data'], $offset, $limit);
+ 
+             // Assign paged data back to the variable
+             $userAttendances['data']['data'] = $pagedData;
+         } else {
+             $userAttendances['data']['data'] = []; // Fallback if no data is present
+         }
+
         $adminModel = new AdminModel();
-        $userAttendances = $userModel->getAllUserAttendance($_SESSION['token']);
 
         // get leaves approved 
         $getLeavesApproved = $adminModel->getApprovedLeaveCount();

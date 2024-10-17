@@ -1713,9 +1713,12 @@ class User
     }
 
 
-    public function getAllUserAttendance($token)
+    public function getAllUserAttendance($token, $page, $limit)
     {
-        $url = "{$this->api}/api/v1/attendances";
+        // Calculate the offset based on page and limit
+        $offset = ($page - 1) * $limit;
+
+        $url = "{$this->api}/api/v1/attendances?page={$page}&limit={$limit}";
 
         // Initialize cURL session
         $ch = curl_init($url);
