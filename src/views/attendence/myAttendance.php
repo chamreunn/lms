@@ -214,7 +214,7 @@ include('src/common/header.php');
 </div>
 
 <div class="container-xl">
-    <div class="card">
+    <div class="card mb-3">
         <!-- Form for filtering attendance -->
         <div class="card-header">
             <form action="/elms/my-attendances" class="row w-100" method="GET">
@@ -324,6 +324,44 @@ include('src/common/header.php');
                 <?php endif; ?>
             </tbody>
         </table>
+    </div>
+    <div class="card-footer">
+        <ul class="pagination justify-content-end">
+            <!-- Previous Page -->
+            <?php if ($page > 1): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $page - 1 ?>&limit=<?= $limit ?>">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="icon">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M15 6l-6 6l6 6"></path>
+                        </svg>
+                    </a>
+                </li>
+            <?php endif; ?>
+
+            <!-- Page Numbers -->
+            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
+                    <a class="page-link" href="?page=<?= $i ?>&limit=<?= $limit ?>"><?= $i ?></a>
+                </li>
+            <?php endfor; ?>
+
+            <!-- Next Page -->
+            <?php if ($page < $totalPages): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?= $page + 1 ?>&limit=<?= $limit ?>">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="icon">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M9 6l6 6l-6 6"></path>
+                        </svg>
+                    </a>
+                </li>
+            <?php endif; ?>
+        </ul>
     </div>
 </div>
 <?php include('src/common/footer.php'); ?>

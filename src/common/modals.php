@@ -1206,7 +1206,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-check cursor-pointer">
-                            <input class="form-check-input" type="checkbox" name="agree" <?= isset($_POST['agree']) ? 'checked' : ''; ?>>
+                            <input class="form-check-input" type="checkbox" name="agree" <?= isset($_POST['agree']) ? 'checked' : ''; ?> required>
                             <span class="form-check-label">យល់ព្រមលើការបញ្ចូល
                                 <span class="text-danger fw-bold mx-1">*</span>
                             </span>

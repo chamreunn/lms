@@ -174,8 +174,7 @@ class SettingController
             ];
         }
 
-        sleep(1);
-        header('Location: /elms/edit_user_detail?user_id=' . $userId);
+        header('Location: /elms/edit_user_detail?user_id=' . $_SESSION['user_id']);
         exit();
     }
 }

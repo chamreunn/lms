@@ -1667,9 +1667,13 @@ class User
         return !empty($result);
     }
 
-    public function getUserAttendanceByIdApi($id, $token)
+    public function getUserAttendanceByIdApi($id, $token, $page = 1, $limit = 10)
     {
-        $url = "{$this->api}/api/v1/attendances/user/" . $id;
+        // Calculate the offset based on page and limit
+        $offset = ($page - 1) * $limit;
+
+        // Construct the API URL with pagination query parameters
+        $url = "{$this->api}/api/v1/attendances/user/{$id}?page={$page}&limit={$limit}";
 
         // Initialize cURL session
         $ch = curl_init($url);
@@ -1679,17 +1683,17 @@ class User
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             'Authorization: Bearer ' . $token
         ));
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-        // Execute cURL request
+        // Execute the cURL request
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
 
-        // Close the cURL session
+        // Close cURL session
         curl_close($ch);
 
-        // Check for cURL errors
+        // Check for errors
         if ($response === false) {
             error_log("CURL Error: $error");
             return [
@@ -1698,33 +1702,16 @@ class User
             ];
         }
 
-        // Decode the JSON response
+        // Decode JSON response
         $responseData = json_decode($response, true);
 
-        // Handle JSON decoding errors
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log("JSON Decode Error: " . json_last_error_msg());
-            return [
-                'http_code' => $httpCode,
-                'error' => "JSON Decode Error: " . json_last_error_msg()
-            ];
-        }
-
-        // Check if the response is successful and contains the expected data
-        if ($httpCode === 200 && isset($responseData['data'])) {
-            return [
-                'http_code' => $httpCode,
-                'data' => $responseData['data']
-            ];
-        } else {
-            error_log("Unexpected API Response: " . print_r($responseData, true));
-            return [
-                'http_code' => $httpCode,
-                'error' => "Unexpected API Response",
-                'response' => $responseData
-            ];
-        }
+        // Return the paginated data
+        return [
+            'http_code' => $httpCode,
+            'data' => $responseData['data']
+        ];
     }
+
 
     public function getAllUserAttendance($token)
     {
