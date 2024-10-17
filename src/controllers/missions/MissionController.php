@@ -29,17 +29,29 @@ class MissionController
             $end_date = $_POST['end_date'];
             $activity = "បង្កើតសំណើបេសកកម្ម";
             $mission = "1" ?? "NULL";
-
-            // Handle file upload
-            $attachment_name = $this->handleFileUpload($_FILES['missionDoc'], ['pdf'], 20971520, 'public/uploads/missions_attachments/');
-
-
-            // Generate the URL for the uploaded file
-            $attachment_url = 'https://leave.iauoffsa.us/elms/public/uploads/missions_attachments/' . $attachment_name;
+            $attachment_name = null; // Initialize attachment name to avoid errors later
+            $attachment_url = null;
 
             try {
                 // Start transaction
                 $this->pdo->beginTransaction();
+
+                // Handle file upload (if any)
+                if (isset($_FILES['missionDoc']) && $_FILES['missionDoc']['error'] == UPLOAD_ERR_OK) {
+                    $file = $_FILES['missionDoc'];
+                    $uploadDir = 'public/uploads/missions_attachments/'; // File upload directory
+                    $attachment_name = $this->handleFileUpload($file, ['pdf'], 20971520, $uploadDir);
+
+                    if ($attachment_name) {
+                        // Generate the URL for the uploaded file
+                        $attachment_url = 'https://leave.iauoffsa.us/elms/public/uploads/missions_attachments/' . $attachment_name;
+                        error_log("File uploaded successfully. Filename: $attachment_name");
+                    } else {
+                        throw new Exception("Failed to upload or move the file.");
+                    }
+                }
+
+                // Calculate mission duration
                 $datetime_start = new DateTime($start_date);
                 $datetime_end = new DateTime($end_date);
                 $duration_days = $this->calculateTotalDays($datetime_start, $datetime_end);
@@ -55,6 +67,8 @@ class MissionController
                 if ($createMissionResult && $createActivityResult) {
                     // Commit transaction
                     $this->pdo->commit();
+
+                    // Update mission in the API
                     $userModel->updateMissionToApi($user_id, $start_date, $end_date, $mission, $_SESSION['token']);
 
                     // Handle Telegram notification
@@ -78,7 +92,6 @@ class MissionController
                         $telegramModel = new TelegramModel($this->pdo);
                         $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage);
 
-                        // Check the result of the Telegram notification
                         if ($success) {
                             error_log("Telegram notification sent successfully.");
                         } else {
@@ -86,6 +99,7 @@ class MissionController
                         }
                     }
 
+                    // Success message
                     $_SESSION['success'] = [
                         'title' => "ជោគជ័យ",
                         'message' => "បង្កើតបេសកកម្មបានជោគជ័យ។"
@@ -98,91 +112,92 @@ class MissionController
             } catch (Exception $e) {
                 // Rollback on error
                 $this->pdo->rollBack();
+                error_log("Error during mission creation: " . $e->getMessage());
                 $_SESSION['error'] = [
                     'title' => "កំហុស",
                     'message' => "មានបញ្ហាក្នុងការបង្កើតសំណើបេសកកម្ម: " . $e->getMessage()
                 ];
             }
 
+            // Redirect to the missions admin page
             header("Location: /elms/adminmissions");
             exit();
         }
     }
 
     private function handleFileUpload($file, $allowed_extensions, $max_size, $upload_path)
-{
-    $file_name = $file['name'];
-    $file_tmp_name = $file['tmp_name'];
-    $file_error = $file['error'];
-    $file_size = $file['size'];
+    {
+        $file_name = basename($file['name']);
+        $file_tmp_name = $file['tmp_name'];
+        $file_error = $file['error'];
+        $file_size = $file['size'];
 
-    // Log initial file upload info
-    error_log("File Upload Info: Name: $file_name, Size: $file_size, Error: $file_error");
+        // Log initial file upload info
+        error_log("File Upload Info: Name: $file_name, Size: $file_size, Error: $file_error");
 
-    if ($file_error === UPLOAD_ERR_NO_FILE) {
-        error_log("No file was uploaded.");
-        return null; // No file uploaded
+        if ($file_error === UPLOAD_ERR_NO_FILE) {
+            error_log("No file was uploaded.");
+            return null; // No file uploaded
+        }
+
+        if ($file_error !== UPLOAD_ERR_OK) {
+            $_SESSION['error'] = [
+                'title' => "File Error",
+                'message' => "An error occurred during the file upload."
+            ];
+            error_log("Upload Error: " . $file_error);
+            return false;
+        }
+
+        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+        error_log("File Extension: $file_ext");
+
+        // Log allowed extensions
+        error_log("Allowed Extensions: " . implode(", ", $allowed_extensions));
+
+        if (!in_array($file_ext, $allowed_extensions)) {
+            $_SESSION['error'] = [
+                'title' => "File Error",
+                'message' => "Invalid attachment file type."
+            ];
+            error_log("Invalid file type attempted: $file_ext");
+            return false;
+        }
+
+        if ($file_size > $max_size) {
+            $_SESSION['error'] = [
+                'title' => "File Error",
+                'message' => "Attachment file size exceeds the limit."
+            ];
+            error_log("File size exceeds limit: $file_size > $max_size");
+            return false;
+        }
+
+        // Create a unique file name
+        $unique_file_name = uniqid('', true) . '.' . $file_ext;
+        $destination = $upload_path . $unique_file_name;
+
+        error_log("Moving file to: $destination");
+
+        if (!move_uploaded_file($file_tmp_name, $destination)) {
+            $error = error_get_last();
+            $_SESSION['error'] = [
+                'title' => "File Error",
+                'message' => "Failed to move the uploaded file. Error: " . $error['message']
+            ];
+            error_log("Failed to move file. Error: " . $error['message']);
+            return false;
+        }
+
+        error_log("File uploaded successfully: $unique_file_name");
+        return $unique_file_name; // Success
     }
-
-    if ($file_error !== UPLOAD_ERR_OK) {
-        $_SESSION['error'] = [
-            'title' => "File Error",
-            'message' => "An error occurred during the file upload."
-        ];
-        error_log("Upload Error: " . $file_error);
-        return false;
-    }
-
-    $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-    error_log("File Extension: $file_ext");
-
-    // Log allowed extensions
-    error_log("Allowed Extensions: " . implode(", ", $allowed_extensions));
-
-    if (!in_array($file_ext, $allowed_extensions)) {
-        $_SESSION['error'] = [
-            'title' => "File Error",
-            'message' => "Invalid attachment file type."
-        ];
-        error_log("Invalid file type attempted: $file_ext");
-        return false;
-    }
-
-    if ($file_size > $max_size) {
-        $_SESSION['error'] = [
-            'title' => "File Error",
-            'message' => "Attachment file size exceeds the limit."
-        ];
-        error_log("File size exceeds limit: $file_size > $max_size");
-        return false;
-    }
-
-    // Create a unique file name
-    $unique_file_name = uniqid('', true) . '.' . $file_ext;
-    $destination = $upload_path . $unique_file_name;
-
-    error_log("Moving file to: $destination");
-
-    if (!move_uploaded_file($file_tmp_name, $destination)) {
-        $error = error_get_last();
-        $_SESSION['error'] = [
-            'title' => "File Error",
-            'message' => "Failed to move the uploaded file. Error: " . $error['message']
-        ];
-        error_log("Failed to move file. Error: " . $error['message']);
-        return false;
-    }
-
-    error_log("File uploaded successfully: $unique_file_name");
-    return $unique_file_name; // Success
-}
-
 
     public function update($mission_id)
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-            $user_id = $_SESSION['user_id'];
+            $user_id = $_POST['userId'];
             $mission_name = $_POST['mission_name'] ?? "NULL";
             $start_date = $_POST['start_date'];
             $end_date = $_POST['end_date'];

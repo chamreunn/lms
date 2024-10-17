@@ -40,7 +40,6 @@ $action = $_GET['action'] ?? 'latein';
         </div>
     </div>
 </div>
-
 <div class="container-xl">
     <!-- Attendance List -->
     <div class="col-12">
@@ -279,6 +278,8 @@ $action = $_GET['action'] ?? 'latein';
                                                                 <!-- Hidden field to pass the mission ID -->
                                                                 <input type="hidden" name="mission_id"
                                                                     value="<?= $mission['id'] ?>">
+                                                                <input type="hidden" name="userId"
+                                                                    value="<?= $mission['user_id'] ?>">
 
                                                                 <div class="mb-3">
                                                                     <label for="emission_start"
