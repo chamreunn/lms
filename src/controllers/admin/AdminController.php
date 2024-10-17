@@ -1272,7 +1272,7 @@ class AdminController
 
          // Get the current page and limit from the request, default to 1 and 10 respectively
          $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-         $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 10;
+         $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 50;
  
          // Fetch all user attendance data from the model
          $userModel = new User();
