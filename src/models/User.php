@@ -5,13 +5,21 @@ class User
 {
     private $pdo;
 
+    public $api;
+
     public function __construct()
     {
         global $pdo;
         $this->pdo = $pdo;
-    }
 
-    public $api = "http://172.25.26.6:8000";
+        if (isset($_SERVER['SERVER_NAME']) && ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_ADDR'] == '127.0.0.1')) {
+            // Local development environment
+            $this->api = "http://127.0.0.1:8000";
+        } else {
+            // Production environment
+            $this->api = "http://172.25.26.6:8000";
+        }
+    }
 
     private $telegramUser = "telegram_users";
 

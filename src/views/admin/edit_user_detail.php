@@ -1,5 +1,5 @@
 <?php
-$title = "កែប្រែព័ត៌មានគណនី";
+$title = "ព័ត៌មានគណនី";
 include('src/common/header.php');
 function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 {
@@ -173,7 +173,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">ផ្លាស់ប្តូររូបភាព</h5>
+                <h5 class="modal-title text-primary">ផ្លាស់ប្តូររូបភាព</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">

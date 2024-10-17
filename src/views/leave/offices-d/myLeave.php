@@ -95,7 +95,7 @@ ob_start();
                 <div class="btn-list">
                     <div class="d-flex">
                         <a class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
-                            data-bs-target="#apply-leave">
+                            data-bs-target="#do-apply">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round"
@@ -111,7 +111,7 @@ ob_start();
                             <span>បង្កើតសំណើច្បាប់</span>
                         </a>
                         <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal"
-                            data-bs-target="#apply-leave">
+                            data-bs-target="#do-apply">
                             <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
@@ -382,7 +382,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                             <img src="public/img/icons/svgs/empty.svg" alt="No Image">
                             <p>មិនទាន់មានសំណើនៅឡើយ។ សូមបង្កើតដោយចុចប៊ូតុងខាងក្រោម ឬស្តាំដៃខាងលើ</p>
                             <a class="btn btn-primary d-none d-sm-inline-block mb-3" data-bs-toggle="modal"
-                                data-bs-target="#apply-leave">
+                                data-bs-target="#do-apply">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round"
@@ -398,7 +398,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                 <span>បង្កើតសំណើច្បាប់</span>
                             </a>
                             <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon mb-3"
-                                data-bs-toggle="modal" data-bs-target="#apply-leave">
+                                data-bs-toggle="modal" data-bs-target="#do-apply">
                                 <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"

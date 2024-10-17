@@ -95,7 +95,7 @@ ob_start();
                 <div class="btn-list">
                     <div class="d-flex">
                         <a class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
-                            data-bs-target="#apply-leave">
+                            data-bs-target="#dd-apply">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round"
@@ -111,7 +111,7 @@ ob_start();
                             <span>បង្កើតសំណើច្បាប់</span>
                         </a>
                         <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal"
-                            data-bs-target="#apply-leave">
+                            data-bs-target="#dd-apply">
                             <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
@@ -124,120 +124,6 @@ ob_start();
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Apply Leave -->
-<div class="modal modal-blur fade" id="apply-leave" tabindex="-1" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><strong>បង្កើតសំណើ</strong></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="POST" action="/elms/ddep-apply-leave" enctype="multipart/form-data">
-                <div class="modal-body">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label for="leave_type" class="form-label fw-bold">ប្រភេទច្បាប់<span
-                                    class="text-danger mx-1 fw-bold">*</span></label>
-                            <select class="form-select" id="leave_type" name="leave_type_id" required>
-                                <option value="">ជ្រើសរើសប្រភេទច្បាប់</option>
-                                <?php foreach ($leavetypes as $leavetype): ?>
-                                    <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
-                                        data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
-                                        <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
-                                        <?= $leavetype['name'] ?>     <?= $leavetype['document_status'] ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                            <input type="hidden" id="leave_type_name" name="leave_type_name"
-                                value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-lg-6 mb-3">
-                                <label for="start_date" class="form-label fw-bold">កាលបរិច្ឆេទចាប់ពី<span
-                                        class="text-danger mx-1 fw-bold">*</span></label>
-                                <div class="input-icon">
-                                    <span class="input-icon-addon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                            <rect x="4" y="5" width="16" height="16" rx="2"></rect>
-                                            <line x1="16" y1="3" x2="16" y2="7"></line>
-                                            <line x1="8" y1="3" x2="8" y2="7"></line>
-                                            <line x1="4" y1="11" x2="20" y2="11"></line>
-                                            <rect x="8" y="15" width="2" height="2"></rect>
-                                        </svg>
-                                    </span>
-                                    <input type="text" autocomplete="off"
-                                        value="<?= htmlspecialchars($_POST['start_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                        placeholder="កាលបរិច្ឆេទចាប់ពី" class="form-control date-picker"
-                                        id="lstart_date" name="start_date" required>
-                                </div>
-                            </div>
-                            <div class="col-lg-6 mb-3">
-                                <label for="end_date" class="form-label fw-bold">ដល់កាលបរិច្ឆេទ<span
-                                        class="text-danger mx-1 fw-bold">*</span></label>
-                                <div class="input-icon">
-                                    <span class="input-icon-addon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                            <rect x="4" y="5" width="16" height="16" rx="2"></rect>
-                                            <line x1="16" y1="3" x2="16" y2="7"></line>
-                                            <line x1="8" y1="3" x2="8" y2="7"></line>
-                                            <line x1="4" y1="11" x2="20" y2="11"></line>
-                                            <rect x="8" y="15" width="2" height="2"></rect>
-                                        </svg>
-                                    </span>
-                                    <input type="text" autocomplete="off"
-                                        value="<?= htmlspecialchars($_POST['end_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                        placeholder="ដល់កាលបរិច្ឆេទ" class="form-control date-picker" id="lend_date"
-                                        name="end_date" required>
-                                </div>
-                            </div>
-                            <div class="col-lg-12 mb-3">
-                                <label for="reason" class="form-label fw-bold">មូលហេតុ<span
-                                        class="text-danger mx-1 fw-bold">*</span></label>
-                                <div class="input-icon">
-                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" rows="5"
-                                        class="form-control" id="remarks" name="remarks"
-                                        required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
-                                </div>
-                            </div>
-
-                            <div class="col-12 mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="attachment"
-                                        onchange="toggleFileInput(this, 'attachmentFile')">
-                                    <label class="form-check-label cursor-pointer" for="attachment">
-                                        ឯកសារភ្ជាប់
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-12 mb-3" id="attachmentFile" style="display: none;">
-                                <label id="attachmentDisplayName" for="attachment_file"
-                                    class="btn w-100 text-start p-3 bg-light">
-                                    ឯកសារភ្ជាប់
-                                </label>
-                                <input type="file" name="attachment" id="attachment_file" class="form-control" hidden
-                                    onchange="displayFileName('attachment_file', 'attachmentDisplayName')" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn" data-bs-dismiss="modal">បោះបង់</button>
-                    <button type="submit" class="btn btn-primary">
-                        <span>បង្កើតសំណើ</span>
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
@@ -261,6 +147,7 @@ $startIndex = ($currentPage - 1) * $requestsPerPage;
 $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
 
 ?>
+
 <div class="card rounded-3">
     <div class="card-header mb-3">
         <div class="d-flex align-items-center justify-content-between">
@@ -374,7 +261,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                             <img src="public/img/icons/svgs/empty.svg" alt="No Image">
                             <p>មិនទាន់មានសំណើនៅឡើយ។ សូមបង្កើតដោយចុចប៊ូតុងខាងក្រោម ឬស្តាំដៃខាងលើ</p>
                             <a class="btn btn-primary d-none d-sm-inline-block mb-3" data-bs-toggle="modal"
-                                data-bs-target="#apply-leave">
+                                data-bs-target="#dd-apply">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round"
@@ -390,7 +277,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                 <span>បង្កើតសំណើច្បាប់</span>
                             </a>
                             <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon mb-3"
-                                data-bs-toggle="modal" data-bs-target="#apply-leave">
+                                data-bs-toggle="modal" data-bs-target="#dd-apply">
                                 <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
@@ -609,6 +496,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
         </ul>
     </div>
 </div>
+
 <?php include('src/common/footer.php'); ?>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
