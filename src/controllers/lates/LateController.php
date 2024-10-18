@@ -71,7 +71,7 @@ class LateController
             'status' => $_POST['status'] ?? null,
         ];
 
-        $getovertimeout = $filterOvertimeIn->getOvertimeOutByFilters($user_id, $filters);
+        $getovertimeout = $filterOvertimeIn->getOvertimeOutByFilters($user_id, $filters, $_SESSION['token']);
 
         require 'src/views/documentlate/overtimeout.php';
     }

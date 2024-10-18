@@ -143,7 +143,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                 </div>
                             </td>
                             <td>
-                                <div class="badge"><?= $request['leave_type'] ?></div>
+                                <div class="badge <?= $request['color'] ?>"><?= $request['leave_type'] ?></div>
                             </td>
                             <td><?= translateDateToKhmer($request['start_date'], 'D j F, Y') ?></td>
                             <td><?= translateDateToKhmer($request['end_date'], 'D j F, Y') ?></td>

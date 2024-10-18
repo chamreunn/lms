@@ -675,18 +675,36 @@ class DepDepartmentModel
 
     public function gethapproved($approver_id)
     {
-        // Fetch all leave requests from the database
-        $stmt = $this->pdo->prepare('SELECT * FROM leave_requests 
-         WHERE head_office IN (?, ?)
-         AND dhead_department = ?
-         AND position IN (?, ?, ?, ?)
-         AND department = ?
-         AND user_id != ?
-         ');
-        $stmt->execute(['Approved', 'Rejected', 'Approved', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', $_SESSION['departmentName'], $approver_id]);
+        // Fetch leave requests with a join to leave_types
+        $stmt = $this->pdo->prepare('
+        SELECT leave_requests.*, leave_types.color
+        FROM leave_requests
+        LEFT JOIN leave_types ON leave_requests.leave_type_id = leave_types.id
+        WHERE leave_requests.head_office IN (?, ?)
+        AND leave_requests.dhead_department = ?
+        AND leave_requests.position IN (?, ?, ?, ?)
+        AND leave_requests.department = ?
+        AND leave_requests.user_id != ?
+        ORDER BY leave_requests.id DESC
+    ');
+
+        // Execute the query with the necessary parameters
+        $stmt->execute([
+            'Approved',
+            'Rejected',
+            'Approved',
+            'មន្រ្តីលក្ខន្តិកៈ',
+            'ភ្នាក់ងាររដ្ឋបាល',
+            'អនុប្រធានការិយាល័យ',
+            'ប្រធានការិយាល័យ',
+            $_SESSION['departmentName'],
+            $approver_id
+        ]);
+
+        // Fetch the results
         $leaveRequests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Initialize UserModel
+        // Initialize UserModel for fetching user data
         $userModel = new User();
 
         // Fetch user data for each leave request using the API
@@ -727,6 +745,7 @@ class DepDepartmentModel
 
         return $leaveRequests; // Return the modified leave requests
     }
+
 
     public function gethrejected($approver_id)
     {

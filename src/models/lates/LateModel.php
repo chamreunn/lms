@@ -249,19 +249,18 @@ class LateModel
         return $overtimeRecords;
     }
 
-    public function getOvertimeOutByFilters($user_id, $filters)
+    public function getOvertimeOutByFilters($user_id, $filters, $token)
     {
-        // Base SQL query
+        // Base SQL query (no joins to other tables)
         $sql = '
-        SELECT late_in_out.*, users.khmer_name, departments.name AS department_name, users.profile_picture AS profile,
-               offices.name AS office_name, positions.name AS position_name, users.email AS email
+        SELECT late_in_out.*, 
+               late_approvals.acted_by AS approver_id, 
+               late_approvals.action AS approval_status, 
+               late_approvals.created_at AS approval_date
         FROM late_in_out
-        JOIN users ON late_in_out.user_id = users.id
-        LEFT JOIN departments ON users.department_id = departments.id
-        LEFT JOIN offices ON users.office_id = offices.id
-        LEFT JOIN positions ON users.position_id = positions.id
+        LEFT JOIN late_approvals ON late_in_out.id = late_approvals.lateId
         WHERE late_in_out.user_id = ? AND late_in_out.late_out IS NOT NULL
-    ';
+        ';
 
         $params = [$user_id];
 
@@ -282,9 +281,62 @@ class LateModel
         // Prepare and execute the SQL query
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
+        $overtimeRecords = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Fetch all results
-        return $stmt->fetchAll();
+        // Initialize UserModel
+        $userModel = new User();
+
+        // Fetch user data from API
+        $userApiResponse = $userModel->getUserByIdApi($user_id, $token);
+
+        // Check if the API response is successful
+        if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data']) && !empty($userApiResponse['data'])) {
+            $user = $userApiResponse['data'];
+
+            // Loop through each overtime record and add user and approval details from the API response
+            foreach ($overtimeRecords as &$record) {
+                // Add user information from the API response
+                $record['khmer_name'] = $user['firstNameKh'] ?? 'Unknown';
+                $record['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $record['profile'] = $user['image'] ?? 'default-profile.png';
+                $record['office_name'] = $user['office']['name'] ?? 'Unknown';
+                $record['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $record['email'] = $user['email'] ?? 'Unknown';
+
+                // Fetch approver details from API if needed
+                if (isset($record['approver_id'])) {
+                    $approverApiResponse = $userModel->getUserByIdApi($record['approver_id'], $token);
+                    if ($approverApiResponse && $approverApiResponse['http_code'] === 200 && isset($approverApiResponse['data'])) {
+                        $approver = $approverApiResponse['data'];
+                        $record['approver_name'] = $approver['firstNameKh'] ?? 'Unknown';
+                        $record['approver_email'] = $approver['email'] ?? 'Unknown';
+                    } else {
+                        $record['approver_name'] = 'Unknown';
+                        $record['approver_email'] = 'Unknown';
+                    }
+                } else {
+                    $record['approver_name'] = 'Unknown';
+                    $record['approver_email'] = 'Unknown';
+                }
+            }
+        } else {
+            // Handle cases where the API call fails or returns no data
+            foreach ($overtimeRecords as &$record) {
+                $record['khmer_name'] = 'Unknown';
+                $record['department_name'] = 'Unknown';
+                $record['profile'] = 'default-profile.png';
+                $record['office_name'] = 'Unknown';
+                $record['position_name'] = 'Unknown';
+                $record['email'] = 'Unknown';
+                $record['approver_name'] = 'Unknown';
+                $record['approver_email'] = 'Unknown';
+            }
+
+            // Log the API failure case
+            error_log("API call failed for User ID " . $user_id . ". Setting default values.");
+        }
+
+        return $overtimeRecords;
     }
 
     public function getLeaveEarly($user_id, $token)
