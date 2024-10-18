@@ -295,7 +295,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                     បេសកកម្ម
                                 </div>
                                 <div class="text-indigo fw-bolder">
-
+                                    <?= $getMissionCount . "លិខិត" ?? "" ?>
                                 </div>
                             </div>
                         </div>

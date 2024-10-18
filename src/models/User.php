@@ -1712,13 +1712,9 @@ class User
         ];
     }
 
-
-    public function getAllUserAttendance($token, $page, $limit)
+    public function getAllUserAttendance($token)
     {
-        // Calculate the offset based on page and limit
-        $offset = ($page - 1) * $limit;
-
-        $url = "{$this->api}/api/v1/attendances?page={$page}&limit={$limit}";
+        $url = "{$this->api}/api/v1/attendances";
 
         // Initialize cURL session
         $ch = curl_init($url);
@@ -2115,14 +2111,4 @@ class User
             return false; // Return false if notification could not be sent
         }
     }
-
-    private $roleToApiMap = [
-        'Deputy Head Of Office' => 'getEmailLeaderHOApi',
-        'Head Of Office' => 'getEmailLeaderDDApi',
-        'Deputy Head Of Department' => 'getEmailLeaderHDApi',
-        'Deputy Head Of Unit 1' => 'getEmailLeaderHUApi',
-        'Deputy Head Of Unit 2' => 'getEmailLeaderHUApi',
-        'Head Of Department' => 'getEmailLeaderDHU1Api',
-        'NULL' => 'getEmailLeaderDOApi'
-    ];
 }

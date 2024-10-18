@@ -75,7 +75,6 @@ class DashboardController
                     $leavetypes = $leavetypes->getAllLeavetypes();
                     $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
                     $userAttendances = $userModel->getUserAttendanceByIdApi($_SESSION['user_id'], $_SESSION['token']);
-
                     require 'src/views/dashboard/users/dashboard.php';
                     break;
                 case 'Deputy Head Of Office':
@@ -94,6 +93,8 @@ class DashboardController
                     $leavetypes = $leavetypeModel->getAllLeavetypes();
                     $getMissionCount = $getAllMission->missionCount($_SESSION['user_id']);
                     $getMissionToday = $getAllMission->missionsToday($_SESSION['user_id'], $_SESSION['token']);
+                    $missionCount = new MissionModel();
+                    $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
                     require 'src/views/dashboard/offices-d/dashboard.php';
                     break;
                 case 'Head Of Office':
@@ -111,6 +112,8 @@ class DashboardController
                     $getUserApprove = $leaveRequestModel->leaveUserApproved($_SESSION['token']);
                     $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
                     $leavetypes = $leavetypeModel->getAllLeavetypes();
+                    $missionCount = new MissionModel();
+                    $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
                     require 'src/views/dashboard/offices-h/dashboard.php';
                     break;
                 case 'Deputy Head Of Department':
@@ -125,6 +128,8 @@ class DashboardController
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
                     $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
+                    $missionCount = new MissionModel();
+                    $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
                     require 'src/views/dashboard/departments-d/dashboard.php';
                     break;
                 case 'Head Of Department':
@@ -140,6 +145,8 @@ class DashboardController
                     $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
                     $leavetypeModel = new Leavetype();
                     $leavetypes = $leavetypeModel->getAllLeavetypes();
+                    $missionCount = new MissionModel();
+                    $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
                     require 'src/views/dashboard/departments-h/dashboard.php';
                     break;
                 case 'Deputy Head Of Unit 1':
@@ -153,6 +160,8 @@ class DashboardController
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
                     $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
                     $leavetypes = $leavetypeModel->getAllLeavetypes();
+                    $missionCount = new MissionModel();
+                    $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
                     require 'src/views/dashboard/unit1-d/dashboard.php';
                     break;
                 case 'Deputy Head Of Unit 2':
@@ -165,6 +174,8 @@ class DashboardController
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
                     $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
                     $leavetypes = $leavetypeModel->getAllLeavetypes();
+                    $missionCount = new MissionModel();
+                    $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
                     require 'src/views/dashboard/unit2-d/dashboard.php';
                     break;
                 case 'Head Of Unit':
@@ -181,6 +192,8 @@ class DashboardController
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
                     $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
+                    $missionCount = new MissionModel();
+                    $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
                     $leavetypes = $leavetypeModel->getAllLeavetypes();
                     require 'src/views/dashboard/unit-h/dashboard.php';
                     break;

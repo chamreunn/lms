@@ -558,5 +558,4 @@ class LeaveController
         // Load the view with the filtered attendance data
         require 'src/views/attendence/myAttendance.php';
     }
-
 }
