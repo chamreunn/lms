@@ -263,7 +263,10 @@ class DepDepartmentController
                 }
             }
 
-            // Create approval record
+            // Initialize variables
+            $link = "";  // Ensure $link is defined early to avoid "undefined variable" warning
+
+            // Assign POST data to variables
             $Model = new DepDepartmentModel();
             $request_id = $_POST['request_id'];
             $status = $_POST['status'];
@@ -272,7 +275,7 @@ class DepDepartmentController
             $uname = $_POST['uname'];
             $uEmail = $_POST['uemail'];
             $leaveType = $_POST['leaveType'];
-            $user_id = $_POST['user_id']; // ID of the user who applied for leave
+            $user_id = $_POST['user_id'];
             $start_date = $_POST['start_date'];
             $end_date = $_POST['end_date'];
             $duration_days = $_POST['duration'];
@@ -282,7 +285,7 @@ class DepDepartmentController
 
             $leaveRemarks = "ច្បាប់";
             $onLeave = "On Leave";
-            $onMission = "On Mission"; // New variable for mission check  
+            $onMission = "On Mission";  // New variable for mission check  
             $department = $_SESSION['departmentName'];
 
             // Start transaction
@@ -323,11 +326,9 @@ class DepDepartmentController
                     // Fetch backup manager
                     $backupManager = null;
                     if (in_array($department, ["នាយកដ្ឋានកិច្ចការទូទៅ", "នាយកដ្ឋានសវនកម្មទី២"])) {
-                        // Fetch the user's Unit details for backup manager
                         $backupManager = $userModel->getEmailLeaderDHU1Api($user_id, $_SESSION['token']);
 
                         // Update to backup manager's details
-                        $managerEmail = $backupManager['ids'][0];
                         $managerEmail = $backupManager['emails'][0];
                         $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
                         $link = "https://leave.iauoffsa.us/elms/dunit1pending";
@@ -335,7 +336,6 @@ class DepDepartmentController
                         $backupManager = $userModel->getEmailLeaderDHU2Api($user_id, $_SESSION['token']);
 
                         // Update to backup manager's details
-                        $managerEmail = $backupManager['ids'][0];
                         $managerEmail = $backupManager['emails'][0];
                         $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
                         $link = "https://leave.iauoffsa.us/elms/dunit2pending";
@@ -346,16 +346,19 @@ class DepDepartmentController
                     }
                 }
 
-                // Send notifications Telegram
+                // Ensure that $link has a valid URL in all cases
+                if (empty($link)) {
+                    $link = "https://leave.iauoffsa.us/elms/depdepartmentpending";
+                }
+
+                // Send notifications via Telegram and email
                 $userModel->sendTelegramNextManager($managerId, $uname, $start_date, $end_date, $duration_days, $uremarks, $status, $link);
                 $userModel->sendBackToUser($user_id, $uname, $start_date, $end_date, $duration_days, $uremarks, $status);
 
-                // Send email notification
                 if (!$Model->sendEmailNotification($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
                     throw new Exception("Notification email could not be sent. Please try again.");
                 }
 
-                // Send email back to the user
                 if (!$Model->sendEmailBackToUser($uEmail, $_SESSION['user_khmer_name'], $request_id, $status, $updatedAt, $remarks)) {
                     throw new Exception("Notification email to user could not be sent. Please try again.");
                 }
@@ -364,14 +367,14 @@ class DepDepartmentController
                 $notificationModel = new Notification();
                 $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
 
-                // Log the user's activity
+                // Log user activity
                 $activity = "បាន " . $status . " ច្បាប់ឈប់សម្រាក " . $uname;
                 $userModel->logUserActivity($approver_id, $activity, $_SERVER['REMOTE_ADDR']);
 
                 // Commit transaction
                 $this->pdo->commit();
 
-                // Set success message and redirect to the pending page
+                // Set success message and redirect
                 $_SESSION['success'] = [
                     'title' => "សំណើច្បាប់",
                     'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
@@ -379,10 +382,10 @@ class DepDepartmentController
                 header('location: /elms/depdepartmentpending');
                 exit();
             } catch (Exception $e) {
-                // Rollback transaction in case of failure
+                // Rollback transaction
                 $this->pdo->rollBack();
 
-                // Log error and set error message
+                // Log and display error
                 error_log("Error: " . $e->getMessage());
                 $_SESSION['error'] = [
                     'title' => "កំហុស",

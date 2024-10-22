@@ -52,7 +52,7 @@ class LeaveModel
             lt.color
          FROM leave_requests lr
          JOIN leave_types lt ON lr.leave_type_id = lt.id
-         WHERE lr.user_id = ?'
+         WHERE lr.user_id = ? ORDER BY lr.id DESC'
         );
         $stmt->execute([$user_id]);
 
