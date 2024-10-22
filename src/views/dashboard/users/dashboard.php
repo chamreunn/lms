@@ -427,61 +427,64 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     </div>
 </div>
 
+<div hidden>
 
-<div class="hr-text text-primary fs-large">លិខិតផ្សេងៗ</div>
+    <div class="hr-text text-primary fs-large">លិខិតផ្សេងៗ</div>
 
-<h1 class="fw-bolder text-red">Testing</h1>
+    <h1 class="fw-bolder text-red">Testing</h1>
 
-<div class="card">
-    <div class="list-group">
-        <!-- List Item 5 -->
-        <a href="/elms/hold"
-            class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
-            <span>លិខិតព្យួរ</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-right">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M9 6l6 6l-6 6" />
-            </svg>
-        </a>
+    <div class="card">
+        <div class="list-group">
+            <!-- List Item 5 -->
+            <a href="/elms/hold"
+                class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
+                <span>លិខិតព្យួរ</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-right">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M9 6l6 6l-6 6" />
+                </svg>
+            </a>
 
-        <!-- List Item 6 -->
-        <a href="/elms/transferout"
-            class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
-            <span>លិខិតផ្ទេរចេញ</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-right">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M9 6l6 6l-6 6" />
-            </svg>
-        </a>
+            <!-- List Item 6 -->
+            <a href="/elms/transferout"
+                class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
+                <span>លិខិតផ្ទេរចេញ</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-right">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M9 6l6 6l-6 6" />
+                </svg>
+            </a>
 
-        <!-- List Item 7 -->
-        <a href="/elms/resign"
-            class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
-            <span>លិខិតលាឈប់</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-right">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M9 6l6 6l-6 6" />
-            </svg>
-        </a>
+            <!-- List Item 7 -->
+            <a href="/elms/resign"
+                class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
+                <span>លិខិតលាឈប់</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-right">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M9 6l6 6l-6 6" />
+                </svg>
+            </a>
 
-        <!-- List Item 8 -->
-        <a href="" data-bs-toggle="modal" data-bs-target="#apply-leaveearly"
-            class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
-            <span>លិខិតបន្តការងារ</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-right">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M9 6l6 6l-6 6" />
-            </svg>
-        </a>
+            <!-- List Item 8 -->
+            <a href="" data-bs-toggle="modal" data-bs-target="#apply-leaveearly"
+                class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
+                <span>លិខិតបន្តការងារ</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-right">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M9 6l6 6l-6 6" />
+                </svg>
+            </a>
+        </div>
     </div>
+
 </div>
 
 <?php include('src/common/footer.php'); ?>
