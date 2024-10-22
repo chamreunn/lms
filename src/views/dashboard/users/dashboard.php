@@ -339,9 +339,9 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 </div>
 
 
-<div class="row row-card mb-3">
+<div class="row g-3 row-card">
     <!-- Card 1 -->
-    <div class="col-lg-3 mb-3">
+    <div class="col-lg-3">
         <a href="" data-bs-toggle="modal" data-bs-target="#user-apply"
             class="card card-link card-link-pop text-primary p-5 d-flex align-items-center justify-content-center hover-shadow">
             <div class="avatar mb-3 bg-primary-lt">
@@ -367,7 +367,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     </div>
 
     <!-- Card 2 -->
-    <div class="col-lg-3 mb-3">
+    <div class="col-lg-3">
         <a href="" data-bs-toggle="modal" data-bs-target="#apply-late-in"
             class="card card-link card-link-pop text-success p-5 d-flex align-items-center justify-content-center hover-shadow">
             <div class="avatar mb-3 bg-success-lt">
@@ -386,7 +386,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     </div>
 
     <!-- Card 3 -->
-    <div class="col-lg-3 mb-3">
+    <div class="col-lg-3">
         <a href="" data-bs-toggle="modal" data-bs-target="#apply-late-out"
             class="card card-link card-link-pop text-warning p-5 d-flex align-items-center justify-content-center hover-shadow">
             <div class="avatar mb-3 bg-warning-lt">
@@ -408,7 +408,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     </div>
 
     <!-- Card 4 -->
-    <div class="col-lg-3 mb-3">
+    <div class="col-lg-3">
         <a href="" data-bs-toggle="modal" data-bs-target="#apply-leaveearly"
             class="card card-link card-link-pop text-warning p-5 d-flex align-items-center justify-content-center hover-shadow">
             <div class="avatar mb-3 bg-warning-lt">
@@ -423,6 +423,63 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                 </svg>
             </div>
             <strong class="mt-2">សំណើចេញមុន</strong>
+        </a>
+    </div>
+</div>
+
+
+<div class="hr-text text-primary fs-large">លិខិតផ្សេងៗ</div>
+
+<h1 class="fw-bolder text-red">Testing</h1>
+
+<div class="card">
+    <div class="list-group">
+        <!-- List Item 5 -->
+        <a href="/elms/hold"
+            class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
+            <span>លិខិតព្យួរ</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-right">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M9 6l6 6l-6 6" />
+            </svg>
+        </a>
+
+        <!-- List Item 6 -->
+        <a href="/elms/transferout"
+            class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
+            <span>លិខិតផ្ទេរចេញ</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-right">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M9 6l6 6l-6 6" />
+            </svg>
+        </a>
+
+        <!-- List Item 7 -->
+        <a href="/elms/resign"
+            class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
+            <span>លិខិតលាឈប់</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-right">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M9 6l6 6l-6 6" />
+            </svg>
+        </a>
+
+        <!-- List Item 8 -->
+        <a href="" data-bs-toggle="modal" data-bs-target="#apply-leaveearly"
+            class="list-group-item list-group-item-action d-flex align-items-center justify-content-between">
+            <span>លិខិតបន្តការងារ</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-right">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M9 6l6 6l-6 6" />
+            </svg>
         </a>
     </div>
 </div>
@@ -479,4 +536,4 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 
     // Initial update.
     updateDateTime();
-</script>
+</script>c

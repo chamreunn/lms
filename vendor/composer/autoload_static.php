@@ -20,6 +20,10 @@ class ComposerStaticInit2bdc9577c8480b3a07c873c282c09b00
         array (
             'setasign\\Fpdi\\' => 14,
         ),
+        'S' => 
+        array (
+            'Sonata\\GoogleAuthenticator\\' => 27,
+        ),
         'P' => 
         array (
             'Pusher\\' => 7,
@@ -41,6 +45,7 @@ class ComposerStaticInit2bdc9577c8480b3a07c873c282c09b00
             'GuzzleHttp\\Psr7\\' => 16,
             'GuzzleHttp\\Promise\\' => 19,
             'GuzzleHttp\\' => 11,
+            'Google\\Authenticator\\' => 21,
         ),
         'D' => 
         array (
@@ -52,6 +57,10 @@ class ComposerStaticInit2bdc9577c8480b3a07c873c282c09b00
         'setasign\\Fpdi\\' => 
         array (
             0 => __DIR__ . '/..' . '/setasign/fpdi/src',
+        ),
+        'Sonata\\GoogleAuthenticator\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/sonata-project/google-authenticator/src',
         ),
         'Pusher\\' => 
         array (
@@ -105,6 +114,10 @@ class ComposerStaticInit2bdc9577c8480b3a07c873c282c09b00
         'GuzzleHttp\\' => 
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/guzzle/src',
+        ),
+        'Google\\Authenticator\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/sonata-project/google-authenticator/src',
         ),
         'DeepCopy\\' => 
         array (

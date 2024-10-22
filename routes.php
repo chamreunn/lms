@@ -1223,6 +1223,30 @@ switch ($uri) {
             $holdController->index();
         });
         break;
+    case $base_url . '/verify-2fa':
+        checkSessionAndExecute(function () {
+            $settingController = new settingController();
+            $settingController->create2fa();
+        });
+        break;
+    case $base_url . '/disable-2fa':
+        checkSessionAndExecute(function () {
+            $settingController = new settingController();
+            $settingController->disable2fa();
+        });
+        break;
+    case $base_url . '/verifyAuth2Fa':
+        // Redirect to 404 page for non-existent routes
+        checkSessionAndExecute(function () {
+            $settingController = new settingController();
+            $settingController->verifyAuth2Fa();
+        });
+        break;
+    case $base_url . '/v2faCode':
+        // Redirect to 404 page for non-existent routes
+        header("HTTP/1.0 404 Not Found");
+        require 'src/views/errors/2fa.php';
+        break;
     case $base_url . '/block_page':
         // Redirect to 404 page for non-existent routes
         header("HTTP/1.0 404 Not Found");

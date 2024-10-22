@@ -2111,4 +2111,11 @@ class User
             return false; // Return false if notification could not be sent
         }
     }
+
+    public function getUser2FA($userId)
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM user_authenticators WHERE user_id = :user_id");
+        $stmt->execute([':user_id' => $userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }

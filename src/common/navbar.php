@@ -67,8 +67,8 @@ $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']
                         <div class="d-none d-xl-block ps-2">
                             <h3 class="text-primary mb-0"><?= $_SESSION['user_khmer_name'] ?></h3>
                             <span
-                                class="badge <?= htmlspecialchars($_SESSION['position_color'], ENT_QUOTES, 'UTF-8') ?>"
-                                style="margin-top: 4px;"><?= htmlspecialchars($_SESSION['position'], ENT_QUOTES, 'UTF-8') ?></span>
+                                class="badge <?= $_SESSION['position_color'] ?>"
+                                style="margin-top: 4px;"><?= $_SESSION['position']?></span>
                         </div>
                     </div>
                     <div class="dropdown-divider"></div>

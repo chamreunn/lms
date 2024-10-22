@@ -37,7 +37,7 @@ class HoldModel
         return $stmt->execute();
     }
 
-    public function getHoldsByUserId()
+    public function getHoldsByUserId($offset, $limit)
     {
         // Check if the user ID is set in the session
         if (empty($_SESSION['user_id'])) {
@@ -48,19 +48,55 @@ class HoldModel
         $user_id = $_SESSION['user_id'];
 
         // Prepare the SQL query using PDO
-        $sql = "SELECT * FROM $this->tblholds WHERE user_id = :user_id ORDER BY created_at DESC"; // Adjust the order as necessary
+        $sql = "SELECT * FROM $this->tblholds WHERE user_id = :user_id ORDER BY created_at DESC LIMIT :limit OFFSET :offset"; // Adjust the order as necessary
 
         // Prepare the statement
         $stmt = $this->pdo->prepare($sql);
 
         // Bind the parameters to the prepared statement
         $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        // Bind the parameters to prevent SQL injection
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
 
         // Execute the statement
         $stmt->execute();
 
         // Fetch all the results
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getHoldsCountById()
+    {
+        // Check if the user ID is set in the session
+        if (empty($_SESSION['user_id'])) {
+            return 0; // Return 0 if no user ID is in the session
+        }
+
+        // Get user ID from session
+        $user_id = $_SESSION['user_id'];
+
+        // Prepare the query to count the records for this specific user
+        $query = "SELECT COUNT(*) AS total FROM $this->tblholds WHERE user_id = :user_id";
+        $stmt = $this->pdo->prepare($query);
+
+        // Bind the user_id parameter
+        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+
+        // Execute the query
+        $stmt->execute();
+
+        // Fetch and return the total count
+        return $stmt->fetchColumn();
+    }
+
+    public function getHoldCounts()
+    {
+        $query = "SELECT COUNT(*) FROM $this->tblholds ORDER BY id DESC";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetchColumn();
     }
 
     public function getHoldById($userId)

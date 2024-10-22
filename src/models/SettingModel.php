@@ -65,4 +65,37 @@ class SettingModel
 
         return "Just now";
     }
+
+    public function get2faByUserId($userId)
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM user_authenticators WHERE user_id = :user_id");
+        $stmt->execute([':user_id' => $userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function update2fa($userId, $is2faEnabled)
+    {
+        $stmt = $this->pdo->prepare("UPDATE user_authenticators SET is_2fa_enabled = :is_2fa_enabled, updated_at = NOW() WHERE user_id = :user_id");
+        return $stmt->execute([
+            ':is_2fa_enabled' => $is2faEnabled,
+            ':user_id' => $userId
+        ]);
+    }
+
+    public function create2fa($userId, $secret)
+    {
+        $stmt = $this->pdo->prepare("INSERT INTO user_authenticators (user_id, secret_code, is_2fa_enabled, created_at) VALUES (:user_id, :secret_code, 1, NOW())");
+        return $stmt->execute([
+            ':user_id' => $userId,
+            ':secret_code' => $secret
+        ]);
+    }
+
+    public function delete2fa($userId)
+    {
+        $stmt = $this->pdo->prepare("DELETE FROM user_authenticators WHERE user_id = :user_id");
+        return $stmt->execute([
+            ':user_id' => $userId
+        ]);
+    }
 }

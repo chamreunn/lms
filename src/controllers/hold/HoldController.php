@@ -13,8 +13,19 @@ class HoldController
 
     public function index()
     {
+        // Get the current page and set the number of records per page
+        $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $recordsPerPage = 5; // Set the desired number of records per page
+
+        // Calculate the offset for the current page
+        $offset = ($currentPage - 1) * $recordsPerPage;
+
         $holdModel = new HoldModel($this->pdo);
-        $getHolds = $holdModel->getHoldsByUserId();
+        $getHolds = $holdModel->getHoldsByUserId($offset, $recordsPerPage);
+         // Fetch total records for pagination calculation
+        $totalRecords = $holdModel->getHoldsCountById();
+        // Calculate total pages
+        $totalPages = ceil($totalRecords / $recordsPerPage);
         require 'src/views/hold/index.php';
     }
 
@@ -174,7 +185,7 @@ class HoldController
                 // Save the hold request using the HoldModel
                 $holdRequestModel = new HoldModel($this->pdo); // Assuming $this->pdo is your PDO instance
                 $hold_id = $holdRequestModel->createHoldRequest($data);
-
+                $holdRequestModel->insertManagerStatusToHoldsApprovals($hold_id, $managerId, $status, $comment);
                 // If a fallback manager was used, save their status
                 if (!empty($status)) {
                     $holdRequestModel->insertManagerStatusToHoldsApprovals($hold_id, $managerId, $status, $comment);
