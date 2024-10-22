@@ -19,15 +19,8 @@ class AuthController
                 $userModel = new User();
                 $authResult = $userModel->authenticateUser($email, $password);
 
-                // Log the auth result for debugging
-                error_log(print_r($authResult, true));
-
-                if (!$authResult || $authResult['http_code'] !== 200) {
-                    $_SESSION['error'] = [
-                        'title' => "Authentication Error",
-                        'message' => "Invalid email or password"
-                    ];
-                } else {
+                // Check if $authResult is not false or null before accessing its elements
+                if ($authResult && isset($authResult['http_code']) && $authResult['http_code'] === 200) {
                     $user = $authResult['user'];
                     $token = $authResult['token'];
 
@@ -43,9 +36,8 @@ class AuthController
                     } else {
                         // Check if 2FA is enabled
                         $user2FA = $userModel->getUser2FA($user['id']);
-                        error_log(print_r($user2FA, true)); // Log the 2FA result
 
-                        if ($user2FA['is_2fa_enabled'] == '1') {
+                        if ($user2FA && isset($user2FA['is_2fa_enabled']) && $user2FA['is_2fa_enabled'] == '1') {
                             $_SESSION['2fa_attempts'] = $user2FA['is_2fa_enabled'];
                             $_SESSION['temp_secret'] = $user2FA['secret_code'];
                             $_SESSION['user_id'] = $user['id'];
@@ -68,6 +60,7 @@ class AuthController
                             $_SESSION['departmentName'] = $department['data']['departmentNameKh'] ?? 'null';
                             $office = $userModel->getOfficeApi($user['officeId'], $token);
                             $_SESSION['officeName'] = $office['data']['officeNameKh'] ?? 'null';
+
                             header('Location: /elms/v2faCode');
                             exit;
                         }
@@ -103,6 +96,11 @@ class AuthController
                         header('Location: /elms/dashboard');
                         exit;
                     }
+                } else {
+                    $_SESSION['error'] = [
+                        'title' => "Authentication Error",
+                        'message' => "Invalid email or password"
+                    ];
                 }
             } else {
                 $_SESSION['error'] = [
@@ -113,5 +111,4 @@ class AuthController
         }
         require 'src/views/auth/login.php';
     }
-
 }
