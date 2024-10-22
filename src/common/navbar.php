@@ -49,11 +49,12 @@ $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']
             </div>
             <div class="nav-item dropdown">
                 <a href="#" class="nav-link d-flex lh-1 p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
-                    <img src="<?= htmlspecialchars($_SESSION['user_profile'], ENT_QUOTES, 'UTF-8') ?>" class="avatar"
+                    <img src="<?= isset($_SESSION['user_profile']) ? htmlspecialchars($_SESSION['user_profile'], ENT_QUOTES, 'UTF-8') : '/default/path/to/profile/picture.jpg' ?>" class="avatar"
                         alt="User Avatar" style="object-fit: cover;">
                     <div class="d-none d-xl-block ps-2">
                         <h3 class="mb-0 text-primary">
-                            <?= htmlspecialchars($_SESSION['user_khmer_name'], ENT_QUOTES, 'UTF-8') ?></h3>
+                            <?= htmlspecialchars($_SESSION['user_khmer_name'], ENT_QUOTES, 'UTF-8') ?>
+                        </h3>
                         <span
                             class="small text-muted"><?= htmlspecialchars($_SESSION['email'], ENT_QUOTES, 'UTF-8') ?></span>
                     </div>
@@ -62,17 +63,28 @@ $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']
 
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow" style="width: 300px;">
                     <div class="d-flex flex-column align-items-center justify-content-center text-center">
-                        <img src="<?= $_SESSION['user_profile'] ?>" class="avatar avatar-lg mb-3 mt-2 me-0" alt=""
-                            style="object-fit: cover;">
+                        <!-- Profile Picture -->
+                        <img src="<?= isset($_SESSION['user_profile']) ? htmlspecialchars($_SESSION['user_profile'], ENT_QUOTES, 'UTF-8') : '/default/path/to/profile/picture.jpg' ?>"
+                            class="avatar avatar-lg mb-3 mt-2 me-0" alt="Profile Picture" style="object-fit: cover;">
+
+                        <!-- User Name and Position -->
                         <div class="d-none d-xl-block ps-2">
-                            <h3 class="text-primary mb-0"><?= $_SESSION['user_khmer_name'] ?></h3>
+                            <h3 class="text-primary mb-0">
+                                <?= isset($_SESSION['user_khmer_name']) ? htmlspecialchars($_SESSION['user_khmer_name'], ENT_QUOTES, 'UTF-8') : 'User Name' ?>
+                            </h3>
                             <span
-                                class="badge <?= $_SESSION['position_color'] ?>"
-                                style="margin-top: 4px;"><?= $_SESSION['position']?></span>
+                                class="badge <?= isset($_SESSION['position_color']) ? htmlspecialchars($_SESSION['position_color'], ENT_QUOTES, 'UTF-8') : 'badge-default' ?>"
+                                style="margin-top: 4px;">
+                                <?= isset($_SESSION['position']) ? htmlspecialchars($_SESSION['position'], ENT_QUOTES, 'UTF-8') : 'Position' ?>
+                            </span>
                         </div>
                     </div>
+
                     <div class="dropdown-divider"></div>
-                    <a href="/elms/edit_user_detail?user_id=<?= $_SESSION['user_id'] ?>" class="dropdown-item">
+
+                    <!-- Links for Account Management -->
+                    <a href="/elms/edit_user_detail?user_id=<?= htmlspecialchars($_SESSION['user_id'], ENT_QUOTES, 'UTF-8') ?>"
+                        class="dropdown-item">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                             class="icon icon-tabler icons-tabler-outline icon-tabler-user-circle">
@@ -83,7 +95,9 @@ $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']
                         </svg>
                         <span class="mx-1">គណនីរបស់ខ្ញុំ</span>
                     </a>
-                    <a href="/elms/setting_security?user_id=<?= $_SESSION['user_id'] ?>" class="dropdown-item">
+
+                    <a href="/elms/setting_security?user_id=<?= htmlspecialchars($_SESSION['user_id'], ENT_QUOTES, 'UTF-8') ?>"
+                        class="dropdown-item">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                             class="icon icon-tabler icons-tabler-outline icon-tabler-settings">
@@ -94,6 +108,7 @@ $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']
                         </svg>
                         <span class="mx-1">ការកំណត់</span>
                     </a>
+
                     <a href="/elms/logout" class="dropdown-item">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"

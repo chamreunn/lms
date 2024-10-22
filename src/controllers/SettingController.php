@@ -374,30 +374,34 @@ class SettingController
                 $apiResponse = $userModel->updateUserProfileApi($userId, $uploadFilePath, $_SESSION['token']);
 
                 if ($apiResponse['success']) {
+                    // Store the uploaded file path in session
+                    $_SESSION['profile_picture'] = $uploadFilePath;
+
                     $_SESSION['success'] = [
                         'title' => "Success",
-                        'message' => "Profile picture updated successfully."
+                        'message' => "Profile picture updated successfully.",
                     ];
                 } else {
                     error_log("API response: " . print_r($apiResponse, true));
                     $_SESSION['error'] = [
                         'title' => "Failed",
-                        'message' => "Failed to update profile picture in the API: " . $apiResponse['response']['message'] ?? $apiResponse['error']
+                        'message' => "Failed to update profile picture in the API: " . ($apiResponse['response']['message'] ?? $apiResponse['error']),
                     ];
                 }
             } else {
                 $_SESSION['error'] = [
                     'title' => "Failed",
-                    'message' => "Failed to move the uploaded file to the server."
+                    'message' => "Failed to move the uploaded file to the server.",
                 ];
             }
         } else {
             $_SESSION['error'] = [
                 'title' => "Failed",
-                'message' => "No file was uploaded or there was an error uploading the file."
+                'message' => "No file was uploaded or there was an error uploading the file.",
             ];
         }
 
+        // Redirect after process is complete
         header('Location: /elms/edit_user_detail?user_id=' . $_SESSION['user_id']);
         exit();
     }
