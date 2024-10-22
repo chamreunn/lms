@@ -7,6 +7,7 @@ include('src/common/header.php');
 require 'vendor/autoload.php';
 $secret = 'XVQ2UIGO75XRUKJO';
 $link = \Sonata\GoogleAuthenticator\GoogleQrUrl::generate('ស្នើសុំច្បាប់ឌីជីថល', $secret, 'ប្រព័ន្ធ');
+
 function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 {
     // Define Khmer translations for days and months
@@ -286,10 +287,10 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                         <p class="text-green fs-large fw-bold">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                class="icon icon-tabler icons-tabler-outline icon-tabler-circle-check">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                                <path d="M9 12l2 2l4 -4" />
+                                class="icon icon-tabler icon-tabler-circle-check">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
+                                <path d="M9 12l2 2l4 -4"></path>
                             </svg>
                             អ្នកបានភ្ជាប់ជាមួយ 2FA រួចរាល់។
                         </p>
@@ -303,13 +304,13 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                 class="icon icon-tabler icon-tabler-user-scan">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M10 9a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                                <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
-                                <path d="M4 16v2a2 2 0 0 0 2 2h2" />
-                                <path d="M16 4h2a2 2 0 0 1 2 2v2" />
-                                <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
-                                <path d="M8 16a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2" />
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M10 9a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
+                                <path d="M4 8v-2a2 2 0 0 1 2 -2h2"></path>
+                                <path d="M4 16v2a2 2 0 0 0 2 2h2"></path>
+                                <path d="M16 4h2a2 2 0 0 1 2 2v2"></path>
+                                <path d="M16 20h2a2 2 0 0 0 2 -2v-2"></path>
+                                <path d="M8 16a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2"></path>
                             </svg>
                             ភ្ជាប់ការប្រើប្រាស់ជាមួយ 2FA
                         </button>
@@ -339,7 +340,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                     Please click "Confirm" to disable 2FA.
                                 </div>
                             </div>
-                            <form method="post" action="/elms/disable-2fa">
+                            <form method="POST" action="/elms/disable-2fa">
                                 <input type="hidden" name="secretCode"
                                     value="<?= htmlspecialchars($secret, ENT_QUOTES, 'UTF-8'); ?>">
                                 <div class="modal-footer">
@@ -369,11 +370,9 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                     <div class="text-center mb-3 mt-2">
                                         <img src="<?= htmlspecialchars($link, ENT_QUOTES, 'UTF-8'); ?>"
                                             alt="Scan this QR code with Google Authenticator" class="img-fluid" />
-                                        <p class="mt-3">សូមបើកកម្មវិធី <span class="text-red fw-bold"
-                                                style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">Google
-                                                Authenticator</span> ដើម្បីស្កេន <span class="text-red fw-bold"
-                                                style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">QR
-                                                Code</span>
+                                        <p class="mt-3">
+                                            សូមបើកកម្មវិធី <span class="text-red fw-bold">Google Authenticator</span>
+                                            ដើម្បីស្កេន <span class="text-red fw-bold">QR Code</span>
                                         </p>
                                     </div>
                                     <div class="mb-0">
@@ -384,7 +383,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                                 class="form-label fw-bold text-red mb-3">សូមវាយបញ្ចូលលេខកូដ
                                                 ៦ខ្ទង់</label>
                                             <input type="text" placeholder="បញ្ចូលលេខកូដ ៦ខ្ទង់"
-                                                style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif"
                                                 class="form-control text-center fw-bolder" id="2fa-code" name="2fa_code"
                                                 required>
                                         </div>

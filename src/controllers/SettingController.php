@@ -49,8 +49,8 @@ class SettingController
                         // Set the session authenticator to true and show success message
                         $_SESSION['authenticator'] = true;
                         $_SESSION['success'] = [
-                            'title' => '2FA Enabled',
-                            'message' => 'Two-Factor Authentication has been successfully updated.'
+                            'title' => "ចូលប្រព័ន្ធ",
+                            'message' => "ចូលប្រព័ន្ធបានជោគជ័យ។"
                         ];
                     } else {
                         $_SESSION['error'] = [
@@ -65,8 +65,8 @@ class SettingController
                         // Set the session authenticator to true and show success message
                         $_SESSION['authenticator'] = true;
                         $_SESSION['success'] = [
-                            'title' => '2FA Enabled',
-                            'message' => 'Two-Factor Authentication has been successfully enabled.'
+                            'title' => "ចូលប្រព័ន្ធ",
+                            'message' => "ចូលប្រព័ន្ធបានជោគជ័យ។"
                         ];
                     } else {
                         $_SESSION['error'] = [
