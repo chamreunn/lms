@@ -1,10 +1,11 @@
 <?php
-declare(strict_types=1);
+// declare(strict_types=1);
+require 'vendor/autoload.php';
 
 $title = "កែប្រែព័ត៌មានគណនី";
 include('src/common/header.php');
 
-require 'vendor/autoload.php';
+// 2FA 
 $secret = 'XVQ2UIGO75XRUKJO';
 $link = \Sonata\GoogleAuthenticator\GoogleQrUrl::generate('ស្នើសុំច្បាប់ឌីជីថល', $secret, 'ប្រព័ន្ធ');
 
