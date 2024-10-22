@@ -52,6 +52,9 @@ class AuthController
                             $_SESSION['officeId'] = $user['officeId'];
                             $_SESSION['roleId'] = $user['roleId'];
 
+                            $_SESSION['BotUsername'] = "myelmsbot";
+                            $_SESSION['LateInBot'] = "lateinoutbot";
+
                             // Fetch additional details
                             $position = $userModel->getRoleApi($user['roleId'], $token);
                             $_SESSION['position'] = $position['data']['roleNameKh'];
@@ -76,6 +79,9 @@ class AuthController
                         $_SESSION['departmentId'] = $user['departmentId'];
                         $_SESSION['isAdmin'] = $user['isAdmin'];
                         $_SESSION['token'] = $token;
+
+                        $_SESSION['BotUsername'] = "myelmsbot";
+                        $_SESSION['LateInBot'] = "lateinoutbot";
 
                         // Fetch additional details
                         $position = $userModel->getRoleApi($user['roleId'], $token);

@@ -49,7 +49,7 @@ $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']
             </div>
             <div class="nav-item dropdown">
                 <a href="#" class="nav-link d-flex lh-1 p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
-                    <img src="<?= isset($_SESSION['user_profile']) ? htmlspecialchars($_SESSION['user_profile'], ENT_QUOTES, 'UTF-8') : '/default/path/to/profile/picture.jpg' ?>" class="avatar"
+                    <img src="<?= isset($_SESSION['user_profile']) ? htmlspecialchars($_SESSION['user_profile'], ENT_QUOTES, 'UTF-8') : 'public/img/avatars/default_image.svg' ?>" class="avatar"
                         alt="User Avatar" style="object-fit: cover;">
                     <div class="d-none d-xl-block ps-2">
                         <h3 class="mb-0 text-primary">
@@ -64,7 +64,7 @@ $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow" style="width: 300px;">
                     <div class="d-flex flex-column align-items-center justify-content-center text-center">
                         <!-- Profile Picture -->
-                        <img src="<?= isset($_SESSION['user_profile']) ? htmlspecialchars($_SESSION['user_profile'], ENT_QUOTES, 'UTF-8') : '/default/path/to/profile/picture.jpg' ?>"
+                        <img src="<?= isset($_SESSION['user_profile']) ? htmlspecialchars($_SESSION['user_profile'], ENT_QUOTES, 'UTF-8') : 'public/img/avatars/default_image.svg' ?>"
                             class="avatar avatar-lg mb-3 mt-2 me-0" alt="Profile Picture" style="object-fit: cover;">
 
                         <!-- User Name and Position -->

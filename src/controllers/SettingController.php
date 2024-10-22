@@ -211,10 +211,13 @@ class SettingController
 
                 $_SESSION['authenticator'] = true;
 
+                $_SESSION['BotUsername'] = "myelmsbot";
+                $_SESSION['LateInBot'] = "lateinoutbot";
+
                 // Success message
                 $_SESSION['success'] = [
-                    'title' => "2FA Success",
-                    'message' => "You have successfully authenticated."
+                    'title' => "ចូលប្រព័ន្ធ",
+                    'message' => "ចូលប្រព័ន្ធបានជោគជ័យ។"
                 ];
 
                 // Redirect to the dashboard or homepage
