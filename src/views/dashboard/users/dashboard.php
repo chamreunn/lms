@@ -427,7 +427,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     </div>
 </div>
 
-<div>
+<div hidden>
 
     <div class="hr-text text-primary fs-large">លិខិតផ្សេងៗ</div>
 
