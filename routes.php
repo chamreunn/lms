@@ -492,6 +492,30 @@ switch ($uri) {
             $controller->viewCalendar();
         });
         break;
+    case $base_url . '/department-calendar':
+        checkSessionAndExecute(function () {
+            $controller = new CalendarController();
+            $controller->viewCalendar();
+        });
+        break;
+    case $base_url . '/du1-calendar':
+        checkSessionAndExecute(function () {
+            $controller = new DepUnit1Controller();
+            $controller->du1ViewCalendar();
+        });
+        break;
+    case $base_url . '/du2-calendar':
+        checkSessionAndExecute(function () {
+            $controller = new DepUnit2Controller();
+            $controller->du2ViewCalendar();
+        });
+        break;
+    case $base_url . '/headunit-calendar':
+        checkSessionAndExecute(function () {
+            $controller = new HeadUnitController();
+            $controller->headunitViewCalendar();
+        });
+        break;
     case $base_url . '/holidays':
         checkSessionAndExecute(function () {
             $controller = new CalendarController();
@@ -1186,6 +1210,12 @@ switch ($uri) {
             $holdController->create();
         });
         break;
+    case $base_url . '/edit-hold':
+        checkSessionAndExecute(function () {
+            $holdController = new HoldController();
+            $holdController->update();
+        });
+        break;
     case $base_url . '/view&edit-hold':
         checkSessionAndExecute(function () {
             if (isset($_GET['holdId']) && !empty($_GET['holdId'])) {
@@ -1243,20 +1273,25 @@ switch ($uri) {
         });
         break;
     case $base_url . '/v2faCode':
-        // Redirect to 404 page for non-existent routes
-        header("HTTP/1.0 404 Not Found");
         require 'src/views/errors/2fa.php';
         break;
     case $base_url . '/block_page':
-        // Redirect to 404 page for non-existent routes
+        // Redirect to custom blocked page
         header("HTTP/1.0 404 Not Found");
         require 'src/views/errors/block_page.php';
         break;
-    default:
-        // Redirect to 404 page for non-existent routes
+
+    case $base_url . '/404':
+        // Redirect to the 404 page for non-existent routes
         header("HTTP/1.0 404 Not Found");
         require 'src/views/errors/404.php';
-        exit();
+        break;
+
+    default:
+        // Handle any other cases
+        header("HTTP/1.0 404 Not Found");
+        require 'src/views/errors/404.php';
+        die(); // Default fallback to 404
 }
 
 function checkSessionAndExecute($callback)

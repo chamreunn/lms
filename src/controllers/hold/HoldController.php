@@ -13,26 +13,66 @@ class HoldController
 
     public function index()
     {
-        // Get the current page and set the number of records per page
-        $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-        $recordsPerPage = 5; // Set the desired number of records per page
+        // Start the session if it's not already started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();  // Ensure session is available
+        }
 
-        // Calculate the offset for the current page
-        $offset = ($currentPage - 1) * $recordsPerPage;
+        // Check if user session data is set
+        if (isset($_SESSION['user_id']) && isset($_SESSION['token'])) {
+            // Get the current page and set the number of records per page
+            $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+            $recordsPerPage = 5; // Set the desired number of records per page
 
-        $holdModel = new HoldModel($this->pdo);
-        $getHolds = $holdModel->getHoldsByUserId($offset, $recordsPerPage);
-         // Fetch total records for pagination calculation
-        $totalRecords = $holdModel->getHoldsCountById();
-        // Calculate total pages
-        $totalPages = ceil($totalRecords / $recordsPerPage);
-        require 'src/views/hold/index.php';
+            // Calculate the offset for the current page
+            $offset = ($currentPage - 1) * $recordsPerPage;
+
+            // Initialize the HoldModel with the database connection
+            $holdModel = new HoldModel($this->pdo);
+
+            // Fetch the holds for the current user based on the offset and records per page
+            $getHolds = $holdModel->getHoldsByUserId($offset, $recordsPerPage);
+
+            // Initialize the UserModel
+            $userModel = new User();
+
+            // Fetch the department or office leader's email using session user_id and token
+            $approver = $userModel->getEmailLeaderDOApi($_SESSION['user_id'], $_SESSION['token']);
+
+            // Check if the current leader is on leave or on a mission
+            if ($userModel->isManagerOnLeaveToday($approver['ids']) || $userModel->isManagerOnMission($approver['ids'])) {
+                // If on leave or on mission, try to get the higher-level leader
+                $approver = $userModel->getEmailLeaderHOApi($_SESSION['user_id'], $_SESSION['token']);
+
+                // Check if the higher-level leader is also on leave or on mission
+                if ($userModel->isManagerOnLeaveToday($approver['ids']) || $userModel->isManagerOnMission($approver['ids'])) {
+                    // If still on leave or on mission, get the Deputy Director leader
+                    $approver = $userModel->getEmailLeaderDDApi($_SESSION['user_id'], $_SESSION['token']);
+
+                    if ($userModel->isManagerOnLeaveToday($approver['ids']) || $userModel->isManagerOnMission($approver['ids'])) {
+                        // If still on leave or on mission, get the Deputy Director leader
+                        $approver = $userModel->getEmailLeaderHDApi($_SESSION['user_id'], $_SESSION['token']);
+                    }
+                }
+            }
+
+            // Fetch the total number of records to calculate the total pages for pagination
+            $totalRecords = $holdModel->getHoldsCountById();
+            $totalPages = ceil($totalRecords / $recordsPerPage); // Calculate total pages
+
+            // Load the view
+            require 'src/views/hold/index.php';
+        } else {
+            // If the session data is missing, handle the error (e.g., redirect to login page)
+            header('Location: /elms/login');
+            exit();
+        }
     }
 
     public function view($id)
     {
         $holdModel = new HoldModel($this->pdo);
-        $getHoldById = $holdModel->getHoldById($_SESSION['user_id']);
+        $getHoldById = $holdModel->getHoldById($id);
         require 'src/views/hold/view&edit.php';
     }
 
@@ -43,6 +83,7 @@ class HoldController
             session_start();
         }
 
+        // Check if the request method is POST
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $userModel = new User();
@@ -62,8 +103,9 @@ class HoldController
             $start_date = $_POST['start_date'];
             $end_date = $_POST['end_date'];
             $reason = $_POST['reason'];
+            $approver = $_POST['approverId'];
 
-            // Validate date order: start_date should not be greater than end_date
+            // Validate date order
             if (new DateTime($start_date) > new DateTime($end_date)) {
                 $_SESSION['error'] = [
                     'title' => "កំហុសកាលបរិច្ឆេទ",
@@ -75,8 +117,6 @@ class HoldController
 
             $type = 'hold';
             $color = 'bg-primary';
-            $role = $_SESSION['role'];
-            $departments = $_SESSION['departmentName'];
             $title = "លិខិតព្យួរការងារ";
 
             // Calculate duration between start_date and end_date in months and years
@@ -112,61 +152,52 @@ class HoldController
                 exit();
             }
 
-            // Handle file attachment upload (optional field)
-            if (!empty($_FILES['attachment']['name'])) {
-                $attachment_name = $this->handleFileUpload($_FILES['attachment'], ['docx', 'pdf'], 5097152, 'public/uploads/hold-attachments/');
-                if ($attachment_name === false) {
-                    $_SESSION['error'] = [
-                        'title' => "ឯកសារភ្ជាប់",
-                        'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។​ សូមព្យាយាមម្តងទៀត"
-                    ];
-                    header("Location: /elms/hold");
-                    exit();
+            $attachments = [];
+            if (!empty($_FILES['attachment']['name'][0])) {
+                // Loop through each file
+                foreach ($_FILES['attachment']['name'] as $key => $attachmentName) {
+                    if (!empty($attachmentName)) {
+                        // Get the file info
+                        $fileTmpPath = $_FILES['attachment']['tmp_name'][$key];
+                        $fileName = basename($attachmentName);
+                        $fileSize = $_FILES['attachment']['size'][$key];
+                        $fileType = $_FILES['attachment']['type'][$key];
+                        $fileError = $_FILES['attachment']['error'][$key];
+
+                        // Perform validations (file size, type)
+                        $allowedTypes = ['docx', 'pdf'];
+                        $maxFileSize = 5097152; // 5MB
+
+                        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+
+                        if ($fileError === 0 && in_array($fileExtension, $allowedTypes) && $fileSize <= $maxFileSize) {
+                            $destination = 'public/uploads/hold-attachments/' . $fileName;
+
+                            // Move file to the destination
+                            if (move_uploaded_file($fileTmpPath, $destination)) {
+                                $attachments[] = $fileName; // Store uploaded file names
+                            } else {
+                                $_SESSION['error'] = [
+                                    'title' => "ឯកសារភ្ជាប់",
+                                    'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។ សូមព្យាយាមម្តងទៀត។"
+                                ];
+                                 header("Location: /elms/hold");
+                                exit();
+                            }
+                        } else {
+                            $_SESSION['error'] = [
+                                'title' => "ឯកសារភ្ជាប់",
+                                'message' => "ឯកសារមិនត្រឹមត្រូវទេ (ទំហំ ឬ ប្រភេទឯកសារ)។"
+                            ];
+                             header("Location: /elms/hold");
+                            exit();
+                        }
+                    }
                 }
-            } else {
-                $attachment_name = null; // No file uploaded
-            }
+            } 
 
-            // Get manager's ID based on role and department
-            try {
-                $getalllevels = $this->getAllRole($user_id, $role, $departments);
-                $managerId = $getalllevels['managerId'];
-            } catch (Exception $e) {
-                $_SESSION['error'] = [
-                    'title' => "កំហុស",
-                    'message' => $e->getMessage()
-                ];
-                header("Location: /elms/hold");
-                exit();
-            }
-
-            // Check if the manager is on leave or mission
-            $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
-            $isManagerOnMission = $userModel->isManagerOnMission($managerId);
-
-            // Fallback logic: If manager is on leave or mission, try to escalate to the next available manager
-            if ($isManagerOnLeave || $isManagerOnMission) {
-                $fallbackRole = $this->getFallbackRole($role);
-                try {
-                    $fallbackManagerDetails = $this->getAllRole($user_id, $fallbackRole, $departments);
-                    $managerId = $fallbackManagerDetails['managerId'];
-                } catch (Exception $e) {
-                    $_SESSION['error'] = [
-                        'title' => "កំហុស",
-                        'message' => $e->getMessage()
-                    ];
-                    header("Location: /elms/hold");
-                    exit();
-                }
-
-                // Record the manager's leave or mission status
-                $status = $isManagerOnLeave ? 'leave' : 'mission';
-                $comment = $isManagerOnLeave ? 'Manager is on leave today' : 'Manager is on mission today';
-            } else {
-                // If the manager is available, status and comment are empty
-                $status = '';
-                $comment = '';
-            }
+            // Convert the array of attachments to a comma-separated string to store in the database
+            $attachment_names = implode(',', $attachments);
 
             // Prepare data for saving
             $data = [
@@ -174,25 +205,24 @@ class HoldController
                 'start_date' => $start_date,
                 'end_date' => $end_date,
                 'reason' => $reason,
-                'attachment' => $attachment_name,
+                'attachment' => $attachment_names,
                 'duration' => $duration,
                 'type' => $type,
                 'color' => $color,
-                'approver_id' => $managerId
+                'approver_id' => $approver
             ];
 
             try {
                 // Save the hold request using the HoldModel
-                $holdRequestModel = new HoldModel($this->pdo); // Assuming $this->pdo is your PDO instance
+                $userModel = new User();
+                $holdRequestModel = new HoldModel($this->pdo);
                 $hold_id = $holdRequestModel->createHoldRequest($data);
-                $holdRequestModel->insertManagerStatusToHoldsApprovals($hold_id, $managerId, $status, $comment);
-                // If a fallback manager was used, save their status
-                if (!empty($status)) {
-                    $holdRequestModel->insertManagerStatusToHoldsApprovals($hold_id, $managerId, $status, $comment);
-                }
+
+                // Recursive manager delegation
+                $this->delegateManager($holdRequestModel, $userModel, $hold_id, $_SESSION['user_id'], $reason);
 
                 // Send notification after saving the request
-                $userModel->sendDocks($title, $managerId, $start_date, $end_date, $duration, $reason, $holdRequestModel);
+                $userModel->sendDocks($title, $approver, $start_date, $end_date, $duration, $reason, $holdRequestModel);
 
                 $_SESSION['success'] = [
                     'title' => "ជោគជ័យ",
@@ -211,122 +241,238 @@ class HoldController
         }
     }
 
-    public function getAllRole($user_id, $role, $departments)
+    /**
+     * Recursively delegate manager to handle the approval if the current is unavailable.
+     */
+    private function delegateManager($holdRequestModel, $userModel, $hold_id, $user_id, $reason)
     {
-        $userModel = new User();
-        $roleToApiMap = [
-            'Deputy Head Of Office' => 'getEmailLeaderDOApi',
-            'Head Of Office' => 'getEmailLeaderHOApi',
-            'Deputy Head Of Department' => 'getEmailLeaderDDApi',
-            'Deputy Head Of Unit 1' => 'getEmailLeaderHUApi',
-            'Deputy Head Of Unit 2' => 'getEmailLeaderHUApi',
-            'Head Of Department' => 'getEmailLeaderDHU1Api'
-        ];
+        $levels = ['getEmailLeaderDOApi', 'getEmailLeaderHOApi', 'getEmailLeaderDDApi', 'getEmailLeaderHDApi'];
+        $statuses = ['leave' => 'leave', 'mission' => 'mission'];
 
-        $Depoffice = null;
+        foreach ($levels as $apiMethod) {
+            $approver = $userModel->$apiMethod($user_id, $_SESSION['token']);
+            if ($approver && !$userModel->isManagerOnLeaveToday($approver['ids']) && !$userModel->isManagerOnMission($approver['ids'])) {
+                $holdRequestModel->insertManagerStatusToHoldsApprovals($hold_id, $approver['ids'], 'pending');
+                return; // Stop when a valid approver is found
+            }
 
-        // Special handling for 'Head Of Department' role based on department
-        if ($role == 'Head Of Department') {
-            $Depoffice = ($departments == 'នាយកដ្ឋានកិច្ចការទូទៅ' || $departments == 'នាយកដ្ឋានសនវកម្មទី២')
-                ? $userModel->getEmailLeaderDHU1Api($user_id, $_SESSION['token'])
-                : $userModel->getEmailLeaderDHU2Api($user_id, $_SESSION['token']);
-        } elseif (isset($roleToApiMap[$role])) {
-            // Fetch the API method based on the role
-            $apiMethod = $roleToApiMap[$role];
-            $Depoffice = $userModel->{$apiMethod}($user_id, $_SESSION['token']);
-        } else {
-            // If role is 'NULL', escalate to fallback role directly
-            return $this->escalateToFallbackRole($user_id, $role, $departments);
+            // Insert status if the manager is on leave or mission
+            $status = $userModel->isManagerOnLeaveToday($approver['ids']) ? $statuses['leave'] : $statuses['mission'];
+            $holdRequestModel->insertManagerStatusToHoldsApprovals($hold_id, $approver['ids'], $status);
+        }
+    }
+
+    public function update()
+    {
+        // Ensure the session is started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
         }
 
-        // Validate the API response
-        if (!$Depoffice || $Depoffice['http_code'] !== 200 || empty($Depoffice['ids'])) {
-            return $this->escalateToFallbackRole($user_id, $role, $departments);
-        }
+        // Check if the request method is POST
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-        // Loop through the list of potential managers and check availability
-        foreach ($Depoffice['ids'] as $index => $managerId) {
-            $managerEmail = $Depoffice['emails'][$index] ?? null;
-            $managerName = (!empty($Depoffice['lastNameKh'][$index]) && !empty($Depoffice['firstNameKh'][$index]))
-                ? $Depoffice['lastNameKh'][$index] . ' ' . $Depoffice['firstNameKh'][$index]
-                : null;
-
-            $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
-            $isManagerOnMission = $userModel->isManagerOnMission($managerId);
-
-            // Return the manager's details if they are available (not on leave or mission)
-            if (!$isManagerOnLeave && !$isManagerOnMission) {
-                return [
-                    'managerId' => $managerId,
-                    'managerEmail' => $managerEmail,
-                    'managerName' => $managerName,
+            $userModel = new User();
+            $hold_id = $_POST['holdId'];
+            // Validate required fields
+            if (empty($_SESSION['user_id']) || empty($_POST['start_date']) || empty($_POST['end_date']) || empty($_POST['reason'])) {
+                $_SESSION['error'] = [
+                    'title' => "បញ្ចូលទិន្នន័យមិនគ្រប់គ្រាន់",
+                    'message' => "សូមបំពេញព័ត៌មានទាំងអស់។"
                 ];
-            }
-        }
-
-        // If no available manager is found, escalate to the fallback role
-        return $this->escalateToFallbackRole($user_id, $role, $departments);
-    }
-
-    private function escalateToFallbackRole($user_id, $role, $departments)
-    {
-        $fallbackRole = $this->getFallbackRole($role, $departments);
-
-        // Log the fallback role for debugging purposes
-        error_log("Escalating to fallback role: $fallbackRole");
-
-        if ($fallbackRole) {
-            // Recursively call getAllRole with the fallback role
-            return $this->getAllRole($user_id, $fallbackRole, $departments);
-        }
-
-        // Log failure to find a suitable manager
-        error_log("Unable to find a suitable manager for role: $role");
-
-        // If no fallback is available, throw an exception
-        throw new Exception("Unable to find a suitable manager. Please contact support.");
-    }
-
-    private function getFallbackRole($role, $department = null)
-    {
-        $fallbackRoles = [
-            'NULL' => 'Deputy Head Of Office', // For a 'NULL' role, escalate to Deputy Head Of Office
-            'Deputy Head Of Office' => 'Head Of Office',
-            'Head Of Office' => 'Deputy Head Of Department',
-            'Deputy Head Of Department' => 'Head Of Department',
-            'Head Of Department' => $department === 'នាយកដ្ឋានសនវកម្មទី២' ? 'Deputy Head Of Unit 2' : 'Deputy Head Of Unit 1',
-            'Deputy Head Of Unit 1' => 'Head Of Unit',
-            'Deputy Head Of Unit 2' => 'Head Of Unit',
-        ];
-
-        return $fallbackRoles[$role] ?? 'Deputy Head Of Office';
-    }
-
-    private function handleFileUpload($file, $allowedExtensions, $maxSize, $uploadDir)
-    {
-        if (!empty($file['name'])) {
-            $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-
-            if (!in_array($fileExtension, $allowedExtensions)) {
-                return false; // Invalid file extension
+                 header("Location: /elms/hold");
+                exit();
             }
 
-            if ($file['size'] > $maxSize) {
-                return false; // File exceeds size limit
+            // Sanitize and assign input values
+            $user_id = $_SESSION['user_id'];
+            $start_date = $_POST['start_date'];
+            $end_date = $_POST['end_date'];
+            $reason = $_POST['reason'];
+            $approver = $_POST['approverId'];
+
+            // Validate date order
+            if (new DateTime($start_date) > new DateTime($end_date)) {
+                $_SESSION['error'] = [
+                    'title' => "កំហុសកាលបរិច្ឆេទ",
+                    'message' => "កាលបរិច្ឆេទបញ្ចប់គួរត្រូវជាងកាលបរិច្ឆេទចាប់ផ្តើម។"
+                ];
+                 header("Location: /elms/hold");
+                exit();
             }
 
-            $fileName = uniqid() . '.' . $fileExtension;
-            $uploadPath = $uploadDir . $fileName;
+            // Calculate duration between start_date and end_date in months and years
+            $startDate = new DateTime($start_date);
+            $endDate = new DateTime($end_date);
+            $interval = $startDate->diff($endDate);
 
-            if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-                return $fileName;
+            $years = $interval->y;
+            $months = $interval->m;
+            $days = $interval->d;
+
+            // Count a partial month as a full month
+            if ($days > 0) {
+                $months += 1;
+            }
+
+            // Format the duration as X years, Y months
+            $duration = "";
+            if ($years > 0) {
+                $duration .= $years . " ឆ្នាំ ";
+            }
+            if ($months > 0) {
+                $duration .= $months . " ខែ ";
+            }
+
+            // Error handling: check if the duration meets the requirement (at least 6 months)
+            if ($years === 0 && $months < 6) {
+                $_SESSION['error'] = [
+                    'title' => "កំហុសវ័យ",
+                    'message' => "លិខិតព្យួរត្រូវចាប់ពី ៦ខែ ឡើង។"
+                ];
+                 header("Location: /elms/hold");
+                exit();
+            }
+
+            // Handle multiple file attachments
+            $attachments = [];
+            if (!empty($_FILES['attachment']['name'][0])) {
+                // Loop through each file
+                foreach ($_FILES['attachment']['name'] as $key => $attachmentName) {
+                    if (!empty($attachmentName)) {
+                        // Get the file info
+                        $fileTmpPath = $_FILES['attachment']['tmp_name'][$key];
+                        $fileName = basename($attachmentName);
+                        $fileSize = $_FILES['attachment']['size'][$key];
+                        $fileType = $_FILES['attachment']['type'][$key];
+                        $fileError = $_FILES['attachment']['error'][$key];
+
+                        // Perform validations (file size, type)
+                        $allowedTypes = ['docx', 'pdf'];
+                        $maxFileSize = 5097152; // 5MB
+
+                        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+
+                        if ($fileError === 0 && in_array($fileExtension, $allowedTypes) && $fileSize <= $maxFileSize) {
+                            $destination = 'public/uploads/hold-attachments/' . $fileName;
+
+                            // Move file to the destination
+                            if (move_uploaded_file($fileTmpPath, $destination)) {
+                                $attachments[] = $fileName; // Store uploaded file names
+                            } else {
+                                $_SESSION['error'] = [
+                                    'title' => "ឯកសារភ្ជាប់",
+                                    'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។ សូមព្យាយាមម្តងទៀត។"
+                                ];
+                                 header("Location: /elms/hold");
+                                exit();
+                            }
+                        } else {
+                            $_SESSION['error'] = [
+                                'title' => "ឯកសារភ្ជាប់",
+                                'message' => "ឯកសារមិនត្រឹមត្រូវទេ (ទំហំ ឬ ប្រភេទឯកសារ)។"
+                            ];
+                             header("Location: /elms/hold");
+                            exit();
+                        }
+                    }
+                }
             } else {
-                return false; // Failed to upload file
+                // If no new files are uploaded, keep the existing ones
+                $holdRequestModel = new HoldModel($this->pdo);
+                $existingHold = $holdRequestModel->getHoldRequestById($hold_id);
+                $attachments = explode(',', $existingHold['attachment']); // Assuming it's stored as a comma-separated string
+            }
+
+            // Convert the array of attachments to a comma-separated string to store in the database
+            $attachment_names = implode(',', $attachments);
+
+            // Prepare data for updating
+            $data = [
+                'user_id' => $user_id,
+                'start_date' => $start_date,
+                'end_date' => $end_date,
+                'reason' => $reason,
+                'attachment' => $attachment_names, // Store the updated attachments
+                'duration' => $duration,
+                'approver_id' => $approver
+            ];
+
+            try {
+                // Preserve existing attachment if no new file is uploaded
+                $holdRequestModel = new HoldModel($this->pdo);
+                // Update the hold request using the HoldModel
+                $holdRequestModel->updateHoldRequest($hold_id, $data);
+
+                $_SESSION['success'] = [
+                    'title' => "ជោគជ័យ",
+                    'message' => "សំណើរបានកែប្រែដោយជោគជ័យ"
+                ];
+                 header("Location: /elms/hold");
+                exit();
+            } catch (Exception $e) {
+                $_SESSION['error'] = [
+                    'title' => "កំហុស",
+                    'message' => $e->getMessage()
+                ];
+                 header("Location: /elms/hold");
+                exit();
             }
         }
-
-        return null; // No file uploaded
     }
+
+    public function handleFileUpload($file, $allowed_extensions, $max_size, $upload_path)
+    {
+        $file_name = $file['name'];
+        $file_tmp_name = $file['tmp_name'];
+        $file_error = $file['error'];
+        $file_size = $file['size'];
+
+        if ($file_error === UPLOAD_ERR_NO_FILE) {
+            // No file was uploaded
+            return null;
+        }
+
+        if ($file_error !== UPLOAD_ERR_OK) {
+            $_SESSION['error'] = [
+                'title' => "File Error",
+                'message' => "An error occurred during the file upload."
+            ];
+            return false;
+        }
+
+        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+        if (!in_array($file_ext, $allowed_extensions)) {
+            $_SESSION['error'] = [
+                'title' => "File Error",
+                'message' => "Invalid attachment file type."
+            ];
+            return false;
+        }
+
+        if ($file_size > $max_size) {
+            $_SESSION['error'] = [
+                'title' => "File Error",
+                'message' => "Attachment file size exceeds the limit."
+            ];
+            return false;
+        }
+
+        // Make the file name unique by appending a timestamp
+        $unique_file_name = pathinfo($file_name, PATHINFO_FILENAME) . '_' . time() . '.' . $file_ext;
+        $destination = $upload_path . $unique_file_name;
+
+        if (move_uploaded_file($file_tmp_name, $destination)) {
+            return $unique_file_name;
+        } else {
+            $_SESSION['error'] = [
+                'title' => "File Error",
+                'message' => "Failed to move the uploaded file."
+            ];
+            return false;
+        }
+    }
+
 
     public function delete()
     {

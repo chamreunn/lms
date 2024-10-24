@@ -260,7 +260,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </div>
                         </div>
                     </li>
-                    <!-- <li class="nav-item <?= ($current_page == 'leave-calendar') ? 'active' : '' ?>">
+                    <li class="nav-item <?= ($current_page == 'leave-calendar') ? 'active' : '' ?>">
                         <a class="nav-link" href="/elms/leave-calendar">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -286,7 +286,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                 ប្រតិទិន
                             </span>
                         </a>
-                    </li> -->
+                    </li>
                 </ul>
             </div>
         </div>

@@ -4,7 +4,8 @@ require_once 'config/database.php';
 class LeaveRequest
 {
     private $pdo;
-    private $table_name = "leave_requests";
+
+    private $leaveRequest = "leave_requests";
 
     public function __construct()
     {

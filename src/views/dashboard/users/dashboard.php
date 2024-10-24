@@ -427,7 +427,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     </div>
 </div>
 
-<div hidden>
+<div>
 
     <div class="hr-text text-primary fs-large">លិខិតផ្សេងៗ</div>
 
@@ -488,7 +488,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 </div>
 
 <?php include('src/common/footer.php'); ?>
-
 
 <script>
     function convertToKhmerNumerals(num) {

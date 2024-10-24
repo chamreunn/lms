@@ -1480,4 +1480,55 @@ class HeadUnitModel
         return $approvals;
     }
 
+    public function getLeadersOnLeave()
+    {
+        // Define the current date
+        $today = date('Y-m-d');
+        $leadersOnLeave = [];
+
+        // Prepare the SQL query to get all leave requests joined with leave types
+        $stmt = $this->pdo->prepare("
+        SELECT lr.*, lt.name AS leave_type_name
+        FROM leave_requests lr
+        JOIN leave_types lt ON lr.leave_type_id = lt.id
+        WHERE lr.start_date <= ? 
+        AND lr.end_date >= ? 
+        AND lr.status = 'Approved'
+    ");
+
+        // Prepare the parameters for the query (current date)
+        $params = [$today, $today];
+
+        // Execute the query with the parameters
+        $stmt->execute($params);
+        $leaveRequests = $stmt->fetchAll();
+
+        // Iterate through each leave request to fetch the associated leader data from the API
+        foreach ($leaveRequests as $leaveRequest) {
+            $userId = $leaveRequest['user_id']; // Fetch the user ID for the leader
+            $token = $_SESSION['token']; // Fetch the token from session
+
+            $userModel = new User(); // Assuming you have a User model with an API call function
+            $leaderResponse = $userModel->getUserByIdApi($userId, $token); // API call to fetch user details
+
+            // Check if the API call was successful and returned leader data
+            if ($leaderResponse['http_code'] === 200 && isset($leaderResponse['data'])) {
+                // Add the leader and their leave request details to the result array
+                $leadersOnLeave[] = [
+                    'leader' => $leaderResponse['data'], // Leader data from API
+                    'leave_request' => [
+                        'start_date' => $leaveRequest['start_date'], // Start date of the leave
+                        'end_date' => $leaveRequest['end_date'],     // End date of the leave
+                        'remarks' => $leaveRequest['remarks'],       // Remarks for the leave
+                        'leave_type' => $leaveRequest['leave_type_name'], // The type of leave
+                    ],
+                ];
+            } else {
+                // Handle any errors from the API response
+                error_log("Error fetching leader data for user ID: $userId. Error: " . $leaderResponse['error']);
+            }
+        }
+
+        return $leadersOnLeave; // Return the final array of leaders and their leave requests
+    }
 }

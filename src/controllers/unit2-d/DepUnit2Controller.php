@@ -220,7 +220,7 @@ class DepUnit2Controller
             'status' => $_POST['status'] ?? null,
         ];
 
-        $requests = $leaveRequestModel->getRequestsByFilters($user_id, $filters);
+        $requests = $leaveRequestModel->getRequestsByFilters($user_id, $filters, $_SESSION['token']);
 
         require 'src/views/leave/unit2-d/myLeave.php';
     }
@@ -228,7 +228,7 @@ class DepUnit2Controller
     public function viewRequests()
     {
         $leaveRequestModel = new DepUnit2Model();
-        $requests = $leaveRequestModel->getRequestsByUserId($_SESSION['user_id']);
+        $requests = $leaveRequestModel->getRequestsByUserId($_SESSION['user_id'], $_SESSION['token']);
         $leaveType = new Leavetype();
         $leavetypes = $leaveType->getAllLeavetypes();
         require 'src/views/leave/unit2-d/myLeave.php';
@@ -497,5 +497,17 @@ class DepUnit2Controller
 
         // Return the count of leave requests
         return $result['leave_count'] ?? 0; // Return 0 if the count is not found
+    }
+
+    public function du2ViewCalendar()
+    {
+        // Load the models to fetch leave and holiday data
+        $leaveRequestModel = new DepUnit2Model();
+        $leaves = $leaveRequestModel->getLeadersOnLeave(); // Get leaves
+        $calendarModel = new CalendarModel();
+        $getHolidays = $calendarModel->getHolidayCDay(); // Get holidays
+
+        // Load the view and pass the fetched data
+        require 'src/views/leave/calendar.php';
     }
 }

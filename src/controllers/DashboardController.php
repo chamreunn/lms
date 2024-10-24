@@ -58,7 +58,7 @@ class DashboardController
 
             switch ($role) {
                 case 'NULL':
-                    $leaveRequestModel = new LeaveApproval();
+                    // $leaveRequestModel = new LeaveApproval();
                     $lateModel = new LateModel();
                     $countRequestModel = new LeaveRequest();
                     $notification = new Notification();
@@ -209,6 +209,9 @@ class DashboardController
                     $leavetypes = new Leavetype();
                     $leavetype = $leavetypes->getLeaveTypeById($_SESSION['user_id']);
                     require 'src/views/dashboard/admin/dashboard.php';
+                    break;
+                case 'superadmin':
+                    require 'src/views/dashboard/superadmin/dashboard.php';
                     break;
                 default:
                     header("Location: /elms/login");

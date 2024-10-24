@@ -140,4 +140,15 @@ class CalendarController
         }
     }
 
+    public function viewCalendar()
+    {
+        // Load the models to fetch leave and holiday data
+        $leaveRequestModel = new CalendarModel();
+        $leaves = $leaveRequestModel->getLeadersOnLeave(); // Get leaves
+        $calendarModel = new CalendarModel();
+        $getHolidays = $calendarModel->getHolidayCDay(); // Get holidays
+
+        // Load the view and pass the fetched data
+        require 'src/views/leave/calendar.php';
+    }
 }

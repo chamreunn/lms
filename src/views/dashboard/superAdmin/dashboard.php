@@ -1,18 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Manager Dashboard</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0/css/bootstrap.min.css">
-</head>
-<body>
-<div class="container">
-    <h2>Manager Dashboard</h2>
-    <a href="/elms/approve-leave" class="btn btn-primary">Approve Leave Requests</a>
-    <a href="/leave-requests" class="btn btn-secondary">My Leave Requtess</a>
-    <a href="/leave-calendar" class="btn btn-info">Leave Calendar</a>
-    <a href="/notifications" class="btn btn-warning">Notifications</a>
-</div>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php
+// Initialize session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: /elms/login");
+    exit();
+}
+
+$title = "ទំព័រដើម";
+include('src/common/header.php');
+?>
+<?php include('src/common/footer.php'); ?>

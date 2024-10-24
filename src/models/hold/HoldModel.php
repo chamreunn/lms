@@ -17,7 +17,7 @@ class HoldModel
     {
         // Prepare the SQL query using PDO
         $sql = "INSERT INTO $this->tblholds (user_id, approver_id, start_date, end_date, reason, attachment, duration, type, color, created_at) 
-                VALUES (:user_id, :approver_id, :start_date, :end_date, :reason, :attachment, :duration, :type, :color, NOW())";
+            VALUES (:user_id, :approver_id, :start_date, :end_date, :reason, :attachment, :duration, :type, :color, NOW())";
 
         // Prepare the statement
         $stmt = $this->pdo->prepare($sql);
@@ -33,8 +33,11 @@ class HoldModel
         $stmt->bindParam(':type', $data['type'], PDO::PARAM_STR);
         $stmt->bindParam(':color', $data['color'], PDO::PARAM_STR);
 
-        // Execute the statement and return the result
-        return $stmt->execute();
+        // Execute the statement
+        $stmt->execute();
+
+        // Return the last inserted hold_id
+        return $this->pdo->lastInsertId();
     }
 
     public function getHoldsByUserId($offset, $limit)
@@ -90,6 +93,46 @@ class HoldModel
         return $stmt->fetchColumn();
     }
 
+    // Update an existing hold request
+    public function updateHoldRequest($hold_id, $data)
+    {
+        $sql = "UPDATE $this->tblholds 
+                SET start_date = :start_date, 
+                    end_date = :end_date, 
+                    reason = :reason, 
+                    attachment = :attachment, 
+                    duration = :duration, 
+                    approver_id = :approver_id 
+                WHERE id = :hold_id";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        $stmt->bindParam(':hold_id', $hold_id);
+        $stmt->bindParam(':start_date', $data['start_date']);
+        $stmt->bindParam(':end_date', $data['end_date']);
+        $stmt->bindParam(':reason', $data['reason']);
+        $stmt->bindParam(':attachment', $data['attachment']);
+        $stmt->bindParam(':duration', $data['duration']);
+        $stmt->bindParam(':approver_id', $data['approver_id']);
+
+        if ($stmt->execute()) {
+            return true;
+        } else {
+            throw new Exception('Failed to update hold request.');
+        }
+    }
+
+     // Get a hold request by ID
+     public function getHoldRequestById($hold_id)
+     {
+         $sql = "SELECT * FROM $this->tblholds WHERE id = :hold_id";
+         $stmt = $this->pdo->prepare($sql);
+         $stmt->bindParam(':hold_id', $hold_id);
+         $stmt->execute();
+         
+         return $stmt->fetch(PDO::FETCH_ASSOC); // Fetch data as an associative array
+     }
+
     public function getHoldCounts()
     {
         $query = "SELECT COUNT(*) FROM $this->tblholds ORDER BY id DESC";
@@ -99,22 +142,22 @@ class HoldModel
         return $stmt->fetchColumn();
     }
 
-    public function getHoldById($userId)
+    public function getHoldById($id)
     {
-        // Prepare the SQL query to get the hold request and all approval tracking steps
+        // Prepare the SQL query to get the hold request and all approval tracking steps specific to that hold request
         $sql = "
-        SELECT h.*, ha.status AS approval_status, ha.approved_at, ha.approver_id, ha.comments AS comment
-        FROM $this->tblholds h
-        LEFT JOIN $this->tblholds_approvals ha ON h.id = ha.hold_id
-        WHERE h.user_id = :userId
-        ORDER BY ha.id DESC
-    ";
+            SELECT h.*, ha.status AS approval_status, ha.approved_at, ha.approver_id, ha.comments AS comment
+            FROM $this->tblholds_approvals ha
+            JOIN $this->tblholds h ON ha.hold_id = h.id
+            WHERE h.user_id = :userId AND h.id =:id ORDER BY ha.id DESC
+        ";
 
         // Prepare the statement
         $stmt = $this->pdo->prepare($sql);
 
         // Bind the user ID parameter
-        $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+        $stmt->bindParam(':userId', $_SESSION['user_id'], PDO::PARAM_INT);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
         // Execute the query
         $stmt->execute();
@@ -168,17 +211,30 @@ class HoldModel
         return [];
     }
 
-    public function insertManagerStatusToHoldsApprovals($hold_id, $approver_id, $status, $comments)
+    public function insertManagerStatusToHoldsApprovals($hold_id, $approver_id, $status)
     {
-        $sql = "INSERT INTO holds_approvals (hold_id, approver_id, status, comments)
-                VALUES (:hold_id, :approver_id, :status, :comments)";
+        // Debugging
+        if (is_array($hold_id)) {
+            error_log('Error: $hold_id is an array, using the first element');
+            $hold_id = $hold_id[0]; // Adjust as needed based on what $hold_id should be
+        }
+        if (is_array($approver_id)) {
+            error_log('Error: $approver_id is an array, using the first element');
+            $approver_id = $approver_id[0]; // Adjust as needed
+        }
+        if (is_array($status)) {
+            error_log('Error: $status is an array, using the first element');
+            $status = $status[0]; // Adjust as needed
+        }
+
+        $sql = "INSERT INTO holds_approvals (hold_id, approver_id, status)
+                VALUES (:hold_id, :approver_id, :status)";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             ':hold_id' => $hold_id,
             ':approver_id' => $approver_id,
             ':status' => $status,
-            ':comments' => $comments,
         ]);
     }
 

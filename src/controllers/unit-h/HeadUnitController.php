@@ -447,4 +447,16 @@ class HeadUnitController
         // Pass the necessary data to the view
         require 'src/views/leave/unit-h/adminTodayLate.php';
     }
+
+    public function headunitViewCalendar()
+    {
+        // Load the models to fetch leave and holiday data
+        $leaveRequestModel = new HeadUnitModel();
+        $leaves = $leaveRequestModel->getLeadersOnLeave(); // Get leaves
+        $calendarModel = new CalendarModel();
+        $getHolidays = $calendarModel->getHolidayCDay(); // Get holidays
+
+        // Load the view and pass the fetched data
+        require 'src/views/leave/calendar.php';
+    }
 }

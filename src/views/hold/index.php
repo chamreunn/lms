@@ -214,17 +214,18 @@ require_once 'src/common/header.php';
                                         <td class="text-secondary d-none d-xl-table-cell"><?= $hold['duration'] ?></td>
                                         <td class="text-secondary d-none d-xl-table-cell">
                                             <?php if (!empty($hold['attachment'])): ?>
-                                                <a href="public/uploads/hold-attachments/<?= $hold['attachment'] ?>"
-                                                    target="blank_">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                        stroke-linecap="round" stroke-linejoin="round"
-                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-paperclip">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path
-                                                            d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5" />
-                                                    </svg>
-                                                    ឯកសារភ្ជាប់</a>
+                                                <?php
+                                                // Split the attachment string into an array
+                                                $attachments = explode(',', $hold['attachment']);
+                                                ?>
+                                                <?php if (!empty($attachments)): ?>
+                                                    <?php foreach ($attachments as $index => $attachment): ?>
+                                                        <a href="public/uploads/hold-attachments/<?= $attachment ?>" target="_blank">
+                                                            <!-- Display attachment with numbering -->
+                                                            <?= ($index + 1) . ". " ?>ឯកសារភ្ជាប់ <?= $index + 1 ?>
+                                                        </a><br>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
                                             <?php else: ?>
                                                 មិនមានឯកសារភ្ជាប់
                                             <?php endif; ?>

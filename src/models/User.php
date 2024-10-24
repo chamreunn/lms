@@ -897,6 +897,21 @@ class User
                     if (isset($leader['lastNameKh'])) {
                         $lastNameKh[] = $leader['lastNameKh'];
                     }
+                    if (isset($leader['image'])) {
+                        $image[] = $leader['image'];
+                    } else {
+                        $image[] = ''; // Fallback to empty if the field is not present
+                    }
+                    if (isset($leader['roleName'])) {
+                        $roleName[] = $leader['roleName'];
+                    } else {
+                        $roleName[] = ''; // Fallback to empty if the field is not present
+                    }
+                    if (isset($leader['departmentName'])) {
+                        $departmentName[] = $leader['departmentName'];
+                    } else {
+                        $departmentName[] = ''; // Fallback to empty if the field is not present
+                    }
                 }
             }
 
@@ -910,6 +925,9 @@ class User
                 'ids' => $ids,
                 'firstNameKh' => $firstNameKh,
                 'lastNameKh' => $lastNameKh,
+                'image' => $image,
+                'roleName' => $roleName,
+                'departmentName' => $departmentName,
             ];
         } else {
             error_log("Unexpected API Response: " . print_r($responseData, true));
@@ -1902,7 +1920,6 @@ class User
         }
     }
 
-
     // user telegram apply leave 
     public function sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link)
     {
@@ -2118,4 +2135,5 @@ class User
         $stmt->execute([':user_id' => $userId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
 }

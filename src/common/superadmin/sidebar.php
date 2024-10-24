@@ -24,8 +24,8 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                         </a>
                     </li>
                     <li
-                        class="nav-item <?= ($current_page == 'dunit1Leave' || $current_page == 'view-leave-detail') ? 'active' : '' ?>">
-                        <a class="nav-link" href="/elms/dunit1Leave">
+                        class="nav-item <?= ($current_page == 'hunitLeave' || $current_page == 'view-leave-detail') ? 'active' : '' ?>">
+                        <a class="nav-link" href="/elms/hunitLeave">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -46,8 +46,8 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                         </a>
                     </li>
                     <!-- attendence  -->
-                    <li class="nav-item <?= ($current_page == 'my-attendances') ? 'active' : '' ?>">
-                        <a class="nav-link" href="/elms/my-attendances">
+                    <li class="nav-item <?= ($current_page == 'all-attendances') ? 'active' : '' ?>">
+                        <a class="nav-link" href="/elms/all-attendances">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -165,7 +165,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                         </div>
                     </li>
                     <li
-                        class="nav-item dropdown <?= ($current_page == 'dunit1pending' || $current_page == 'dunit1approved' || $current_page == 'dunit1rejected') ? 'active' : '' ?>">
+                        class="nav-item dropdown <?= ($current_page == 'hunitpending' || $current_page == 'hunitapproved' || $current_page == 'hunitrejected') ? 'active' : '' ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
                             data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -190,8 +190,8 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                         <div class="dropdown-menu">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
-                                    <a class="dropdown-item <?= ($current_page == 'dunit1pending') ? 'active' : '' ?>"
-                                        href="/elms/dunit1pending">
+                                    <a class="dropdown-item <?= ($current_page == 'hunitpending') ? 'active' : '' ?>"
+                                        href="/elms/hunitpending">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -213,8 +213,8 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                             <span class="badge bg-red text-red-fg ms-auto"><?= $requestscount; ?></span>
                                         <?php endif; ?>
                                     </a>
-                                    <a class="dropdown-item <?= ($current_page == 'dunit1approved') ? 'active' : '' ?>"
-                                        href="/elms/dunit1approved">
+                                    <a class="dropdown-item <?= ($current_page == 'hunitapproved') ? 'active' : '' ?>"
+                                        href="/elms/hunitapproved">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -236,8 +236,8 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                             <span class="badge bg-red text-red-fg ms-auto"><?= $approvedCount; ?></span>
                                         <?php endif; ?>
                                     </a>
-                                    <a class="dropdown-item <?= ($current_page == 'dunit1rejected') ? 'active' : '' ?>"
-                                        href="/elms/dunit1rejected">
+                                    <a class="dropdown-item <?= ($current_page == 'hunitrejected') ? 'active' : '' ?>"
+                                        href="/elms/hunitrejected">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -260,8 +260,8 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </div>
                         </div>
                     </li>
-                    <li class="nav-item <?= ($current_page == 'du1-calendar') ? 'active' : '' ?>">
-                        <a class="nav-link" href="/elms/du1-calendar">
+                    <!-- <li class="nav-item <?= ($current_page == 'leave-calendar') ? 'active' : '' ?>">
+                        <a class="nav-link" href="/elms/leave-calendar">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -286,7 +286,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                 ប្រតិទិន
                             </span>
                         </a>
-                    </li>
+                    </li> -->
                 </ul>
             </div>
         </div>

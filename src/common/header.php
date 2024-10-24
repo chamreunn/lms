@@ -129,7 +129,6 @@ date_default_timezone_set('Asia/Bangkok');
         <div class="sticky-top">
             <?php
             if (isset($_SESSION['user_id']) && !isset($_SESSION['blocked_user'])) {
-                include('navbar.php');
                 // Determine which sidebar to include based on the user's role
                 if (isset($_SESSION['role'])) {
                     $role = $_SESSION['role'];
@@ -148,6 +147,7 @@ date_default_timezone_set('Asia/Bangkok');
                             $getLeaveTodayCount = $adminModel->getLeaveTodayCount();
                             $getPendingCount = $adminModel->getLateCountByStatus('Pending');
                             // end sidebar count 
+                            require 'navbar.php';
                             require 'admin/sidebar.php';
                             break;
                         case 'Deputy Head Of Office':
@@ -158,6 +158,8 @@ date_default_timezone_set('Asia/Bangkok');
                             $adminModel = new AdminModel();
                             $getPendingCounts = $adminModel->getLateinCount();
                             $latesToday = $adminModel->getLateCountToday();
+                            // sidebar and navbar 
+                            require 'navbar.php';
                             require 'offices-d/sidebar.php';
                             break;
                         case 'Head Of Office':
@@ -167,6 +169,8 @@ date_default_timezone_set('Asia/Bangkok');
                             $approvedCount = $leaveRequestModel->approvedCount();
                             $rejectedCount = $leaveRequestModel->rejectedCount();
                             $depoffice = $userModel->getEmailLeaderDOApi($_SESSION['user_id'], $_SESSION['token']);
+                            // sidebar and navbar 
+                            require 'navbar.php';
                             require 'offices-h/sidebar.php';
                             break;
                         case 'Deputy Head Of Department':
@@ -174,6 +178,8 @@ date_default_timezone_set('Asia/Bangkok');
                             $requestscount = $leaveRequestModel->pendingCount();
                             $approvedCount = $leaveRequestModel->approvedCount();
                             $rejectedCount = $leaveRequestModel->rejectedCount();
+                            // sidebar and navbar 
+                            require 'navbar.php';
                             require 'departments-d/sidebar.php';
                             break;
                         case 'Head Of Department':
@@ -185,6 +191,8 @@ date_default_timezone_set('Asia/Bangkok');
                             $leavetypeModel = new Leavetype();
                             $leavetypes = $leavetypeModel->getAllLeavetypes();
                             $depdepart = $userModel->getEmailLeaderDDApi($_SESSION['user_id'], $_SESSION['token']);
+                            // sidebar and navbar 
+                            require 'navbar.php';
                             require 'departments-h/sidebar.php';
                             break;
                         case 'Deputy Head Of Unit 1':
@@ -192,6 +200,8 @@ date_default_timezone_set('Asia/Bangkok');
                             $requestscount = $leaveRequestModel->pendingCount();
                             $approvedCount = $leaveRequestModel->approvedCount();
                             $rejectedCount = $leaveRequestModel->rejectedCount();
+                            // sidebar and navbar 
+                            require 'navbar.php';
                             require 'unit1-d/sidebar.php';
                             break;
                         case 'Deputy Head Of Unit 2':
@@ -199,6 +209,8 @@ date_default_timezone_set('Asia/Bangkok');
                             $requestscount = $leaveRequestModel->pendingCount();
                             $approvedCount = $leaveRequestModel->approvedCount();
                             $rejectedCount = $leaveRequestModel->rejectedCount();
+                            // sidebar and navbar 
+                            require 'navbar.php';
                             require 'unit2-d/sidebar.php';
                             break;
                         case 'Head Of Unit':
@@ -206,10 +218,19 @@ date_default_timezone_set('Asia/Bangkok');
                             $requestscount = $leaveRequestModel->pendingCount();
                             $approvedCount = $leaveRequestModel->approvedCount();
                             $rejectedCount = $leaveRequestModel->rejectedCount();
+                            // sidebar and navbar 
+                            require 'navbar.php';
                             require 'unit-h/sidebar.php';
+                            break;
+                        case 'superadmin':
+                            // sidebar and navbar 
+                            require 'navbar.php';
+                            require 'superadmin/sidebar.php';
                             break;
                         default:
                             // For any unexpected role, include a default sidebar
+                            // sidebar and navbar 
+                            require 'navbar.php';
                             include('users/sidebar.php');
                             break;
                     }

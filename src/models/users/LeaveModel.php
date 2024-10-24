@@ -171,14 +171,14 @@ class LeaveModel
             }
 
             // Fetch additional data using existing methods
-           // Optional: Add logic to fetch approvals, office positions, etc.
-           $result['approvals'] = $this->getApprovalsByLeaveRequestId($result['id'], $_SESSION['token']);
-           $result['doffice'] = $this->getDOfficePositions($result['id'], $_SESSION['token']);
-           $result['hoffice'] = $this->getHOfficePositions($result['id'], $_SESSION['token']);
-           $result['ddepartment'] = $this->getDDepartmentPositions($result['id'], $_SESSION['token']);
-           $result['hdepartment'] = $this->getHDepartmentPositions($result['id'], $_SESSION['token']);
-           $result['dunit'] = $this->getDUnitPositions($result['id'], $_SESSION['token']);
-           $result['unit'] = $this->getUnitPositions($result['id'], $_SESSION['token']);
+            // Optional: Add logic to fetch approvals, office positions, etc.
+            $result['approvals'] = $this->getApprovalsByLeaveRequestId($result['id'], $_SESSION['token']);
+            $result['doffice'] = $this->getDOfficePositions($result['id'], $_SESSION['token']);
+            $result['hoffice'] = $this->getHOfficePositions($result['id'], $_SESSION['token']);
+            $result['ddepartment'] = $this->getDDepartmentPositions($result['id'], $_SESSION['token']);
+            $result['hdepartment'] = $this->getHDepartmentPositions($result['id'], $_SESSION['token']);
+            $result['dunit'] = $this->getDUnitPositions($result['id'], $_SESSION['token']);
+            $result['unit'] = $this->getUnitPositions($result['id'], $_SESSION['token']);
         }
 
         return $results;
@@ -913,5 +913,50 @@ class LeaveModel
             error_log("Database Error: " . $e->getMessage());
             return false;
         }
+    }
+
+    public function getLeadersOnLeave()
+    {
+        $officeName = $_SESSION['officeName'];
+        $today = date('Y-m-d');
+        $leadersOnLeave = [];
+
+        // Modify the query to include a JOIN with the leave_types table
+        $stmt = $this->pdo->prepare("
+            SELECT lr.*, lt.name 
+            FROM leave_requests lr
+            JOIN leave_types lt ON lr.leave_type_id = lt.id
+            WHERE lr.office = ? 
+            AND lr.start_date <= ? 
+            AND lr.end_date >= ? 
+            AND lr.status = 'Approved'
+        ");
+
+        // Execute the query with the necessary parameters
+        $stmt->execute([$officeName, $today, $today]);
+        $leaveRequests = $stmt->fetchAll();
+
+        // Loop through each leave request and fetch the leader data using the API
+        foreach ($leaveRequests as $leaveRequest) {
+            $userId = $leaveRequest['user_id'];
+            $token = $_SESSION['token'];
+
+            $userModel = new User();
+            $leaderResponse = $userModel->getUserByIdApi($userId, $token);
+
+            // Check if the API response is successful and contains the leader's data
+            if ($leaderResponse['http_code'] === 200 && isset($leaderResponse['data'])) {
+                // Include both the leader data and leave type in the response
+                $leadersOnLeave[] = [
+                    'leader' => $leaderResponse['data'], // Data of the leader from API
+                    'leave_request' => $leaveRequest,    // Data of the leave request
+                ];
+            } else {
+                // Handle any API errors or unexpected responses here, if needed
+                error_log("Error fetching leader data for user ID: $userId. Error: " . $leaderResponse['error']);
+            }
+        }
+
+        return $leadersOnLeave;
     }
 }

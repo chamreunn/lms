@@ -442,9 +442,13 @@ class LeaveController
 
     public function viewCalendar()
     {
-        $leaveRequestModel = new LeaveRequest();
-        $leaves = $leaveRequestModel->getAllLeaves();
+        // Load the models to fetch leave and holiday data
+        $leaveRequestModel = new LeaveModel();
+        $leaves = $leaveRequestModel->getLeadersOnLeave(); // Get leaves
+        $calendarModel = new CalendarModel();
+        $getHolidays = $calendarModel->getHolidayCDay(); // Get holidays
 
+        // Load the view and pass the fetched data
         require 'src/views/leave/calendar.php';
     }
 

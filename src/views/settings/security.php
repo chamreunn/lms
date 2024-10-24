@@ -96,18 +96,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
             <div class="card-body">
                 <h4 class="subheader">គណនីរបស់ខ្ញុំ</h4>
                 <div class="list-group list-group-transparent">
-                    <a href="/elms/edit_user_detail?user_id=<?= $userDetails['user_id'] ?>"
-                        class="list-group-item list-group-item-action d-flex align-items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="icon icon-tabler icons-tabler-outline icon-tabler-user-circle">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                            <path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-                            <path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" />
-                        </svg>
-                        <span class="mx-2">គណនីរបស់ខ្ញុំ</span>
-                    </a>
                     <a href="/elms/setting_security?user_id=<?= $userDetails['user_id'] ?>" data-bs-toggle="tooltip"
                         title="ផ្លាស់ប្តូរអ៊ីម៉ែល និងពាក្យសម្ងាត់" data-bs-target="top"
                         class="list-group-item list-group-item-action d-flex align-items-center active">
