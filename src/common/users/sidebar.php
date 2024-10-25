@@ -164,7 +164,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                         </div>
                     </li>
                     <!-- change location  -->
-                    <li class="nav-item dropdown <?= in_array($current_page, ['transferout', 'hold','resign','backwork','view&edit-hold']) ? 'active' : '' ?>">
+                    <li hidden class="nav-item dropdown <?= in_array($current_page, ['transferout', 'hold','resign','backwork','view&edit-hold']) ? 'active' : '' ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
                             data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -258,7 +258,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </div>
                         </div>
                     </li>
-                    <li class="nav-item <?= ($current_page == 'leave-calendar') ? 'active' : '' ?>">
+                    <!-- <li class="nav-item <?= ($current_page == 'leave-calendar') ? 'active' : '' ?>">
                         <a class="nav-link" href="/elms/leave-calendar">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -284,7 +284,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                 ប្រតិទិន
                             </span>
                         </a>
-                    </li>
+                    </li> -->
                 </ul>
             </div>
         </div>
