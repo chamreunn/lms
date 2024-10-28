@@ -18,7 +18,7 @@
                                     <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
                                         data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
                                         <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
-                                        <?= $leavetype['name'] ?>     <?= $leavetype['document_status'] ?>
+                                        <?= $leavetype['name'] ?> <?= $leavetype['document_status'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -126,7 +126,7 @@
                                     <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
                                         data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
                                         <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
-                                        <?= $leavetype['name'] ?>     <?= $leavetype['document_status'] ?>
+                                        <?= $leavetype['name'] ?> <?= $leavetype['document_status'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -228,7 +228,7 @@
                                         <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
                                             data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
                                             <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
-                                            <?= $leavetype['name'] ?>     <?= $leavetype['document_status'] ?>
+                                            <?= $leavetype['name'] ?> <?= $leavetype['document_status'] ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
@@ -340,7 +340,7 @@
                                     <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
                                         data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
                                         <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
-                                        <?= $leavetype['name'] ?>     <?= $leavetype['document_status'] ?>
+                                        <?= $leavetype['name'] ?> <?= $leavetype['document_status'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -441,7 +441,7 @@
                                     <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
                                         data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
                                         <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
-                                        <?= $leavetype['name'] ?>     <?= $leavetype['document_status'] ?>
+                                        <?= $leavetype['name'] ?> <?= $leavetype['document_status'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -554,7 +554,7 @@
                                     <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
                                         data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
                                         <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
-                                        <?= $leavetype['name'] ?>     <?= $leavetype['document_status'] ?>
+                                        <?= $leavetype['name'] ?> <?= $leavetype['document_status'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -660,7 +660,7 @@
                                     <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
                                         data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
                                         <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
-                                        <?= $leavetype['name'] ?>     <?= $leavetype['document_status'] ?>
+                                        <?= $leavetype['name'] ?> <?= $leavetype['document_status'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -766,7 +766,7 @@
                                     <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
                                         data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
                                         <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
-                                        <?= $leavetype['name'] ?>     <?= $leavetype['document_status'] ?>
+                                        <?= $leavetype['name'] ?> <?= $leavetype['document_status'] ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -1510,8 +1510,8 @@
                             <div class="input-icon">
                                 <!-- Retain the value of the reason textarea -->
                                 <textarea type="text" rows="5" cols="5" autocomplete="off" placeholder="បទពិសោធន៍..."
-                                    class="form-control" name="reason"
-                                    required><?= isset($_POST['reason']) ? htmlspecialchars($_POST['reason']) : '' ?></textarea>
+                                    class="form-control" name="workexperience"
+                                    required></textarea>
                             </div>
                         </div>
                         <div>
@@ -1525,12 +1525,33 @@
                                     required><?= isset($_POST['reason']) ? htmlspecialchars($_POST['reason']) : '' ?></textarea>
                             </div>
                         </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">អ្នកអនុម័ត<span
+                                    class="text-danger mx-1 fw-bold">*</span></label>
+                            <select class="form-select select-people" id="transfer_id_hof" name="approverId" required>
+                                <?php if (isset($approver['ids'][0])): ?>
+                                    <option value="<?= htmlspecialchars($approver['ids'][0], ENT_QUOTES, 'UTF-8') ?>"
+                                        data-custom-properties="&lt;span class=&quot;avatar avatar-xs&quot; style=&quot;background-image: url('https://hrms.iauoffsa.us/images/<?= htmlspecialchars($approver['image'][0], ENT_QUOTES, 'UTF-8') ?>')&quot;&gt;&lt;/span&gt;">
+                                        <?= htmlspecialchars($approver['lastNameKh'][0], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($approver['firstNameKh'][0], ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endif; ?>
+
+                                <?php foreach ($approver['ids'] as $index => $id): ?>
+                                    <option value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>"
+                                        data-custom-properties="&lt;span class=&quot;avatar avatar-xs&quot; style=&quot;background-image: url('https://hrms.iauoffsa.us/images/<?= htmlspecialchars($approver['image'][$index], ENT_QUOTES, 'UTF-8') ?>')&quot;&gt;&lt;/span&gt;">
+                                        <?= htmlspecialchars($approver['lastNameKh'][$index], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($approver['firstNameKh'][$index], ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <input type="hidden" id="leave_type_name_hof" name="leave_type_name"
+                                value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                        </div>
                         <div>
                             <label class="form-label fw-bold">ឯកសារភ្ជាប់</label>
                             <div class="row g-2">
                                 <div class="col">
-                                    <input type="file" name="attachment" accept=".pdf, .docx, .xlsx"
-                                        class="form-control">
+                                    <input type="file" name="attachment[]" accept=".pdf, .docx, .xlsx"
+                                        class="form-control" multiple>
                                 </div>
                             </div>
                         </div>

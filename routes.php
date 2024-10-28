@@ -1249,8 +1249,39 @@ switch ($uri) {
         break;
     case $base_url . '/resign':
         checkSessionAndExecute(function () {
-            $holdController = new ResignController();
-            $holdController->index();
+            $resignController = new ResignController();
+            $resignController->index();
+        });
+        break;
+    case $base_url . '/apply-resign':
+        checkSessionAndExecute(function () {
+            $resignController = new ResignController();
+            $resignController->create();
+        });
+        break;
+    case $base_url . '/delete-resign':
+        checkSessionAndExecute(function () {
+            $resignController = new ResignController();
+            $resignController->delete();
+        });
+        break;
+    case $base_url . '/view&edit-resign':
+        checkSessionAndExecute(function () {
+            if (isset($_GET['resignId']) && !empty($_GET['resignId'])) {
+                $resignController = new ResignController();
+                $resignController->view($_GET['resignId']);
+            } else {
+                // Handle error: no valid holdId
+                $_SESSION['error'] = "No valid hold ID provided!";
+                header("Location: /elms/resign");
+                exit();
+            }
+        });
+        break;
+    case $base_url . '/edit-resign':
+        checkSessionAndExecute(function () {
+            $resignController = new ResignController();
+            $resignController->update();
         });
         break;
     case $base_url . '/backwork':

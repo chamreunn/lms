@@ -122,16 +122,16 @@ class HoldModel
         }
     }
 
-     // Get a hold request by ID
-     public function getHoldRequestById($hold_id)
-     {
-         $sql = "SELECT * FROM $this->tblholds WHERE id = :hold_id";
-         $stmt = $this->pdo->prepare($sql);
-         $stmt->bindParam(':hold_id', $hold_id);
-         $stmt->execute();
-         
-         return $stmt->fetch(PDO::FETCH_ASSOC); // Fetch data as an associative array
-     }
+    // Get a hold request by ID
+    public function getHoldRequestById($hold_id)
+    {
+        $sql = "SELECT * FROM $this->tblholds WHERE id = :hold_id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':hold_id', $hold_id);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC); // Fetch data as an associative array
+    }
 
     public function getHoldCounts()
     {
