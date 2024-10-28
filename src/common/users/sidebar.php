@@ -67,7 +67,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                         </a>
                     </li>
                     <!-- late & mission  -->
-                    <li 
+                    <li
                         class="nav-item dropdown <?= ($current_page == 'overtimein' || $current_page == 'overtimeout' || $current_page == 'leaveearly' || $current_page == 'mission') ? 'active' : '' ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
                             data-bs-auto-close="outside" role="button" aria-expanded="false">
@@ -164,7 +164,8 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                         </div>
                     </li>
                     <!-- change location  -->
-                    <li hidden class="nav-item dropdown <?= in_array($current_page, ['transferout', 'hold','resign','backwork','view&edit-hold']) ? 'active' : '' ?>">
+                    <li
+                        class="nav-item dropdown <?= in_array($current_page, ['transferout', 'hold', 'resign', 'backwork', 'view&edit-hold']) ? 'active' : '' ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
                             data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -189,7 +190,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                         <div class="dropdown-menu">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
-                                    <a class="dropdown-item <?= in_array($current_page, ['hold','view&edit-hold']) ? 'active' : '' ?>"
+                                    <a class="dropdown-item <?= in_array($current_page, ['hold', 'view&edit-hold']) ? 'active' : '' ?>"
                                         href="/elms/hold">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -258,7 +259,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </div>
                         </div>
                     </li>
-                    <!-- <li class="nav-item <?= ($current_page == 'leave-calendar') ? 'active' : '' ?>">
+                    <li class="nav-item <?= ($current_page == 'leave-calendar') ? 'active' : '' ?>">
                         <a class="nav-link" href="/elms/leave-calendar">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -284,7 +285,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                 ប្រតិទិន
                             </span>
                         </a>
-                    </li> -->
+                    </li>
                 </ul>
             </div>
         </div>

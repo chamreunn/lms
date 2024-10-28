@@ -1880,9 +1880,8 @@ class User
         return $result ? $result : null;
     }
 
-    public function sendDocks($title, $managerId, $start_date, $end_date, $duration_days, $remarks, $link)
+    public function sendHolds($title, $managerId, $start_date, $end_date, $duration_days, $remarks, $link)
     {
-
         $telegramUser = $this->getTelegramIdByUserId($managerId);
         if ($telegramUser && !empty($telegramUser['telegram_id'])) {
             $notifications = [

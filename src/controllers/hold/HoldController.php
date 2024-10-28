@@ -181,7 +181,7 @@ class HoldController
                                     'title' => "ឯកសារភ្ជាប់",
                                     'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។ សូមព្យាយាមម្តងទៀត។"
                                 ];
-                                 header("Location: /elms/hold");
+                                header("Location: /elms/hold");
                                 exit();
                             }
                         } else {
@@ -189,12 +189,12 @@ class HoldController
                                 'title' => "ឯកសារភ្ជាប់",
                                 'message' => "ឯកសារមិនត្រឹមត្រូវទេ (ទំហំ ឬ ប្រភេទឯកសារ)។"
                             ];
-                             header("Location: /elms/hold");
+                            header("Location: /elms/hold");
                             exit();
                         }
                     }
                 }
-            } 
+            }
 
             // Convert the array of attachments to a comma-separated string to store in the database
             $attachment_names = implode(',', $attachments);
@@ -221,8 +221,10 @@ class HoldController
                 // Recursive manager delegation
                 $this->delegateManager($holdRequestModel, $userModel, $hold_id, $_SESSION['user_id'], $reason);
 
+                $link = "https://leave.iauoffsa.us/elms/pending";
+
                 // Send notification after saving the request
-                $userModel->sendDocks($title, $approver, $start_date, $end_date, $duration, $reason, $holdRequestModel);
+                $sendToTelegram = $userModel->sendHolds($title, $approver, $start_date, $end_date, $duration, $reason, $link);
 
                 $_SESSION['success'] = [
                     'title' => "ជោគជ័យ",
@@ -280,7 +282,7 @@ class HoldController
                     'title' => "បញ្ចូលទិន្នន័យមិនគ្រប់គ្រាន់",
                     'message' => "សូមបំពេញព័ត៌មានទាំងអស់។"
                 ];
-                 header("Location: /elms/hold");
+                header("Location: /elms/hold");
                 exit();
             }
 
@@ -297,7 +299,7 @@ class HoldController
                     'title' => "កំហុសកាលបរិច្ឆេទ",
                     'message' => "កាលបរិច្ឆេទបញ្ចប់គួរត្រូវជាងកាលបរិច្ឆេទចាប់ផ្តើម។"
                 ];
-                 header("Location: /elms/hold");
+                header("Location: /elms/hold");
                 exit();
             }
 
@@ -330,7 +332,7 @@ class HoldController
                     'title' => "កំហុសវ័យ",
                     'message' => "លិខិតព្យួរត្រូវចាប់ពី ៦ខែ ឡើង។"
                 ];
-                 header("Location: /elms/hold");
+                header("Location: /elms/hold");
                 exit();
             }
 
@@ -364,7 +366,7 @@ class HoldController
                                     'title' => "ឯកសារភ្ជាប់",
                                     'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។ សូមព្យាយាមម្តងទៀត។"
                                 ];
-                                 header("Location: /elms/hold");
+                                header("Location: /elms/hold");
                                 exit();
                             }
                         } else {
@@ -372,7 +374,7 @@ class HoldController
                                 'title' => "ឯកសារភ្ជាប់",
                                 'message' => "ឯកសារមិនត្រឹមត្រូវទេ (ទំហំ ឬ ប្រភេទឯកសារ)។"
                             ];
-                             header("Location: /elms/hold");
+                            header("Location: /elms/hold");
                             exit();
                         }
                     }
@@ -408,14 +410,14 @@ class HoldController
                     'title' => "ជោគជ័យ",
                     'message' => "សំណើរបានកែប្រែដោយជោគជ័យ"
                 ];
-                 header("Location: /elms/hold");
+                header("Location: /elms/hold");
                 exit();
             } catch (Exception $e) {
                 $_SESSION['error'] = [
                     'title' => "កំហុស",
                     'message' => $e->getMessage()
                 ];
-                 header("Location: /elms/hold");
+                header("Location: /elms/hold");
                 exit();
             }
         }

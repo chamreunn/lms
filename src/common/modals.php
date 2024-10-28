@@ -1234,8 +1234,8 @@
 <div class="modal modal-blur fade" id="hold" tabindex="-1" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-primary mb-0"><?= $title ?></h5>
+            <div class="modal-header bg-primary text-light">
+                <h5 class="modal-title mb-0">លិខិតពួ្ររការងារ</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="/elms/apply-hold" method="POST" enctype="multipart/form-data">
@@ -1338,7 +1338,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer bg-light">
                     <div class="w-100">
                         <div class="row">
                             <div class="col">
@@ -1359,8 +1359,8 @@
 <div class="modal modal-blur fade" id="transferout" tabindex="-1" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-primary mb-0"><?= $title ?></h5>
+            <div class="modal-header bg-primary text-light">
+                <h5 class="modal-title mb-0">លិខិតផ្ទេរចេញ</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="/elms/apply-transferout" method="POST" enctype="multipart/form-data">
@@ -1371,7 +1371,7 @@
                                 <span class="text-danger mx-1 fw-bold">*</span>
                             </label>
                             <div class="input-icon">
-                                <select name="department" id="department" class="form-select ts-select">
+                                <select name="fromDepartment" id="department" class="form-select ts-select">
                                     <option value="<?= $_SESSION['departmentId'] ?>"><?= $_SESSION['departmentName'] ?>
                                     </option>
                                     <?php if (!empty($departments['data'])): ?>
@@ -1391,7 +1391,7 @@
                                 <span class="text-danger mx-1 fw-bold">*</span>
                             </label>
                             <div class="input-icon">
-                                <select name="department" id="department" class="form-select ts-select">
+                                <select name="toDepartment" id="department" class="form-select ts-select">
                                     <option selected disabled>ជ្រើសរើសនាយកដ្ឋាន
                                     </option>
                                     <?php if (!empty($departments['data'])): ?>
@@ -1411,7 +1411,7 @@
                                 <span class="text-danger mx-1 fw-bold">*</span>
                             </label>
                             <div class="input-icon">
-                                <select name="offices" id="office" class="form-select ts-select">
+                                <select name="fromOffice" id="office" class="form-select ts-select">
                                     <option value="<?= $_SESSION['officeId'] ?>"><?= $_SESSION['officeName'] ?>
                                     </option>
                                     <?php if (!empty($offices['data'])): ?>
@@ -1431,7 +1431,7 @@
                                 <span class="text-danger mx-1 fw-bold">*</span>
                             </label>
                             <div class="input-icon">
-                                <select name="offices" id="offices" class="form-select ts-select">
+                                <select name="toOffice" id="offices" class="form-select ts-select">
                                     <option selected disabled>ជ្រើសរើសការិយាល័យ
                                     </option>
                                     <?php if (!empty($offices['data'])): ?>
@@ -1462,8 +1462,7 @@
                             <div class="input-icon">
                                 <!-- Retain the value of the reason textarea -->
                                 <textarea type="text" rows="5" cols="5" autocomplete="off" placeholder="មូលហេតុ"
-                                    class="form-control" name="reason"
-                                    required><?= isset($_POST['reason']) ? htmlspecialchars($_POST['reason']) : '' ?></textarea>
+                                    class="form-control" name="reason" required></textarea>
                             </div>
                         </div>
                         <div>
@@ -1476,7 +1475,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer bg-light">
                     <div class="w-100">
                         <div class="row">
                             <div class="col">
@@ -1497,8 +1496,8 @@
 <div class="modal modal-blur fade" id="resign" tabindex="-1" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-primary mb-0"><?= $title ?></h5>
+            <div class="modal-header bg-primary text-light">
+                <h5 class="modal-title mb-0">លិខិតលារឈប់</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="/elms/apply-resign" method="POST" enctype="multipart/form-data">
@@ -1545,7 +1544,88 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer bg-light">
+                    <div class="w-100">
+                        <div class="row">
+                            <div class="col">
+                                <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-primary w-100">បញ្ជូន</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Apply resign -->
+<div class="modal modal-blur fade" id="backwork" tabindex="-1" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-light mb-0">លិខិតបន្តការងារ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/elms/apply-backwork" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="start_date" class="form-label fw-bold">កាលបរិច្ឆេទ
+                                <span class="text-danger mx-1 fw-bold">*</span>
+                            </label>
+                            <div class="input-icon">
+                                <span class="input-icon-addon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <rect x="4" y="5" width="16" height="16" rx="2"></rect>
+                                        <line x1="16" y1="3" x2="16" y2="7"></line>
+                                        <line x1="8" y1="3" x2="8" y2="7"></line>
+                                        <line x1="4" y1="11" x2="20" y2="11"></line>
+                                        <rect x="8" y="15" width="2" height="2"></rect>
+                                    </svg>
+                                </span>
+                                <!-- Retain the value of start_date -->
+                                <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទចាប់ពី"
+                                    class="form-control date-picker" name="start_date"
+                                    value="<?= isset($_POST['start_date']) ? htmlspecialchars($_POST['start_date']) : '' ?>">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">ឯកសារភ្ជាប់</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="file" class="form-control" id="attachment" name="attachment[]"
+                                        accept=".pdf,.docx" multiple>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label for="reason" class="form-label fw-bold">មូលហេតុ
+                                <span class="text-danger mx-1 fw-bold">*</span>
+                            </label>
+                            <div class="input-icon">
+                                <!-- Retain the value of the reason textarea -->
+                                <textarea type="text" rows="5" cols="5" autocomplete="off" placeholder="មូលហេតុ"
+                                    class="form-control"
+                                    name="reason"><?= isset($_POST['reason']) ? htmlspecialchars($_POST['reason']) : '' ?></textarea>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-check">
+                                <input class="form-check-input cursor-pointer" type="checkbox" name="agree" required>
+                                <span class="form-check-label cursor-pointer">ខ្ញុំយល់ព្រម
+                                    និងទទួលស្គាល់លើទិន្នន័យដែលបានបញ្ចូល។<span
+                                        class="text-danger mx-1 fw-bold">*</span></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
                     <div class="w-100">
                         <div class="row">
                             <div class="col">

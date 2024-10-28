@@ -1241,6 +1241,12 @@ switch ($uri) {
             $holdController->index();
         });
         break;
+    case $base_url . '/apply-transferout':
+        checkSessionAndExecute(function () {
+            $holdController = new TransferoutController();
+            $holdController->create();
+        });
+        break;
     case $base_url . '/resign':
         checkSessionAndExecute(function () {
             $holdController = new ResignController();
