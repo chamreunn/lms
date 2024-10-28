@@ -44,10 +44,10 @@ require_once 'src/common/header.php';
                     </ul>
                 </div>
                 <!-- Table -->
-                <?php if (empty($getHolds)): ?>
+                <?php if (empty($getResigns)): ?>
                     <div class="text-center">
                         <img src="public/img/icons/svgs/empty.svg" alt="">
-                        <p class="text-primary fw-bold">មិនមានលិខិតព្យួរ។</p>
+                        <p class="text-primary fw-bold">មិនមានលិខិតលារឈប់។</p>
                     </div>
                 <?php else: ?>
                     <div class="table-responsive">
@@ -55,64 +55,37 @@ require_once 'src/common/header.php';
                             <thead>
                                 <tr>
                                     <th>ល.រ</th>
-                                    <th>ប្រភេទលិខិត</th>
-                                    <th class="text-center">កាលបរិច្ឆេទ</th>
-                                    <th>រយៈពេល</th>
-                                    <th>ឯកសារភ្ជាប់</th>
+                                    <th>បទពិសោធន៍</th>
                                     <th>មូលហេតុ</th>
-                                    <th>ស្ថានភាព</th>
+                                    <th>ឯកសារភ្ជាប់</th>
                                     <th class="w-1">សកម្មភាព</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($getHolds as $key => $hold): ?>
+                                <?php foreach ($getResigns as $key => $resign): ?>
                                     <tr>
                                         <td><?= $key + 1 ?></td>
+                                        <td class="text-secondary"><?= $resign['workexperience'] ?></td>
+                                        <td class="text-secondary"><?= $resign['reason'] ?></td>
                                         <td class="text-secondary">
-                                            <?php if ($hold['type'] === 'hold'): ?>
-                                                <span class="badge <?= $hold['color'] ?>">លិខិតព្យួរ</span>
-                                            <?php elseif ($hold['type'] === 'resign'): ?>
-                                                <span class="badge <?= $hold['color'] ?>">លិខិតលារឈប់</span>
-                                            <?php elseif ($hold['type'] === 'transferout'): ?>
-                                                <span class="badge <?= $hold['color'] ?>">លិខិតផ្ទេរចេញ</span>
-                                            <?php else: ?>
-                                                <span class="badge bg-danger">លិខិតចូលបម្រើការងារវិញ</span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="text-secondary text-center">
-                                            <?= $hold['start_date'] . " ~ " . $hold['end_date'] ?>
-                                        </td>
-                                        <td class="text-secondary"><?= $hold['duration'] ?></td>
-                                        <td class="text-secondary">
-                                            <?php if (!empty($hold['attachment'])): ?>
-                                                <a href="public/uploads/hold-attachments/<?= $hold['attachment'] ?>"
-                                                    target="blank_">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                        stroke-linecap="round" stroke-linejoin="round"
-                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-paperclip">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path
-                                                            d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5" />
-                                                    </svg>
-                                                    ឯកសារភ្ជាប់</a>
-                                            <?php else: ?>
-                                                មិនមានឯកសារភ្ជាប់
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="text-secondary"><?= $hold['reason'] ?></td>
-                                        <td class="text-secondary">
-                                            <?php if ($hold['status'] === 'approved'): ?>
-                                                <span class="badge bg-success">អនុម័ត</span>
-                                            <?php elseif ($hold['status'] === 'pending'): ?>
-                                                <span class="badge bg-warning">រង់ចាំអនុម័ត</span>
-                                            <?php else: ?>
-                                                <span class="badge bg-danger">Inactive</span>
+                                            <?php if (!empty($resign['attachment'])): ?>
+                                                <ul>
+                                                    <?php
+                                                    $attachments = explode(',', $resign['attachment']);
+                                                    foreach ($attachments as $i => $attachment): ?>
+                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                            <a href="public/uploads/hold-attachments/<?= $attachment ?>" target="_blank">
+                                                                <span><?= $i + 1 ?></span>.
+                                                                ឯកសារភ្ជាប់
+                                                            </a>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                </ul>
                                             <?php endif; ?>
                                         </td>
                                         <td>
                                             <div class="d-flex">
-                                                <a href="/elms/view&edit-hold?holdId=<?= $hold['id'] ?>">
+                                                <a href="/elms/view&edit-resign?resignId=<?= $resign['id'] ?>">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                         stroke-linecap="round" stroke-linejoin="round"
@@ -124,7 +97,7 @@ require_once 'src/common/header.php';
                                                     </svg>
                                                 </a>
                                                 <a href="#" data-bs-toggle="modal"
-                                                    data-bs-target="#delete<?= htmlspecialchars($hold['id']) ?>"
+                                                    data-bs-target="#delete<?= htmlspecialchars($resign['id']) ?>"
                                                     class="mx-2 text-red">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -141,15 +114,15 @@ require_once 'src/common/header.php';
 
                                                 <!-- delete hold modal  -->
                                                 <div class="modal modal-blur fade"
-                                                    id="delete<?= htmlspecialchars($hold['id']) ?>" tabindex="-1" role="dialog"
+                                                    id="delete<?= htmlspecialchars($resign['id']) ?>" tabindex="-1" role="dialog"
                                                     aria-hidden="true">
                                                     <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
                                                         <div class="modal-content">
                                                             <div class="modal-status bg-danger"></div>
-                                                            <form action="/elms/delete-hold" method="POST">
+                                                            <form action="/elms/delete-resign" method="POST">
                                                                 <div class="modal-body text-center py-4 mb-0">
                                                                     <input type="hidden" name="id"
-                                                                        value="<?= htmlspecialchars($hold['id']) ?>">
+                                                                        value="<?= htmlspecialchars($resign['id']) ?>">
                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24"
                                                                         height="24" viewBox="0 0 24 24" fill="none"
                                                                         stroke="currentColor" stroke-width="2"
