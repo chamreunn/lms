@@ -475,7 +475,6 @@ class HoldController
         }
     }
 
-
     public function delete()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {

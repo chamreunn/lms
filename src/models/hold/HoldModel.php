@@ -122,16 +122,16 @@ class HoldModel
         }
     }
 
-     // Get a hold request by ID
-     public function getHoldRequestById($hold_id)
-     {
-         $sql = "SELECT * FROM $this->tblholds WHERE id = :hold_id";
-         $stmt = $this->pdo->prepare($sql);
-         $stmt->bindParam(':hold_id', $hold_id);
-         $stmt->execute();
-         
-         return $stmt->fetch(PDO::FETCH_ASSOC); // Fetch data as an associative array
-     }
+    // Get a hold request by ID
+    public function getHoldRequestById($hold_id)
+    {
+        $sql = "SELECT * FROM $this->tblholds WHERE id = :hold_id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':hold_id', $hold_id);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC); // Fetch data as an associative array
+    }
 
     public function getHoldCounts()
     {
@@ -146,16 +146,17 @@ class HoldModel
     {
         // Prepare the SQL query to get the hold request and all approval tracking steps specific to that hold request
         $sql = "
-            SELECT h.*, ha.status AS approval_status, ha.approved_at, ha.approver_id, ha.comments AS comment
-            FROM $this->tblholds_approvals ha
-            JOIN $this->tblholds h ON ha.hold_id = h.id
-            WHERE h.user_id = :userId AND h.id =:id ORDER BY ha.id DESC
-        ";
+        SELECT h.*, ha.status AS approval_status, ha.approved_at, ha.approver_id, ha.comments AS comment
+        FROM $this->tblholds_approvals ha
+        JOIN $this->tblholds h ON ha.hold_id = h.id
+        WHERE h.user_id = :userId AND h.id = :id 
+        ORDER BY ha.id DESC
+    ";
 
         // Prepare the statement
         $stmt = $this->pdo->prepare($sql);
 
-        // Bind the user ID parameter
+        // Bind the user ID and hold ID parameters
         $stmt->bindParam(':userId', $_SESSION['user_id'], PDO::PARAM_INT);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
@@ -166,49 +167,75 @@ class HoldModel
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if ($results) {
-            // Initialize UserModel
+            // Initialize UserModel and fetch department and office data
             $userModel = new User();
+            $departments = $userModel->getAllDepartmentApi($_SESSION['token']);
+            $offices = $userModel->getAllOfficeApi($_SESSION['token']);
+
+            // Create lookup tables for department and office names
+            $departmentsById = [];
+            if (!empty($departments['data'])) {
+                foreach ($departments['data'] as $department) {
+                    $departmentsById[$department['id']] = $department['departmentNameKh'];
+                }
+            }
+
+            $officesById = [];
+            if (!empty($offices['data'])) {
+                foreach ($offices['data'] as $office) {
+                    $officesById[$office['id']] = $office['officeNameKh'];
+                }
+            }
 
             // Fetch the submitter (user) data from the API
             $userApiResponse = $userModel->getUserByIdApi($results[0]['user_id'], $_SESSION['token']);
             if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
                 $user = $userApiResponse['data'];
 
-                // Add user info to the first result (submitter details)
+                // Add user (submitter) info to the first result (submitter details)
                 $results[0]['user_name'] = trim(($user['lastNameKh'] ?? 'Unknown') . " " . ($user['firstNameKh'] ?? ''));
                 $results[0]['dob'] = $user['dateOfBirth'] ?? 'Unknown';
                 $results[0]['user_email'] = $user['email'] ?? 'Unknown';
-                $results[0]['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $results[0]['department_name'] = $departmentsById[$user['department']['id']] ?? 'Unknown Department';
                 $results[0]['position_name'] = $user['position']['name'] ?? 'Unknown';
-                $results[0]['office_name'] = $user['office']['name'] ?? 'Unknown';
+                $results[0]['office_name'] = $officesById[$user['office']['id']] ?? 'Unknown Office';
                 $results[0]['user_profile'] = !empty($user['image']) ? 'https://hrms.iauoffsa.us/images/' . $user['image'] : 'default-profile.png';
             }
 
-            // For each approval, fetch approver details
+            // For each approval, fetch approver details and department/office names
             foreach ($results as &$result) {
                 if ($result['approver_id']) {
                     // Fetch the approver's data via API
                     $approverApiResponse = $userModel->getUserByIdApi($result['approver_id'], $_SESSION['token']);
                     if ($approverApiResponse && $approverApiResponse['http_code'] === 200 && isset($approverApiResponse['data'])) {
                         $approver = $approverApiResponse['data'];
+
                         // Add approver details to the result
                         $result['approver_name'] = trim(($approver['lastNameKh'] ?? 'Unknown') . " " . ($approver['firstNameKh'] ?? ''));
                         $result['profile'] = !empty($approver['image']) ? 'https://hrms.iauoffsa.us/images/' . $approver['image'] : 'default-profile.png';
                         $result['position_name'] = $approver['position']['name'] ?? 'Unknown';
+                        $result['approver_department_name'] = $departmentsById[$approver['department']['id']] ?? 'Unknown Department';
+                        $result['approver_office_name'] = $officesById[$approver['office']['id']] ?? 'Unknown Office';
                     } else {
+                        // If no approver info is available, add placeholders
                         $result['approver_name'] = 'Unknown';
-                        $result['profile'] = 'default-profile.png'; // Default profile if no approver info is available
+                        $result['profile'] = 'default-profile.png';
+                        $result['approver_department_name'] = 'Unknown Department';
+                        $result['approver_office_name'] = 'Unknown Office';
                     }
                 } else {
+                    // If no approver is assigned
                     $result['approver_name'] = 'No approver assigned';
-                    $result['profile'] = 'default-profile.png'; // Default profile if no approver assigned
+                    $result['profile'] = 'default-profile.png';
+                    $result['approver_department_name'] = 'Unknown Department';
+                    $result['approver_office_name'] = 'Unknown Office';
                 }
             }
 
             return $results;
         }
 
-        return [];
+        return []; // Return an empty array if no results are found
     }
 
     public function insertManagerStatusToHoldsApprovals($hold_id, $approver_id, $status)

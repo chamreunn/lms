@@ -1247,6 +1247,25 @@ switch ($uri) {
             $holdController->create();
         });
         break;
+    case $base_url . '/view&edit-transferout':
+        checkSessionAndExecute(function () {
+            if (isset($_GET['transferId']) && !empty($_GET['transferId'])) {
+                $holdController = new TransferoutController();
+                $holdController->view($_GET['transferId']);
+            } else {
+                // Handle error: no valid holdId
+                $_SESSION['error'] = "No valid hold ID provided!";
+                header("Location: /elms/hold");
+                exit();
+            }
+        });
+        break;
+    case $base_url . '/delete-transferout':
+        checkSessionAndExecute(function () {
+            $controller = new TransferoutController();
+            $controller->delete();
+        });
+        break;
     case $base_url . '/resign':
         checkSessionAndExecute(function () {
             $holdController = new ResignController();

@@ -44,10 +44,10 @@ require_once 'src/common/header.php';
                     </ul>
                 </div>
                 <!-- Table -->
-                <?php if (empty($getHolds)): ?>
+                <?php if (empty($gettransferouts)): ?>
                     <div class="text-center">
                         <img src="public/img/icons/svgs/empty.svg" alt="">
-                        <p class="text-primary fw-bold">មិនមានលិខិតព្យួរ។</p>
+                        <p class="text-primary fw-bold">មិនមានលិខិតផ្ទេរចេញទេ។</p>
                     </div>
                 <?php else: ?>
                     <div class="table-responsive">
@@ -56,8 +56,8 @@ require_once 'src/common/header.php';
                                 <tr>
                                     <th>ល.រ</th>
                                     <th>ប្រភេទលិខិត</th>
-                                    <th class="text-center">កាលបរិច្ឆេទ</th>
-                                    <th>រយៈពេល</th>
+                                    <th class="text-center">នយកដ្ឋាន</th>
+                                    <th class="text-center">ការិយាល័យ</th>
                                     <th>ឯកសារភ្ជាប់</th>
                                     <th>មូលហេតុ</th>
                                     <th>ស្ថានភាព</th>
@@ -65,7 +65,7 @@ require_once 'src/common/header.php';
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($getHolds as $key => $hold): ?>
+                                <?php foreach ($gettransferouts as $key => $hold): ?>
                                     <tr>
                                         <td><?= $key + 1 ?></td>
                                         <td class="text-secondary">
@@ -80,22 +80,25 @@ require_once 'src/common/header.php';
                                             <?php endif; ?>
                                         </td>
                                         <td class="text-secondary text-center">
-                                            <?= $hold['start_date'] . " ~ " . $hold['end_date'] ?>
+                                            <?= $hold['from_department_name'] . " ~ " . $hold['to_department_name'] ?>
                                         </td>
-                                        <td class="text-secondary"><?= $hold['duration'] ?></td>
-                                        <td class="text-secondary">
+                                        <td class="text-secondary text-center">
+                                            <?= $hold['from_office_name'] . " ~ " . $hold['to_office_name'] ?>
+                                        </td>
+                                        <td class="text-secondary d-none d-xl-table-cell">
                                             <?php if (!empty($hold['attachment'])): ?>
-                                                <a href="public/uploads/hold-attachments/<?= $hold['attachment'] ?>"
-                                                    target="blank_">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                        stroke-linecap="round" stroke-linejoin="round"
-                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-paperclip">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path
-                                                            d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5" />
-                                                    </svg>
-                                                    ឯកសារភ្ជាប់</a>
+                                                <?php
+                                                // Split the attachment string into an array
+                                                $attachments = explode(',', $hold['attachment']);
+                                                ?>
+                                                <?php if (!empty($attachments)): ?>
+                                                    <?php foreach ($attachments as $index => $attachment): ?>
+                                                        <a href="public/uploads/transferout-attachments/<?= $attachment ?>" target="_blank">
+                                                            <!-- Display attachment with numbering -->
+                                                            <?= ($index + 1) . ". " ?>ឯកសារភ្ជាប់ <?= $index + 1 ?>
+                                                        </a><br>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
                                             <?php else: ?>
                                                 មិនមានឯកសារភ្ជាប់
                                             <?php endif; ?>
@@ -112,7 +115,7 @@ require_once 'src/common/header.php';
                                         </td>
                                         <td>
                                             <div class="d-flex">
-                                                <a href="/elms/view&edit-hold?holdId=<?= $hold['id'] ?>">
+                                                <a href="/elms/view&edit-transferout?transferId=<?= $hold['id'] ?>">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                         stroke-linecap="round" stroke-linejoin="round"
@@ -146,7 +149,7 @@ require_once 'src/common/header.php';
                                                     <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
                                                         <div class="modal-content">
                                                             <div class="modal-status bg-danger"></div>
-                                                            <form action="/elms/delete-hold" method="POST">
+                                                            <form action="/elms/delete-transferout" method="POST">
                                                                 <div class="modal-body text-center py-4 mb-0">
                                                                     <input type="hidden" name="id"
                                                                         value="<?= htmlspecialchars($hold['id']) ?>">
@@ -195,8 +198,47 @@ require_once 'src/common/header.php';
                             </tbody>
                         </table>
                     </div>
-                <?php endif; ?>
+                    <!-- Pagination Logic -->
+                    <div class="card-footer">
+                        <?php
+                        $totalRecords = $transferModel->getTransferoutCountById(); // Use the method to get total records
+                        $totalPages = ceil($totalRecords / $recordsPerPage); // Calculate total pages
+                        ?>
 
+                        <ul class="pagination justify-content-end mb-0">
+                            <li class="page-item <?= $currentPage == 1 ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?page=<?= $currentPage - 1 ?>" tabindex="-1"
+                                    aria-disabled="true">
+                                    <!-- Chevron left icon -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="icon">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <path d="M15 6l-6 6l6 6"></path>
+                                    </svg>
+                                </a>
+                            </li>
+
+                            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                <li class="page-item <?= $i == $currentPage ? 'active' : '' ?>">
+                                    <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                                </li>
+                            <?php endfor; ?>
+
+                            <li class="page-item <?= $currentPage == $totalPages ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?page=<?= $currentPage + 1 ?>">
+                                    <!-- Chevron right icon -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="icon">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <path d="M9 6l6 6l-6 6"></path>
+                                    </svg>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

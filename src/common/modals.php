@@ -1364,14 +1364,18 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="/elms/apply-transferout" method="POST" enctype="multipart/form-data">
+                <!-- CSRF token field -->
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['token']); ?>">
+
                 <div class="modal-body">
                     <div class="row g-3">
+                        <!-- from department  -->
                         <div class="col-lg-6 col-sm-12 col-md-12">
                             <label for="start_date" class="form-label fw-bold">ពីនាយកដ្ឋាន
                                 <span class="text-danger mx-1 fw-bold">*</span>
                             </label>
                             <div class="input-icon">
-                                <select name="fromDepartment" id="department" class="form-select ts-select">
+                                <select name="fromdepartment" id="department" class="form-select ts-select" required>
                                     <option value="<?= $_SESSION['departmentId'] ?>"><?= $_SESSION['departmentName'] ?>
                                     </option>
                                     <?php if (!empty($departments['data'])): ?>
@@ -1386,12 +1390,13 @@
                                 </select>
                             </div>
                         </div>
+                        <!-- to department  -->
                         <div class="col-lg-6 col-sm-12 col-md-12">
                             <label for="end_date" class="form-label fw-bold">ទៅនាយកដ្ឋាន
                                 <span class="text-danger mx-1 fw-bold">*</span>
                             </label>
                             <div class="input-icon">
-                                <select name="toDepartment" id="department" class="form-select ts-select">
+                                <select name="todepartment" id="department" class="form-select ts-select">
                                     <option selected disabled>ជ្រើសរើសនាយកដ្ឋាន
                                     </option>
                                     <?php if (!empty($departments['data'])): ?>
@@ -1406,12 +1411,13 @@
                                 </select>
                             </div>
                         </div>
+                        <!-- from office  -->
                         <div class="col-lg-6 col-sm-12 col-md-12">
                             <label for="start_date" class="form-label fw-bold">ពីការិយាល័យ
                                 <span class="text-danger mx-1 fw-bold">*</span>
                             </label>
                             <div class="input-icon">
-                                <select name="fromOffice" id="office" class="form-select ts-select">
+                                <select name="fromoffice" id="office" class="form-select ts-select">
                                     <option value="<?= $_SESSION['officeId'] ?>"><?= $_SESSION['officeName'] ?>
                                     </option>
                                     <?php if (!empty($offices['data'])): ?>
@@ -1426,12 +1432,13 @@
                                 </select>
                             </div>
                         </div>
+                        <!-- to office  -->
                         <div class="col-lg-6 col-sm-12 col-md-12">
-                            <label for="end_date" class="form-label fw-bold">ទៅការិយាល័យ
+                            <label for="end_date" class="form-label fw-bold">ទៅកាន់ការិយាល័យ
                                 <span class="text-danger mx-1 fw-bold">*</span>
                             </label>
                             <div class="input-icon">
-                                <select name="toOffice" id="offices" class="form-select ts-select">
+                                <select name="tooffice" id="offices" class="form-select ts-select">
                                     <option selected disabled>ជ្រើសរើសការិយាល័យ
                                     </option>
                                     <?php if (!empty($offices['data'])): ?>
@@ -1446,15 +1453,37 @@
                                 </select>
                             </div>
                         </div>
+                        <!-- approver ID -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold">អ្នកអនុម័ត<span
+                                    class="text-danger mx-1 fw-bold">*</span></label>
+                            <select class="form-select select-people" id="transfer_id_hof" name="approverId" required>
+                                <?php if (isset($approver['ids'][0])): ?>
+                                    <option value="<?= htmlspecialchars($approver['ids'][0], ENT_QUOTES, 'UTF-8') ?>"
+                                        data-custom-properties="&lt;span class=&quot;avatar avatar-xs&quot; style=&quot;background-image: url('https://hrms.iauoffsa.us/images/<?= htmlspecialchars($approver['image'][0], ENT_QUOTES, 'UTF-8') ?>')&quot;&gt;&lt;/span&gt;">
+                                        <?= htmlspecialchars($approver['lastNameKh'][0], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($approver['firstNameKh'][0], ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endif; ?>
+
+                                <?php foreach ($approver['ids'] as $index => $id): ?>
+                                    <option value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>"
+                                        data-custom-properties="&lt;span class=&quot;avatar avatar-xs&quot; style=&quot;background-image: url('https://hrms.iauoffsa.us/images/<?= htmlspecialchars($approver['image'][$index], ENT_QUOTES, 'UTF-8') ?>')&quot;&gt;&lt;/span&gt;">
+                                        <?= htmlspecialchars($approver['lastNameKh'][$index], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($approver['firstNameKh'][$index], ENT_QUOTES, 'UTF-8') ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <!-- attachment  -->
                         <div>
                             <label class="form-label fw-bold">ឯកសារភ្ជាប់</label>
                             <div class="row g-2">
                                 <div class="col">
-                                    <input type="file" name="attachment" accept=".pdf, .docx, .xlsx"
-                                        class="form-control">
+                                    <input type="file" name="attachment[]" accept=".pdf, .docx, .xlsx"
+                                        class="form-control" multiple>
                                 </div>
                             </div>
                         </div>
+                        <!-- reason  -->
                         <div>
                             <label for="reason" class="form-label fw-bold">មូលហេតុ
                                 <span class="text-danger mx-1 fw-bold">*</span>
@@ -1465,6 +1494,7 @@
                                     class="form-control" name="reason" required></textarea>
                             </div>
                         </div>
+                        <!-- agreement  -->
                         <div>
                             <label class="form-check">
                                 <input class="form-check-input cursor-pointer" type="checkbox" name="agree" required>
@@ -1475,6 +1505,7 @@
                         </div>
                     </div>
                 </div>
+                <!-- submit button  -->
                 <div class="modal-footer bg-light">
                     <div class="w-100">
                         <div class="row">
@@ -1561,7 +1592,7 @@
     </div>
 </div>
 
-<!-- Modal Apply resign -->
+<!-- Modal Apply backwork -->
 <div class="modal modal-blur fade" id="backwork" tabindex="-1" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">

@@ -29,6 +29,47 @@ class TransferoutController
             $offices['data'] = []; // Fallback to empty data if there's an error
         }
 
+        // Get the current page and set the number of records per page
+        $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $recordsPerPage = 5; // Set the desired number of records per page
+
+        // Calculate the offset for the current page
+        $offset = ($currentPage - 1) * $recordsPerPage;
+
+        // Initialize the HoldModel with the database connection
+        $transferModel = new TransferoutModel($this->pdo);
+
+        // Fetch the holds for the current user based on the offset and records per page
+        $gettransferouts = $transferModel->getTransferoutWithDetails($offset, $recordsPerPage);
+
+        // Initialize the UserModel
+        $userModel = new User();
+
+        // Fetch the department or office leader's email using session user_id and token
+        $approver = $userModel->getEmailLeaderDOApi($_SESSION['user_id'], $_SESSION['token']);
+
+        // Check if the current leader is on leave or on a mission
+        if ($userModel->isManagerOnLeaveToday($approver['ids']) || $userModel->isManagerOnMission($approver['ids'])) {
+            // If on leave or on mission, try to get the higher-level leader
+            $approver = $userModel->getEmailLeaderHOApi($_SESSION['user_id'], $_SESSION['token']);
+
+            // Check if the higher-level leader is also on leave or on mission
+            if ($userModel->isManagerOnLeaveToday($approver['ids']) || $userModel->isManagerOnMission($approver['ids'])) {
+                // If still on leave or on mission, get the Deputy Director leader
+                $approver = $userModel->getEmailLeaderDDApi($_SESSION['user_id'], $_SESSION['token']);
+
+                if ($userModel->isManagerOnLeaveToday($approver['ids']) || $userModel->isManagerOnMission($approver['ids'])) {
+                    // If still on leave or on mission, get the Deputy Director leader
+                    $approver = $userModel->getEmailLeaderHDApi($_SESSION['user_id'], $_SESSION['token']);
+                }
+            }
+        }
+
+        // Fetch the total number of records to calculate the total pages for pagination
+        $totalRecords = $transferModel->getTransferoutCountById();
+        $totalPages = ceil($totalRecords / $recordsPerPage); // Calculate total pages
+
+        // Load the view
         require 'src/views/transferout/index.php';
     }
 
@@ -42,8 +83,6 @@ class TransferoutController
         // Check if the request method is POST
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-            $userModel = new User();
-
             // Validate required fields
             if (
                 empty($_SESSION['user_id']) || empty($_POST['fromdepartment']) || empty($_POST['todepartment']) || empty($_POST['fromoffice'])
@@ -53,23 +92,25 @@ class TransferoutController
                     'title' => "បញ្ចូលទិន្នន័យមិនគ្រប់គ្រាន់",
                     'message' => "សូមបំពេញព័ត៌មានទាំងអស់។"
                 ];
-                header("Location: /elms/hold");
+                header("Location: /elms/transferout");
                 exit();
             }
 
             // Sanitize and assign input values
             $user_id = $_SESSION['user_id'];
-            $fromdepartment = $_POST['fromdepartment'];
-            $todepartment = $_POST['todepartment'];
-            $fromoffice = $_POST['fromoffice'];
-            $tooffice = $_POST['tooffice'];
-            $reason = $_POST['reason'];
-            $approver = $_POST['approverId'];
+            $fromdepartment = htmlspecialchars($_POST['fromdepartment']);
+            $todepartment = htmlspecialchars($_POST['todepartment']);
+            $fromoffice = htmlspecialchars($_POST['fromoffice']);
+            $tooffice = htmlspecialchars($_POST['tooffice']);
+            $reason = htmlspecialchars($_POST['reason']);
+            $approver = htmlspecialchars($_POST['approverId']);
 
-            $type = 'transfer';
+            // Static assignment for notification parameters
+            $type = 'transferout';
             $color = 'bg-info';
             $title = "លិខិតផ្ទេការងារ";
 
+            // Handle attachments
             $attachments = [];
             if (!empty($_FILES['attachment']['name'][0])) {
                 // Loop through each file
@@ -84,12 +125,12 @@ class TransferoutController
 
                         // Perform validations (file size, type)
                         $allowedTypes = ['docx', 'pdf'];
-                        $maxFileSize = 50097152; // 50MB
+                        $maxFileSize = 5097152; // 5MB
 
                         $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
 
                         if ($fileError === 0 && in_array($fileExtension, $allowedTypes) && $fileSize <= $maxFileSize) {
-                            $destination = 'public/uploads/hold-attachments/' . $fileName;
+                            $destination = 'public/uploads/transferout-attachments/' . $fileName;
 
                             // Move file to the destination
                             if (move_uploaded_file($fileTmpPath, $destination)) {
@@ -99,7 +140,7 @@ class TransferoutController
                                     'title' => "ឯកសារភ្ជាប់",
                                     'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។ សូមព្យាយាមម្តងទៀត។"
                                 ];
-                                header("Location: /elms/hold");
+                                header("Location: /elms/transferout");
                                 exit();
                             }
                         } else {
@@ -120,51 +161,49 @@ class TransferoutController
             // Prepare data for saving
             $data = [
                 'user_id' => $user_id,
-                'fromdepartment' => $fromdepartment,
-                'todepartment' => $todepartment,
-                'fromoffice' => $fromoffice,
+                'from_department' => $fromdepartment,  // Ensure the database column name is correct
+                'to_department' => $todepartment,
+                'from_office' => $fromoffice,
+                'to_office' => $tooffice,
                 'attachment' => $attachment_names,
-                'tooffice' => $tooffice,
                 'type' => $type,
                 'color' => $color,
+                'reason' => $reason,
                 'approver_id' => $approver
             ];
 
+
             try {
-                // Save the hold request using the HoldModel
-                $userModel = new User();
-                $transferout = new transferoutModel($this->pdo);
+                // Save the hold request using the TransferoutModel
+                $transferout = new TransferoutModel($this->pdo);
                 $transferout_id = $transferout->createTransferout($data);
 
                 // Recursive manager delegation
-                $this->delegateManager($transferout, $userModel, $transferout_id, $_SESSION['user_id'], $reason);
+                $this->delegateManager($transferout, new User(), $transferout_id, $_SESSION['user_id'], $reason);
 
-                $link = "https://leave.iauoffsa.us/elms/pending";
-
-                // Send notification after saving the request
-                // $sendToTelegram = $userModel->tranferout($title, $approver, $start_date, $end_date, $duration, $reason, $link);
+                // Optionally, send notification to Telegram
+                // $link = "https://leave.iauoffsa.us/elms/pending";
+                // $userModel = new User();
+                // $sendToTelegram = $userModel->transferout($title, $approver, $fromdepartment, $todepartment, $fromoffice, $tooffice, $reason, $link);
 
                 $_SESSION['success'] = [
                     'title' => "ជោគជ័យ",
                     'message' => "សំណើរបានបញ្ចូលដោយជោគជ័យ"
                 ];
-                header("Location: /elms/hold");
+                header("Location: /elms/transferout");
                 exit();
             } catch (Exception $e) {
                 $_SESSION['error'] = [
                     'title' => "កំហុស",
-                    'message' => $e->getMessage()
+                    'message' => "មានបញ្ហាក្នុងការបញ្ចូលទិន្នន័យ: " . $e->getMessage()
                 ];
-                header("Location: /elms/hold");
+                header("Location: /elms/transferout");
                 exit();
             }
         }
     }
 
-    /**
-     * Recursively delegate manager to handle the approval if the current is unavailable.
-     */
-    private function delegateManager($holdRequestModel, $userModel, $hold_id, $user_id, $reason)
+    private function delegateManager($transferout, $userModel, $transferout_id, $user_id, $reason)
     {
         $levels = ['getEmailLeaderDOApi', 'getEmailLeaderHOApi', 'getEmailLeaderDDApi', 'getEmailLeaderHDApi'];
         $statuses = ['leave' => 'leave', 'mission' => 'mission'];
@@ -172,13 +211,13 @@ class TransferoutController
         foreach ($levels as $apiMethod) {
             $approver = $userModel->$apiMethod($user_id, $_SESSION['token']);
             if ($approver && !$userModel->isManagerOnLeaveToday($approver['ids']) && !$userModel->isManagerOnMission($approver['ids'])) {
-                $holdRequestModel->insertManagerStatusToHoldsApprovals($hold_id, $approver['ids'], 'pending');
+                $transferout->insertManagerStatusToHoldsApprovals($transferout_id, $approver['ids'], 'pending');
                 return; // Stop when a valid approver is found
             }
 
             // Insert status if the manager is on leave or mission
             $status = $userModel->isManagerOnLeaveToday($approver['ids']) ? $statuses['leave'] : $statuses['mission'];
-            $holdRequestModel->insertManagerStatusToHoldsApprovals($hold_id, $approver['ids'], $status);
+            $transferout->insertManagerStatusToHoldsApprovals($transferout_id, $approver['ids'], $status);
         }
     }
 
@@ -231,6 +270,53 @@ class TransferoutController
                 'message' => "Failed to move the uploaded file."
             ];
             return false;
+        }
+    }
+
+    public function view($id)
+    {
+        $transferoutModel = new TransferoutModel($this->pdo);
+        $getTransferouts = $transferoutModel->getTransferoutById($id);
+        require 'src/views/transferout/view&edit.php';
+    }
+
+    public function delete()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Collect form data
+            $id = $_POST['id'];
+
+            // Validate that the ID is provided
+            if (!empty($id)) {
+                // Call model to delete holiday
+                $transferoutModel = new TransferoutModel($this->pdo);
+                $success = $transferoutModel->deleteTransferout($id);
+
+                if ($success) {
+                    // Redirect or show success message
+                    $_SESSION['success'] = [
+                        'title' => "ជោគជ័យ",
+                        'message' => "លុបបានជោគជ័យ។"
+                    ];
+                    header("Location: /elms/transferout");
+                    exit();
+                } else {
+                    // Handle the error case
+                    $_SESSION['error'] = [
+                        'title' => "បរាជ័យ",
+                        'message' => "មិនអាចលុបបានទេ។"
+                    ];
+                    header("Location: /elms/transferout");
+                    exit();
+                }
+            } else {
+                $_SESSION['error'] = [
+                    'title' => "បរាជ័យ",
+                    'message' => "សូមផ្តល់ ID ថ្ងៃឈប់សម្រាក។"
+                ];
+                header("Location: /elms/transferout");
+                exit();
+            }
         }
     }
 }
