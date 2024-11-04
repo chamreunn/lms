@@ -86,10 +86,10 @@ require_once 'src/common/header.php';
                                             <?= $hold['from_office_name'] . " ~ " . $hold['to_office_name'] ?>
                                         </td>
                                         <td class="text-secondary d-none d-xl-table-cell">
-                                            <?php if (!empty($hold['attachment'])): ?>
+                                            <?php if (!empty($hold['attachments'])): ?>
                                                 <?php
                                                 // Split the attachment string into an array
-                                                $attachments = explode(',', $hold['attachment']);
+                                                $attachments = explode(',', $hold['attachments']);
                                                 ?>
                                                 <?php if (!empty($attachments)): ?>
                                                     <?php foreach ($attachments as $index => $attachment): ?>

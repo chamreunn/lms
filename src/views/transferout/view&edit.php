@@ -32,7 +32,6 @@ require_once 'src/common/header.php';
 <!-- Main container for displaying and editing hold request -->
 <div class="container-xl">
     <div class="row g-3">
-
         <!-- Transfer Request Details -->
         <div class="col-lg-6 col-md-12">
             <div class="card">
@@ -45,226 +44,266 @@ require_once 'src/common/header.php';
                     </span>
                 </div>
 
-                <!-- Transfer Details Form -->
-                <form action="/elms/edit-transferout" method="POST" enctype="multipart/form-data">
-                    <div class="card-body">
-                        <input type="hidden" name="holdId" value="<?= $getTransferouts[0]['id'] ?? '' ?>">
-                        <input type="hidden" name="approverId" value="<?= $getTransferouts[0]['approver_id'] ?? '' ?>">
-                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['token'] ?? '' ?>">
+                <div class="card-body">
+                    <input type="hidden" name="holdId" value="<?= $getTransferouts[0]['id'] ?? '' ?>">
+                    <input type="hidden" name="approverId" value="<?= $getTransferouts[0]['approver_id'] ?? '' ?>">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['token'] ?? '' ?>">
 
-                        <!-- Transfer Information Section -->
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h5 class="text-primary">ពី</h5>
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">នាយកដ្ឋាន</label>
-                                    <input type="text" class="form-control" name="from_department"
-                                        value="<?= $getTransferouts[0]['from_department_name'] ?? '' ?>" disabled>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">ការិយាល័យ</label>
-                                    <input type="text" class="form-control" name="from_office"
-                                        value="<?= $getTransferouts[0]['from_office_name'] ?? '' ?>" disabled>
-                                </div>
+                    <!-- Transfer Information Section -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-primary">ពី</h5>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">នាយកដ្ឋាន</label>
+                                <input type="text" class="form-control" name="from_department"
+                                    value="<?= $getTransferouts[0]['from_department_name'] ?? '' ?>" disabled>
                             </div>
-                            <div class="col-md-6">
-                                <h5 class="text-primary">ទៅកាន់</h5>
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">នាយកដ្ឋាន</label>
-                                    <input type="text" class="form-control" name="to_department"
-                                        value="<?= $getTransferouts[0]['to_department_name'] ?? '' ?>" disabled>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">ការិយាល័យ</label>
-                                    <input type="text" class="form-control" name="to_office"
-                                        value="<?= $getTransferouts[0]['to_office_name'] ?? '' ?>" disabled>
-                                </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">ការិយាល័យ</label>
+                                <input type="text" class="form-control" name="from_office"
+                                    value="<?= $getTransferouts[0]['from_office_name'] ?? '' ?>" disabled>
                             </div>
                         </div>
-
-                        <!-- Additional Details -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-primary">កាលបរិច្ឆេទស្នើ</label>
-                            <input type="text" class="form-control"
-                                value="<?= $getTransferouts[0]['created_at'] ?? '' ?>" disabled>
+                        <div class="col-md-6">
+                            <h5 class="text-primary">ទៅកាន់</h5>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">នាយកដ្ឋាន</label>
+                                <input type="text" class="form-control" name="to_department"
+                                    value="<?= $getTransferouts[0]['to_department_name'] ?? '' ?>" disabled>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">ការិយាល័យ</label>
+                                <input type="text" class="form-control" name="to_office"
+                                    value="<?= $getTransferouts[0]['to_office_name'] ?? '' ?>" disabled>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="reason" class="form-label fw-bold text-primary">មូលហេតុ</label>
-                            <textarea class="form-control" id="reason" name="reason"
-                                required><?= $getTransferouts[0]['reason'] ?? '' ?></textarea>
-                        </div>
+                    </div>
 
-                        <!-- Attachments Section -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold text-primary">Attachments</label>
-                            <input type="file" class="form-control" id="attachment" name="attachment[]"
-                                accept=".pdf,.docx" multiple>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-primary">កាលបរិច្ឆេទស្នើ</label>
+                        <input type="text" class="form-control" value="<?= $getTransferouts[0]['created_at'] ?? '' ?>"
+                            disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reason" class="form-label fw-bold text-primary">មូលហេតុ</label>
+                        <textarea class="form-control" id="reason" name="reason"
+                            disabled><?= $getTransferouts[0]['reason'] ?? '' ?></textarea>
+                    </div>
 
-                            <?php if (!empty($getTransferouts[0]['attachment'])): ?>
-                                <p class="mt-3">Current Attachments:</p>
-                                <ul class="list-group">
-                                    <?php
-                                    $attachments = explode(',', $getTransferouts[0]['attachment']);
-                                    foreach ($attachments as $attachment): ?>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <a href="public/uploads/transferout-attachments/<?= $attachment ?>"
-                                                target="_blank"><?= $attachment ?></a>
-                                            <!-- Delete button that triggers the modal -->
-                                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
-                                                data-bs-target="attachmentId<?= $attachment ?>">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-trash mx-0">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M4 7l16 0" />
-                                                    <path d="M10 11l0 6" />
-                                                    <path d="M14 11l0 6" />
-                                                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                                </svg>
-                                            </button>
-                                        </li>
-                                        <!-- Confirmation Modal for File Removal -->
-                                        <div class="modal modal-blur fade" id="attachmentId<?= $attachment ?>">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title text-danger" id="confirmRemoveModalLabel">Confirm
-                                                            File
-                                                            Deletion</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
+                    <!-- Attachments Section -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-primary">បន្ថែមឯកសារភ្ជាប់</label>
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#addMore"
+                            class="btn btn-primary w-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M12 5l0 14" />
+                                <path d="M5 12l14 0" />
+                            </svg>
+                            បន្ថែម
+                        </button>
+
+                        <!-- delete hold modal  -->
+                        <div class="modal modal-blur fade" id="addMore" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-status bg-danger"></div>
+                                    <form action="/elms/addMoreAttachment" method="POST" enctype="multipart/form-data">
+                                        <div class="modal-body text-center py-4 mb-0">
+                                            <input type="hidden" name="id"
+                                                value="<?= $getTransferouts[0]['id'] ?? '' ?>">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon text-primary icon-lg icon-tabler icons-tabler-outline icon-tabler-paperclip">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path
+                                                    d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5" />
+                                            </svg>
+                                            <h5 class="modal-title fw-bold text-primary">បន្ថែមឯកសារភ្ជាប់</h5>
+                                            <div class="input-group">
+                                                <ul class="selected-files text-start mb-3"></ul>
+                                                <label for="attachments"
+                                                    class="btn btn-primary file-label w-100 rounded">ជ្រើសរើសឯកសារភ្ជាប់</label>
+                                                <input type="file" name="moreAttachment[]" id="attachments"
+                                                    class="file-input d-none" multiple accept=".docx, .xlsx, .pdf">
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer bg-light">
+                                            <div class="w-100">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <button type="button" class="btn w-100"
+                                                            data-bs-dismiss="modal">បោះបង់</button>
                                                     </div>
-                                                    <div class="modal-body">
-                                                        <p>Are you sure you want to delete this attachment?</p>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary"
-                                                            data-bs-dismiss="modal">Cancel</button>
-                                                        <button type="button" class="btn btn-danger"
-                                                            id="confirmDeleteButton">Delete</button>
+                                                    <div class="col">
+                                                        <button type="submit"
+                                                            class="btn btn-danger ms-auto w-100">យល់ព្រម</button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    <?php endforeach; ?>
-                                </ul>
-                            <?php endif; ?>
-
-                            <!-- Button to trigger the modal -->
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                data-bs-target="#attachmentModal">
-                                Manage Attachments
-                            </button>
-
-                            <!-- Attachment Modal Form -->
-                            <div class="modal fade" id="attachmentModal" tabindex="-1"
-                                aria-labelledby="attachmentModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <form method="post"
-                                            action="index.php?controller=TransferoutController&action=updateAttachments"
-                                            enctype="multipart/form-data">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="attachmentModalLabel">Manage Attachments
-                                                </h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <!-- Existing Attachments -->
-                                                <?php if (!empty($getTransferouts['attachment'])): ?>
-                                                    <p>Existing Attachments:</p>
-                                                    <ul class="list-group">
-                                                        <?php
-                                                        $attachments = explode(',', $getTransferouts['attachment']);
-                                                        foreach ($attachments as $attachment): ?>
-                                                            <li
-                                                                class="list-group-item d-flex justify-content-between align-items-center">
-                                                                <a href="public/uploads/transferout-attachments/<?= $attachment ?>"
-                                                                    target="_blank"><?= $attachment ?></a>
-                                                                <input type="checkbox" name="delete_attachments[]"
-                                                                    value="<?= $attachment ?>"> Delete
-                                                            </li>
-                                                        <?php endforeach; ?>
-                                                    </ul>
-                                                <?php endif; ?>
-                                                <!-- Hidden input to keep track of existing attachments -->
-                                                <input type="hidden" name="existing_attachments"
-                                                    value="<?= implode(',', $attachments) ?>">
-
-                                                <!-- New Attachment Upload -->
-                                                <div class="mt-3">
-                                                    <label for="new_attachments" class="form-label">Add New
-                                                        Attachments</label>
-                                                    <input type="file" name="new_attachments[]" class="form-control"
-                                                        accept=".pdf,.docx" multiple>
-                                                </div>
-                                                <input type="hidden" name="transferout_id"
-                                                    value="<?= $getTransferouts[0]['id'] ?>">
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="submit" class="btn btn-primary">Save Changes</button>
-                                                <button type="button" class="btn btn-secondary"
-                                                    data-bs-dismiss="modal">Close</button>
-                                            </div>
-                                        </form>
-                                    </div>
+                                    </form>
                                 </div>
                             </div>
-
                         </div>
-                    </div>
 
-                    <!-- Action Buttons -->
-                    <div class="card-footer">
-                        <?php if ($getTransferouts[0]['status'] !== 'approved'): ?>
-                            <button type="submit" class="btn btn-primary w-100">Edit</button>
-                        <?php else: ?>
-                            <button type="button" class="btn btn-secondary w-100" disabled>Edit (Approved)</button>
+                        <?php if (!empty($getTransferouts[0]['attachments'])): ?>
+                            <p class="mt-3">ឯកសារបច្ចុប្បន្ន៖</p>
+                            <ul class="list-group mb-3">
+                                <?php
+                                $attachments = explode(',', $getTransferouts[0]['attachments']);
+                                foreach ($attachments as $attachment): // Loop through each attachment
+                                    // Generate a unique ID for the modal using the attachment name
+                                    $attachmentId = md5($attachment);
+                                    ?>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <a href="public/uploads/transferout-attachments/<?= htmlspecialchars($attachment) ?>"
+                                                target="_blank">
+                                                <?= htmlspecialchars($attachment) ?>
+                                            </a>
+                                        </div>
+                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#deleteAttachment<?= $attachmentId ?>">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-trash mx-0">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M4 7l16 0" />
+                                                <path d="M10 11l0 6" />
+                                                <path d="M14 11l0 6" />
+                                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                            </svg>
+                                        </button>
+                                    </li>
+
+                                    <!-- Delete Confirmation Modal -->
+                                    <div class="modal fade" id="deleteAttachment<?= $attachmentId ?>" tabindex="-1"
+                                        aria-labelledby="modalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-sm modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <form action="/elms/deleteTranoutAttachment" method="POST">
+                                                    <div class="modal-body text-center py-4 mb-0">
+                                                        <input type="hidden" name="attachment"
+                                                            value="<?= htmlspecialchars($attachment) ?>">
+                                                        <input type="hidden" name="id"
+                                                            value="<?= $getTransferouts[0]['id'] ?? '' ?>">
+                                                        <!-- Include the transferout ID -->
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                            class="icon mb-2 text-danger icon-lg">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                            <path d="M12 9v4"></path>
+                                                            <path
+                                                                d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
+                                                            </path>
+                                                            <path d="M12 16h.01"></path>
+                                                        </svg>
+                                                        <h5 class="modal-title fw-bold text-danger">លុបឯកសារ</h5>
+                                                        <p class="mb-0">តើអ្នកប្រាកដទេថានិងលុបឯកសារ <span
+                                                                class="text-red fw-bold"><?= htmlspecialchars($attachment) ?></span>
+                                                            នេះ?</p>
+                                                    </div>
+                                                    <div class="modal-footer bg-light">
+                                                        <div class="w-100">
+                                                            <div class="row">
+                                                                <div class="col">
+                                                                    <button type="button" class="btn w-100"
+                                                                        data-bs-dismiss="modal">បោះបង់</button>
+                                                                </div>
+                                                                <div class="col">
+                                                                    <button type="submit"
+                                                                        class="btn btn-danger ms-auto w-100">យល់ព្រម</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </ul>
                         <?php endif; ?>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
 
         <!-- Approval Tracking Section -->
-        <div class="col-lg-6 col-md-12">
-            <div class="card">
-                <div class="card-header bg-light">
-                    <h3 class="text-primary mb-0">Approval Tracking</h3>
+        <div class="col-lg-6 col-sm-12 col-md-12">
+            <div class="card border-0">
+                <div class="card-header bg-light d-flex align-items-center justify-content-between">
+                    <h3 class="text-primary mb-0">ការអនុម័ត</h3>
                 </div>
                 <div class="card-body">
                     <ul class="steps steps-vertical">
                         <?php if (!empty($getTransferouts) && is_array($getTransferouts)): ?>
                             <?php foreach ($getTransferouts as $approvalStep): ?>
-                                <li class="step-item <?= $approvalStep['approval_status'] === 'approved' ? 'active' : '' ?>">
+                                <li class="step-item <?= $approvalStep['approval_status'] == 'approved' ? 'active' : '' ?>">
                                     <div class="d-flex align-items-center">
+                                        <!-- Profile Image -->
                                         <img src="<?= $approvalStep['profile'] ?>" class="avatar me-3" alt="Profile"
-                                            style="width: 48px; height: 48px; object-fit: cover;">
+                                            style="object-fit: cover;">
                                         <div>
-                                            <strong class="text-primary">
-                                                <?= $approvalStep['approver_name'] ?? 'Unknown' ?>
-                                            </strong>
-                                            <span class="badge <?= $approvalStep['approval_status'] === 'approved' ? 'bg-success'
-                                                : ($approvalStep['approval_status'] === 'rejected' ? 'bg-danger'
-                                                    : 'bg-warning') ?>">
-                                                <?= $approvalStep['approval_status'] === 'approved' ? 'Approved'
-                                                    : ($approvalStep['approval_status'] === 'rejected' ? 'Rejected' : 'Pending') ?>
-                                            </span>
-                                            <div class="text-muted">
-                                                <small>Date: <?= $approvalStep['approved_at'] ?? '-' ?></small>
+                                            <div class="mb-2">
+                                                <strong class="h4 text-primary m-0">
+                                                    <?= $approvalStep['approver_name'] ?? 'Unknown' ?>
+                                                </strong>
+                                                <span class="mx-1 <?= $approvalStep['approval_status'] == 'approved' ? 'badge bg-success'
+                                                    : ($approvalStep['approval_status'] == 'rejected' ? 'badge bg-danger'
+                                                        : ($approvalStep['approval_status'] == 'mission' ? 'badge bg-danger-lt'
+                                                            : ($approvalStep['approval_status'] == 'leave' ? 'badge bg-info'
+                                                                : 'badge bg-warning'))) ?>">
+                                                    <?php
+                                                    if ($approvalStep['approval_status'] == 'approved') {
+                                                        echo 'បានអនុម័ត';
+                                                    } elseif ($approvalStep['approval_status'] == 'rejected') {
+                                                        echo 'មិនអនុម័ត';
+                                                    } elseif ($approvalStep['approval_status'] == 'mission') {
+                                                        echo 'បេសកកម្ម';
+                                                    } elseif ($approvalStep['approval_status'] == 'leave') {
+                                                        echo 'សម្រាក';
+                                                    } else {
+                                                        echo 'កំពុងរង់ចាំ';
+                                                    }
+                                                    ?>
+                                                </span>
                                             </div>
-                                            <?php if (!empty($approvalStep['comment'])): ?>
-                                                <div><strong>Comment:</strong> <?= $approvalStep['comment'] ?></div>
-                                            <?php endif; ?>
+                                            <div class="text-secondary">
+                                                <div class="text-muted">
+                                                    <strong>កាលបរិច្ឆេទ:</strong>
+                                                    <?= $approvalStep['approved_at'] ?? '-' ?>
+                                                </div>
+                                                <?php if (!empty($approvalStep['comment'])): ?>
+                                                    <div class="mt-2">
+                                                        <strong>មតិយោបល់:</strong> <?= $approvalStep['comment'] ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
                                         </div>
                                     </div>
                                 </li>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <p class="text-center py-3 text-muted">No approvals yet.</p>
+                            <div class="text-center py-5">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="icon icon-tabler icon-tabler-info-circle text-muted fa-2x" width="48" height="48"
+                                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <circle cx="12" cy="12" r="9" />
+                                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                                    <polyline points="11 12 12 12 12 16 13 16" />
+                                </svg>
+                                <p class="mt-3">គ្មានការអនុម័តសម្រាប់លិខិតព្យួរនេះទេ។</p>
+                            </div>
                         <?php endif; ?>
                     </ul>
                 </div>
@@ -273,4 +312,22 @@ require_once 'src/common/header.php';
     </div>
 </div>
 
+
 <?php include('src/common/footer.php'); ?>
+<script>
+    document.querySelector('.file-input').addEventListener('change', function () {
+        const fileList = this.files;
+        const selectedFilesList = document.querySelector('.selected-files');
+        selectedFilesList.innerHTML = ''; // Clear previous file names
+
+        if (fileList.length > 0) {
+            Array.from(fileList).forEach(file => {
+                const listItem = document.createElement('li');
+                listItem.textContent = file.name;
+                selectedFilesList.appendChild(listItem);
+            });
+        } else {
+            selectedFilesList.innerHTML = '<li>No files selected</li>';
+        }
+    });
+</script>

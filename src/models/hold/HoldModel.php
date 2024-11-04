@@ -196,9 +196,9 @@ class HoldModel
                 $results[0]['user_name'] = trim(($user['lastNameKh'] ?? 'Unknown') . " " . ($user['firstNameKh'] ?? ''));
                 $results[0]['dob'] = $user['dateOfBirth'] ?? 'Unknown';
                 $results[0]['user_email'] = $user['email'] ?? 'Unknown';
-                $results[0]['department_name'] = $departmentsById[$user['department']['id']] ?? 'Unknown Department';
+                $results[0]['department_name'] = $departmentsById[$user['departmentId']] ?? 'Unknown Department';
                 $results[0]['position_name'] = $user['position']['name'] ?? 'Unknown';
-                $results[0]['office_name'] = $officesById[$user['office']['id']] ?? 'Unknown Office';
+                $results[0]['office_name'] = $officesById[$user['officeId']] ?? 'Unknown Office';
                 $results[0]['user_profile'] = !empty($user['image']) ? 'https://hrms.iauoffsa.us/images/' . $user['image'] : 'default-profile.png';
             }
 
@@ -214,8 +214,8 @@ class HoldModel
                         $result['approver_name'] = trim(($approver['lastNameKh'] ?? 'Unknown') . " " . ($approver['firstNameKh'] ?? ''));
                         $result['profile'] = !empty($approver['image']) ? 'https://hrms.iauoffsa.us/images/' . $approver['image'] : 'default-profile.png';
                         $result['position_name'] = $approver['position']['name'] ?? 'Unknown';
-                        $result['approver_department_name'] = $departmentsById[$approver['department']['id']] ?? 'Unknown Department';
-                        $result['approver_office_name'] = $officesById[$approver['office']['id']] ?? 'Unknown Office';
+                        $result['approver_department_name'] = $departmentsById[$approver['departmentId']] ?? 'Unknown Department';
+                        $result['approver_office_name'] = $officesById[$approver['officeId']] ?? 'Unknown Office';
                     } else {
                         // If no approver info is available, add placeholders
                         $result['approver_name'] = 'Unknown';
