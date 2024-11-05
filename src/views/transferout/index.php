@@ -58,7 +58,6 @@ require_once 'src/common/header.php';
                                     <th>ប្រភេទលិខិត</th>
                                     <th class="text-center">នយកដ្ឋាន</th>
                                     <th class="text-center">ការិយាល័យ</th>
-                                    <th>ឯកសារភ្ជាប់</th>
                                     <th>មូលហេតុ</th>
                                     <th>ស្ថានភាព</th>
                                     <th class="w-1">សកម្មភាព</th>
@@ -80,28 +79,30 @@ require_once 'src/common/header.php';
                                             <?php endif; ?>
                                         </td>
                                         <td class="text-secondary text-center">
-                                            <?= $hold['from_department_name'] . " ~ " . $hold['to_department_name'] ?>
+                                            <?= $hold['from_department_name'] ?>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-narrow-right">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M5 12l14 0" />
+                                                <path d="M15 16l4 -4" />
+                                                <path d="M15 8l4 4" />
+                                            </svg>
+                                            <?= $hold['to_department_name'] ?>
                                         </td>
                                         <td class="text-secondary text-center">
-                                            <?= $hold['from_office_name'] . " ~ " . $hold['to_office_name'] ?>
-                                        </td>
-                                        <td class="text-secondary d-none d-xl-table-cell">
-                                            <?php if (!empty($hold['attachment'])): ?>
-                                                <?php
-                                                // Split the attachment string into an array
-                                                $attachments = explode(',', $hold['attachment']);
-                                                ?>
-                                                <?php if (!empty($attachments)): ?>
-                                                    <?php foreach ($attachments as $index => $attachment): ?>
-                                                        <a href="public/uploads/transferout-attachments/<?= $attachment ?>" target="_blank">
-                                                            <!-- Display attachment with numbering -->
-                                                            <?= ($index + 1) . ". " ?>ឯកសារភ្ជាប់ <?= $index + 1 ?>
-                                                        </a><br>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            <?php else: ?>
-                                                មិនមានឯកសារភ្ជាប់
-                                            <?php endif; ?>
+                                            <?= $hold['from_office_name'] ?>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-narrow-right">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M5 12l14 0" />
+                                                <path d="M15 16l4 -4" />
+                                                <path d="M15 8l4 4" />
+                                            </svg>
+                                            <?= $hold['to_office_name'] ?>
                                         </td>
                                         <td class="text-secondary"><?= $hold['reason'] ?></td>
                                         <td class="text-secondary">

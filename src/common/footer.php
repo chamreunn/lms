@@ -284,6 +284,25 @@
     // @formatter:on
 </script>
 
+<!-- display attach file  -->
+<script>
+    document.querySelector('.file-input').addEventListener('change', function () {
+        const fileList = this.files;
+        const selectedFilesList = document.querySelector('.selected-files');
+        selectedFilesList.innerHTML = ''; // Clear previous file names
+
+        if (fileList.length > 0) {
+            Array.from(fileList).forEach(file => {
+                const listItem = document.createElement('li');
+                listItem.textContent = file.name;
+                selectedFilesList.appendChild(listItem);
+            });
+        } else {
+            selectedFilesList.innerHTML = '<li>No files selected</li>';
+        }
+    });
+</script>
+
 </body>
 
 </html>

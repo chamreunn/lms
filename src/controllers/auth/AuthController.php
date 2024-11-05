@@ -94,11 +94,6 @@ class AuthController
 
                         // Log the login trace
                         $userModel->logLoginTrace($user['id'], $_SERVER['REMOTE_ADDR']);
-
-                        $_SESSION['success'] = [
-                            'title' => "ចូលប្រព័ន្ធ",
-                            'message' => "ចូលប្រព័ន្ធបានជោគជ័យ។"
-                        ];
                         header('Location: /elms/dashboard');
                         exit;
                     }

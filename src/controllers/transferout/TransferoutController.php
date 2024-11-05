@@ -110,81 +110,73 @@ class TransferoutController
             $color = 'bg-info';
             $title = "លិខិតផ្ទេការងារ";
 
-            // Handle attachments
-            $attachments = [];
-            if (!empty($_FILES['attachment']['name'][0])) {
-                // Loop through each file
-                foreach ($_FILES['attachment']['name'] as $key => $attachmentName) {
-                    if (!empty($attachmentName)) {
-                        // Get the file info
-                        $fileTmpPath = $_FILES['attachment']['tmp_name'][$key];
-                        $fileName = basename($attachmentName);
-                        $fileSize = $_FILES['attachment']['size'][$key];
-                        $fileType = $_FILES['attachment']['type'][$key];
-                        $fileError = $_FILES['attachment']['error'][$key];
-
-                        // Perform validations (file size, type)
-                        $allowedTypes = ['docx', 'pdf'];
-                        $maxFileSize = 5097152; // 5MB
-
-                        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
-
-                        if ($fileError === 0 && in_array($fileExtension, $allowedTypes) && $fileSize <= $maxFileSize) {
-                            $destination = 'public/uploads/transferout-attachments/' . $fileName;
-
-                            // Move file to the destination
-                            if (move_uploaded_file($fileTmpPath, $destination)) {
-                                $attachments[] = $fileName; // Store uploaded file names
-                            } else {
-                                $_SESSION['error'] = [
-                                    'title' => "ឯកសារភ្ជាប់",
-                                    'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។ សូមព្យាយាមម្តងទៀត។"
-                                ];
-                                header("Location: /elms/transferout");
-                                exit();
-                            }
-                        } else {
-                            $_SESSION['error'] = [
-                                'title' => "ឯកសារភ្ជាប់",
-                                'message' => "ឯកសារមិនត្រឹមត្រូវទេ (ទំហំ ឬ ប្រភេទឯកសារ)។"
-                            ];
-                            header("Location: /elms/hold");
-                            exit();
-                        }
-                    }
-                }
-            }
-
-            // Convert the array of attachments to a comma-separated string to store in the database
-            $attachment_names = implode(',', $attachments);
-
             // Prepare data for saving
             $data = [
                 'user_id' => $user_id,
-                'from_department' => $fromdepartment,  // Ensure the database column name is correct
+                'from_department' => $fromdepartment,
                 'to_department' => $todepartment,
                 'from_office' => $fromoffice,
                 'to_office' => $tooffice,
-                'attachment' => $attachment_names,
+                'attachment' => null,  // No attachments in this table
                 'type' => $type,
                 'color' => $color,
                 'reason' => $reason,
                 'approver_id' => $approver
             ];
 
-
             try {
-                // Save the hold request using the TransferoutModel
+                // Save the main transferout record
                 $transferout = new TransferoutModel($this->pdo);
                 $transferout_id = $transferout->createTransferout($data);
 
+                // Handle attachments separately
+                if (!empty($_FILES['attachment']['name'][0])) {
+                    foreach ($_FILES['attachment']['name'] as $key => $attachmentName) {
+                        if (!empty($attachmentName)) {
+                            $fileTmpPath = $_FILES['attachment']['tmp_name'][$key];
+                            $fileName = basename($attachmentName);
+                            $fileSize = $_FILES['attachment']['size'][$key];
+                            $fileType = $_FILES['attachment']['type'][$key];
+                            $fileError = $_FILES['attachment']['error'][$key];
+
+                            // Perform validations (file size, type)
+                            $allowedTypes = ['docx', 'pdf'];
+                            $maxFileSize = 5097152; // 5MB
+                            $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+
+                            if ($fileError === 0 && in_array($fileExtension, $allowedTypes) && $fileSize <= $maxFileSize) {
+                                $destination = 'public/uploads/transferout-attachments/' . $fileName;
+
+                                // Move file to the destination
+                                if (move_uploaded_file($fileTmpPath, $destination)) {
+                                    // Insert the attachment record in transferout_attachments table
+                                    $attachmentData = [
+                                        'transferout_id' => $transferout_id,
+                                        'filename' => $fileName
+                                    ];
+                                    $transferout->createAttachment($attachmentData);
+                                } else {
+                                    $_SESSION['error'] = [
+                                        'title' => "ឯកសារភ្ជាប់",
+                                        'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។ សូមព្យាយាមម្តងទៀត។"
+                                    ];
+                                    header("Location: /elms/transferout");
+                                    exit();
+                                }
+                            } else {
+                                $_SESSION['error'] = [
+                                    'title' => "ឯកសារភ្ជាប់",
+                                    'message' => "ឯកសារមិនត្រឹមត្រូវទេ (ទំហំ ឬ ប្រភេទឯកសារ)។"
+                                ];
+                                header("Location: /elms/hold");
+                                exit();
+                            }
+                        }
+                    }
+                }
+
                 // Recursive manager delegation
                 $this->delegateManager($transferout, new User(), $transferout_id, $_SESSION['user_id'], $reason);
-
-                // Optionally, send notification to Telegram
-                // $link = "https://leave.iauoffsa.us/elms/pending";
-                // $userModel = new User();
-                // $sendToTelegram = $userModel->transferout($title, $approver, $fromdepartment, $todepartment, $fromoffice, $tooffice, $reason, $link);
 
                 $_SESSION['success'] = [
                     'title' => "ជោគជ័យ",
@@ -317,6 +309,94 @@ class TransferoutController
                 header("Location: /elms/transferout");
                 exit();
             }
+        }
+    }
+
+    public function addMoreAttachment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Ensure that the files were uploaded without errors
+            if (isset($_FILES['moreAttachment']) && !empty($_FILES['moreAttachment']['name'][0])) {
+                $transferout = new TransferoutModel($this->pdo);
+                // Array to hold the file data
+                $uploadedFiles = $_FILES['moreAttachment'];
+
+                // Loop through each file
+                foreach ($uploadedFiles['name'] as $key => $filename) {
+                    // Define a unique name for each file to prevent overwriting
+                    $uniqueFileName = uniqid() . '_' . basename($filename);
+                    $uploadPath = 'public/uploads/transferout-attachments/' . $uniqueFileName;
+
+                    // Move the file to the designated directory
+                    if (move_uploaded_file($uploadedFiles['tmp_name'][$key], $uploadPath)) {
+                        // Prepare data for insertion
+                        $data = [
+                            ':transferout_id' => $_POST['id'],
+                            ':filename' => $uniqueFileName
+                        ];
+
+                        // Call the createAttachment method to insert file info into the database
+                        $transferout->createAttachment($data);
+                    } else {
+                        // Handle the error if file upload fails
+                        echo "Failed to upload file: " . $filename;
+                    }
+                }
+
+                // Optionally, redirect or display a success message
+                $_SESSION['success'] = [
+                    'title' => "បន្តែមឯកសារភ្ចាប់",
+                    'message' => "បន្ថែមឯកសារភ្ចាប់បានជោគជ័យ។"
+                ];
+                header('Location: /elms/view&edit-transferout?transferId=' . $_POST['id']); // Change to your success page
+                exit();
+            } else {
+                $_SESSION['error'] = [
+                    'title' => "បន្តែមឯកសារភ្ចាប់",
+                    'message' => "មិនអាចបន្ថែមឯកសារភ្ចាប់បានទេ សូមព្យាយាមម្តងទៀត។"
+                ];
+                echo "No files were selected for upload.";
+            }
+        }
+    }
+
+    // Handle the form submission for updating attachments
+    public function removeAttachments()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Get the filename (attachment) to be deleted and the associated transferout ID
+            $attachment = $_POST['attachment'] ?? '';
+            $transferoutId = $_POST['id'] ?? null;
+
+            if ($attachment && $transferoutId) {
+                // Initialize the TransferoutModel
+                $transferout = new TransferoutModel($this->pdo);
+
+                // Delete the attachment record from the transferout_attachments table
+                $transferout->deleteAttachment($transferoutId, $attachment);
+
+                // Construct the file path to delete the physical file
+                $filePath = "public/uploads/transferout-attachments/" . $attachment;
+                if (file_exists($filePath)) {
+                    unlink($filePath); // Delete the file from the server
+                }
+
+                // Set a success message
+                $_SESSION['success'] = [
+                    'title' => "លុបឯកសារភ្ជាប់",
+                    'message' => "លុបបានជោគជ័យ។"
+                ];
+            } else {
+                // Handle missing parameters
+                $_SESSION['error'] = [
+                    'title' => "លុបឯកសារភ្ជាប់",
+                    'message' => "មិនអាចលុបឯកសារភ្ជាប់បានទេ។"
+                ];
+            }
+
+            // Redirect or return response
+            header('Location: /elms/view&edit-transferout?transferId=' . $transferoutId); // Change to your success page
+            exit();
         }
     }
 }

@@ -16,8 +16,8 @@ class TransferoutModel
     public function createTransferout($data)
     {
         // Prepare the SQL query using PDO
-        $sql = "INSERT INTO $this->tbltransferout (user_id, approver_id, from_department, to_department, from_office, to_office, attachment, type, color, reason, created_at) 
-            VALUES (:user_id, :approver_id, :from_department, :to_department, :from_office, :to_office, :attachment, :type, :color, :reason, NOW())";
+        $sql = "INSERT INTO $this->tbltransferout (user_id, approver_id, from_department, to_department, from_office, to_office,  type, color, reason, created_at) 
+            VALUES (:user_id, :approver_id, :from_department, :to_department, :from_office, :to_office, :type, :color, :reason, NOW())";
 
         // Prepare the statement
         $stmt = $this->pdo->prepare($sql);
@@ -29,7 +29,6 @@ class TransferoutModel
         $stmt->bindParam(':to_department', $data['to_department'], PDO::PARAM_STR);
         $stmt->bindParam(':from_office', $data['from_office'], PDO::PARAM_STR);
         $stmt->bindParam(':to_office', $data['to_office'], PDO::PARAM_STR);
-        $stmt->bindParam(':attachment', $data['attachment'], PDO::PARAM_STR);
         $stmt->bindParam(':type', $data['type'], PDO::PARAM_STR);
         $stmt->bindParam(':color', $data['color'], PDO::PARAM_STR);
         $stmt->bindParam(':reason', $data['reason'], PDO::PARAM_STR);
@@ -39,6 +38,12 @@ class TransferoutModel
 
         // Return the last inserted hold_id
         return $this->pdo->lastInsertId();
+    }
+
+    public function createAttachment($data)
+    {
+        $stmt = $this->pdo->prepare("INSERT INTO transferout_attachments (transferout_id, filename, created_at) VALUES (:transferout_id, :filename, NOW())");
+        $stmt->execute($data);
     }
 
     public function insertManagerStatusToHoldsApprovals($hold_id, $approver_id, $status)
@@ -98,8 +103,15 @@ class TransferoutModel
             }
         }
 
-        // Prepare the SQL query to fetch transfer out data
-        $sql = "SELECT * FROM $this->tbltransferout WHERE user_id = :user_id ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
+        // Prepare the SQL query to fetch transfer out data along with attachments
+        $sql = "SELECT t.*, 
+                   GROUP_CONCAT(a.filename) AS attachments 
+            FROM $this->tbltransferout t
+            LEFT JOIN transferout_attachments a ON t.id = a.transferout_id
+            WHERE t.user_id = :user_id
+            GROUP BY t.id
+            ORDER BY t.created_at DESC
+            LIMIT :limit OFFSET :offset";
 
         // Prepare the statement
         $stmt = $this->pdo->prepare($sql);
@@ -132,6 +144,9 @@ class TransferoutModel
             $record['to_office_name'] = isset($officesById[$record['to_office']])
                 ? $officesById[$record['to_office']]
                 : 'Unknown Office';
+
+            // Assign the attachments string directly
+            $record['attachments'] = !empty($record['attachments']) ? $record['attachments'] : '';
         }
 
         return $transferOutData;
@@ -186,10 +201,10 @@ class TransferoutModel
     public function getTransferoutById($id)
     {
         // Prepare the SQL query to get the transfer request and approval tracking details
-        $sql = "
-        SELECT h.*, ha.status AS approval_status, ha.created_at, ha.approver_id, ha.comment AS comment
+        $sql = "SELECT h.*, GROUP_CONCAT(a.filename) AS attachments, a.created_at, a.transferout_id,  ha.status AS approval_status, ha.updated_at AS approved_at, ha.approver_id, ha.comment AS comment
         FROM $this->transferout_approval ha
         JOIN $this->tbltransferout h ON ha.transferout_id = h.id
+        LEFT JOIN transferout_attachments a ON h.id = a.transferout_id
         WHERE h.user_id = :userId AND h.id = :id ORDER BY ha.id DESC
     ";
 
@@ -254,6 +269,8 @@ class TransferoutModel
                         $result['approver_name'] = trim(($approver['lastNameKh'] ?? 'Unknown') . " " . ($approver['firstNameKh'] ?? ''));
                         $result['profile'] = !empty($approver['image']) ? 'https://hrms.iauoffsa.us/images/' . $approver['image'] : 'default-profile.png';
                         $result['position_name'] = $approver['position']['name'] ?? 'Unknown';
+                        // Assign the attachments string directly
+                        $result['attachments'] = !empty($result['attachments']) ? $result['attachments'] : '';
                     } else {
                         $result['approver_name'] = 'Unknown';
                         $result['profile'] = 'default-profile.png'; // Default profile if no approver info is available
@@ -269,4 +286,15 @@ class TransferoutModel
 
         return [];
     }
+
+    public function deleteAttachment($transferoutId, $filename)
+    {
+        // Prepare the SQL statement to delete the attachment from the transferout_attachments table
+        $stmt = $this->pdo->prepare("DELETE FROM transferout_attachments WHERE transferout_id = :transferout_id AND filename = :filename");
+        $stmt->execute([
+            ':transferout_id' => $transferoutId,
+            ':filename' => $filename
+        ]);
+    }
+
 }

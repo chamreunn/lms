@@ -152,74 +152,72 @@ class HoldController
                 exit();
             }
 
-            $attachments = [];
-            if (!empty($_FILES['attachment']['name'][0])) {
-                // Loop through each file
-                foreach ($_FILES['attachment']['name'] as $key => $attachmentName) {
-                    if (!empty($attachmentName)) {
-                        // Get the file info
-                        $fileTmpPath = $_FILES['attachment']['tmp_name'][$key];
-                        $fileName = basename($attachmentName);
-                        $fileSize = $_FILES['attachment']['size'][$key];
-                        $fileType = $_FILES['attachment']['type'][$key];
-                        $fileError = $_FILES['attachment']['error'][$key];
-
-                        // Perform validations (file size, type)
-                        $allowedTypes = ['docx', 'pdf'];
-                        $maxFileSize = 5097152; // 5MB
-
-                        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
-
-                        if ($fileError === 0 && in_array($fileExtension, $allowedTypes) && $fileSize <= $maxFileSize) {
-                            $destination = 'public/uploads/hold-attachments/' . $fileName;
-
-                            // Move file to the destination
-                            if (move_uploaded_file($fileTmpPath, $destination)) {
-                                $attachments[] = $fileName; // Store uploaded file names
-                            } else {
-                                $_SESSION['error'] = [
-                                    'title' => "ឯកសារភ្ជាប់",
-                                    'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។ សូមព្យាយាមម្តងទៀត។"
-                                ];
-                                header("Location: /elms/hold");
-                                exit();
-                            }
-                        } else {
-                            $_SESSION['error'] = [
-                                'title' => "ឯកសារភ្ជាប់",
-                                'message' => "ឯកសារមិនត្រឹមត្រូវទេ (ទំហំ ឬ ប្រភេទឯកសារ)។"
-                            ];
-                            header("Location: /elms/hold");
-                            exit();
-                        }
-                    }
-                }
-            }
-
-            // Convert the array of attachments to a comma-separated string to store in the database
-            $attachment_names = implode(',', $attachments);
-
-            // Prepare data for saving
-            $data = [
-                'user_id' => $user_id,
-                'start_date' => $start_date,
-                'end_date' => $end_date,
-                'reason' => $reason,
-                'attachment' => $attachment_names,
-                'duration' => $duration,
-                'type' => $type,
-                'color' => $color,
-                'approver_id' => $approver
-            ];
-
             try {
+                // Prepare data for the hold request
+                $data = [
+                    'user_id' => $user_id,
+                    'start_date' => $start_date,
+                    'end_date' => $end_date,
+                    'reason' => $reason,
+                    'duration' => $duration,
+                    'type' => $type,
+                    'color' => $color,
+                    'approver_id' => $approver
+                ];
+
                 // Save the hold request using the HoldModel
-                $userModel = new User();
                 $holdRequestModel = new HoldModel($this->pdo);
                 $hold_id = $holdRequestModel->createHoldRequest($data);
 
                 // Recursive manager delegation
                 $this->delegateManager($holdRequestModel, $userModel, $hold_id, $_SESSION['user_id'], $reason);
+
+                // Process attachments
+                if (!empty($_FILES['attachment']['name'][0])) {
+                    foreach ($_FILES['attachment']['name'] as $key => $attachmentName) {
+                        if (!empty($attachmentName)) {
+                            $fileTmpPath = $_FILES['attachment']['tmp_name'][$key];
+                            $fileName = basename($attachmentName);
+                            $fileSize = $_FILES['attachment']['size'][$key];
+                            $fileType = $_FILES['attachment']['type'][$key];
+                            $fileError = $_FILES['attachment']['error'][$key];
+
+                            // Perform validations (file size, type)
+                            $allowedTypes = ['docx', 'pdf'];
+                            $maxFileSize = 5097152; // 5MB
+
+                            $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+
+                            if ($fileError === 0 && in_array($fileExtension, $allowedTypes) && $fileSize <= $maxFileSize) {
+                                $destination = 'public/uploads/hold-attachments/' . $fileName;
+
+                                // Move file to the destination
+                                if (move_uploaded_file($fileTmpPath, $destination)) {
+                                    // Insert each attachment into the hold_attachments table
+                                    $holdRequestModel->saveHoldAttachment([
+                                        'hold_id' => $hold_id,
+                                        'file_name' => $fileName,
+                                        'file_path' => $destination
+                                    ]);
+                                } else {
+                                    $_SESSION['error'] = [
+                                        'title' => "ឯកសារភ្ជាប់",
+                                        'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។ សូមព្យាយាមម្តងទៀត។"
+                                    ];
+                                    header("Location: /elms/hold");
+                                    exit();
+                                }
+                            } else {
+                                $_SESSION['error'] = [
+                                    'title' => "ឯកសារភ្ជាប់",
+                                    'message' => "ឯកសារមិនត្រឹមត្រូវទេ (ទំហំ ឬ ប្រភេទឯកសារ)។"
+                                ];
+                                header("Location: /elms/hold");
+                                exit();
+                            }
+                        }
+                    }
+                }
 
                 $link = "https://leave.iauoffsa.us/elms/pending";
 
@@ -282,7 +280,7 @@ class HoldController
                     'title' => "បញ្ចូលទិន្នន័យមិនគ្រប់គ្រាន់",
                     'message' => "សូមបំពេញព័ត៌មានទាំងអស់។"
                 ];
-                header("Location: /elms/hold");
+                header("Location: view&edit-hold?holdId=" . $hold_id);
                 exit();
             }
 
@@ -299,7 +297,7 @@ class HoldController
                     'title' => "កំហុសកាលបរិច្ឆេទ",
                     'message' => "កាលបរិច្ឆេទបញ្ចប់គួរត្រូវជាងកាលបរិច្ឆេទចាប់ផ្តើម។"
                 ];
-                header("Location: /elms/hold");
+                header("Location: view&edit-hold?holdId=" . $hold_id);
                 exit();
             }
 
@@ -332,70 +330,16 @@ class HoldController
                     'title' => "កំហុសវ័យ",
                     'message' => "លិខិតព្យួរត្រូវចាប់ពី ៦ខែ ឡើង។"
                 ];
-                header("Location: /elms/hold");
+                header("Location: view&edit-hold?holdId=" . $hold_id);
                 exit();
             }
-
-            // Handle multiple file attachments
-            $attachments = [];
-            if (!empty($_FILES['attachment']['name'][0])) {
-                // Loop through each file
-                foreach ($_FILES['attachment']['name'] as $key => $attachmentName) {
-                    if (!empty($attachmentName)) {
-                        // Get the file info
-                        $fileTmpPath = $_FILES['attachment']['tmp_name'][$key];
-                        $fileName = basename($attachmentName);
-                        $fileSize = $_FILES['attachment']['size'][$key];
-                        $fileType = $_FILES['attachment']['type'][$key];
-                        $fileError = $_FILES['attachment']['error'][$key];
-
-                        // Perform validations (file size, type)
-                        $allowedTypes = ['docx', 'pdf'];
-                        $maxFileSize = 5097152; // 5MB
-
-                        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
-
-                        if ($fileError === 0 && in_array($fileExtension, $allowedTypes) && $fileSize <= $maxFileSize) {
-                            $destination = 'public/uploads/hold-attachments/' . $fileName;
-
-                            // Move file to the destination
-                            if (move_uploaded_file($fileTmpPath, $destination)) {
-                                $attachments[] = $fileName; // Store uploaded file names
-                            } else {
-                                $_SESSION['error'] = [
-                                    'title' => "ឯកសារភ្ជាប់",
-                                    'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។ សូមព្យាយាមម្តងទៀត។"
-                                ];
-                                header("Location: /elms/hold");
-                                exit();
-                            }
-                        } else {
-                            $_SESSION['error'] = [
-                                'title' => "ឯកសារភ្ជាប់",
-                                'message' => "ឯកសារមិនត្រឹមត្រូវទេ (ទំហំ ឬ ប្រភេទឯកសារ)។"
-                            ];
-                            header("Location: /elms/hold");
-                            exit();
-                        }
-                    }
-                }
-            } else {
-                // If no new files are uploaded, keep the existing ones
-                $holdRequestModel = new HoldModel($this->pdo);
-                $existingHold = $holdRequestModel->getHoldRequestById($hold_id);
-                $attachments = explode(',', $existingHold['attachment']); // Assuming it's stored as a comma-separated string
-            }
-
-            // Convert the array of attachments to a comma-separated string to store in the database
-            $attachment_names = implode(',', $attachments);
 
             // Prepare data for updating
             $data = [
                 'user_id' => $user_id,
                 'start_date' => $start_date,
                 'end_date' => $end_date,
-                'reason' => $reason,
-                'attachment' => $attachment_names, // Store the updated attachments
+                'reason' => $reason, // Store the updated attachments
                 'duration' => $duration,
                 'approver_id' => $approver
             ];
@@ -410,14 +354,14 @@ class HoldController
                     'title' => "ជោគជ័យ",
                     'message' => "សំណើរបានកែប្រែដោយជោគជ័យ"
                 ];
-                header("Location: /elms/hold");
+                header("Location: view&edit-hold?holdId=" . $hold_id);
                 exit();
             } catch (Exception $e) {
                 $_SESSION['error'] = [
                     'title' => "កំហុស",
                     'message' => $e->getMessage()
                 ];
-                header("Location: /elms/hold");
+                header("Location: view&edit-hold?holdId=" . $hold_id);
                 exit();
             }
         }
@@ -512,6 +456,94 @@ class HoldController
                 header("Location: /elms/hold");
                 exit();
             }
+        }
+    }
+
+    public function addMoreAttachment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Ensure that the files were uploaded without errors
+            if (isset($_FILES['moreAttachment']) && !empty($_FILES['moreAttachment']['name'][0])) {
+                $holdMoldel = new HoldModel($this->pdo);
+                // Array to hold the file data
+                $uploadedFiles = $_FILES['moreAttachment'];
+
+                // Loop through each file
+                foreach ($uploadedFiles['name'] as $key => $filename) {
+                    // Define a unique name for each file to prevent overwriting
+                    $uniqueFileName = uniqid() . '_' . basename($filename);
+                    $uploadPath = 'public/uploads/hold-attachments/' . $uniqueFileName;
+
+                    // Move the file to the designated directory
+                    if (move_uploaded_file($uploadedFiles['tmp_name'][$key], $uploadPath)) {
+                        // Prepare data for insertion
+                        $data = [
+                            ':hold_id' => $_POST['id'],
+                            ':file_name' => $uniqueFileName,
+                            ':file_path' => $uploadPath
+                        ];
+
+                        // Call the createAttachment method to insert file info into the database
+                        $holdMoldel->createAttachment($data);
+                    } else {
+                        // Handle the error if file upload fails
+                        echo "Failed to upload file: " . $filename;
+                    }
+                }
+
+                // Optionally, redirect or display a success message
+                $_SESSION['success'] = [
+                    'title' => "បន្តែមឯកសារភ្ចាប់",
+                    'message' => "បន្ថែមឯកសារភ្ចាប់បានជោគជ័យ។"
+                ];
+                header('Location: /elms/view&edit-hold?holdId=' . $_POST['id']); // Change to your success page
+                exit();
+            } else {
+                $_SESSION['error'] = [
+                    'title' => "បន្តែមឯកសារភ្ចាប់",
+                    'message' => "មិនអាចបន្ថែមឯកសារភ្ចាប់បានទេ សូមព្យាយាមម្តងទៀត។"
+                ];
+                echo "No files were selected for upload.";
+            }
+        }
+    }
+
+    public function removeAttachments()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Get the filename (attachment) to be deleted and the associated transferout ID
+            $attachment = $_POST['attachment'] ?? '';
+            $holdId = $_POST['id'] ?? null;
+
+            if ($attachment && $holdId) {
+                // Initialize the TransferoutModel
+                $hold = new HoldModel($this->pdo);
+
+                // Delete the attachment record from the transferout_attachments table
+                $hold->deleteAttachment($holdId, $attachment);
+
+                // Construct the file path to delete the physical file
+                $filePath = "public/uploads/hold-attachments/" . $attachment;
+                if (file_exists($filePath)) {
+                    unlink($filePath); // Delete the file from the server
+                }
+
+                // Set a success message
+                $_SESSION['success'] = [
+                    'title' => "លុបឯកសារភ្ជាប់",
+                    'message' => "លុបបានជោគជ័យ។"
+                ];
+            } else {
+                // Handle missing parameters
+                $_SESSION['error'] = [
+                    'title' => "លុបឯកសារភ្ជាប់",
+                    'message' => "មិនអាចលុបឯកសារភ្ជាប់បានទេ។"
+                ];
+            }
+
+            // Redirect or return response
+            header('Location:  /elms/view&edit-hold?holdId=' . $holdId); // Change to your success page
+            exit();
         }
     }
 }

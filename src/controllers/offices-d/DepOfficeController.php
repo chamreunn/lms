@@ -1,6 +1,7 @@
 <?php
 require_once 'src/models/Notification.php';
 require_once 'src/models/offices-d/DepOfficeModel.php';
+require_once 'src/models/hold/HoldModel.php';
 
 class DepOfficeController
 {
@@ -387,6 +388,9 @@ class DepOfficeController
             // Handle GET request to view pending leave requests
             $leaveApprovalModel = new DepOfficeModel();
             $requests = $leaveApprovalModel->getAllLeaveRequests();
+
+            $holds = new HoldModel($this->pdo);
+            $hold = $holds->getHoldByuserId($_SESSION['user_id']);
 
             $leavetypeModel = new Leavetype();
             $leavetypes = $leavetypeModel->getAllLeavetypes();

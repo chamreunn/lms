@@ -1235,6 +1235,18 @@ switch ($uri) {
             $controller->delete();
         });
         break;
+    case $base_url . '/addMoreAttachmentHold':
+        checkSessionAndExecute(function () {
+            $holdController = new HoldController();
+            $holdController->addMoreAttachment();
+        });
+        break;
+    case $base_url . '/deleteHoldAttachment':
+        checkSessionAndExecute(function () {
+            $controller = new HoldController();
+            $controller->removeAttachments();
+        });
+        break;
     case $base_url . '/transferout':
         checkSessionAndExecute(function () {
             $holdController = new TransferoutController();
@@ -1245,6 +1257,12 @@ switch ($uri) {
         checkSessionAndExecute(function () {
             $holdController = new TransferoutController();
             $holdController->create();
+        });
+        break;
+    case $base_url . '/addMoreAttachment':
+        checkSessionAndExecute(function () {
+            $holdController = new TransferoutController();
+            $holdController->addMoreAttachment();
         });
         break;
     case $base_url . '/view&edit-transferout':
@@ -1264,6 +1282,12 @@ switch ($uri) {
         checkSessionAndExecute(function () {
             $controller = new TransferoutController();
             $controller->delete();
+        });
+        break;
+    case $base_url . '/deleteTranoutAttachment':
+        checkSessionAndExecute(function () {
+            $controller = new TransferoutController();
+            $controller->removeAttachments();
         });
         break;
     case $base_url . '/resign':
