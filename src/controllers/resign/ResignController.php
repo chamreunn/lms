@@ -97,69 +97,66 @@ class ResignController
             $reason = $_POST['reason'];
             $approver = $_POST['approverId'];
 
-            $title = "លិខិតលារឈប់";
-
-            $attachments = [];
-            if (!empty($_FILES['attachment']['name'][0])) {
-                // Loop through each file
-                foreach ($_FILES['attachment']['name'] as $key => $attachmentName) {
-                    if (!empty($attachmentName)) {
-                        // Get the file info
-                        $fileTmpPath = $_FILES['attachment']['tmp_name'][$key];
-                        $fileName = basename($this->randomString(8) . $attachmentName);
-                        $fileSize = $_FILES['attachment']['size'][$key];
-                        $fileType = $_FILES['attachment']['type'][$key];
-                        $fileError = $_FILES['attachment']['error'][$key];
-
-                        // Perform validations (file size, type)
-                        $allowedTypes = ['docx', 'pdf'];
-                        $maxFileSize = 5097152; // 5MB
-
-                        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
-
-                        if ($fileError === 0 && in_array($fileExtension, $allowedTypes) && $fileSize <= $maxFileSize) {
-                            $destination = 'public/uploads/resign-attachments/' . $fileName;
-
-                            // Move file to the destination
-                            if (move_uploaded_file($fileTmpPath, $destination)) {
-                                $attachments[] = $fileName; // Store uploaded file names
-                            } else {
-                                $_SESSION['error'] = [
-                                    'title' => "ឯកសារភ្ជាប់",
-                                    'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។ សូមព្យាយាមម្តងទៀត។"
-                                ];
-                                header("Location: /elms/resign");
-                                exit();
-                            }
-                        } else {
-                            $_SESSION['error'] = [
-                                'title' => "ឯកសារភ្ជាប់",
-                                'message' => "ឯកសារមិនត្រឹមត្រូវទេ (ទំហំ ឬ ប្រភេទឯកសារ)។"
-                            ];
-                            header("Location: /elms/resign");
-                            exit();
-                        }
-                    }
-                }
-            }
-
-            // Convert the array of attachments to a comma-separated string to store in the database
-            $attachment_names = implode(', ', $attachments);
-
             // Prepare data for saving
             $data = [
                 'user_id' => $user_id,
                 'workexperience' => $workexperience,
                 'reason' => $reason,
-                'attachment' => $attachment_names,
                 'approver_id' => $approver
             ];
 
             try {
-                // Save the hold request using the HoldModel
+
                 $userModel = new User();
                 $resignRequestModel = new ResignModel($this->pdo);
                 $resign_id = $resignRequestModel->createResignRequest($data);
+
+                // Process attachments
+                if (!empty($_FILES['attachment']['name'][0])) {
+                    foreach ($_FILES['attachment']['name'] as $key => $attachmentName) {
+                        if (!empty($attachmentName)) {
+                            $fileTmpPath = $_FILES['attachment']['tmp_name'][$key];
+                            $fileName = uniqid() . '_' . basename($attachmentName);
+                            $fileSize = $_FILES['attachment']['size'][$key];
+                            $fileType = $_FILES['attachment']['type'][$key];
+                            $fileError = $_FILES['attachment']['error'][$key];
+
+                            // Perform validations (file size, type)
+                            $allowedTypes = ['docx', 'pdf'];
+                            $maxFileSize = 5097152; // 5MB
+
+                            $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+
+                            if ($fileError === 0 && in_array($fileExtension, $allowedTypes) && $fileSize <= $maxFileSize) {
+                                $destination = 'public/uploads/resign-attachments/' . $fileName;
+
+                                // Move file to the destination
+                                if (move_uploaded_file($fileTmpPath, $destination)) {
+                                    // Insert each attachment into the hold_attachments table
+                                    $resignRequestModel->saveResignAttachment([
+                                        'resign_id' => $resign_id,
+                                        'file_name' => $fileName,
+                                        'file_path' => $destination
+                                    ]);
+                                } else {
+                                    $_SESSION['error'] = [
+                                        'title' => "ឯកសារភ្ជាប់",
+                                        'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។ សូមព្យាយាមម្តងទៀត។"
+                                    ];
+                                    header("Location: /elms/resign");
+                                    exit();
+                                }
+                            } else {
+                                $_SESSION['error'] = [
+                                    'title' => "ឯកសារភ្ជាប់",
+                                    'message' => "ឯកសារមិនត្រឹមត្រូវទេ (ទំហំ ឬ ប្រភេទឯកសារ)។"
+                                ];
+                                header("Location: /elms/resign");
+                                exit();
+                            }
+                        }
+                    }
+                }
 
                 // Recursive manager delegation
                 $this->delegateManager($resignRequestModel, $userModel, $resign_id, $_SESSION['user_id'], $reason);
@@ -198,10 +195,9 @@ class ResignController
         // Check if the request method is POST
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-            $userModel = new User();
             $resign_id = $_POST['resignId'];
-            // Validate required fields
-            if (empty($_SESSION['user_id']) || empty($_POST['workexperience']) || empty($_POST['reason']) || empty($_FILES['attachment'])) {
+
+            if (empty($_SESSION['user_id']) || empty($_POST['workexperience']) || empty($_POST['reason'])) {
                 $_SESSION['error'] = [
                     'title' => "បញ្ចូលទិន្នន័យមិនគ្រប់គ្រាន់",
                     'message' => "សូមបំពេញព័ត៌មានទាំងអស់។"
@@ -210,76 +206,21 @@ class ResignController
                 exit();
             }
 
-            // Sanitize and assign input values
             $user_id = $_SESSION['user_id'];
             $workexperience = $_POST['workexperience'];
             $reason = $_POST['reason'];
 
-            // Handle multiple file attachments
-            $attachments = [];
-            if (!empty($_FILES['attachment']['name'][0])) {
-                // Loop through each file
-                foreach ($_FILES['attachment']['name'] as $key => $attachmentName) {
-                    if (!empty($attachmentName)) {
-                        // Get the file info
-                        $fileTmpPath = $_FILES['attachment']['tmp_name'][$key];
-                        $fileName = basename($this->randomString() . $attachmentName);
-                        $fileSize = $_FILES['attachment']['size'][$key];
-                        $fileType = $_FILES['attachment']['type'][$key];
-                        $fileError = $_FILES['attachment']['error'][$key];
 
-                        // Perform validations (file size, type)
-                        $allowedTypes = ['docx', 'pdf'];
-                        $maxFileSize = 5097152; // 5MB
-
-                        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
-
-                        if ($fileError === 0 && in_array($fileExtension, $allowedTypes) && $fileSize <= $maxFileSize) {
-                            $destination = 'public/uploads/resign-attachments/' . $fileName;
-
-                            // Move file to the destination
-                            if (move_uploaded_file($fileTmpPath, $destination)) {
-                                $attachments[] = $fileName; // Store uploaded file names
-                            } else {
-                                $_SESSION['error'] = [
-                                    'title' => "ឯកសារភ្ជាប់",
-                                    'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។ សូមព្យាយាមម្តងទៀត។"
-                                ];
-                                header("Location: /elms/resign");
-                                exit();
-                            }
-                        } else {
-                            $_SESSION['error'] = [
-                                'title' => "ឯកសារភ្ជាប់",
-                                'message' => "ឯកសារមិនត្រឹមត្រូវទេ (ទំហំ ឬ ប្រភេទឯកសារ)។"
-                            ];
-                            header("Location: /elms/resign");
-                            exit();
-                        }
-                    }
-                }
-            } else {
-                // If no new files are uploaded, keep the existing ones
-                $resignRequestModel = new ResignModel($this->pdo);
-                $existingResign = $resignRequestModel->getResignRequestById($resign_id);
-                $attachments = explode(', ', $existingResign['attachment']); // Assuming it's stored as a comma-separated string
-            }
-
-            // Convert the array of attachments to a comma-separated string to store in the database
-            $attachment_names = implode(', ', $attachments);
-
-            // Prepare data for updating
             $data = [
                 'user_id' => $user_id,
                 'workexperience' => $workexperience,
                 'reason' => $reason,
-                'attachment' => $attachment_names,
             ];
 
             try {
-                // Preserve existing attachment if no new file is uploaded
+
                 $resignRequestModel = new ResignModel($this->pdo);
-                // Update the hold request using the HoldModel
+
                 $resignRequestModel->updateResignRequest($resign_id, $data);
 
                 $_SESSION['success'] = [
@@ -287,7 +228,6 @@ class ResignController
                     'message' => "សំណើរបានកែប្រែដោយជោគជ័យ"
                 ];
                 header("Location: /elms/view&edit-resign?resignId=$resign_id");
-                // $this->view($_POST['resignId']);
 
                 exit();
             } catch (Exception $e) {
@@ -304,17 +244,17 @@ class ResignController
     public function delete()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Collect form data
+
             $id = $_POST['id'];
 
-            // Validate that the ID is provided
             if (!empty($id)) {
-                // Call model to delete holiday
+
                 $resignModel = new ResignModel($this->pdo);
+
                 $success = $resignModel->deleteResignById($id);
 
                 if ($success) {
-                    // Redirect or show success message
+
                     $_SESSION['success'] = [
                         'title' => "ជោគជ័យ",
                         'message' => "លុបបានជោគជ័យ។"
@@ -322,7 +262,7 @@ class ResignController
                     header("Location: /elms/resign");
                     exit();
                 } else {
-                    // Handle the error case
+
                     $_SESSION['error'] = [
                         'title' => "បរាជ័យ",
                         'message' => "មិនអាចលុបបានទេ។"
@@ -411,13 +351,91 @@ class ResignController
         }
     }
 
-    function randomString($length = 10)
+    public function addMoreAttachment()
     {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $randomString = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[rand(0, strlen($characters) - 1)];
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Ensure that the files were uploaded without errors
+            if (isset($_FILES['moreAttachment']) && !empty($_FILES['moreAttachment']['name'][0])) {
+                $resignModel = new ResignModel($this->pdo);
+                // Array to hold the file data
+                $uploadedFiles = $_FILES['moreAttachment'];
+
+                // Loop through each file
+                foreach ($uploadedFiles['name'] as $key => $filename) {
+                    // Define a unique name for each file to prevent overwriting
+                    $uniqueFileName = uniqid() . '_' . basename($filename);
+                    $uploadPath = 'public/uploads/resign-attachments/' . $uniqueFileName;
+
+                    // Move the file to the designated directory
+                    if (move_uploaded_file($uploadedFiles['tmp_name'][$key], $uploadPath)) {
+                        // Prepare data for insertion
+                        $data = [
+                            ':resign_id' => $_POST['id'],
+                            ':file_name' => $uniqueFileName,
+                            ':file_path' => $uploadPath
+                        ];
+
+                        // Call the createAttachment method to insert file info into the database
+                        $resignModel->createAttachment($data);
+                    } else {
+                        // Handle the error if file upload fails
+                        echo "Failed to upload file: " . $filename;
+                    }
+                }
+
+                // Optionally, redirect or display a success message
+                $_SESSION['success'] = [
+                    'title' => "បន្តែមឯកសារភ្ចាប់",
+                    'message' => "បន្ថែមឯកសារភ្ចាប់បានជោគជ័យ។"
+                ];
+                header('Location: /elms/view&edit-resign?resignId=' . $_POST['id']); // Change to your success page
+                exit();
+            } else {
+                $_SESSION['error'] = [
+                    'title' => "បន្តែមឯកសារភ្ចាប់",
+                    'message' => "មិនអាចបន្ថែមឯកសារភ្ចាប់បានទេ សូមព្យាយាមម្តងទៀត។"
+                ];
+                echo "No files were selected for upload.";
+            }
         }
-        return $randomString;
+    }
+
+    public function removeAttachments()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Get the filename (attachment) to be deleted and the associated transferout ID
+            $attachment = $_POST['attachment'] ?? '';
+            $resignId = $_POST['id'] ?? null;
+
+            if ($attachment && $resignId) {
+                // Initialize the TransferoutModel
+                $resign = new ResignModel($this->pdo);
+
+                // Delete the attachment record from the transferout_attachments table
+                $resign->deleteAttachment($resignId, $attachment);
+
+                // Construct the file path to delete the physical file
+                $filePath = "public/uploads/resign-attachments/" . $attachment;
+                if (file_exists($filePath)) {
+                    unlink($filePath); // Delete the file from the server
+                }
+
+                // Set a success message
+                $_SESSION['success'] = [
+                    'title' => "លុបឯកសារភ្ជាប់",
+                    'message' => "លុបបានជោគជ័យ។"
+                ];
+            } else {
+                // Handle missing parameters
+                $_SESSION['error'] = [
+                    'title' => "លុបឯកសារភ្ជាប់",
+                    'message' => "មិនអាចលុបឯកសារភ្ជាប់បានទេ។"
+                ];
+            }
+
+            // Redirect or return response
+            header('Location:  /elms/view&edit-resign?resignId=' . $resignId); // Change to your success page
+            exit();
+        }
     }
 }

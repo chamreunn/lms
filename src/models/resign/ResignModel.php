@@ -6,6 +6,8 @@ class ResignModel
 
     protected $resigned_approval = 'resigned_approval';
 
+    protected $tblresigned_attachment = 'resigned_attachments';
+
     private $pdo;
 
     public function __construct($pdo)
@@ -59,7 +61,6 @@ class ResignModel
         $sql = "UPDATE $this->tblresign 
                 SET workexperience = :workexperience,
                     reason = :reason, 
-                    attachment = :attachment, 
                     approver_id = :approver_id 
                 WHERE id = :resign_id";
 
@@ -68,7 +69,6 @@ class ResignModel
         $stmt->bindParam(':resign_id', $resign_id);
         $stmt->bindParam(':workexperience', $data['workexperience']);
         $stmt->bindParam(':reason', $data['reason']);
-        $stmt->bindParam(':attachment', $data['attachment']);
         $stmt->bindParam(':approver_id', $data['approver_id']);
 
         if ($stmt->execute()) {
@@ -82,12 +82,16 @@ class ResignModel
     {
         // Prepare the SQL query to get the hold request and all approval tracking steps specific to that hold request
         $sql = "
-            SELECT r.*, ra.status AS approval_status, ra.approver_id, ra.comment AS comment
+            SELECT r.*,
+            GROUP_CONCAT(DISTINCT a.file_name) AS attachments, 
+            MAX(a.uploaded_at) AS latest_uploaded_at,
+            ra.status AS approval_status, ra.approver_id, ra.comment AS comment
             FROM $this->resigned_approval ra
             JOIN $this->tblresign r ON ra.resign_id = r.id
-            WHERE r.user_id = :userId AND r.id =:id ORDER BY ra.id DESC
-        ";
-
+            LEFT JOIN $this->tblresigned_attachment a ON r.id = a.resign_id
+            WHERE r.user_id = :userId AND r.id =:id  
+            GROUP BY r.id, ra.status, ra.updated_at, ra.approver_id, ra.comment
+            ORDER BY ra.id DESC";
         // Prepare the statement
         $stmt = $this->pdo->prepare($sql);
 
@@ -150,8 +154,8 @@ class ResignModel
     public function createResignRequest($data)
     {
         // Prepare the SQL query using PDO
-        $sql = "INSERT INTO $this->tblresign (user_id, approver_id, workexperience, reason, attachment, created_at) 
-            VALUES (:user_id, :approver_id, :workexperience, :reason, :attachment, NOW())";
+        $sql = "INSERT INTO $this->tblresign (user_id, approver_id, workexperience, reason, created_at) 
+            VALUES (:user_id, :approver_id, :workexperience, :reason, NOW())";
 
         // Prepare the statement
         $stmt = $this->pdo->prepare($sql);
@@ -161,7 +165,6 @@ class ResignModel
         $stmt->bindParam(':approver_id', $data['approver_id'], PDO::PARAM_INT);
         $stmt->bindParam(':workexperience', $data['workexperience'], PDO::PARAM_STR);
         $stmt->bindParam(':reason', $data['reason'], PDO::PARAM_STR);
-        $stmt->bindParam(':attachment', $data['attachment'], PDO::PARAM_STR);
 
         // Execute the statement
         $stmt->execute();
@@ -170,14 +173,47 @@ class ResignModel
         return $this->pdo->lastInsertId();
     }
 
+    public function saveResignAttachment($data)
+    {
+        $sql = "INSERT INTO $this->tblresigned_attachment (resign_id, file_name, file_path) VALUES (:resign_id, :file_name, :file_path)";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            ':resign_id' => $data['resign_id'],
+            ':file_name' => $data['file_name'],
+            ':file_path' => $data['file_path']
+        ]);
+    }
+
+    public function createAttachment($data)
+    {
+        // Prepare the SQL statement with the correct parameter bindings
+        $stmt = $this->pdo->prepare("INSERT INTO $this->tblresigned_attachment (resign_id, file_name, file_path, uploaded_at) VALUES (:resign_id, :file_name, :file_path, NOW())");
+
+        // Execute the statement with the provided data
+        $stmt->execute($data);
+    }
+
+    public function deleteAttachment($resignId, $filename)
+    {
+        // Prepare the SQL statement to delete the attachment from the transferout_attachments table
+        $stmt = $this->pdo->prepare("DELETE FROM $this->tblresigned_attachment WHERE resign_id = :resign_id AND file_name = :filename");
+        $stmt->execute([
+            ':resign_id' => $resignId,
+            ':filename' => $filename
+        ]);
+    }
+
     public function deleteResignById($id)
     {
         // Start a transaction to ensure both deletions are successful or neither
         $this->pdo->beginTransaction();
 
         try {
-            // Delete the hold from tblholds
+            // Delete the hold from tblresign
             $stmtResign = $this->pdo->prepare("DELETE FROM {$this->tblresign} WHERE id = ?");
+            $stmtResign->execute([$id]);
+
+            $stmtResign = $this->pdo->prepare("DELETE FROM {$this->tblresigned_attachment} WHERE resign_id = ?");
             $stmtResign->execute([$id]);
 
             // Commit the transaction if both queries succeed

@@ -1327,6 +1327,18 @@ switch ($uri) {
             $resignController->update();
         });
         break;
+    case $base_url . '/addMoreAttachmentResign':
+        checkSessionAndExecute(function () {
+            $resignController = new ResignController();
+            $resignController->addMoreAttachment();
+        });
+        break;
+    case $base_url . '/deleteResignAttachment':
+        checkSessionAndExecute(function () {
+            $controller = new ResignController();
+            $controller->removeAttachments();
+        });
+        break;
     case $base_url . '/backwork':
         checkSessionAndExecute(function () {
             $holdController = new BackworkController();

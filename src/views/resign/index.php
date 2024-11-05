@@ -57,7 +57,6 @@ require_once 'src/common/header.php';
                                     <th>ល.រ</th>
                                     <th>បទពិសោធន៍</th>
                                     <th>មូលហេតុ</th>
-                                    <th>ឯកសារភ្ជាប់</th>
                                     <th class="w-1">សកម្មភាព</th>
                                 </tr>
                             </thead>
@@ -67,22 +66,7 @@ require_once 'src/common/header.php';
                                         <td><?= $key + 1 ?></td>
                                         <td class="text-secondary"><?= $resign['workexperience'] ?></td>
                                         <td class="text-secondary"><?= $resign['reason'] ?></td>
-                                        <td class="text-secondary">
-                                            <?php if (!empty($resign['attachment'])): ?>
-                                                <ul>
-                                                    <?php
-                                                    $attachments = explode(',', $resign['attachment']);
-                                                    foreach ($attachments as $i => $attachment): ?>
-                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                            <a href="public/uploads/hold-attachments/<?= $attachment ?>" target="_blank">
-                                                                <span><?= $i + 1 ?></span>.
-                                                                ឯកសារភ្ជាប់
-                                                            </a>
-                                                        </li>
-                                                    <?php endforeach; ?>
-                                                </ul>
-                                            <?php endif; ?>
-                                        </td>
+                                        
                                         <td>
                                             <div class="d-flex">
                                                 <a href="/elms/view&edit-resign?resignId=<?= $resign['id'] ?>">
