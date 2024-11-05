@@ -164,8 +164,8 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                         </div>
                     </li>
                     <!-- change location  -->
-                    <li
-                        class="nav-item dropdown <?= in_array($current_page, ['transferout', 'hold', 'resign', 'backwork', 'view&edit-hold']) ? 'active' : '' ?>">
+                    <li hidden
+                        class="nav-item dropdown <?= in_array($current_page, ['transferout', 'hold', 'resign', 'backwork', 'view&edit-hold','view&edit-transferout']) ? 'active' : '' ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
                             data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -206,7 +206,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                         </span>
                                         លិខិតព្យួរ
                                     </a>
-                                    <a class="dropdown-item <?= ($current_page == 'transferout') ? 'active' : '' ?>"
+                                    <a class="dropdown-item <?= in_array($current_page, ['transferout','view&edit-transferout']) ? 'active' : '' ?>"
                                         href="/elms/transferout">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"

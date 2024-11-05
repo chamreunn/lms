@@ -23,27 +23,25 @@ class MissionController
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $userModel = new User();
-            $user_id = $_POST['user_id'];
+            $user_ids = $_POST['user_id']; // Array of selected user IDs
             $mission_name = $_POST['mission_name'] ?? "NULL";
             $start_date = $_POST['start_date'];
             $end_date = $_POST['end_date'];
             $activity = "បង្កើតសំណើបេសកកម្ម";
             $mission = "1" ?? "NULL";
-            $attachment_name = null; // Initialize attachment name to avoid errors later
+            $attachment_name = null;
             $attachment_url = null;
 
             try {
-                // Start transaction
                 $this->pdo->beginTransaction();
 
                 // Handle file upload (if any)
                 if (isset($_FILES['missionDoc']) && $_FILES['missionDoc']['error'] == UPLOAD_ERR_OK) {
                     $file = $_FILES['missionDoc'];
-                    $uploadDir = 'public/uploads/missions_attachments/'; // File upload directory
+                    $uploadDir = 'public/uploads/missions_attachments/';
                     $attachment_name = $this->handleFileUpload($file, ['pdf'], 20971520, $uploadDir);
 
                     if ($attachment_name) {
-                        // Generate the URL for the uploaded file
                         $attachment_url = 'https://leave.iauoffsa.us/elms/public/uploads/missions_attachments/' . $attachment_name;
                         error_log("File uploaded successfully. Filename: $attachment_name");
                     } else {
@@ -56,27 +54,20 @@ class MissionController
                 $datetime_end = new DateTime($end_date);
                 $duration_days = $this->calculateTotalDays($datetime_start, $datetime_end);
 
-                // Create mission request
+                // Insert mission records for each user_id
                 $missionModel = new MissionModel();
-                $createMissionResult = $missionModel->create($user_id, $mission_name, $start_date, $end_date, $attachment_name, $duration_days);
+                foreach ($user_ids as $user_id) {
+                    $createMissionResult = $missionModel->create($user_id, $mission_name, $start_date, $end_date, $attachment_name, $duration_days);
 
-                // Log user activity
-                $createActivityResult = $userModel->logUserActivity($user_id, $activity);
+                    // Log user activity for each selected user
+                    $userModel->logUserActivity($user_id, $activity);
 
-                // Check if both operations were successful
-                if ($createMissionResult && $createActivityResult) {
-                    // Commit transaction
-                    $this->pdo->commit();
-
-                    // Update mission in the API
+                    // Update mission in the API for each user
                     $userModel->updateMissionToApi($user_id, $start_date, $end_date, $mission, $_SESSION['token']);
 
-                    // Handle Telegram notification
+                    // Send Telegram notifications for each user with a Telegram ID
                     $telegramUser = $userModel->getTelegramIdByUserId($user_id);
                     if ($telegramUser && !empty($telegramUser['telegram_id'])) {
-                        error_log("Found telegram_id: " . $telegramUser['telegram_id']);
-
-                        // Prepare the Telegram message
                         $notifications = [
                             "🔔 *លិខិតបេសកកម្ម*",
                             "---------------------------------------------",
@@ -88,29 +79,17 @@ class MissionController
                         ];
                         $telegramMessage = implode("\n", $notifications);
 
-                        // Send Telegram notification
                         $telegramModel = new TelegramModel($this->pdo);
-                        $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage);
-
-                        if ($success) {
-                            error_log("Telegram notification sent successfully.");
-                        } else {
-                            error_log("Failed to send Telegram notification.");
-                        }
+                        $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage);
                     }
-
-                    // Success message
-                    $_SESSION['success'] = [
-                        'title' => "ជោគជ័យ",
-                        'message' => "បង្កើតបេសកកម្មបានជោគជ័យ។"
-                    ];
-                } else {
-                    // Rollback if either operation fails
-                    $this->pdo->rollBack();
-                    throw new Exception("Failed to create mission or log activity.");
                 }
+
+                $this->pdo->commit();
+                $_SESSION['success'] = [
+                    'title' => "ជោគជ័យ",
+                    'message' => "បង្កើតបេសកកម្មបានជោគជ័យ។"
+                ];
             } catch (Exception $e) {
-                // Rollback on error
                 $this->pdo->rollBack();
                 error_log("Error during mission creation: " . $e->getMessage());
                 $_SESSION['error'] = [
@@ -119,7 +98,6 @@ class MissionController
                 ];
             }
 
-            // Redirect to the missions admin page
             header("Location: /elms/adminmissions");
             exit();
         }

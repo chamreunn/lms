@@ -59,7 +59,6 @@ require_once 'src/common/header.php';
                                     <th>ប្រភេទលិខិត</th>
                                     <th class="text-center d-none d-xl-table-cell">កាលបរិច្ឆេទ</th>
                                     <th class="d-none d-xl-table-cell">រយៈពេល</th>
-                                    <th class="d-none d-xl-table-cell">ឯកសារភ្ជាប់</th>
                                     <th class="d-none d-xl-table-cell">មូលហេតុ</th>
                                     <th>ស្ថានភាព</th>
                                     <th class="w-1 d-none d-xl-table-cell">សកម្មភាព</th>
@@ -212,24 +211,6 @@ require_once 'src/common/header.php';
                                             <?= $hold['start_date'] . " ~ " . $hold['end_date'] ?>
                                         </td>
                                         <td class="text-secondary d-none d-xl-table-cell"><?= $hold['duration'] ?></td>
-                                        <td class="text-secondary d-none d-xl-table-cell">
-                                            <?php if (!empty($hold['attachment'])): ?>
-                                                <?php
-                                                // Split the attachment string into an array
-                                                $attachments = explode(',', $hold['attachment']);
-                                                ?>
-                                                <?php if (!empty($attachments)): ?>
-                                                    <?php foreach ($attachments as $index => $attachment): ?>
-                                                        <a href="public/uploads/hold-attachments/<?= $attachment ?>" target="_blank">
-                                                            <!-- Display attachment with numbering -->
-                                                            <?= ($index + 1) . ". " ?>ឯកសារភ្ជាប់ <?= $index + 1 ?>
-                                                        </a><br>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            <?php else: ?>
-                                                មិនមានឯកសារភ្ជាប់
-                                            <?php endif; ?>
-                                        </td>
                                         <td class="text-secondary d-none d-xl-table-cell"><?= $hold['reason'] ?></td>
                                         <td class="text-secondary">
                                             <?php if ($hold['status'] === 'approved'): ?>

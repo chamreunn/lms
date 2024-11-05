@@ -1133,16 +1133,15 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">ជ្រើសរើសគណនី</label>
-                        <select type="text" class="form-select select-people" name="user_id"
-                            placeholder="Select a person">
-                            <option value="NULL" selected disable>សូមជ្រើសរើសគណនី</option>
+                        <select type="text" class="form-select select-people" multiple name="user_id[]"
+                            placeholder="សូមជ្រើសរើសគណនី">
+                            <option value="NULL">សូមជ្រើសរើសគណនី</option>
                             <?php foreach ($getAllUser['data'] as $user): ?>
                                 <option value="<?= htmlspecialchars($user['id'], ENT_QUOTES, 'UTF-8') ?>"
                                     data-custom-properties="&lt;span class=&quot;avatar avatar-xs&quot; style=&quot;background-image: url('https://hrms.iauoffsa.us/images/<?= htmlspecialchars($user['image'], ENT_QUOTES, 'UTF-8') ?>')&quot;&gt;&lt;/span&gt;">
                                     <?= htmlspecialchars($user['firstNameKh'], ENT_QUOTES, 'UTF-8') ?>
                                 </option>
                             <?php endforeach; ?>
-                            <!-- Add more options as needed -->
                         </select>
                     </div>
                     <div class="mb-3">
