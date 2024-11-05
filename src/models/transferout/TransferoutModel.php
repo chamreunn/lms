@@ -201,8 +201,7 @@ class TransferoutModel
     public function getTransferoutById($id)
     {
         // Prepare the SQL query to get the transfer request and approval tracking details
-        $sql = "
-        SELECT h.*, GROUP_CONCAT(a.filename) AS attachments, a.created_at, a.transferout_id,  ha.status AS approval_status, ha.updated_at AS approved_at, ha.approver_id, ha.comment AS comment
+        $sql = "SELECT h.*, GROUP_CONCAT(a.filename) AS attachments, a.created_at, a.transferout_id,  ha.status AS approval_status, ha.updated_at AS approved_at, ha.approver_id, ha.comment AS comment
         FROM $this->transferout_approval ha
         JOIN $this->tbltransferout h ON ha.transferout_id = h.id
         LEFT JOIN transferout_attachments a ON h.id = a.transferout_id

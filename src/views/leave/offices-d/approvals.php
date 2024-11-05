@@ -113,7 +113,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </div>
     </div>
 <?php else: ?>
-    <div class="row">
+    <div class="row g-3">
         <?php foreach ($requests as $request): ?>
             <div class="col-md-6 col-lg-3 mb-3">
                 <div class="card h-100 p-0">
@@ -399,6 +399,81 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         <?php endforeach; ?>
     </div>
 <?php endif; ?>
+
+<h1 class="hr-text mt-0">លិខិតពួ្យរការងារ</h1>
+
+<?php if (empty($hold)): ?>
+    <div class="empty-state d-flex flex-column align-items-center justify-content-center" style="height: 70vh;">
+        <div class="text-center">
+            <img src="public/img/icons/svgs/empty.svg" alt="Empty Data" class="img-fluid" style="max-width: 350px;">
+            <h4 class="mt-2">មិនមានសំណើច្បាប់ឈប់សម្រាកទេ!</h4>
+            <p class="text-muted">ពេលនេះមិនមានសំណើ ឬទិន្នន័យណាមួយទេ!</p>
+            <a class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#apply-leave">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-plus">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5" />
+                    <path d="M16 3v4" />
+                    <path d="M8 3v4" />
+                    <path d="M4 11h16" />
+                    <path d="M16 19h6" />
+                    <path d="M19 16v6" />
+                </svg>
+                <span>បង្កើតសំណើច្បាប់</span>
+            </a>
+        </div>
+    </div>
+<?php else: ?>
+    <div class="row g-3">
+        <?php foreach ($hold as $index => $holds): ?>
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 p-0">
+                    <!-- Trigger modal on click by adding data attributes -->
+                    <a href="#" class="card-body text-decoration-none p-3 hover-shadow" data-bs-toggle="modal"
+                        data-bs-target="#detailModal<?= $index ?>">
+                        <div class="d-flex w-100 justify-content-between">
+                            <div>
+                                <h4 class="mb-1 text-primary">លិខិតពួ្យរការងារ</h4>
+                                <small class="fw-bolder">
+                                    <?= translateDateToKhmer($holds['created_at'], 'j F Y h:i A') ?>
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 6l6 6l-6 6" />
+                                </svg>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Modal Structure -->
+            <div class="modal modal-blur fade" id="detailModal<?= $index ?>" tabindex="-1" aria-labelledby="detailModalLabel<?= $index ?>"
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary text-light">
+                            <h5 class="modal-title" id="detailModalLabel<?= $index ?>">លិខិតពួ្យរការងារ</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Date:</strong> <?= translateDateToKhmer($holds['created_at'], 'j F Y h:i A') ?></p>
+                            <p><strong>Details:</strong> <?= $holds['attachment'] // Adjust this to display specific details ?></p>
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-danger">Rejected</button>
+                            <button type="button" class="btn btn-success">Approved</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+
 <?php include('src/common/footer.php'); ?>
 <!-- tom select  -->
 <script>

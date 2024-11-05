@@ -6,6 +6,8 @@ class HoldModel
 
     protected $tblholds_approvals = 'holds_approvals';
 
+    protected $tblholds_attachment = 'hold_attachments';
+
     private $pdo;
 
     public function __construct($pdo)
@@ -16,8 +18,8 @@ class HoldModel
     public function createHoldRequest($data)
     {
         // Prepare the SQL query using PDO
-        $sql = "INSERT INTO $this->tblholds (user_id, approver_id, start_date, end_date, reason, attachment, duration, type, color, created_at) 
-            VALUES (:user_id, :approver_id, :start_date, :end_date, :reason, :attachment, :duration, :type, :color, NOW())";
+        $sql = "INSERT INTO $this->tblholds (user_id, approver_id, start_date, end_date, reason, duration, type, color, created_at) 
+            VALUES (:user_id, :approver_id, :start_date, :end_date, :reason, :duration, :type, :color, NOW())";
 
         // Prepare the statement
         $stmt = $this->pdo->prepare($sql);
@@ -28,7 +30,6 @@ class HoldModel
         $stmt->bindParam(':start_date', $data['start_date'], PDO::PARAM_STR);
         $stmt->bindParam(':end_date', $data['end_date'], PDO::PARAM_STR);
         $stmt->bindParam(':reason', $data['reason'], PDO::PARAM_STR);
-        $stmt->bindParam(':attachment', $data['attachment'], PDO::PARAM_STR);
         $stmt->bindParam(':duration', $data['duration'], PDO::PARAM_STR);
         $stmt->bindParam(':type', $data['type'], PDO::PARAM_STR);
         $stmt->bindParam(':color', $data['color'], PDO::PARAM_STR);
@@ -100,7 +101,6 @@ class HoldModel
                 SET start_date = :start_date, 
                     end_date = :end_date, 
                     reason = :reason, 
-                    attachment = :attachment, 
                     duration = :duration, 
                     approver_id = :approver_id 
                 WHERE id = :hold_id";
@@ -111,7 +111,6 @@ class HoldModel
         $stmt->bindParam(':start_date', $data['start_date']);
         $stmt->bindParam(':end_date', $data['end_date']);
         $stmt->bindParam(':reason', $data['reason']);
-        $stmt->bindParam(':attachment', $data['attachment']);
         $stmt->bindParam(':duration', $data['duration']);
         $stmt->bindParam(':approver_id', $data['approver_id']);
 
@@ -144,20 +143,26 @@ class HoldModel
 
     public function getHoldById($id)
     {
-        // Prepare the SQL query to get the hold request and all approval tracking steps specific to that hold request
-        $sql = "
-        SELECT h.*, ha.status AS approval_status, ha.approved_at, ha.approver_id, ha.comments AS comment
-        FROM $this->tblholds_approvals ha
-        JOIN $this->tblholds h ON ha.hold_id = h.id
-        WHERE h.user_id = :userId AND h.id = :id 
-        ORDER BY ha.id DESC
-    ";
+        // Prepare the SQL query to get the hold request, approval tracking steps, and attachments
+        $sql = "SELECT h.*, 
+        GROUP_CONCAT(DISTINCT a.file_name) AS attachments, 
+        MAX(a.uploaded_at) AS latest_uploaded_at, -- Get the latest uploaded date
+        ha.status AS approval_status, 
+        ha.updated_at AS approved_at, 
+        ha.approver_id, 
+        ha.comments AS comment
+ FROM $this->tblholds h
+ JOIN $this->tblholds_approvals ha ON ha.hold_id = h.id
+ LEFT JOIN $this->tblholds_attachment a ON h.id = a.hold_id
+ WHERE h.user_id = :user_id AND h.id = :id 
+ GROUP BY h.id, ha.status, ha.updated_at, ha.approver_id, ha.comments
+ ORDER BY ha.id DESC"; // Still order by the latest approval
 
         // Prepare the statement
         $stmt = $this->pdo->prepare($sql);
 
         // Bind the user ID and hold ID parameters
-        $stmt->bindParam(':userId', $_SESSION['user_id'], PDO::PARAM_INT);
+        $stmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
         // Execute the query
@@ -187,7 +192,7 @@ class HoldModel
                 }
             }
 
-            // Fetch the submitter (user) data from the API
+            // Fetch the submitter (user) data from the API for the first result
             $userApiResponse = $userModel->getUserByIdApi($results[0]['user_id'], $_SESSION['token']);
             if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
                 $user = $userApiResponse['data'];
@@ -232,10 +237,31 @@ class HoldModel
                 }
             }
 
-            return $results;
+            return $results; // Return the populated results
         }
 
         return []; // Return an empty array if no results are found
+    }
+
+    public function getHoldByuserId($userId)
+    {
+        // Prepare the SQL query to get the hold request and all approval tracking steps specific to that hold request
+        $sql = "SELECT * FROM $this->tblholds WHERE approver_id = :user_id ORDER BY ID DESC";
+
+        // Prepare the statement
+        $stmt = $this->pdo->prepare($sql);
+
+        // Bind the user ID parameter
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+
+        // Execute the query
+        $stmt->execute();
+
+        // Fetch all results
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Return the fetched results
+        return $results; // Return the fetched results (or an empty array if none found)
     }
 
     public function insertManagerStatusToHoldsApprovals($hold_id, $approver_id, $status)
@@ -285,5 +311,35 @@ class HoldModel
             $this->pdo->rollBack();
             throw $e;
         }
+    }
+
+    public function saveHoldAttachment($data)
+    {
+        $sql = "INSERT INTO $this->tblholds_attachment (hold_id, file_name, file_path) VALUES (:hold_id, :file_name, :file_path)";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            ':hold_id' => $data['hold_id'],
+            ':file_name' => $data['file_name'],
+            ':file_path' => $data['file_path']
+        ]);
+    }
+
+    public function createAttachment($data)
+    {
+        // Prepare the SQL statement with the correct parameter bindings
+        $stmt = $this->pdo->prepare("INSERT INTO $this->tblholds_attachment (hold_id, file_name, file_path, uploaded_at) VALUES (:hold_id, :file_name, :file_path, NOW())");
+
+        // Execute the statement with the provided data
+        $stmt->execute($data);
+    }
+
+    public function deleteAttachment($holdId, $filename)
+    {
+        // Prepare the SQL statement to delete the attachment from the transferout_attachments table
+        $stmt = $this->pdo->prepare("DELETE FROM $this->tblholds_attachment WHERE hold_id = :holdId AND file_name = :filename");
+        $stmt->execute([
+            ':holdId' => $holdId,
+            ':filename' => $filename
+        ]);
     }
 }

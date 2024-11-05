@@ -810,7 +810,7 @@ class DepOfficeModel
     {
         // Fetch all leave requests from the database
         $stmt = $this->pdo->prepare('SELECT * FROM ' . $this->table_name . ' 
-        WHERE  dhead_office = ?  
+        WHERE dhead_office = ?  
         AND position IN (?, ?)
         AND office = ?
         AND department = ?
