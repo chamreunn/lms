@@ -1341,8 +1341,14 @@ switch ($uri) {
         break;
     case $base_url . '/backwork':
         checkSessionAndExecute(function () {
-            $holdController = new BackworkController();
-            $holdController->index();
+            $backworkController = new BackworkController();
+            $backworkController->index();
+        });
+        break;
+    case $base_url . '/apply-backwork':
+        checkSessionAndExecute(function () {
+            $backworkController = new BackworkController();
+            $backworkController->create();
         });
         break;
     case $base_url . '/verify-2fa':

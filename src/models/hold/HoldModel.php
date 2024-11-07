@@ -151,12 +151,12 @@ class HoldModel
         ha.updated_at AS approved_at, 
         ha.approver_id, 
         ha.comments AS comment
- FROM $this->tblholds h
- JOIN $this->tblholds_approvals ha ON ha.hold_id = h.id
- LEFT JOIN $this->tblholds_attachment a ON h.id = a.hold_id
- WHERE h.user_id = :user_id AND h.id = :id 
- GROUP BY h.id, ha.status, ha.updated_at, ha.approver_id, ha.comments
- ORDER BY ha.id DESC"; // Still order by the latest approval
+        FROM $this->tblholds h
+        JOIN $this->tblholds_approvals ha ON ha.hold_id = h.id
+        LEFT JOIN $this->tblholds_attachment a ON h.id = a.hold_id
+        WHERE h.user_id = :user_id AND h.id = :id 
+        GROUP BY h.id, ha.status, ha.updated_at, ha.approver_id, ha.comments
+        ORDER BY ha.id DESC"; // Still order by the latest approval
 
         // Prepare the statement
         $stmt = $this->pdo->prepare($sql);

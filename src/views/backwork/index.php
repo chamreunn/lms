@@ -47,7 +47,7 @@ require_once 'src/common/header.php';
                 <?php if (empty($getHolds)): ?>
                     <div class="text-center">
                         <img src="public/img/icons/svgs/empty.svg" alt="">
-                        <p class="text-primary fw-bold">មិនមានលិខិតព្យួរ។</p>
+                        <p class="text-primary fw-bold">មិនមានលិខិតបន្តការងារ។</p>
                     </div>
                 <?php else: ?>
                     <div class="table-responsive">
