@@ -294,7 +294,7 @@ class HoldModel
                 $request['user_email'] = $user['email'] ?? 'Unknown';
                 $request['department_name'] = $user['department']['name'] ?? 'Unknown';
                 $request['position_name'] = $user['position']['name'] ?? 'Unknown';
-                $request['profile'] = $user['image'] ?? 'default-profile.png';
+                $request['profile'] = 'https://hrms.iauoffsa.us/images/' . $user['image'] ?? 'default-profile.png';
             } else {
                 // Default values if API call ultimately fails
                 $request['user_name'] = 'Unknown';
@@ -305,6 +305,9 @@ class HoldModel
                 $request['profile'] = 'default-profile.png';
                 error_log("Failed to fetch user data for User ID $requestUserId after retries.");
             }
+
+            // Ensure 'attachments' is always a string for consistent handling in the view
+            $request['attachments'] = $request['attachments'] ?? '';
         }
 
         return $results;

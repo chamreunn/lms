@@ -164,7 +164,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                         </div>
                     </li>
                     <!-- change location  -->
-                    <li hidden
+                    <li 
                         class="nav-item dropdown <?= in_array($current_page, ['transferout', 'hold', 'resign', 'backwork', 'view&edit-hold','view&edit-transferout']) ? 'active' : '' ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
                             data-bs-auto-close="outside" role="button" aria-expanded="false">

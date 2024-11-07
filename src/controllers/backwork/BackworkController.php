@@ -95,7 +95,7 @@ class BackworkController
             }
         }
     }
-
+    
     public function create()
     {
         // Ensure the session is started
