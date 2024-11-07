@@ -245,23 +245,69 @@ class HoldModel
 
     public function getHoldByuserId($userId)
     {
-        // Prepare the SQL query to get the hold request and all approval tracking steps specific to that hold request
-        $sql = "SELECT * FROM $this->tblholds WHERE approver_id = :user_id ORDER BY ID DESC";
+        // Prepare the SQL query to get hold requests specific to that hold request
+        $sql = "SELECT h.*, 
+            GROUP_CONCAT(DISTINCT a.file_name) AS attachments, 
+            MAX(a.uploaded_at) AS latest_uploaded_at
+            FROM $this->tblholds h
+            LEFT JOIN $this->tblholds_attachment a ON h.id = a.hold_id
+            WHERE h.approver_id = :user_id 
+            GROUP BY h.id
+            ORDER BY h.id DESC"; // Changed to h.id for consistency
 
         // Prepare the statement
         $stmt = $this->pdo->prepare($sql);
-
-        // Bind the user ID parameter
         $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
-
-        // Execute the query
         $stmt->execute();
-
-        // Fetch all results
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Return the fetched results
-        return $results; // Return the fetched results (or an empty array if none found)
+        // Cache array to store user data temporarily
+        $userCache = [];
+
+        foreach ($results as &$request) {
+            $userModel = new User();
+            $requestUserId = $request['user_id']; // Use a different variable to avoid conflict
+
+            // Check cache first to avoid multiple API calls for the same user
+            if (!isset($userCache[$requestUserId])) {
+                // Retry mechanism to attempt API calls more than once
+                $retryCount = 3;
+                while ($retryCount > 0) {
+                    $userApiResponse = $userModel->getUserByIdApi($requestUserId, $_SESSION['token']);
+
+                    if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                        $userCache[$requestUserId] = $userApiResponse['data'];
+                        break; // Success, exit retry loop
+                    }
+
+                    $retryCount--;
+                    usleep(200000); // Wait 200ms between retries to reduce API load
+                }
+            }
+
+            // Retrieve user data from cache if available
+            $user = $userCache[$requestUserId] ?? null;
+
+            if ($user) {
+                $request['user_name'] = ($user['lastNameKh'] ?? '') . " " . ($user['firstNameKh'] ?? 'Unknown');
+                $request['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $request['user_email'] = $user['email'] ?? 'Unknown';
+                $request['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $request['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $request['profile'] = $user['image'] ?? 'default-profile.png';
+            } else {
+                // Default values if API call ultimately fails
+                $request['user_name'] = 'Unknown';
+                $request['dob'] = 'Unknown';
+                $request['user_email'] = 'Unknown';
+                $request['department_name'] = 'Unknown';
+                $request['position_name'] = 'Unknown';
+                $request['profile'] = 'default-profile.png';
+                error_log("Failed to fetch user data for User ID $requestUserId after retries.");
+            }
+        }
+
+        return $results;
     }
 
     public function insertManagerStatusToHoldsApprovals($hold_id, $approver_id, $status)

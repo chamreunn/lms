@@ -21,6 +21,7 @@ require_once 'src/common/header.php';
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb mb-0">
                         <li class="breadcrumb-item"><a href="/elms/dashboard">ទំព័រដើម</a></li>
+                        <li class="breadcrumb-item"><a href="/elms/transferout">លិខិតផ្ទេរចេញ</a></li>
                         <li class="breadcrumb-item active" aria-current="page"><?= $title ?></li>
                     </ol>
                 </nav>
@@ -34,7 +35,7 @@ require_once 'src/common/header.php';
     <div class="row g-3">
         <!-- Transfer Request Details -->
         <div class="col-lg-6 col-md-12">
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-header bg-light d-flex justify-content-between">
                     <h3 class="card-title text-primary"><?= $title ?></h3>
                     <span class="badge <?= $getTransferouts[0]['status'] === 'approved' ? 'bg-success'
@@ -89,10 +90,17 @@ require_once 'src/common/header.php';
                         <textarea class="form-control" id="reason" name="reason"
                             disabled><?= $getTransferouts[0]['reason'] ?? '' ?></textarea>
                     </div>
+                </div>
+            </div>
 
+            <!-- attachment  -->
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">ឯកសារភ្ជាប់</h4>
+                </div>
+                <div class="card-body">
                     <!-- Attachments Section -->
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-primary">បន្ថែមឯកសារភ្ជាប់</label>
                         <button type="button" data-bs-toggle="modal" data-bs-target="#addMore"
                             class="btn btn-primary w-100">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -152,11 +160,10 @@ require_once 'src/common/header.php';
 
                         <?php if (!empty($getTransferouts[0]['attachments'])): ?>
                             <p class="mt-3">ឯកសារបច្ចុប្បន្ន៖</p>
-                            <ul class="list-group mb-3">
+                            <ul class="list-group">
                                 <?php
-                                $attachments = explode(',', $getTransferouts[0]['attachments']);
-                                foreach ($attachments as $attachment): // Loop through each attachment
-                                    // Generate a unique ID for the modal using the attachment name
+                                $attachments = array_unique(explode(',', $getTransferouts[0]['attachments'])); // Ensure unique entries
+                                foreach ($attachments as $attachment):
                                     $attachmentId = md5($attachment);
                                     ?>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -170,8 +177,7 @@ require_once 'src/common/header.php';
                                             data-bs-target="#deleteAttachment<?= $attachmentId ?>">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                class="icon icon-tabler icons-tabler-outline icon-tabler-trash mx-0">
+                                                stroke-linejoin="round" class="icon icon-tabler icon-tabler-trash mx-0">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                 <path d="M4 7l16 0" />
                                                 <path d="M10 11l0 6" />
@@ -193,18 +199,6 @@ require_once 'src/common/header.php';
                                                             value="<?= htmlspecialchars($attachment) ?>">
                                                         <input type="hidden" name="id"
                                                             value="<?= $getTransferouts[0]['id'] ?? '' ?>">
-                                                        <!-- Include the transferout ID -->
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                            class="icon mb-2 text-danger icon-lg">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                            <path d="M12 9v4"></path>
-                                                            <path
-                                                                d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
-                                                            </path>
-                                                            <path d="M12 16h.01"></path>
-                                                        </svg>
                                                         <h5 class="modal-title fw-bold text-danger">លុបឯកសារ</h5>
                                                         <p class="mb-0">តើអ្នកប្រាកដទេថានិងលុបឯកសារ <span
                                                                 class="text-red fw-bold"><?= htmlspecialchars($attachment) ?></span>
@@ -230,6 +224,11 @@ require_once 'src/common/header.php';
                                     </div>
                                 <?php endforeach; ?>
                             </ul>
+                        <?php else: ?>
+                            <div class="text-center">
+                                <img src="public/img/icons/svgs/empty.svg" alt="">
+                                <p>មិនមានឯកសារភ្ជាប់</p>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -311,6 +310,5 @@ require_once 'src/common/header.php';
         </div>
     </div>
 </div>
-
 
 <?php include('src/common/footer.php'); ?>

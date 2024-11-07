@@ -166,72 +166,77 @@ class User
         return $stmt->fetch();
     }
 
-    public function getAllUserApi($token)
+    public function getAllUserApi($token, $retries = 3)
     {
         $url = "{$this->api}/api/v1/users/";
-
-        // Initialize cURL session
-        $ch = curl_init($url);
 
         // Determine if we're on localhost
         $isLocalhost = ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_ADDR'] == '127.0.0.1');
 
-        // Set cURL options
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Authorization: Bearer ' . $token
-        ));
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !$isLocalhost); // Ignore SSL certificate verification if on localhost
+        for ($attempt = 1; $attempt <= $retries; $attempt++) {
+            // Initialize cURL session
+            $ch = curl_init($url);
 
-        // Execute cURL request
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
+            // Set cURL options
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'Authorization: Bearer ' . $token
+            ));
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, !$isLocalhost); // Ignore SSL verification on localhost
 
-        // Close the cURL session
-        curl_close($ch);
+            // Execute cURL request
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $error = curl_error($ch);
 
-        // Check for cURL errors
-        if ($response === false) {
-            error_log("CURL Error: $error");
-            echo "CURL Error: $error";
-            return null;
-        }
+            // Close the cURL session
+            curl_close($ch);
 
-        // Decode the JSON response
-        $responseData = json_decode($response, true);
-
-        // Handle JSON decoding errors
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log("JSON Decode Error: " . json_last_error_msg());
-            echo "JSON Decode Error: " . json_last_error_msg();
-            return null;
-        }
-
-        // Check if the response is successful and contains the expected data
-        if ($httpCode === 200 && isset($responseData['data'])) {
-            $users = $responseData['data'];
-            $usersWithRoles = [];
-
-            // Fetch role information for each user
-            foreach ($users as $user) {
-                $roleResponse = $this->getRoleApi($user['roleId'], $token);
-                $user['role'] = ($roleResponse && $roleResponse['http_code'] === 200) ? $roleResponse['data']['roleNameKh'] : 'Unknown';
-                $usersWithRoles[] = $user;
+            // Check for cURL errors
+            if ($response === false) {
+                error_log("Attempt $attempt - CURL Error: $error");
+                usleep(200000); // Wait 200 milliseconds before retrying
+                continue;
             }
 
-            return [
-                'http_code' => $httpCode,
-                'data' => $usersWithRoles,
-            ];
-        } else {
-            error_log("Unexpected API Response: " . print_r($responseData, true));
-            echo "Unexpected API Response: " . print_r($responseData, true);
-            return [
-                'http_code' => $httpCode,
-                'response' => $responseData
-            ];
+            // Decode the JSON response
+            $responseData = json_decode($response, true);
+
+            // Check for JSON decoding errors
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                error_log("Attempt $attempt - JSON Decode Error: " . json_last_error_msg());
+                usleep(200000); // Wait 200 milliseconds before retrying
+                continue;
+            }
+
+            // Check if the response is successful and contains the expected data
+            if ($httpCode === 200 && isset($responseData['data'])) {
+                $users = $responseData['data'];
+                $usersWithRoles = [];
+
+                // Fetch role information for each user
+                foreach ($users as $user) {
+                    $roleResponse = $this->getRoleApi($user['roleId'], $token);
+                    $user['role'] = ($roleResponse && $roleResponse['http_code'] === 200) ? $roleResponse['data']['roleNameKh'] : 'Unknown';
+                    $usersWithRoles[] = $user;
+                }
+
+                return [
+                    'http_code' => $httpCode,
+                    'data' => $usersWithRoles,
+                ];
+            } else {
+                error_log("Attempt $attempt - Unexpected API Response: " . print_r($responseData, true));
+                usleep(200000); // Wait 200 milliseconds before retrying
+            }
         }
+
+        // Return error message if all retries fail
+        echo "Failed to retrieve users after $retries attempts.";
+        return [
+            'http_code' => $httpCode ?? 500,
+            'error' => 'Failed to retrieve users after multiple attempts.',
+        ];
     }
 
     public function getDepOfficAndDepartment($token, $officeName, $roleName)

@@ -400,7 +400,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     </div>
 <?php endif; ?>
 
-<h1 class="hr-text mt-0">លិខិតពួ្យរការងារ</h1>
+<h1 class="hr-text mt-0">លិខិតពួ្យរផ្សេងៗ</h1>
 
 <?php if (empty($hold)): ?>
     <div class="empty-state d-flex flex-column align-items-center justify-content-center" style="height: 70vh;">
@@ -430,9 +430,13 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100 p-0">
                     <!-- Trigger modal on click by adding data attributes -->
-                    <a href="#" class="card-body text-decoration-none p-3 hover-shadow" data-bs-toggle="modal"
+                    <a href="#" class="card-body text-decoration-none p-3 hover-shadow-lg" data-bs-toggle="modal"
                         data-bs-target="#detailModal<?= $index ?>">
-                        <div class="d-flex w-100 justify-content-between">
+                        <div class="d-flex w-100 justify-content-between mb-0">
+                            <div class="me-3">
+                                <img class="avatar rounded-circle" style="object-fit: cover;"
+                                    src="<?= 'https://hrms.iauoffsa.us/images/' . $holds['profile'] ?>" alt="">
+                            </div>
                             <div>
                                 <h4 class="mb-1 text-primary">លិខិតពួ្យរការងារ</h4>
                                 <small class="fw-bolder">
@@ -451,8 +455,8 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
             </div>
 
             <!-- Modal Structure -->
-            <div class="modal modal-blur fade" id="detailModal<?= $index ?>" tabindex="-1" aria-labelledby="detailModalLabel<?= $index ?>"
-                aria-hidden="true">
+            <div class="modal modal-blur fade" id="detailModal<?= $index ?>" tabindex="-1"
+                aria-labelledby="detailModalLabel<?= $index ?>" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header bg-primary text-light">
@@ -460,11 +464,44 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <p><strong>Date:</strong> <?= translateDateToKhmer($holds['created_at'], 'j F Y h:i A') ?></p>
-                            <p><strong>Details:</strong> <?= $holds['attachment'] // Adjust this to display specific details ?></p>
+                            <p>
+                                <strong>ឈ្មោះ:</strong> <?= $holds['user_name'] ?>
+                            </p>
+                            <p>
+                                <strong>កាលបរិច្ឆេទចាប់ពី:</strong>
+                                <?= translateDateToKhmer($holds['start_date'], 'j F Y h:i A') ?>
+                            </p>
+                            <p>
+                                <strong>ដល់កាលបរិច្ឆេទ:</strong> <?= translateDateToKhmer($holds['end_date'], 'j F Y h:i A') ?>
+                            </p>
+                            <p>
+                                <strong>រយៈពេល:</strong> <?= $holds['duration'] ?>
+                            </p>
+                            <p>
+                                <strong>កាលបរិច្ឆេទស្នើ:</strong>
+                                <?= translateDateToKhmer($holds['created_at'], 'j F Y h:i A') ?>
+                            </p>
+                            <p>
+                                <strong>មូលហេតុ:</strong> <?= $holds['reason'] // Adjust this to display specific details ?>
+                            </p>
+                            <?php if (!empty($holds[0]['attachments'])): ?>
+                                <?php
+                                // Explode the attachments string into an array
+                                $attachments = explode(',', $holds[0]['attachments']);
+                                foreach ($attachments as $attachment): ?>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <a href="public/uploads/hold-attachments/<?= htmlspecialchars($attachment) ?>"
+                                                target="_blank">
+                                                <?= htmlspecialchars($attachment) ?>
+                                            </a>
+                                        </div>
+                                    </li>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </div>
                         <div class="modal-footer">
-                        <button type="button" class="btn btn-danger">Rejected</button>
+                            <button type="button" class="btn btn-danger">Rejected</button>
                             <button type="button" class="btn btn-success">Approved</button>
                         </div>
                     </div>

@@ -124,62 +124,59 @@ require_once 'src/common/header.php';
                                     </div>
                                     <div class="col">
                                         <button type="button" data-bs-target="#deleted<?= $getHoldById[0]['id'] ?? '' ?>"
-                                            data-bs-toggle="modal" class="btn btn-outline-danger w-100">បោះបង់សំណើ</button>
-
-                                        <!-- delete hold modal  -->
-                                        <div class="modal modal-blur fade" id="deleted<?= $getHoldById[0]['id'] ?? '' ?>"
-                                            tabindex="-1" role="dialog" aria-hidden="true">
-                                            <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-status bg-danger"></div>
-                                                    <form action="/elms/delete-hold" method="POST">
-                                                        <div class="modal-body text-center py-4 mb-0">
-                                                            <input type="hidden" name="id"
-                                                                value="<?= $getHoldById[0]['id'] ?? '' ?>">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                                stroke-width="2" stroke-linecap="round"
-                                                                stroke-linejoin="round"
-                                                                class="icon mb-2 text-danger icon-lg">
-                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none">
-                                                                </path>
-                                                                <path d="M12 9v4"></path>
-                                                                <path
-                                                                    d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
-                                                                </path>
-                                                                <path d="M12 16h.01"></path>
-                                                            </svg>
-                                                            <h5 class="modal-title fw-bold text-danger">លុបសំណើ
-                                                            </h5>
-                                                            <p class="mb-0">តើអ្នកប្រាកដទេថានិងលុបសំណើ
-                                                                <span class="text-red fw-bold">លិខិតព្យួរ</span>នេះ?
-                                                            </p>
-                                                        </div>
-                                                        <div class="modal-footer bg-light">
-                                                            <div class="w-100">
-                                                                <div class="row">
-                                                                    <div class="col">
-                                                                        <button type="button" class="btn w-100"
-                                                                            data-bs-dismiss="modal">បោះបង់</button>
-                                                                    </div>
-                                                                    <div class="col">
-                                                                        <button type="submit"
-                                                                            class="btn btn-danger ms-auto w-100">យល់ព្រម
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
+                                            data-bs-toggle="modal" class="btn btn-outline-danger w-100">បោះបង់សំណើ
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     <?php endif; ?>
                 </form>
+                
+                <!-- delete hold modal  -->
+                <div class="modal modal-blur fade" id="deleted<?= $getHoldById[0]['id'] ?? '' ?>" tabindex="-1"
+                    role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-status bg-danger"></div>
+                            <form action="/elms/delete-hold" method="POST">
+                                <div class="modal-body text-center py-4 mb-0">
+                                    <input type="hidden" name="id" value="<?= $getHoldById[0]['id'] ?? '' ?>">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none">
+                                        </path>
+                                        <path d="M12 9v4"></path>
+                                        <path
+                                            d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
+                                        </path>
+                                        <path d="M12 16h.01"></path>
+                                    </svg>
+                                    <h5 class="modal-title fw-bold text-danger">លុបសំណើ
+                                    </h5>
+                                    <p class="mb-0">តើអ្នកប្រាកដទេថានិងលុបសំណើ
+                                        <span class="text-red fw-bold">លិខិតព្យួរ</span>នេះ?
+                                    </p>
+                                </div>
+                                <div class="modal-footer bg-light">
+                                    <div class="w-100">
+                                        <div class="row">
+                                            <div class="col">
+                                                <button type="button" class="btn w-100"
+                                                    data-bs-dismiss="modal">បោះបង់</button>
+                                            </div>
+                                            <div class="col">
+                                                <button type="submit" class="btn btn-danger ms-auto w-100">យល់ព្រម
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- attachment  -->
@@ -292,7 +289,7 @@ require_once 'src/common/header.php';
             </div>
         </div>
 
-        <!-- delete hold modal  -->
+        <!-- add more attachment modal  -->
         <div class="modal modal-blur fade" id="addMore" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
                 <div class="modal-content">

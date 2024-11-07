@@ -2585,58 +2585,60 @@ class AdminModel
 
     public function getAllMissions($offset, $limit)
     {
-        // Fetch all missions from the missions table
-        $query = "SELECT * FROM $this->table ORDER BY id DESC LIMIT :limit OFFSET :offset"; // Assuming 'missions' is the correct table name
-
+        $query = "SELECT * FROM $this->table ORDER BY id DESC LIMIT :limit OFFSET :offset";
         $stmt = $this->pdo->prepare($query);
-
-        // Bind the parameters to prevent SQL injection
         $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-
         $stmt->execute();
 
         $missions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // If you need to fetch additional data for each mission, use the following loop
-        // Assuming you want to fetch user details for the missions
         $userModel = new User();
 
         foreach ($missions as &$mission) {
-            // Fetch user_id from the current mission record if it exists
             if (isset($mission['user_id'])) {
                 $user_id = $mission['user_id'];
 
-                // Fetch user data from API using the user_id
-                $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+                // Use retry function for API call
+                $user = $this->fetchUserDataWithRetry($userModel, $user_id, $_SESSION['token']);
 
-                // Check if the API response is successful
-                if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
-                    $user = $userApiResponse['data']; // Assuming the API returns a single user object
-
-                    // Add user information to the mission record
-                    $mission['khmer_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh'])
-                        ? $user['lastNameKh'] . " " . $user['firstNameKh']
-                        : 'Unknown';
+                if ($user) {
+                    $mission['khmer_name'] = $user['lastNameKh'] . " " . $user['firstNameKh'];
                     $mission['dob'] = $user['dateOfBirth'] ?? 'Unknown';
                     $mission['uId'] = $user['id'] ?? 'Unknown';
                     $mission['email'] = $user['email'] ?? 'Unknown';
                     $mission['department_name'] = $user['department']['name'] ?? 'Unknown';
                     $mission['position_name'] = $user['position']['name'] ?? 'Unknown';
-                    $mission['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png'); // Use a default profile image if none exists
+                    $mission['profile_picture'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png');
                 } else {
-                    // Handle cases where the API call fails or returns no data
+                    // Placeholder data if API retries fail
                     $mission['khmer_name'] = 'Unknown';
                     $mission['dob'] = 'Unknown';
                     $mission['email'] = 'Unknown';
                     $mission['department_name'] = 'Unknown';
                     $mission['position_name'] = 'Unknown';
-                    $mission['profile_picture'] = 'default-profile.png'; // Use a default profile image if API fails
+                    $mission['profile_picture'] = 'default-profile.png';
                 }
             }
         }
 
         return $missions;
+    }
+
+    private function fetchUserDataWithRetry($userModel, $user_id, $token, $retries = 3)
+    {
+        for ($attempt = 1; $attempt <= $retries; $attempt++) {
+            $userApiResponse = $userModel->getUserByIdApi($user_id, $token);
+
+            // Check if response is successful
+            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
+                return $userApiResponse['data'];
+            }
+
+            // Small delay between retries
+            usleep(200000); // 200 milliseconds
+        }
+
+        return null; // Return null if all retries fail
     }
 
     public function getAllMissionTodays($offset, $limit)
