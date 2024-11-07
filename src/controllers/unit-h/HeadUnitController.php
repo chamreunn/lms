@@ -25,137 +25,137 @@ class HeadUnitController
     public function apply()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
             $userModel = new User();
             $HeadDepartmentModel = new HeadUnitModel();
 
-            // ទាញយកព័ត៌មានពី session
+            // Retrieve session information
             $user_id = $_SESSION['user_id'] ?? null;
             $user_email = $_SESSION['email'] ?? null;
             $position = $_SESSION['position'] ?? null;
             $department = $_SESSION['departmentName'] ?? null;
             $token = $_SESSION['token'] ?? null;
             $user_khmer_name = $_SESSION['user_khmer_name'] ?? null;
+            $leave = 1;
 
-            // ពិនិត្យមើលថាតើព័ត៌មាន session សំខាន់ៗមានដែរឬទេ
+            // Check if essential session data is present
             if (!$user_id || !$position || !$token || !$user_khmer_name) {
                 $_SESSION['error'] = [
-                    'title' => "បញ្ហា Session",
-                    'message' => "ព័ត៌មាន session មិនមានទេ។ សូមចូលគណនីម្ដងទៀត។"
+                    'title' => "Session Issue",
+                    'message' => "Session information is missing. Please log in again."
                 ];
                 header("Location: /elms/login");
                 exit();
             }
 
-            // ទាញយកព័ត៌មាន POST ប្រសិនបើមិនបានផ្ដល់នោះទេនឹងទទួលបាន null ជំនួសវិញ
+            // Retrieve POST data
             $leave_type_id = $_POST['leave_type_id'] ?? null;
             $start_date = $_POST['start_date'] ?? null;
             $end_date = $_POST['end_date'] ?? null;
             $remarks = $_POST['remarks'] ?? null;
 
-            // ផ្ទៀងផ្ទាត់វាលដែលត្រូវបំពេញ
+            // Check required fields
             if (!$leave_type_id || !$start_date || !$end_date) {
                 $_SESSION['error'] = [
-                    'title' => "ព័ត៌មានមិនត្រឹមត្រូវ",
-                    'message' => "សូមបំពេញវាលដែលចាំបាច់ទាំងអស់។"
+                    'title' => "Invalid Information",
+                    'message' => "Please fill out all required fields."
                 ];
                 header("Location: /elms/hunitLeave");
                 exit();
             }
 
-            // បំលែងកាលបរិច្ឆេទទៅជា DateTime ដើម្បីធ្វើការប្រៀបធៀប
-            $datetime_start = new DateTime($start_date);
-            $datetime_end = new DateTime($end_date);
+            try {
+                // Convert dates to DateTime objects
+                $datetime_start = new DateTime($start_date);
+                $datetime_end = new DateTime($end_date);
 
-            // ពិនិត្យមើលថាតើកាលបរិច្ឆេទបញ្ចប់តិចជាងកាលបរិច្ឆេទចាប់ផ្តើមឬទេ
-            if ($datetime_end < $datetime_start) {
+                // Validate date range
+                if ($datetime_end < $datetime_start) {
+                    throw new Exception("End date cannot be earlier than start date.");
+                }
+
+                // Handle attachment upload
+                $attachment_name = $HeadDepartmentModel->handleFileUpload(
+                    $_FILES['attachment'],
+                    ['docx', 'pdf'],
+                    2097152,
+                    'public/uploads/leave_attachments/'
+                );
+                if ($attachment_name === false) {
+                    throw new Exception("Failed to upload attachment. Please try again.");
+                }
+
+                // Retrieve leave type details
+                $leaveTypeModel = new Leavetype();
+                $leaveType = $leaveTypeModel->getLeaveTypeById($leave_type_id);
+                if (!$leaveType) {
+                    throw new Exception("Invalid leave type selected.");
+                }
+
+                // Calculate duration in business days
+                $duration_days = $HeadDepartmentModel->calculateBusinessDays($datetime_start, $datetime_end);
+
+                // Check if duration exceeds allowed leave type duration
+                $leave_type_duration = $leaveType['duration'];
+                if ($duration_days > $leave_type_duration) {
+                    throw new Exception("Selected leave type allows up to $leave_type_duration days.");
+                }
+
+                // First, try updating the API with leave information
+                $updateToApi = $HeadDepartmentModel->updateToApi($user_id, $start_date, $end_date, $leave, $token);
+
+                // Check if API update is successful
+                // if ($updateToApi['status'] !== 200) {
+                //     throw new Exception("Failed to update leave in the API. " . ($updateToApi['error'] ?? 'Unknown error.'));
+                // }
+
+                // If the API update is successful, create leave request in the database
+                $leaveRequestId = $HeadDepartmentModel->create(
+                    $user_id,
+                    $user_email,
+                    $leave_type_id,
+                    $position,
+                    $department,
+                    $leaveType['name'],
+                    $start_date,
+                    $end_date,
+                    $remarks,
+                    $duration_days,
+                    $attachment_name
+                );
+
+                // Check if leave request was created successfully in the database
+                if (!$leaveRequestId) {
+                    throw new Exception("Failed to create leave request.");
+                }
+
+                // Log user activity
+                $activity = "Requested leave.";
+                $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
+
+                // Set success message
+                $_SESSION['success'] = [
+                    'title' => "Success",
+                    'message' => "Leave request created successfully."
+                ];
+                header("Location: /elms/hunitLeave");
+                exit();
+
+            } catch (Exception $e) {
+                // Log the error and set an error message for the user
+                error_log("Error during leave request: " . $e->getMessage());
                 $_SESSION['error'] = [
-                    'title' => "បញ្ហាកាលបរិច្ឆេទ",
-                    'message' => "កាលបរិច្ឆេទបញ្ចប់មិនអាចតិចជាងកាលបរិច្ឆេទចាប់ផ្តើមបានទេ។ សូមជ្រើសរើសរយៈពេលត្រឹមត្រូវ។"
+                    'title' => "Error",
+                    'message' => $e->getMessage()
                 ];
                 header("Location: /elms/hunitLeave");
                 exit();
             }
-
-            // គ្រប់គ្រងសារផ្ញើ
-            $message = "$user_khmer_name បានស្នើសុំច្បាប់ឈប់សម្រាក។";
-            $activity = "បានស្នើសុំច្បាប់ឈប់សម្រាក។";
-
-            // គ្រប់គ្រងការផ្ទុកឯកសារភ្ជាប់
-            $attachment_name = $HeadDepartmentModel->handleFileUpload($_FILES['attachment'], ['docx', 'pdf'], 2097152, 'public/uploads/leave_attachments/');
-            if ($attachment_name === false) {
-                $_SESSION['error'] = [
-                    'title' => "ឯកសារភ្ជាប់",
-                    'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។​ សូមព្យាយាមម្តងទៀត"
-                ];
-                header("Location: /elms/hunitLeave");
-                exit();
-            }
-
-            // ទាញយកព័ត៌មានប្រភេទច្បាប់ រួមទាំងរយៈពេលពីមូលដ្ឋានទិន្នន័យ
-            $leaveTypeModel = new Leavetype();
-            $leaveType = $leaveTypeModel->getLeaveTypeById($leave_type_id);
-            if (!$leaveType) {
-                $_SESSION['error'] = [
-                    'title' => "បញ្ហាប្រភេទច្បាប់",
-                    'message' => "ប្រភេទច្បាប់មិនត្រឹមត្រូវ"
-                ];
-                header("Location: /elms/hunitLeave");
-                exit();
-            }
-
-            // គណនារយៈពេលក្នុងថ្ងៃធ្វើការ រវាងកាលបរិច្ឆេទចាប់ផ្តើម និងកាលបរិច្ឆេទបញ្ចប់
-            $duration_days = $HeadDepartmentModel->calculateBusinessDays($datetime_start, $datetime_end);
-
-            // ប្រៀបធៀបទៅនឹងរយៈពេលសំរាប់ប្រភេទច្បាប់ដែលបានជ្រើសរើស
-            $leave_type_duration = $leaveType['duration'];
-            if ($duration_days > $leave_type_duration) {
-                $_SESSION['error'] = [
-                    'title' => "រយៈពេល",
-                    'message' => "ប្រភេទច្បាប់ឈប់សម្រាកនេះមានរយៈពេល " . $leave_type_duration . " ថ្ងៃ។ សូមពិនិត្យមើលប្រភេទច្បាប់ដែលអ្នកបានជ្រើសរើសម្តងទៀត"
-                ];
-                header("Location: /elms/hunitLeave");
-                exit();
-            }
-
-            // បង្កើតសំណើច្បាប់ទៅមូលដ្ឋានទិន្នន័យ
-            $leaveRequestId = $HeadDepartmentModel->create(
-                $user_id,
-                $user_email,
-                $leave_type_id,
-                $position,
-                $department,
-                $leaveType['name'],
-                $start_date,
-                $end_date,
-                $remarks,
-                $duration_days,
-                $attachment_name,
-            );
-
-            if (!$leaveRequestId) {
-                $_SESSION['error'] = [
-                    'title' => "បញ្ហាសំណើច្បាប់",
-                    'message' => "មិនអាចបង្កើតសំណើច្បាប់បានទេ។ សូមព្យាយាមម្តងទៀត។"
-                ];
-                header("Location: /elms/hunitLeave");
-                exit();
-            }
-
-            // កត់ត្រាសកម្មភាពអ្នកប្រើ
-            $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
-
-            // កំណត់សារជោគជ័យ និងបញ្ជូនទៅទំព័រផ្សេងទៀត
-            $_SESSION['success'] = [
-                'title' => "ជោគជ័យ",
-                'message' => "បង្កើតសំណើច្បាប់បានជោគជ័យ។"
-            ];
-            header("Location: /elms/hunitLeave");
-            exit();
         } else {
+            // Load the leave request view if not a POST request
             require 'src/views/leave/unit-h/myLeave.php';
         }
     }
+
 
     public function viewRequestsWithFilters()
     {

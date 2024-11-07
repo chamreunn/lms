@@ -1345,6 +1345,18 @@ switch ($uri) {
             $holdController->index();
         });
         break;
+    case $base_url . '/apply-backwork':
+        checkSessionAndExecute(function () {
+            $backworkController = new BackworkController();
+            $backworkController->create();
+        });
+        break;
+    case $base_url . '/delete-backwork':
+        checkSessionAndExecute(function () {
+            $backworkController = new BackworkController();
+            $backworkController->delete();
+        });
+        break;
     case $base_url . '/verify-2fa':
         checkSessionAndExecute(function () {
             $settingController = new settingController();

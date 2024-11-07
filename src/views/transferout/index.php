@@ -244,4 +244,5 @@ require_once 'src/common/header.php';
         </div>
     </div>
 </div>
+
 <?php include('src/common/footer.php'); ?>

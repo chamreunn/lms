@@ -153,7 +153,6 @@ require_once 'src/common/header.php';
                         </table>
                     </div>
                 <?php endif; ?>
-
             </div>
         </div>
     </div>
