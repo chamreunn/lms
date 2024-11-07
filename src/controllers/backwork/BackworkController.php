@@ -50,7 +50,7 @@ class BackworkController
         }
 
         // Fetch the total number of records to calculate the total pages for pagination
-        $totalRecords = $backworkModel->getBackworkById();
+        $totalRecords = $backworkModel->getBackworkCountById();
         $totalPages = ceil($totalRecords / $recordsPerPage); // Calculate total pages
 
         require 'src/views/backwork/index.php';
@@ -202,6 +202,159 @@ class BackworkController
                 header("Location: /elms/backwork");
                 exit();
             }
+        }
+    }
+
+    public function view($id)
+    {
+        $backworkModel = new BackworkModel($this->pdo);
+        $getbackworkById = $backworkModel->getBackworkForEdit($id);
+        require 'src/views/backwork/view&edit.php';
+    }
+
+    public function update()
+    {
+        // Ensure the session is started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Check if the request method is POST
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $userModel = new User();
+            $back_id = $_POST['backworkId'];
+            // Validate required fields
+            if (empty($_SESSION['user_id']) || empty($_POST['date']) || empty($_POST['reason'])) {
+                $_SESSION['error'] = [
+                    'title' => "បញ្ចូលទិន្នន័យមិនគ្រប់គ្រាន់",
+                    'message' => "សូមបំពេញព័ត៌មានទាំងអស់។"
+                ];
+                header("Location: view&edit-hold?holdId=" . $back_id);
+                exit();
+            }
+
+            // Sanitize and assign input values
+            $user_id = $_SESSION['user_id'];
+            $date = $_POST['date'];
+            $reason = $_POST['reason'];
+            $approver = $_POST['approverId'];
+
+
+
+            // Prepare data for updating
+            $data = [
+                'user_id' => $user_id,
+                'date' => $date,
+                'reason' => $reason,
+                'approver_id' => $approver
+            ];
+
+            try {
+                $backworkRequestModel = new BackworkModel($this->pdo);
+                $backworkRequestModel->updateBackWorkRequest($back_id, $data);
+
+                $_SESSION['success'] = [
+                    'title' => "ជោគជ័យ",
+                    'message' => "សំណើរបានកែប្រែដោយជោគជ័យ"
+                ];
+                header("Location: view&edit-backwork?backworkId=" . $back_id);
+                exit();
+            } catch (Exception $e) {
+                $_SESSION['error'] = [
+                    'title' => "កំហុស",
+                    'message' => $e->getMessage()
+                ];
+                header("Location: view&edit-backwork?backworkId=" . $back_id);
+                exit();
+            }
+        }
+    }
+
+    public function addMoreAttachment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if (isset($_FILES['moreAttachment']) && !empty($_FILES['moreAttachment']['name'][0])) {
+                $backworkModel = new BackworkModel($this->pdo);
+                $uploadedFiles = $_FILES['moreAttachment'];
+
+                // Loop through each file
+                foreach ($uploadedFiles['name'] as $key => $filename) {
+                    // Define a unique name for each file to prevent overwriting
+                    $uniqueFileName = uniqid() . '_' . basename($filename);
+                    $uploadPath = 'public/uploads/backwork-attachments/' . $uniqueFileName;
+
+                    // Move the file to the designated directory
+                    if (move_uploaded_file($uploadedFiles['tmp_name'][$key], $uploadPath)) {
+                        // Prepare data for insertion
+                        $data = [
+                            ':back_id' => $_POST['id'],
+                            ':file_name' => $uniqueFileName,
+                            ':file_path' => $uploadPath
+                        ];
+
+                        // Call the createAttachment method to insert file info into the database
+                        $backworkModel->createAttachment($data);
+                    } else {
+                        // Handle the error if file upload fails
+                        echo "Failed to upload file: " . $filename;
+                    }
+                }
+
+                // Optionally, redirect or display a success message
+                $_SESSION['success'] = [
+                    'title' => "បន្តែមឯកសារភ្ចាប់",
+                    'message' => "បន្ថែមឯកសារភ្ចាប់បានជោគជ័យ។"
+                ];
+                header('Location: /elms/view&edit-backwork?backworkId=' . $_POST['id']); // Change to your success page
+                exit();
+            } else {
+                $_SESSION['error'] = [
+                    'title' => "បន្តែមឯកសារភ្ចាប់",
+                    'message' => "មិនអាចបន្ថែមឯកសារភ្ចាប់បានទេ សូមព្យាយាមម្តងទៀត។"
+                ];
+                header('Location: /elms/view&edit-backwork?backworkId=' . $_POST['id']); // Change to your success page
+                exit();
+            }
+        }
+    }
+
+    public function removeAttachments()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Get the filename (attachment) to be deleted and the associated transferout ID
+            $attachment = $_POST['attachment'] ?? '';
+            $backworkId = $_POST['id'] ?? null;
+
+            if ($attachment && $backworkId) {
+                // Initialize the TransferoutModel
+                $backwork = new BackworkModel($this->pdo);
+
+                // Delete the attachment record from the transferout_attachments table
+                $backwork->deleteAttachment($backworkId, $attachment);
+
+                // Construct the file path to delete the physical file
+                $filePath = "public/uploads/backwork-attachments/" . $attachment;
+                if (file_exists($filePath)) {
+                    unlink($filePath); // Delete the file from the server
+                }
+
+                // Set a success message
+                $_SESSION['success'] = [
+                    'title' => "លុបឯកសារភ្ជាប់",
+                    'message' => "លុបបានជោគជ័យ។"
+                ];
+            } else {
+                // Handle missing parameters
+                $_SESSION['error'] = [
+                    'title' => "លុបឯកសារភ្ជាប់",
+                    'message' => "មិនអាចលុបឯកសារភ្ជាប់បានទេ។"
+                ];
+            }
+
+            // Redirect or return response
+            header('Location:  /elms/view&edit-backwork?backworkId=' . $backworkId); // Change to your success page
+            exit();
         }
     }
 }
