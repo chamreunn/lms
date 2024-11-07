@@ -42,7 +42,7 @@ class BackworkModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getBackworkById()
+    public function getBackworkCountById()
     {
         // Check if the user ID is set in the session
         if (empty($_SESSION['user_id'])) {
@@ -64,6 +64,108 @@ class BackworkModel
 
         // Fetch and return the total count
         return $stmt->fetchColumn();
+    }
+
+    public function getBackworkForEdit($id)
+    {
+        // Prepare the SQL query to get the hold request, approval tracking steps, and attachments
+        $sql = "SELECT b.*, 
+        GROUP_CONCAT(DISTINCT a.file_name) AS attachments, 
+        MAX(a.uploaded_at) AS latest_uploaded_at, -- Get the latest uploaded date
+        ba.status AS approval_status, 
+        ba.updated_at AS approved_at, 
+        ba.approver_id, 
+        ba.comment AS comment
+        FROM $this->tblbackwork b
+        JOIN $this->tblapproval ba ON ba.back_id = b.id
+        LEFT JOIN $this->tblattachment a ON b.id = a.back_id
+        WHERE b.user_id = :user_id AND b.id = :id 
+        GROUP BY b.id, ba.status, ba.updated_at, ba.approver_id, ba.comment
+        ORDER BY ba.id DESC"; // Still order by the latest approval
+
+        // Prepare the statement
+        $stmt = $this->pdo->prepare($sql);
+
+        // Bind the user ID and hold ID parameters
+        $stmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+
+        // Execute the query
+        $stmt->execute();
+
+        // Fetch all results
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($results) {
+            // Initialize UserModel and fetch department and office data
+            $userModel = new User();
+            $departments = $userModel->getAllDepartmentApi($_SESSION['token']);
+            $offices = $userModel->getAllOfficeApi($_SESSION['token']);
+
+            // Create lookup tables for department and office names
+            $departmentsById = [];
+            if (!empty($departments['data'])) {
+                foreach ($departments['data'] as $department) {
+                    $departmentsById[$department['id']] = $department['departmentNameKh'];
+                }
+            }
+
+            $officesById = [];
+            if (!empty($offices['data'])) {
+                foreach ($offices['data'] as $office) {
+                    $officesById[$office['id']] = $office['officeNameKh'];
+                }
+            }
+
+            // Fetch the submitter (user) data from the API for the first result
+            $userApiResponse = $userModel->getUserByIdApi($results[0]['user_id'], $_SESSION['token']);
+            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                $user = $userApiResponse['data'];
+
+                // Add user (submitter) info to the first result (submitter details)
+                $results[0]['user_name'] = trim(($user['lastNameKh'] ?? 'Unknown') . " " . ($user['firstNameKh'] ?? ''));
+                $results[0]['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $results[0]['user_email'] = $user['email'] ?? 'Unknown';
+                $results[0]['department_name'] = $departmentsById[$user['departmentId']] ?? 'Unknown Department';
+                $results[0]['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $results[0]['office_name'] = $officesById[$user['officeId']] ?? 'Unknown Office';
+                $results[0]['user_profile'] = !empty($user['image']) ? 'https://hrms.iauoffsa.us/images/' . $user['image'] : 'default-profile.png';
+            }
+
+            // For each approval, fetch approver details and department/office names
+            foreach ($results as &$result) {
+                if ($result['approver_id']) {
+                    // Fetch the approver's data via API
+                    $approverApiResponse = $userModel->getUserByIdApi($result['approver_id'], $_SESSION['token']);
+                    if ($approverApiResponse && $approverApiResponse['http_code'] === 200 && isset($approverApiResponse['data'])) {
+                        $approver = $approverApiResponse['data'];
+
+                        // Add approver details to the result
+                        $result['approver_name'] = trim(($approver['lastNameKh'] ?? 'Unknown') . " " . ($approver['firstNameKh'] ?? ''));
+                        $result['profile'] = !empty($approver['image']) ? 'https://hrms.iauoffsa.us/images/' . $approver['image'] : 'default-profile.png';
+                        $result['position_name'] = $approver['position']['name'] ?? 'Unknown';
+                        $result['approver_department_name'] = $departmentsById[$approver['departmentId']] ?? 'Unknown Department';
+                        $result['approver_office_name'] = $officesById[$approver['officeId']] ?? 'Unknown Office';
+                    } else {
+                        // If no approver info is available, add placeholders
+                        $result['approver_name'] = 'Unknown';
+                        $result['profile'] = 'default-profile.png';
+                        $result['approver_department_name'] = 'Unknown Department';
+                        $result['approver_office_name'] = 'Unknown Office';
+                    }
+                } else {
+                    // If no approver is assigned
+                    $result['approver_name'] = 'No approver assigned';
+                    $result['profile'] = 'default-profile.png';
+                    $result['approver_department_name'] = 'Unknown Department';
+                    $result['approver_office_name'] = 'Unknown Office';
+                }
+            }
+
+            return $results; // Return the populated results
+        }
+
+        return []; // Return an empty array if no results are found
     }
 
     public function deleteBackworkById($id)
@@ -121,6 +223,25 @@ class BackworkModel
         ]);
     }
 
+    public function createAttachment($data)
+    {
+        // Prepare the SQL statement with the correct parameter bindings
+        $stmt = $this->pdo->prepare("INSERT INTO $this->tblattachment (back_id, file_name, file_path, uploaded_at) VALUES (:back_id, :file_name, :file_path, NOW())");
+
+        // Execute the statement with the provided data
+        $stmt->execute($data);
+    }
+
+    public function deleteAttachment($backId, $filename)
+    {
+        // Prepare the SQL statement to delete the attachment from the transferout_attachments table
+        $stmt = $this->pdo->prepare("DELETE FROM $this->tblattachment WHERE back_id = :back_id AND file_name = :filename");
+        $stmt->execute([
+            ':back_id' => $backId,
+            ':filename' => $filename
+        ]);
+    }
+
     public function delegateManager($backwork, $userModel, $back_id, $user_id, $reason)
     {
         $levels = ['getEmailLeaderDOApi', 'getEmailLeaderHOApi', 'getEmailLeaderDDApi', 'getEmailLeaderHDApi'];
@@ -164,5 +285,28 @@ class BackworkModel
             ':approver_id' => $approver_id,
             ':status' => $status,
         ]);
+    }
+
+    // Update an existing hold request
+    public function updateBackWorkRequest($back_id, $data)
+    {
+        $sql = "UPDATE $this->tblbackwork 
+                SET date = :date, 
+                    reason = :reason, 
+                    approver_id = :approver_id 
+                WHERE id = :back_id";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        $stmt->bindParam(':back_id', $back_id);
+        $stmt->bindParam(':date', $data['date']);
+        $stmt->bindParam(':reason', $data['reason']);
+        $stmt->bindParam(':approver_id', $data['approver_id']);
+
+        if ($stmt->execute()) {
+            return true;
+        } else {
+            throw new Exception('Failed to update Back work request.');
+        }
     }
 }

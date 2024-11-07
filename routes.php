@@ -1357,6 +1357,37 @@ switch ($uri) {
             $backworkController->delete();
         });
         break;
+    case $base_url . '/view&edit-backwork':
+        checkSessionAndExecute(function () {
+            if (isset($_GET['backworkId']) && !empty($_GET['backworkId'])) {
+                $backworkController = new BackworkController();
+                $backworkController->view($_GET['backworkId']);
+            } else {
+                // Handle error: no valid holdId
+                $_SESSION['error'] = "No valid hold ID provided!";
+                header("Location: /elms/backwork");
+                exit();
+            }
+        });
+        break;
+    case $base_url . '/edit-backwork':
+        checkSessionAndExecute(function () {
+            $backworkController = new BackworkController();
+            $backworkController->update();
+        });
+        break;
+    case $base_url . '/addMoreAttachmentBackwork':
+        checkSessionAndExecute(function () {
+            $backworkController = new BackworkController();
+            $backworkController->addMoreAttachment();
+        });
+        break;
+    case $base_url . '/deleteBackworkAttachment':
+        checkSessionAndExecute(function () {
+            $backworkController = new BackworkController();
+            $backworkController->removeAttachments();
+        });
+        break;
     case $base_url . '/verify-2fa':
         checkSessionAndExecute(function () {
             $settingController = new settingController();

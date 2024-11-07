@@ -92,7 +92,7 @@ require_once 'src/common/header.php';
                                         </td>
                                         <td>
                                             <div class="d-flex">
-                                                <a href="/elms/view&edit-transferout?transferId=<?= $backwork['id'] ?>">
+                                                <a href="/elms/view&edit-backwork?backworkId=<?= $backwork['id'] ?>">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                         stroke-linecap="round" stroke-linejoin="round"
@@ -178,7 +178,7 @@ require_once 'src/common/header.php';
                     <!-- Pagination Logic -->
                     <div class="card-footer">
                         <?php
-                        $totalRecords = $backworkModel->getBackworkById(); // Use the method to get total records
+                        $totalRecords = $backworkModel->getBackworkCountById(); // Use the method to get total records
                         $totalPages = ceil($totalRecords / $recordsPerPage); // Calculate total pages
                         ?>
 
