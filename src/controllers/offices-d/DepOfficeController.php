@@ -104,7 +104,7 @@ class DepOfficeController
                 // Check if the manager is on leave today
                 $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
                 $isManagerOnMission = $userModel->isManagerOnMission($managerId);
-                
+
                 $link = "https://leave.iauoffsa.us/elms/headofficepending";
 
                 // Create leave request in the database
@@ -389,14 +389,87 @@ class DepOfficeController
             $leaveApprovalModel = new DepOfficeModel();
             $requests = $leaveApprovalModel->getAllLeaveRequests();
 
-            $holds = new HoldModel($this->pdo);
-            $hold = $holds->getHoldByuserId($_SESSION['user_id']);
+            // Initialize the UserModel
+            $userModel = new User();
 
+            // Fetch the primary approver (department or office leader's email) using session user_id and token
+            $approver = $userModel->getEmailLeaderHOApi($_SESSION['user_id'], $_SESSION['token']);
+
+            // Define a hierarchy of approvers in case the current approver is on leave or on a mission
+            $approverLevels = [
+                'HO' => [$userModel, 'getEmailLeaderHOApi'],
+                'DD' => [$userModel, 'getEmailLeaderDDApi'],
+                'HD' => [$userModel, 'getEmailLeaderHDApi']
+            ];
+
+            foreach ($approverLevels as $level => $getApproverMethod) {
+                // Check if the current approver is on leave or on a mission
+                if ($userModel->isManagerOnLeaveToday($approver['ids']) || $userModel->isManagerOnMission($approver['ids'])) {
+                    // Try to get the next higher-level approver
+                    $approver = call_user_func($getApproverMethod, $_SESSION['user_id'], $_SESSION['token']);
+                } else {
+                    // Break the loop if an available approver is found
+                    break;
+                }
+            }
+
+            // Initialize the HoldModel to retrieve any holds for the current user
+            $holdsModel = new HoldModel($this->pdo);
+            $hold = $holdsModel->getHoldByuserId($_SESSION['user_id']);
+
+            // Initialize the LeaveType model and retrieve all leave types
             $leavetypeModel = new Leavetype();
             $leavetypes = $leavetypeModel->getAllLeavetypes();
 
             // Load the approval view
             require 'src/views/leave/offices-d/approvals.php';
+        }
+    }
+
+    public function action()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            // Get values from form and session
+            $userId = $_SESSION['user_id'];
+            $holdId = $_POST['holdId'];
+            $approverId = $_POST['approverId'];
+            $action = $_POST['status'];
+            $comment = $_POST['comment'];
+
+            try {
+                // Start transaction
+                $this->pdo->beginTransaction();
+
+                // Create a DepOfficeModel instance and submit approval
+                $leaveApproval = new DepOfficeModel();
+                $leaveApproval->updateHoldApproval($userId, $holdId, $approverId, $action, $comment);
+
+                if ($leaveApproval) {
+                    // Log the error and set error message
+                    $_SESSION['success'] = [
+                        'title' => "លិខិតព្យួរការងារ",
+                        'message' => "អ្នកបាន " . $action . " លើលិខិតព្យួរការងាររួចរាល់។" . $holdId
+                    ];
+                    header("Location: /elms/pending");
+                    exit();
+                }
+                // Commit transaction after successful approval update
+                $this->pdo->commit();
+
+            } catch (Exception $e) {
+                // Rollback transaction in case of error
+                $this->pdo->rollBack();
+
+                // Log the error and set error message
+                error_log("Error: " . $e->getMessage());
+                $_SESSION['error'] = [
+                    'title' => "កំហុស",
+                    'message' => "បញ្ហាក្នុងការបញ្ជូនសំណើ: " . $e->getMessage()
+                ];
+                header("Location: /elms/pending");
+                exit();
+            }
         }
     }
 

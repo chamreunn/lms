@@ -164,6 +164,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </div>
                         </div>
                     </li>
+                    <!-- All Request  -->
                     <li
                         class="nav-item dropdown <?= ($current_page == 'pending' || $current_page == 'approved' || $current_page == 'rejected') ? 'active' : '' ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
@@ -208,11 +209,12 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                                     d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
                                             </svg>
                                         </span>
-                                        <span>កំពុងរង់ចាំ</span>
+                                        <span>សំណើទាំងអស់</span>
                                         <?php if ($requestscount > 0): ?>
                                             <span class="badge bg-red text-red-fg ms-auto"><?= $requestscount; ?></span>
                                         <?php endif; ?>
                                     </a>
+                                    <div class="dropdown-divider m-0"></div>
                                     <a class="dropdown-item <?= ($current_page == 'approved') ? 'active' : '' ?>"
                                         href="/elms/approved">
                                         <span class="nav-link-icon d-md-none d-lg-inline-block">

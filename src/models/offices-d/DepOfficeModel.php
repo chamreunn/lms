@@ -7,9 +7,13 @@ class DepOfficeModel
 {
     private $pdo;
 
-    private $table_name = "leave_requests";
+    protected $table_name = "leave_requests";
 
-    private $approval = "leave_approvals";
+    protected $approval = "leave_approvals";
+
+    protected $tblholds = "holds";
+
+    protected $tblholds_approvals = "holds_approvals";
 
     public function __construct()
     {
@@ -1599,4 +1603,63 @@ class DepOfficeModel
             return false;
         }
     }
+
+    public function updateHoldApproval($userId, $holdId, $approverId, $action, $comment)
+    {
+        try {
+            // Start transaction if not already started
+            if (!$this->pdo->inTransaction()) {
+                $this->pdo->beginTransaction();
+            }
+
+            // Update `approver_id` in the `holds` table
+            $stmt = $this->pdo->prepare("UPDATE holds SET approver_id = ? WHERE id = ?");
+            $stmt->execute([$approverId, $holdId]);
+
+            // Debugging: Check if the update was successful
+            if ($stmt->rowCount() === 0) {
+                error_log("No rows updated in holds table. Either `hold_id` does not exist or `approver_id` is already set.");
+            } else {
+                error_log("Row successfully updated in holds table.");
+            }
+
+            // Update `status` and `comments` in `holds_approvals` if a record exists
+            $updateApprovalSql = "UPDATE holds_approvals SET status = ?, comments = ? WHERE hold_id = ? AND approver_id = ?";
+            $updateApprovalStmt = $this->pdo->prepare($updateApprovalSql);
+            $updateApprovalStmt->execute([$action, $comment, $holdId, $userId]);
+
+            // Debugging log for the update
+            if ($updateApprovalStmt->rowCount() === 0) {
+                error_log("No rows updated in holds_approvals. Either no matching record or `status` and `comments` are already set as requested.");
+            } else {
+                error_log("Row successfully updated in holds_approvals table.");
+            }
+
+            // Always insert a new record in `holds_approvals` for tracking the approval action
+            $insertApprovalSql = "INSERT INTO holds_approvals (hold_id, approver_id) VALUES (?, ?)";
+            $insertApprovalStmt = $this->pdo->prepare($insertApprovalSql);
+            $insertApprovalStmt->execute([$holdId, $approverId]);
+
+            // Debugging log for the insert
+            if ($insertApprovalStmt->rowCount() === 0) {
+                error_log("Insert into holds_approvals failed. Verify provided data.");
+            } else {
+                error_log("New record successfully inserted in holds_approvals table.");
+            }
+
+            // Commit the transaction if it was started here
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->commit();
+            }
+
+        } catch (Exception $e) {
+            // Rollback if there's an error
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            error_log("Error: Approval update failed: " . $e->getMessage());
+            throw new Exception("Approval update failed: " . $e->getMessage());
+        }
+    }
+
 }

@@ -363,6 +363,12 @@ switch ($uri) {
             $controller->pending();
         });
         break;
+    case $base_url . '/actionhold':
+        checkSessionAndExecute(function () {
+            $controller = new DepOfficeController();
+            $controller->action();
+        });
+        break;
 
     case $base_url . '/headofficepending':
         checkSessionAndExecute(function () {

@@ -222,7 +222,7 @@ class HoldController
                 $link = "https://leave.iauoffsa.us/elms/pending";
 
                 // Send notification after saving the request
-                $sendToTelegram = $userModel->sendHolds($title, $approver, $start_date, $end_date, $duration, $reason, $link);
+                $userModel->sendTelegramNotification($userModel, $title, $approver, $start_date, $end_date, $duration, $reason, $link);
 
                 $_SESSION['success'] = [
                     'title' => "ជោគជ័យ",
