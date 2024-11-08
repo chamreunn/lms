@@ -71,6 +71,174 @@ class HoldModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getApprovedHoldsByUserId($offset, $limit)
+    {
+        // Check if the user ID is set in the session
+        if (empty($_SESSION['user_id'])) {
+            return []; // Return an empty array if no user ID is in the session
+        }
+
+        // Get user ID from session
+        $user_id = $_SESSION['user_id'];
+
+        // Prepare the SQL query to get approved holds by joining with `tblholds_approvals`
+        $sql = "SELECT h.* ,ha.status AS approver_status
+            FROM $this->tblholds AS h
+            JOIN $this->tblholds_approvals AS ha ON h.id = ha.hold_id
+            WHERE ha.approver_id = :approver_id
+              AND ha.status = 'approved'
+            ORDER BY h.created_at DESC
+            LIMIT :limit OFFSET :offset";
+
+        // Prepare the statement
+        $stmt = $this->pdo->prepare($sql);
+
+        // Bind the parameters to the prepared statement
+        $stmt->bindParam(':approver_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+
+        // Execute the statement
+        $stmt->execute();
+
+        // Fetch all the results
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $userCache = [];
+
+        foreach ($results as &$request) {
+            $userModel = new User();
+            $requestUserId = $request['user_id']; // Use a different variable to avoid conflict
+
+            // Check cache first to avoid multiple API calls for the same user
+            if (!isset($userCache[$requestUserId])) {
+                // Retry mechanism to attempt API calls more than once
+                $retryCount = 3;
+                while ($retryCount > 0) {
+                    $userApiResponse = $userModel->getUserByIdApi($requestUserId, $_SESSION['token']);
+
+                    if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                        $userCache[$requestUserId] = $userApiResponse['data'];
+                        break; // Success, exit retry loop
+                    }
+
+                    $retryCount--;
+                    usleep(200000); // Wait 200ms between retries to reduce API load
+                }
+            }
+
+            // Retrieve user data from cache if available
+            $user = $userCache[$requestUserId] ?? null;
+
+            if ($user) {
+                $request['user_name'] = ($user['lastNameKh'] ?? '') . " " . ($user['firstNameKh'] ?? 'Unknown');
+                $request['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $request['email'] = $user['email'] ?? 'Unknown';
+                $request['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $request['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $request['profile'] = 'https://hrms.iauoffsa.us/images/' . $user['image'] ?? 'default-profile.png';
+            } else {
+                // Default values if API call ultimately fails
+                $request['user_name'] = 'Unknown';
+                $request['dob'] = 'Unknown';
+                $request['email'] = 'Unknown';
+                $request['department_name'] = 'Unknown';
+                $request['position_name'] = 'Unknown';
+                $request['profile'] = 'default-profile.png';
+                error_log("Failed to fetch user data for User ID $requestUserId after retries.");
+            }
+
+            // Ensure 'attachments' is always a string for consistent handling in the view
+            $request['attachments'] = $request['attachments'] ?? '';
+        }
+
+        return $results;
+    }
+
+    public function getRejectHoldsByUserId($offset, $limit)
+    {
+        // Check if the user ID is set in the session
+        if (empty($_SESSION['user_id'])) {
+            return []; // Return an empty array if no user ID is in the session
+        }
+
+        // Get user ID from session
+        $user_id = $_SESSION['user_id'];
+
+        // Prepare the SQL query to get approved holds by joining with `tblholds_approvals`
+        $sql = "SELECT h.* ,ha.status AS approver_status
+            FROM $this->tblholds AS h
+            JOIN $this->tblholds_approvals AS ha ON h.id = ha.hold_id
+            WHERE ha.approver_id = :approver_id
+              AND ha.status = 'rejected'
+            ORDER BY h.created_at DESC
+            LIMIT :limit OFFSET :offset";
+
+        // Prepare the statement
+        $stmt = $this->pdo->prepare($sql);
+
+        // Bind the parameters to the prepared statement
+        $stmt->bindParam(':approver_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+
+        // Execute the statement
+        $stmt->execute();
+
+        // Fetch all the results
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $userCache = [];
+
+        foreach ($results as &$request) {
+            $userModel = new User();
+            $requestUserId = $request['user_id']; // Use a different variable to avoid conflict
+
+            // Check cache first to avoid multiple API calls for the same user
+            if (!isset($userCache[$requestUserId])) {
+                // Retry mechanism to attempt API calls more than once
+                $retryCount = 3;
+                while ($retryCount > 0) {
+                    $userApiResponse = $userModel->getUserByIdApi($requestUserId, $_SESSION['token']);
+
+                    if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                        $userCache[$requestUserId] = $userApiResponse['data'];
+                        break; // Success, exit retry loop
+                    }
+
+                    $retryCount--;
+                    usleep(200000); // Wait 200ms between retries to reduce API load
+                }
+            }
+
+            // Retrieve user data from cache if available
+            $user = $userCache[$requestUserId] ?? null;
+
+            if ($user) {
+                $request['user_name'] = ($user['lastNameKh'] ?? '') . " " . ($user['firstNameKh'] ?? 'Unknown');
+                $request['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $request['email'] = $user['email'] ?? 'Unknown';
+                $request['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $request['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $request['profile'] = 'https://hrms.iauoffsa.us/images/' . $user['image'] ?? 'default-profile.png';
+            } else {
+                // Default values if API call ultimately fails
+                $request['user_name'] = 'Unknown';
+                $request['dob'] = 'Unknown';
+                $request['email'] = 'Unknown';
+                $request['department_name'] = 'Unknown';
+                $request['position_name'] = 'Unknown';
+                $request['profile'] = 'default-profile.png';
+                error_log("Failed to fetch user data for User ID $requestUserId after retries.");
+            }
+
+            // Ensure 'attachments' is always a string for consistent handling in the view
+            $request['attachments'] = $request['attachments'] ?? '';
+        }
+
+        return $results;
+    }
+
     public function getHoldsCountById()
     {
         // Check if the user ID is set in the session

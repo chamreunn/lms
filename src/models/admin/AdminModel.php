@@ -2777,7 +2777,7 @@ class AdminModel
         $query = "SELECT lr.*, lt.name AS leave_type_name, lt.color AS leaveTypeColor
               FROM $this->leaveRequest lr
               LEFT JOIN leave_types lt ON lr.leave_type_id = lt.id
-              WHERE 1=1";
+              WHERE 1=1 ORDER BY lr.id DESC";
 
         // Prepare parameters for binding
         $params = [];

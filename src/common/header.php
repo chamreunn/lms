@@ -180,6 +180,10 @@ date_default_timezone_set('Asia/Bangkok');
                             $approvedCount = $leaveRequestModel->approvedCount();
                             $rejectedCount = $leaveRequestModel->rejectedCount();
                             $depoffice = $userModel->getEmailLeaderDOApi($_SESSION['user_id'], $_SESSION['token']);
+                            // Load the HoldModel to get count of pending hold requests
+                            $holdModel = new HoldModel();
+                            $pendingHoldsCount = $holdModel->countPendingHoldsByUserId($_SESSION['user_id']);
+                            $totalPendingCount = $pendingCount + $pendingHoldsCount;
                             // sidebar and navbar 
                             require 'navbar.php';
                             require 'offices-h/sidebar.php';

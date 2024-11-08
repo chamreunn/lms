@@ -108,7 +108,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 </div>
 
 <!-- alert leave count  -->
-<?php if ($requestscount > 0): ?>
+<?php if ($pendingRequestsCount > 0): ?>
     <div class="col">
         <div class="alert alert-info alert-dismissible mb-3" role="alert">
             <div class="d-flex">
@@ -125,7 +125,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                 </div>
                 <a href="/elms/pending">
                     អ្នកមានច្បាប់ដែលមិនទាន់អនុម័តចំនួន <span
-                        class="badge bg-red text-red-fg ms-2 fw-bolder"><?= $requestscount ?></span>
+                        class="badge bg-red text-red-fg ms-2 fw-bolder"><?= $pendingRequestsCount ?></span>
                 </a>
             </div>
             <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>

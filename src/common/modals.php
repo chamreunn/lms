@@ -284,7 +284,6 @@
                                         class="text-danger mx-1 fw-bold">*</span></label>
                                 <select class="form-select select-people" id="transfer_id_hof" name="transferId"
                                     required>
-                                    <option value="">ផ្ទេរសិទ្ធ</option>
                                     <?php foreach ($depoffice['ids'] as $index => $id): ?>
                                         <option value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>"
                                             data-custom-properties="&lt;span class=&quot;avatar avatar-xs&quot; style=&quot;background-image: url('https://hrms.iauoffsa.us/images/<?= htmlspecialchars($depoffice['image'][$index], ENT_QUOTES, 'UTF-8') ?>')&quot;&gt;&lt;/span&gt;">
@@ -498,7 +497,6 @@
                                         class="text-danger mx-1 fw-bold">*</span></label>
                                 <select class="form-select select-people" id="transfer_id_hod" name="transferId"
                                     required>
-                                    <option value="">ផ្ទេរសិទ្ធ</option>
                                     <?php foreach ($depdepart['ids'] as $index => $id): ?>
                                         <option value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>"
                                             data-custom-properties="&lt;span class=&quot;avatar avatar-xs&quot; style=&quot;background-image: url('https://hrms.iauoffsa.us/images/<?= htmlspecialchars($depdepart['image'][$index], ENT_QUOTES, 'UTF-8') ?>')&quot;&gt;&lt;/span&gt;">

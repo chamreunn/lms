@@ -1415,6 +1415,51 @@ class User
         }
     }
 
+    public function getApproverByRole($userModel, $userId, $token, $role, $departmentName)
+    {
+        $approver = null;
+
+        switch ($role) {
+            case 'Deputy Head Of Office':
+                $approver = $userModel->getEmailLeaderHOApi($userId, $token);
+                break;
+            case 'Head Of Office':
+                $approver = $userModel->getEmailLeaderDDApi($userId, $token);
+                break;
+            case 'Deputy Head Of Department':
+                $approver = $userModel->getEmailLeaderHDApi($userId, $token);
+                break;
+            case 'Head Of Department':
+                if (in_array($departmentName, ['នាយកដ្ឋានកិច្ចការទូទៅ', 'នាយកដ្ឋានសវនកម្មទី២'])) {
+                    $approver = $userModel->getEmailLeaderDHU1Api($userId, $token);
+                } else {
+                    $approver = $userModel->getEmailLeaderDHU2Api($userId, $token);
+                }
+                break;
+            default:
+                $approver = $userModel->getEmailLeaderDOApi($userId, $token);
+                break;
+        }
+
+        // Fallback logic if the approver is unavailable
+        $hierarchicalLevels = [
+            'HO' => 'getEmailLeaderHOApi',
+            'DD' => 'getEmailLeaderDDApi',
+            'HD' => 'getEmailLeaderHDApi',
+            'DHU1' => 'getEmailLeaderDHU1Api',
+            'DHU2' => 'getEmailLeaderDHU2Api',
+            'HU' => 'getEmailLeaderHUApi'
+        ];
+
+        foreach ($hierarchicalLevels as $level => $method) {
+            if ($approver && ($userModel->isManagerOnLeaveToday($approver['ids']) || $userModel->isManagerOnMission($approver['ids']))) {
+                $approver = $userModel->$method($userId, $token);
+            }
+        }
+
+        return $approver;
+    }
+
     // mission to API 
     public function updateMissionToApi($user_id, $start_date, $end_date, $mission, $token)
     {

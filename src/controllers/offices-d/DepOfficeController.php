@@ -392,26 +392,8 @@ class DepOfficeController
             // Initialize the UserModel
             $userModel = new User();
 
-            // Fetch the primary approver (department or office leader's email) using session user_id and token
-            $approver = $userModel->getEmailLeaderHOApi($_SESSION['user_id'], $_SESSION['token']);
-
-            // Define a hierarchy of approvers in case the current approver is on leave or on a mission
-            $approverLevels = [
-                'HO' => [$userModel, 'getEmailLeaderHOApi'],
-                'DD' => [$userModel, 'getEmailLeaderDDApi'],
-                'HD' => [$userModel, 'getEmailLeaderHDApi']
-            ];
-
-            foreach ($approverLevels as $level => $getApproverMethod) {
-                // Check if the current approver is on leave or on a mission
-                if ($userModel->isManagerOnLeaveToday($approver['ids']) || $userModel->isManagerOnMission($approver['ids'])) {
-                    // Try to get the next higher-level approver
-                    $approver = call_user_func($getApproverMethod, $_SESSION['user_id'], $_SESSION['token']);
-                } else {
-                    // Break the loop if an available approver is found
-                    break;
-                }
-            }
+            // Get approver based on role and department
+            $approver = $userModel->getApproverByRole($userModel, $_SESSION['user_id'], $_SESSION['token'], $_SESSION['role'], $_SESSION['departmentName']);
 
             // Initialize the HoldModel to retrieve any holds for the current user
             $holdsModel = new HoldModel();

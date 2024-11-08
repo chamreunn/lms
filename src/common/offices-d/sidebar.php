@@ -164,9 +164,106 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </div>
                         </div>
                     </li>
+                    <!-- change location  -->
+                    <!-- <li hidden -->
+                    <li
+                        class="nav-item dropdown <?= in_array($current_page, ['transferout', 'hold', 'resign', 'backwork', 'view&edit-hold', 'view&edit-transferout']) ? 'active' : '' ?>">
+                        <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside" role="button" aria-expanded="false">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-template">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path
+                                        d="M4 4m0 1a1 1 0 0 1 1 -1h14a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-14a1 1 0 0 1 -1 -1z" />
+                                    <path
+                                        d="M4 12m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+                                    <path d="M14 12l6 0" />
+                                    <path d="M14 16l6 0" />
+                                    <path d="M14 20l6 0" />
+                                </svg>
+                            </span>
+                            <span class="nav-link-title">
+                                លិខិតផ្សេងៗ
+                            </span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item <?= in_array($current_page, ['hold', 'view&edit-hold']) ? 'active' : '' ?>"
+                                        href="/elms/hold">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-user-pause">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                                                <path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" />
+                                                <path d="M17 17v5" />
+                                                <path d="M21 17v5" />
+                                            </svg>
+                                        </span>
+                                        លិខិតព្យួរ
+                                    </a>
+                                    <a class="dropdown-item <?= in_array($current_page, ['transferout', 'view&edit-transferout']) ? 'active' : '' ?>"
+                                        href="/elms/transferout">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-user-share">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                                                <path d="M6 21v-2a4 4 0 0 1 4 -4h3" />
+                                                <path d="M16 22l5 -5" />
+                                                <path d="M21 21.5v-4.5h-4.5" />
+                                            </svg>
+                                        </span>
+                                        លិខិតផ្ទេរចេញ
+                                    </a>
+                                    <a class="dropdown-item <?= ($current_page == 'resign') ? 'active' : '' ?>"
+                                        href="/elms/resign">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-user-cancel">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                                                <path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" />
+                                                <path d="M19 19m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                                                <path d="M17 21l4 -4" />
+                                            </svg>
+                                        </span>
+                                        លិខិតលាឈប់
+                                    </a>
+                                    <a class="dropdown-item <?= ($current_page == 'backwork') ? 'active' : '' ?>"
+                                        href="/elms/backwork">
+                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-users-plus">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M5 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                                                <path d="M3 21v-2a4 4 0 0 1 4 -4h4c.96 0 1.84 .338 2.53 .901" />
+                                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                                <path d="M16 19h6" />
+                                                <path d="M19 16v6" />
+                                            </svg>
+                                        </span>
+                                        លិខិតបន្តការងារ
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
                     <!-- All Request  -->
                     <li
-                        class="nav-item dropdown <?= ($current_page == 'pending' || $current_page == 'approved' || $current_page == 'rejected') ? 'active' : '' ?>">
+                        class="nav-item dropdown <?= in_array($current_page, ['pending', 'approved', 'rejected', 'holdApproved', 'holdRejected']) ? 'active' : '' ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
                             data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">

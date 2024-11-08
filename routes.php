@@ -369,6 +369,12 @@ switch ($uri) {
             $controller->action();
         });
         break;
+    case $base_url . '/hoactionhold':
+        checkSessionAndExecute(function () {
+            $controller = new HeadOfficeController();
+            $controller->action();
+        });
+        break;
 
     case $base_url . '/headofficepending':
         checkSessionAndExecute(function () {
@@ -1239,6 +1245,18 @@ switch ($uri) {
         checkSessionAndExecute(function () {
             $controller = new HoldController();
             $controller->delete();
+        });
+        break;
+    case $base_url . '/holdApproved':
+        checkSessionAndExecute(function () {
+            $controller = new HoldController();
+            $controller->holdApproved();
+        });
+        break;
+    case $base_url . '/holdRejected':
+        checkSessionAndExecute(function () {
+            $controller = new HoldController();
+            $controller->holdRejected();
         });
         break;
     case $base_url . '/addMoreAttachmentHold':

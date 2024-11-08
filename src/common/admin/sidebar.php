@@ -514,10 +514,10 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                         <div class="dropdown-menu">
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
-                                    <a class="dropdown-item <?= ($current_page == 'user_index') ? 'active' : '' ?>"
+                                    <!-- <a class="dropdown-item <?= ($current_page == 'user_index') ? 'active' : '' ?>"
                                         href="user_index">
                                         គណនីមន្ត្រី
-                                    </a>
+                                    </a> -->
                                     <!-- <a class="dropdown-item <?= ($current_page == 'department_index') ? 'active' : '' ?>"
                                         href="/elms/department">
                                         នាយកដ្ឋាន
@@ -530,9 +530,13 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                         href="/elms/leavetype">
                                         ប្រភេទច្បាប់
                                     </a>
+                                    <a class="dropdown-item <?= ($current_page == 'holidays') ? 'active' : '' ?>"
+                                        href="/elms/holidays">
+                                        ថ្ងៃឈប់សម្រាក
+                                    </a>
                                 </div>
-                                <div class="dropdown-menu-column">
-                                    <!-- <a class="dropdown-item <?= ($current_page == 'roles') ? 'active' : '' ?>"
+                                <!-- <div class="dropdown-menu-column">
+                                    <a class="dropdown-item <?= ($current_page == 'roles') ? 'active' : '' ?>"
                                         href="/elms/roles">
                                         Role
                                     </a>
@@ -543,12 +547,8 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                     <a class="dropdown-item <?= ($current_page == 'documents') ? 'active' : '' ?>"
                                         href="/elms/documents">
                                         លិខិត
-                                    </a> -->
-                                    <a class="dropdown-item <?= ($current_page == 'holidays') ? 'active' : '' ?>"
-                                        href="/elms/holidays">
-                                        ថ្ងៃឈប់សម្រាក
                                     </a>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </li>

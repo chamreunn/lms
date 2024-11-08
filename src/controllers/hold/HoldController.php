@@ -28,7 +28,7 @@ class HoldController
             $offset = ($currentPage - 1) * $recordsPerPage;
 
             // Initialize the HoldModel with the database connection
-            $holdModel = new HoldModel($this->pdo);
+            $holdModel = new HoldModel();
 
             // Fetch the holds for the current user based on the offset and records per page
             $getHolds = $holdModel->getHoldsByUserId($offset, $recordsPerPage);
@@ -36,25 +36,8 @@ class HoldController
             // Initialize the UserModel
             $userModel = new User();
 
-            // Fetch the department or office leader's email using session user_id and token
-            $approver = $userModel->getEmailLeaderDOApi($_SESSION['user_id'], $_SESSION['token']);
-
-            // Check if the current leader is on leave or on a mission
-            if ($userModel->isManagerOnLeaveToday($approver['ids']) || $userModel->isManagerOnMission($approver['ids'])) {
-                // If on leave or on mission, try to get the higher-level leader
-                $approver = $userModel->getEmailLeaderHOApi($_SESSION['user_id'], $_SESSION['token']);
-
-                // Check if the higher-level leader is also on leave or on mission
-                if ($userModel->isManagerOnLeaveToday($approver['ids']) || $userModel->isManagerOnMission($approver['ids'])) {
-                    // If still on leave or on mission, get the Deputy Director leader
-                    $approver = $userModel->getEmailLeaderDDApi($_SESSION['user_id'], $_SESSION['token']);
-
-                    if ($userModel->isManagerOnLeaveToday($approver['ids']) || $userModel->isManagerOnMission($approver['ids'])) {
-                        // If still on leave or on mission, get the Deputy Director leader
-                        $approver = $userModel->getEmailLeaderHDApi($_SESSION['user_id'], $_SESSION['token']);
-                    }
-                }
-            }
+            // Get approver based on role and department
+            $approver = $userModel->getApproverByRole($userModel, $_SESSION['user_id'], $_SESSION['token'], $_SESSION['role'], $_SESSION['departmentName']);
 
             // Fetch the total number of records to calculate the total pages for pagination
             $totalRecords = $holdModel->getHoldsCountById();
@@ -346,7 +329,7 @@ class HoldController
 
             try {
                 // Preserve existing attachment if no new file is uploaded
-                $holdRequestModel = new HoldModel($this->pdo);
+                $holdRequestModel = new HoldModel();
                 // Update the hold request using the HoldModel
                 $holdRequestModel->updateHoldRequest($hold_id, $data);
 
@@ -428,7 +411,7 @@ class HoldController
             // Validate that the ID is provided
             if (!empty($id)) {
                 // Call model to delete holiday
-                $calendarModel = new HoldModel($this->pdo);
+                $calendarModel = new HoldModel();
                 $success = $calendarModel->deleteHold($id);
 
                 if ($success) {
@@ -464,7 +447,7 @@ class HoldController
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Ensure that the files were uploaded without errors
             if (isset($_FILES['moreAttachment']) && !empty($_FILES['moreAttachment']['name'][0])) {
-                $holdMoldel = new HoldModel($this->pdo);
+                $holdMoldel = new HoldModel();
                 // Array to hold the file data
                 $uploadedFiles = $_FILES['moreAttachment'];
 
@@ -517,7 +500,7 @@ class HoldController
 
             if ($attachment && $holdId) {
                 // Initialize the TransferoutModel
-                $hold = new HoldModel($this->pdo);
+                $hold = new HoldModel();
 
                 // Delete the attachment record from the transferout_attachments table
                 $hold->deleteAttachment($holdId, $attachment);
@@ -544,6 +527,79 @@ class HoldController
             // Redirect or return response
             header('Location:  /elms/view&edit-hold?holdId=' . $holdId); // Change to your success page
             exit();
+        }
+    }
+
+    public function holdApproved()
+    {
+        // Start the session if it's not already started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();  // Ensure session is available
+        }
+
+        // Check if user session data is set
+        if (isset($_SESSION['user_id']) && isset($_SESSION['token'])) {
+            // Get the current page and set the number of records per page
+            $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+            $recordsPerPage = 5; // Set the desired number of records per page
+
+            // Calculate the offset for the current page
+            $offset = ($currentPage - 1) * $recordsPerPage;
+
+            // Initialize the HoldModel with the database connection
+            $holdModel = new HoldModel();
+
+            // Fetch the holds for the current user based on the offset and records per page
+            $getHolds = $holdModel->getApprovedHoldsByUserId($offset, $recordsPerPage);
+
+            // Initialize the UserModel
+            $userModel = new User();
+
+            // Get approver based on role and department
+            $approver = $userModel->getApproverByRole($userModel, $_SESSION['user_id'], $_SESSION['token'], $_SESSION['role'], $_SESSION['departmentName']);
+
+            // Fetch the total number of records to calculate the total pages for pagination
+            $totalRecords = $holdModel->getHoldsCountById();
+            $totalPages = ceil($totalRecords / $recordsPerPage); // Calculate total pages
+
+            require 'src/views/hold/approved.php';
+        }
+    }
+
+    public function holdRejected()
+    {
+        // Start the session if it's not already started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();  // Ensure session is available
+        }
+
+        // Check if user session data is set
+        if (isset($_SESSION['user_id']) && isset($_SESSION['token'])) {
+            // Get the current page and set the number of records per page
+            $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+            $recordsPerPage = 5; // Set the desired number of records per page
+
+            // Calculate the offset for the current page
+            $offset = ($currentPage - 1) * $recordsPerPage;
+
+            // Initialize the HoldModel with the database connection
+            $holdModel = new HoldModel();
+
+            // Fetch the holds for the current user based on the offset and records per page
+            $getHolds = $holdModel->getRejectHoldsByUserId($offset, $recordsPerPage);
+
+            // Initialize the UserModel
+            $userModel = new User();
+
+            // Get approver based on role and department
+            $approver = $userModel->getApproverByRole($userModel, $_SESSION['user_id'], $_SESSION['token'], $_SESSION['role'], $_SESSION['departmentName']);
+
+            // Fetch the total number of records to calculate the total pages for pagination
+            $totalRecords = $holdModel->getHoldsCountById();
+            $totalPages = ceil($totalRecords / $recordsPerPage); // Calculate total pages
+
+
+            require 'src/views/hold/rejected.php';
         }
     }
 }
