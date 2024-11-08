@@ -184,8 +184,8 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </span>
                             <span class="nav-link-title">
                                 គ្រប់គ្រងសំណើ
-                                <?php if (!empty($requestscount)): ?>
-                                    <span class="badge bg-red text-red-fg ms-2"><?= $requestscount; ?></span>
+                                <?php if (!empty($totalPendingCount)): ?>
+                                    <span class="badge bg-red text-red-fg ms-2"><?= $totalPendingCount; ?></span>
                                 <?php endif; ?>
                             </span>
                         </a>
@@ -211,8 +211,8 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                             </svg>
                                         </span>
                                         <span>សំណើទាំងអស់</span>
-                                        <?php if ($requestscount > 0): ?>
-                                            <span class="badge bg-red text-red-fg ms-auto"><?= $requestscount; ?></span>
+                                        <?php if ($totalPendingCount > 0): ?>
+                                            <span class="badge bg-red text-red-fg ms-auto"><?= $totalPendingCount; ?></span>
                                         <?php endif; ?>
                                     </a>
 
@@ -245,18 +245,10 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                             <a href="/elms/approved"
                                                 class="dropdown-item <?= in_array($current_page, ['approved']) ? 'active' : '' ?>">
                                                 <span>បានអនុម័ត</span>
-                                                <?php if ($approvedCount > 0): ?>
-                                                    <span
-                                                        class="badge bg-red text-red-fg ms-auto"><?= $approvedCount; ?></span>
-                                                <?php endif; ?>
                                             </a>
                                             <a href="/elms/rejected"
                                                 class="dropdown-item <?= in_array($current_page, ['rejected']) ? 'active' : '' ?>">
                                                 <span>មិនអនុម័ត</span>
-                                                <?php if ($rejectedCount > 0): ?>
-                                                    <span
-                                                        class="badge bg-red text-red-fg ms-auto"><?= $rejectedCount; ?></span>
-                                                <?php endif; ?>
                                             </a>
                                         </div>
                                     </div>
@@ -284,18 +276,10 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                             <a href="/elms/holdApproved"
                                                 class="dropdown-item <?= in_array($current_page, ['holdApproved']) ? 'active' : '' ?>">
                                                 <span>បានអនុម័ត</span>
-                                                <?php if ($approvedCount > 0): ?>
-                                                    <span
-                                                        class="badge bg-red text-red-fg ms-auto"><?= $approvedCount; ?></span>
-                                                <?php endif; ?>
                                             </a>
                                             <a href="/elms/holdRejected"
                                                 class="dropdown-item <?= in_array($current_page, ['holdRejected']) ? 'active' : '' ?>">
                                                 <span>មិនអនុម័ត</span>
-                                                <?php if ($rejectedCount > 0): ?>
-                                                    <span
-                                                        class="badge bg-red text-red-fg ms-auto"><?= $rejectedCount; ?></span>
-                                                <?php endif; ?>
                                             </a>
                                         </div>
                                     </div>
@@ -323,18 +307,10 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                             <a href="/elms/transferApproved"
                                                 class="dropdown-item <?= in_array($current_page, ['transferApproved']) ? 'active' : '' ?>">
                                                 <span>បានអនុម័ត</span>
-                                                <?php if ($approvedCount > 0): ?>
-                                                    <span
-                                                        class="badge bg-red text-red-fg ms-auto"><?= $approvedCount; ?></span>
-                                                <?php endif; ?>
                                             </a>
                                             <a href="/elms/transferRejected"
                                                 class="dropdown-item <?= in_array($current_page, ['transferRejected']) ? 'active' : '' ?>">
                                                 <span>មិនអនុម័ត</span>
-                                                <?php if ($rejectedCount > 0): ?>
-                                                    <span
-                                                        class="badge bg-red text-red-fg ms-auto"><?= $rejectedCount; ?></span>
-                                                <?php endif; ?>
                                             </a>
                                         </div>
                                     </div>
@@ -362,18 +338,10 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                             <a href="/elms/resignApproved"
                                                 class="dropdown-item <?= in_array($current_page, ['resignApproved']) ? 'active' : '' ?>">
                                                 <span>បានអនុម័ត</span>
-                                                <?php if ($approvedCount > 0): ?>
-                                                    <span
-                                                        class="badge bg-red text-red-fg ms-auto"><?= $approvedCount; ?></span>
-                                                <?php endif; ?>
                                             </a>
                                             <a href="/elms/resignRejected"
                                                 class="dropdown-item <?= in_array($current_page, ['resignRejected']) ? 'active' : '' ?>">
                                                 <span>មិនអនុម័ត</span>
-                                                <?php if ($rejectedCount > 0): ?>
-                                                    <span
-                                                        class="badge bg-red text-red-fg ms-auto"><?= $rejectedCount; ?></span>
-                                                <?php endif; ?>
                                             </a>
                                         </div>
                                     </div>
@@ -402,18 +370,10 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                             <a href="/elms/backApproved"
                                                 class="dropdown-item <?= in_array($current_page, ['backApproved']) ? 'active' : '' ?>">
                                                 <span>បានអនុម័ត</span>
-                                                <?php if ($approvedCount > 0): ?>
-                                                    <span
-                                                        class="badge bg-red text-red-fg ms-auto"><?= $approvedCount; ?></span>
-                                                <?php endif; ?>
                                             </a>
                                             <a href="/elms/backRejected"
                                                 class="dropdown-item <?= in_array($current_page, ['backRejected']) ? 'active' : '' ?>">
                                                 <span>មិនអនុម័ត</span>
-                                                <?php if ($rejectedCount > 0): ?>
-                                                    <span
-                                                        class="badge bg-red text-red-fg ms-auto"><?= $rejectedCount; ?></span>
-                                                <?php endif; ?>
                                             </a>
                                         </div>
                                     </div>

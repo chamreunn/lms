@@ -71,7 +71,7 @@ class HoldController
 
     public function view($id)
     {
-        $holdModel = new HoldModel($this->pdo);
+        $holdModel = new HoldModel();
         $getHoldById = $holdModel->getHoldById($id);
         require 'src/views/hold/view&edit.php';
     }
@@ -166,7 +166,7 @@ class HoldController
                 ];
 
                 // Save the hold request using the HoldModel
-                $holdRequestModel = new HoldModel($this->pdo);
+                $holdRequestModel = new HoldModel();
                 $hold_id = $holdRequestModel->createHoldRequest($data);
 
                 // Recursive manager delegation
@@ -222,7 +222,7 @@ class HoldController
                 $link = "https://leave.iauoffsa.us/elms/pending";
 
                 // Send notification after saving the request
-                $userModel->sendTelegramNotification($userModel, $title, $approver, $start_date, $end_date, $duration, $reason, $link);
+                // $userModel->sendTelegramNotification($userModel, $title, $approver, $start_date, $end_date, $duration, $reason, $link);
 
                 $_SESSION['success'] = [
                     'title' => "ជោគជ័យ",

@@ -874,7 +874,9 @@ class DepOfficeModel
         AND lr.position IN (?, ?)
         AND lr.office = ?
         AND lr.department = ?
-        AND lr.user_id != ?');
+        AND lr.user_id != ?
+        ORDER BY lr.id DESC
+        ');
 
         // Execute the query with the session values
         $stmt->execute(['Approved', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', $_SESSION['officeName'], $_SESSION['departmentName'], $approver_id]);
@@ -933,7 +935,9 @@ class DepOfficeModel
         AND lr.position IN (?, ?)
         AND lr.office = ?
         AND lr.department = ?
-        AND lr.user_id != ?');
+        AND lr.user_id != ?
+        ORDER BY lr.id DESC
+        ');
 
         // Execute the query with the session values
         $stmt->execute(['Rejected', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', $_SESSION['officeName'], $_SESSION['departmentName'], $approver_id]);

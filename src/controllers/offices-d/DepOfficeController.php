@@ -414,7 +414,7 @@ class DepOfficeController
             }
 
             // Initialize the HoldModel to retrieve any holds for the current user
-            $holdsModel = new HoldModel($this->pdo);
+            $holdsModel = new HoldModel();
             $hold = $holdsModel->getHoldByuserId($_SESSION['user_id']);
 
             // Initialize the LeaveType model and retrieve all leave types
@@ -449,7 +449,7 @@ class DepOfficeController
                     // Log the error and set error message
                     $_SESSION['success'] = [
                         'title' => "លិខិតព្យួរការងារ",
-                        'message' => "អ្នកបាន " . $action . " លើលិខិតព្យួរការងាររួចរាល់។" . $holdId
+                        'message' => "អ្នកបាន " . $action . " លើលិខិតព្យួរការងាររួចរាល់។"
                     ];
                     header("Location: /elms/pending");
                     exit();

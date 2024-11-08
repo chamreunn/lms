@@ -151,14 +151,25 @@ date_default_timezone_set('Asia/Bangkok');
                             require 'admin/sidebar.php';
                             break;
                         case 'Deputy Head Of Office':
+                            // Load the LeaveApproval model to get leave request counts
                             $leaveRequestModel = new LeaveApproval();
-                            $requestscount = $leaveRequestModel->countPendingRequestsForApprover();
-                            $approvedCount = $leaveRequestModel->approvedCount();
-                            $rejectedCount = $leaveRequestModel->rejectedCount();
+                            $pendingRequestsCount = $leaveRequestModel->countPendingRequestsForApprover();
+                            $approvedRequestsCount = $leaveRequestModel->approvedCount();
+                            $rejectedRequestsCount = $leaveRequestModel->rejectedCount();
+
+                            // Load the HoldModel to get count of pending hold requests
+                            $holdModel = new HoldModel();
+                            $pendingHoldsCount = $holdModel->countPendingHoldsByUserId($_SESSION['user_id']);
+
+                            // Total pending count combining leave requests and holds
+                            $totalPendingCount = $pendingRequestsCount + $pendingHoldsCount;
+
+                            // Load the AdminModel to get late counts
                             $adminModel = new AdminModel();
-                            $getPendingCounts = $adminModel->getLateinCount();
-                            $latesToday = $adminModel->getLateCountToday();
-                            // sidebar and navbar 
+                            $totalLateCount = $adminModel->getLateinCount();
+                            $latesTodayCount = $adminModel->getLateCountToday();
+
+                            // Sidebar and navbar templates
                             require 'navbar.php';
                             require 'offices-d/sidebar.php';
                             break;

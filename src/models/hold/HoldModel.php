@@ -8,11 +8,12 @@ class HoldModel
 
     protected $tblholds_attachment = 'hold_attachments';
 
-    private $pdo;
+    protected $pdo;
 
-    public function __construct($pdo)
+    public function __construct()
     {
-        $this->pdo = $pdo; // Inject the global PDO object
+        global $pdo;
+        $this->pdo = $pdo;
     }
 
     public function createHoldRequest($data)
@@ -311,6 +312,23 @@ class HoldModel
         }
 
         return $results;
+    }
+
+    public function countPendingHoldsByUserId($userId)
+    {
+        // Define SQL query to count holds where status is pending and approver_id matches the provided user ID
+        $sql = "SELECT COUNT(*) AS pending_count 
+            FROM $this->tblholds 
+            WHERE status = 'pending' AND approver_id = :user_id";
+
+        // Prepare and execute the statement
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // Fetch and return the count of pending holds
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['pending_count'] ?? 0; // Return 0 if no rows found
     }
 
     public function insertManagerStatusToHoldsApprovals($hold_id, $approver_id, $status)
