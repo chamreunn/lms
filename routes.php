@@ -369,12 +369,6 @@ switch ($uri) {
             $controller->action();
         });
         break;
-    case $base_url . '/hoactionhold':
-        checkSessionAndExecute(function () {
-            $controller = new HeadOfficeController();
-            $controller->action();
-        });
-        break;
 
     case $base_url . '/headofficepending':
         checkSessionAndExecute(function () {
