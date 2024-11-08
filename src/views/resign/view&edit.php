@@ -273,7 +273,7 @@ require_once 'src/common/header.php';
                                             <div class="text-secondary">
                                                 <div class="text-muted">
                                                     <strong>កាលបរិច្ឆេទ:</strong>
-                                                    <?= $approvalStep['approved_at'] ?? '-' ?>
+                                                    <?= $approvalStep['created_at'] ?? '-' ?>
                                                 </div>
                                                 <?php if (!empty($approvalStep['comment'])): ?>
                                                     <div class="mt-2">

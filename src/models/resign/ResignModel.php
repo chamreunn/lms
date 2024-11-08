@@ -10,12 +10,13 @@ class ResignModel
 
     private $pdo;
 
-    public function __construct($pdo)
+    public function __construct()
     {
+        global $pdo;
         $this->pdo = $pdo; // Inject the global PDO object
     }
 
-    public function getResignByUserId($offset, $limit)
+    public function getResigns($offset, $limit)
     {
         // Check if the user ID is set in the session
         if (empty($_SESSION['user_id'])) {
@@ -154,8 +155,8 @@ class ResignModel
     public function createResignRequest($data)
     {
         // Prepare the SQL query using PDO
-        $sql = "INSERT INTO $this->tblresign (user_id, approver_id, workexperience, reason, created_at) 
-            VALUES (:user_id, :approver_id, :workexperience, :reason, NOW())";
+        $sql = "INSERT INTO $this->tblresign (user_id, approver_id, workexperience, reason, type, color, status, created_at) 
+            VALUES (:user_id, :approver_id, :workexperience, :reason, :type, :color, :status, NOW())";
 
         // Prepare the statement
         $stmt = $this->pdo->prepare($sql);
@@ -165,6 +166,9 @@ class ResignModel
         $stmt->bindParam(':approver_id', $data['approver_id'], PDO::PARAM_INT);
         $stmt->bindParam(':workexperience', $data['workexperience'], PDO::PARAM_STR);
         $stmt->bindParam(':reason', $data['reason'], PDO::PARAM_STR);
+        $stmt->bindParam(':type', $data['type'], PDO::PARAM_STR);
+        $stmt->bindParam(':color', $data['color'], PDO::PARAM_STR);
+        $stmt->bindParam(':status', $data['status'], PDO::PARAM_STR);
 
         // Execute the statement
         $stmt->execute();
@@ -277,5 +281,75 @@ class ResignModel
 
         // Fetch and return the total count
         return $stmt->fetchColumn();
+    }
+
+    public function getResignByuserId($userId)
+    {
+        // Prepare the SQL query to get hold requests specific to that hold request
+        $sql = "SELECT h.*, 
+            GROUP_CONCAT(DISTINCT a.file_name) AS attachments, 
+            MAX(a.uploaded_at) AS latest_uploaded_at
+            FROM $this->tblresign h
+            LEFT JOIN $this->tblresigned_attachment a ON h.id = a.resign_id
+            WHERE h.approver_id = :user_id 
+            GROUP BY h.id
+            ORDER BY h.id DESC"; // Changed to h.id for consistency
+
+        // Prepare the statement
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Cache array to store user data temporarily
+        $userCache = [];
+
+        foreach ($results as &$request) {
+            $userModel = new User();
+            $requestUserId = $request['user_id']; // Use a different variable to avoid conflict
+
+            // Check cache first to avoid multiple API calls for the same user
+            if (!isset($userCache[$requestUserId])) {
+                // Retry mechanism to attempt API calls more than once
+                $retryCount = 3;
+                while ($retryCount > 0) {
+                    $userApiResponse = $userModel->getUserByIdApi($requestUserId, $_SESSION['token']);
+
+                    if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                        $userCache[$requestUserId] = $userApiResponse['data'];
+                        break; // Success, exit retry loop
+                    }
+
+                    $retryCount--;
+                    usleep(200000); // Wait 200ms between retries to reduce API load
+                }
+            }
+
+            // Retrieve user data from cache if available
+            $user = $userCache[$requestUserId] ?? null;
+
+            if ($user) {
+                $request['user_name'] = ($user['lastNameKh'] ?? '') . " " . ($user['firstNameKh'] ?? 'Unknown');
+                $request['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $request['user_email'] = $user['email'] ?? 'Unknown';
+                $request['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $request['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $request['profile'] = 'https://hrms.iauoffsa.us/images/' . $user['image'] ?? 'default-profile.png';
+            } else {
+                // Default values if API call ultimately fails
+                $request['user_name'] = 'Unknown';
+                $request['dob'] = 'Unknown';
+                $request['user_email'] = 'Unknown';
+                $request['department_name'] = 'Unknown';
+                $request['position_name'] = 'Unknown';
+                $request['profile'] = 'default-profile.png';
+                error_log("Failed to fetch user data for User ID $requestUserId after retries.");
+            }
+
+            // Ensure 'attachments' is always a string for consistent handling in the view
+            $request['attachments'] = $request['attachments'] ?? '';
+        }
+
+        return $results;
     }
 }

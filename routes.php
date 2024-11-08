@@ -369,6 +369,12 @@ switch ($uri) {
             $controller->action();
         });
         break;
+    case $base_url . '/actionresign':
+        checkSessionAndExecute(function () {
+            $controller = new DepOfficeController();
+            $controller->actionResign();
+        });
+        break;
 
     case $base_url . '/headofficepending':
         checkSessionAndExecute(function () {

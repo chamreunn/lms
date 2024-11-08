@@ -1655,7 +1655,6 @@ class DepOfficeModel
             if ($this->pdo->inTransaction()) {
                 $this->pdo->commit();
             }
-
         } catch (Exception $e) {
             // Rollback if there's an error
             if ($this->pdo->inTransaction()) {
@@ -1666,4 +1665,54 @@ class DepOfficeModel
         }
     }
 
+
+    public function updateResignApproval($userId, $resignId, $approverId, $action, $comment)
+    {
+        try {
+            if (!$this->pdo->inTransaction()) {
+                $this->pdo->beginTransaction();
+            }
+
+            $stmt = $this->pdo->prepare("UPDATE resigned SET approver_id = ? WHERE id = ?");
+            $stmt->execute([$approverId, $resignId]);
+
+            if ($stmt->rowCount() === 0) {
+                error_log("No rows updated in holds table. Either `resign_id` does not exist or `approver_id` is already set.");
+            } else {
+                error_log("Row successfully updated in holds table.");
+            }
+
+            $updateApprovalSql = "UPDATE resigned_approval SET status = ?, comment = ? WHERE resign_id = ? AND approver_id = ?";
+            $updateApprovalStmt = $this->pdo->prepare($updateApprovalSql);
+            $updateApprovalStmt->execute([$action, $comment, $resignId, $userId]);
+
+            if ($updateApprovalStmt->rowCount() === 0) {
+                error_log("No rows updated in resigned_approval. Either no matching record or `status` and `comment` are already set as requested.");
+            } else {
+                error_log("Row successfully updated in resigned_approval table.");
+            }
+
+            $insertApprovalSql = "INSERT INTO resigned_approval (resign_id, approver_id) VALUES (?, ?)";
+            $insertApprovalStmt = $this->pdo->prepare($insertApprovalSql);
+            $insertApprovalStmt->execute([$resignId, $approverId]);
+
+            if ($insertApprovalStmt->rowCount() === 0) {
+                error_log("Insert into resigned_approval failed. Verify provided data.");
+            } else {
+                error_log("New record successfully inserted in resigned_approval table.");
+            }
+
+            // Commit the transaction if it was started here
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->commit();
+            }
+        } catch (Exception $e) {
+            // Rollback if there's an error
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            error_log("Error: Approval update failed: " . $e->getMessage());
+            throw new Exception("Approval update failed: " . $e->getMessage());
+        }
+    }
 }

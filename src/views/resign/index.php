@@ -55,8 +55,10 @@ require_once 'src/common/header.php';
                             <thead>
                                 <tr>
                                     <th>ល.រ</th>
+                                    <th>ប្រភេទលិខិត</th>
                                     <th>បទពិសោធន៍</th>
                                     <th>មូលហេតុ</th>
+                                    <th>ស្ថានភាព</th>
                                     <th class="w-1">សកម្មភាព</th>
                                 </tr>
                             </thead>
@@ -64,9 +66,28 @@ require_once 'src/common/header.php';
                                 <?php foreach ($getResigns as $key => $resign): ?>
                                     <tr>
                                         <td><?= $key + 1 ?></td>
+                                        <td class="text-secondary">
+                                            <?php if ($resign['type'] === 'hold'): ?>
+                                                <span class="badge <?= $resign['color'] ?>">លិខិតព្យួរ</span>
+                                            <?php elseif ($resign['type'] === 'resign'): ?>
+                                                <span class="badge <?= $resign['color'] ?>">លិខិតលារឈប់</span>
+                                            <?php elseif ($resign['type'] === 'transferout'): ?>
+                                                <span class="badge <?= $resign['color'] ?>">លិខិតផ្ទេរចេញ</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-danger">លិខិតចូលបម្រើការងារវិញ</span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td class="text-secondary"><?= $resign['workexperience'] ?></td>
                                         <td class="text-secondary"><?= $resign['reason'] ?></td>
-                                        
+                                        <td class="text-secondary">
+                                            <?php if ($resign['status'] === 'approved'): ?>
+                                                <span class="badge bg-success">អនុម័ត</span>
+                                            <?php elseif ($resign['status'] === 'pending'): ?>
+                                                <span class="badge bg-warning">រង់ចាំអនុម័ត</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-danger">Inactive</span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td>
                                             <div class="d-flex">
                                                 <a href="/elms/view&edit-resign?resignId=<?= $resign['id'] ?>">

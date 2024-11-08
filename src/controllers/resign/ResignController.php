@@ -31,7 +31,7 @@ class ResignController
             $resignModel = new ResignModel($this->pdo);
 
             // Fetch the holds for the current user based on the offset and records per page
-            $getResigns = $resignModel->getResignByUserId($offset, $recordsPerPage);
+            $getResigns = $resignModel->getResigns($offset, $recordsPerPage);
 
             // Initialize the UserModel
             $userModel = new User();
@@ -97,12 +97,16 @@ class ResignController
             $reason = $_POST['reason'];
             $approver = $_POST['approverId'];
 
+
             // Prepare data for saving
             $data = [
                 'user_id' => $user_id,
                 'workexperience' => $workexperience,
                 'reason' => $reason,
-                'approver_id' => $approver
+                'approver_id' => $approver,
+                'type' => 'resign',
+                'color' => 'bg-primary',
+                'status' => 'pending'
             ];
 
             try {
