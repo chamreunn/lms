@@ -352,6 +352,17 @@ class DepUnit1Controller
             // Handle the GET request to load pending requests
             $leaveRequestModel = new DepUnit1Model();
             $requests = $leaveRequestModel->getAllLeaveRequests();
+
+            // Initialize the UserModel
+            $userModel = new User();
+
+            // Get approver based on role and department
+            $approver = $userModel->getApproverByRole($userModel, $_SESSION['user_id'], $_SESSION['token'], $_SESSION['role'], $_SESSION['departmentName']);
+
+            // Initialize the HoldModel to retrieve any holds for the current user
+            $holdsModel = new HoldModel();
+            $hold = $holdsModel->getHoldByuserId($_SESSION['user_id']);
+
             $leavetypeModel = new Leavetype();
             $leavetypes = $leavetypeModel->getAllLeavetypes();
 
@@ -364,6 +375,9 @@ class DepUnit1Controller
         $leaveRequestModel = new DepUnit1Model();
         $requests = $leaveRequestModel->getapproved($_SESSION['user_id']);
 
+        $leavetypeModel = new Leavetype();
+        $leavetypes = $leavetypeModel->getAllLeavetypes();
+
         require 'src/views/leave/unit1-d/approved.php';
     }
 
@@ -371,6 +385,9 @@ class DepUnit1Controller
     {
         $leaveRequestModel = new DepUnit1Model();
         $requests = $leaveRequestModel->getrejected($_SESSION['user_id']);
+
+        $leavetypeModel = new Leavetype();
+        $leavetypes = $leavetypeModel->getAllLeavetypes();
 
         require 'src/views/leave/unit1-d/rejected.php';
     }
@@ -463,5 +480,52 @@ class DepUnit1Controller
 
         // Return the count of leave requests
         return $result['leave_count'] ?? 0; // Return 0 if the count is not found
+    }
+
+    public function action()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            // Get values from form and session
+            $userId = $_SESSION['user_id'];
+            $holdId = $_POST['holdId'];
+            $approverId = $_POST['approverId'];
+            $action = $_POST['status'];
+            $comment = $_POST['comment'];
+
+            try {
+                // Start transaction
+                $this->pdo->beginTransaction();
+
+                // Create a DepOfficeModel instance and submit approval
+                $leaveApproval = new DepOfficeModel();
+                $leaveApproval->updateHoldApproval($userId, $holdId, $approverId, $action, $comment);
+
+                if ($leaveApproval) {
+                    // Log the error and set error message
+                    $_SESSION['success'] = [
+                        'title' => "លិខិតព្យួរការងារ",
+                        'message' => "អ្នកបាន " . $action . " លើលិខិតព្យួរការងាររួចរាល់។"
+                    ];
+                    header("Location: /elms/dunit1pending");
+                    exit();
+                }
+                // Commit transaction after successful approval update
+                $this->pdo->commit();
+
+            } catch (Exception $e) {
+                // Rollback transaction in case of error
+                $this->pdo->rollBack();
+
+                // Log the error and set error message
+                error_log("Error: " . $e->getMessage());
+                $_SESSION['error'] = [
+                    'title' => "កំហុស",
+                    'message' => "បញ្ហាក្នុងការបញ្ជូនសំណើ: " . $e->getMessage()
+                ];
+                header("Location: /elms/dunit1pending");
+                exit();
+            }
+        }
     }
 }

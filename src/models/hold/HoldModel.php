@@ -420,7 +420,7 @@ class HoldModel
             MAX(a.uploaded_at) AS latest_uploaded_at
             FROM $this->tblholds h
             LEFT JOIN $this->tblholds_attachment a ON h.id = a.hold_id
-            WHERE h.approver_id = :user_id 
+            WHERE h.approver_id = :user_id AND h.status = 'pending'
             GROUP BY h.id
             ORDER BY h.id DESC"; // Changed to h.id for consistency
 

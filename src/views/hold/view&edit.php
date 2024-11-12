@@ -68,14 +68,16 @@ require_once 'src/common/header.php';
                                     <label for="start_date"
                                         class="form-label fw-bold text-primary">ថ្ងៃចាប់ផ្តើម</label>
                                     <input type="text" class="form-control date-picker" id="start_date"
-                                        name="start_date" value="<?= $getHoldById[0]['start_date'] ?? '' ?>" required>
+                                        name="start_date" value="<?= $getHoldById[0]['start_date'] ?? '' ?>"
+                                        <?= ($getHoldById[0]['status'] === 'approved' ? 'disabled' : '') ?> required>
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label for="end_date" class="form-label fw-bold text-primary">ថ្ងៃបញ្ចប់</label>
                                     <input type="text" class="form-control date-picker" id="end_date" name="end_date"
-                                        value="<?= $getHoldById[0]['end_date'] ?? '' ?>" required>
+                                        value="<?= $getHoldById[0]['end_date'] ?? '' ?>"
+                                        <?= ($getHoldById[0]['status'] === 'approved' ? 'disabled' : '') ?> required>
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -97,25 +99,13 @@ require_once 'src/common/header.php';
                         <div class="mb-3">
                             <label for="reason" class="form-label fw-bold text-primary">មូលហេតុ</label>
                             <textarea class="form-control" id="reason" name="reason"
+                                <?= ($getHoldById[0]['status'] === 'approved' ? 'disabled' : '') ?>
                                 required><?= $getHoldById[0]['reason'] ?? '' ?></textarea>
                         </div>
                     </div>
 
                     <!-- Submit and cancel buttons -->
-                    <?php if ($getHoldById[0]['status'] == 'approved'): ?>
-                        <div class="card-footer">
-                            <div class="w-100">
-                                <div class="row">
-                                    <div class="col">
-                                        <button type="submit" class="btn btn-danger w-100 disabled">លុប</button>
-                                    </div>
-                                    <div class="col">
-                                        <button type="submit" class="btn btn-primary w-100 disabled">កែប្រែ</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php else: ?>
+                    <?php if ($getHoldById[0]['status'] !== 'approved'): ?>
                         <div class="card-footer">
                             <div class="w-100">
                                 <div class="row">
@@ -132,7 +122,7 @@ require_once 'src/common/header.php';
                         </div>
                     <?php endif; ?>
                 </form>
-                
+
                 <!-- delete hold modal  -->
                 <div class="modal modal-blur fade" id="deleted<?= $getHoldById[0]['id'] ?? '' ?>" tabindex="-1"
                     role="dialog" aria-hidden="true">
@@ -336,7 +326,7 @@ require_once 'src/common/header.php';
         <div class="col-lg-6 col-sm-12 col-md-12">
             <div class="card border-0">
                 <div class="card-header bg-light d-flex align-items-center justify-content-between">
-                    <h3 class="text-primary mb-0">តាមដានលិខិតព្យួរ</h3>
+                    <h3 class="text-primary mb-0">ការអនុម័ត</h3>
                 </div>
                 <div class="card-body">
                     <ul class="steps steps-vertical">

@@ -193,6 +193,12 @@ date_default_timezone_set('Asia/Bangkok');
                             $requestscount = $leaveRequestModel->pendingCount();
                             $approvedCount = $leaveRequestModel->approvedCount();
                             $rejectedCount = $leaveRequestModel->rejectedCount();
+                            // Load the HoldModel to get count of pending hold requests
+                            $holdModel = new HoldModel();
+                            $pendingHoldsCount = $holdModel->countPendingHoldsByUserId($_SESSION['user_id']);
+
+                            // Total pending count combining leave requests and holds
+                            $totalPendingCount = $requestscount + $pendingHoldsCount;
                             // sidebar and navbar 
                             require 'navbar.php';
                             require 'departments-d/sidebar.php';
@@ -203,6 +209,14 @@ date_default_timezone_set('Asia/Bangkok');
                             $requestscount = $leaveRequestModel->pendingCount();
                             $approvedCount = $leaveRequestModel->approvedCount();
                             $rejectedCount = $leaveRequestModel->rejectedCount();
+
+                            // Load the HoldModel to get count of pending hold requests
+                            $holdModel = new HoldModel();
+                            $pendingHoldsCount = $holdModel->countPendingHoldsByUserId($_SESSION['user_id']);
+
+                            // Total pending count combining leave requests and holds
+                            $totalPendingCount = $requestscount + $pendingHoldsCount;
+
                             $leavetypeModel = new Leavetype();
                             $leavetypes = $leavetypeModel->getAllLeavetypes();
                             $depdepart = $userModel->getEmailLeaderDDApi($_SESSION['user_id'], $_SESSION['token']);
@@ -215,6 +229,13 @@ date_default_timezone_set('Asia/Bangkok');
                             $requestscount = $leaveRequestModel->pendingCount();
                             $approvedCount = $leaveRequestModel->approvedCount();
                             $rejectedCount = $leaveRequestModel->rejectedCount();
+
+                            // Load the HoldModel to get count of pending hold requests
+                            $holdModel = new HoldModel();
+                            $pendingHoldsCount = $holdModel->countPendingHoldsByUserId($_SESSION['user_id']);
+
+                            // Total pending count combining leave requests and holds
+                            $totalPendingCount = $requestscount + $pendingHoldsCount;
                             // sidebar and navbar 
                             require 'navbar.php';
                             require 'unit1-d/sidebar.php';
@@ -224,6 +245,13 @@ date_default_timezone_set('Asia/Bangkok');
                             $requestscount = $leaveRequestModel->pendingCount();
                             $approvedCount = $leaveRequestModel->approvedCount();
                             $rejectedCount = $leaveRequestModel->rejectedCount();
+
+                            // Load the HoldModel to get count of pending hold requests
+                            $holdModel = new HoldModel();
+                            $pendingHoldsCount = $holdModel->countPendingHoldsByUserId($_SESSION['user_id']);
+
+                            // Total pending count combining leave requests and holds
+                            $totalPendingCount = $requestscount + $pendingHoldsCount;
                             // sidebar and navbar 
                             require 'navbar.php';
                             require 'unit2-d/sidebar.php';
@@ -233,6 +261,14 @@ date_default_timezone_set('Asia/Bangkok');
                             $requestscount = $leaveRequestModel->pendingCount();
                             $approvedCount = $leaveRequestModel->approvedCount();
                             $rejectedCount = $leaveRequestModel->rejectedCount();
+
+                            // Load the HoldModel to get count of pending hold requests
+                            $holdModel = new HoldModel();
+                            $pendingHoldsCount = $holdModel->countPendingHoldsByUserId($_SESSION['user_id']);
+
+                            // Total pending count combining leave requests and holds
+                            $totalPendingCount = $requestscount + $pendingHoldsCount;
+
                             // sidebar and navbar 
                             require 'navbar.php';
                             require 'unit-h/sidebar.php';

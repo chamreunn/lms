@@ -290,6 +290,17 @@ class HeadUnitController
             // Handle GET request
             $leaveRequestModel = new HeadUnitModel();
             $requests = $leaveRequestModel->getAllLeaveRequests();
+
+            // Initialize the UserModel
+            $userModel = new User();
+
+            // Get approver based on role and department
+            $approver = $userModel->getApproverByRole($userModel, $_SESSION['user_id'], $_SESSION['token'], $_SESSION['role'], $_SESSION['departmentName']);
+
+            // Initialize the HoldModel to retrieve any holds for the current user
+            $holdsModel = new HoldModel();
+            $hold = $holdsModel->getHoldByuserId($_SESSION['user_id']);
+
             $leavetypeModel = new Leavetype();
             $leavetypes = $leavetypeModel->getAllLeavetypes();
             require 'src/views/leave/unit-h/pending.php';
@@ -301,6 +312,9 @@ class HeadUnitController
         $leaveRequestModel = new HeadUnitModel();
         $requests = $leaveRequestModel->getapproved($_SESSION['user_id']);
 
+        $leavetypeModel = new Leavetype();
+        $leavetypes = $leavetypeModel->getAllLeavetypes();
+
         require 'src/views/leave/unit-h/approved.php';
     }
 
@@ -309,15 +323,10 @@ class HeadUnitController
         $leaveRequestModel = new HeadUnitModel();
         $requests = $leaveRequestModel->getrejected($_SESSION['user_id']);
 
+        $leavetypeModel = new Leavetype();
+        $leavetypes = $leavetypeModel->getAllLeavetypes();
+
         require 'src/views/leave/unit-h/rejected.php';
-    }
-
-    public function viewCalendar()
-    {
-        $leaveRequestModel = new LeaveRequest();
-        $leaves = $leaveRequestModel->getAllLeaves();
-
-        require 'src/views/leave/calendar.php';
     }
 
     public function delete($id)
@@ -336,66 +345,6 @@ class HeadUnitController
         }
         header("Location: /elms/hunitLeave");
         exit();
-    }
-
-    public function pendingCount()
-    {
-        // Prepare the SQL statement to count leave requests with the given criteria
-        $stmt = $this->pdo->prepare('SELECT COUNT(*) as leave_count FROM leave_requests 
-    WHERE dhead_department IN (?, ?)
-    AND head_department = ?
-    AND position IN (?, ?, ?, ?)
-    AND department = ?
-    AND user_id != ?');
-
-        // Execute the query with the session values
-        $stmt->execute(['Approved', 'Rejected', 'Pending', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', $_SESSION['departmentName'], $_SESSION['user_id']]);
-
-        // Fetch the result as an associative array
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        // Return the count of leave requests
-        return $result['leave_count'] ?? 0; // Return 0 if the count is not found
-    }
-
-    public function rejectedCount()
-    {
-        // Prepare the SQL statement to count leave requests with the given criteria
-        $stmt = $this->pdo->prepare('SELECT COUNT(*) as leave_count FROM leave_requests 
-         WHERE dhead_department IN (?, ?)
-         AND head_department = ?
-         AND position IN (?, ?, ?, ?)
-         AND department = ?
-         AND user_id != ?');
-
-        // Execute the query with the session values
-        $stmt->execute(['Approved', 'Rejected', 'Rejected', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', $_SESSION['departmentName'], $_SESSION['user_id']]);
-
-        // Fetch the result as an associative array
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        // Return the count of leave requests
-        return $result['leave_count'] ?? 0; // Return 0 if the count is not found
-    }
-
-    public function approvedCount()
-    {
-        // Prepare the SQL statement to count leave requests with the given criteria
-        $stmt = $this->pdo->prepare('SELECT COUNT(*) as leave_count FROM leave_requests 
-    WHERE dhead_department IN (?, ?)
-    AND head_department = ?
-    AND position IN (?, ?, ?, ?)
-    AND department = ?
-    AND user_id != ?');
-
-        // Execute the query with the session values
-        $stmt->execute(['Approved', 'Rejected', 'Approved', 'មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល', 'អនុប្រធានការិយាល័យ', 'ប្រធានការិយាល័យ', $_SESSION['departmentName'], $_SESSION['user_id']]);
-
-        // Fetch the result as an associative array
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        // Return the count of leave requests
-        return $result['leave_count'] ?? 0; // Return 0 if the count is not found
     }
 
     public function displayAttendances()
@@ -458,5 +407,52 @@ class HeadUnitController
 
         // Load the view and pass the fetched data
         require 'src/views/leave/calendar.php';
+    }
+
+    public function action()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            // Get values from form and session
+            $userId = $_SESSION['user_id'];
+            $holdId = $_POST['holdId'];
+            $approverId = $_POST['approverId'];
+            $action = $_POST['status'];
+            $comment = $_POST['comment'];
+
+            try {
+                // Start transaction
+                $this->pdo->beginTransaction();
+
+                // Create a DepOfficeModel instance and submit approval
+                $leaveApproval = new HeadUnitModel();
+                $leaveApproval->updateHoldApproval($userId, $holdId, $approverId, $action, $comment);
+
+                if ($leaveApproval) {
+                    // Log the error and set error message
+                    $_SESSION['success'] = [
+                        'title' => "លិខិតព្យួរការងារ",
+                        'message' => "អ្នកបាន " . $action . " លើលិខិតព្យួរការងាររួចរាល់។"
+                    ];
+                    header("Location: /elms/hunitpending");
+                    exit();
+                }
+                // Commit transaction after successful approval update
+                $this->pdo->commit();
+
+            } catch (Exception $e) {
+                // Rollback transaction in case of error
+                $this->pdo->rollBack();
+
+                // Log the error and set error message
+                error_log("Error: " . $e->getMessage());
+                $_SESSION['error'] = [
+                    'title' => "កំហុស",
+                    'message' => "បញ្ហាក្នុងការបញ្ជូនសំណើ: " . $e->getMessage()
+                ];
+                header("Location: /elms/hunitpending");
+                exit();
+            }
+        }
     }
 }

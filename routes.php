@@ -369,6 +369,43 @@ switch ($uri) {
             $controller->action();
         });
         break;
+    case $base_url . '/hoactionhold':
+        checkSessionAndExecute(function () {
+            $controller = new HeadOfficeController();
+            $controller->action();
+        });
+        break;
+    case $base_url . '/ddactionhold':
+        checkSessionAndExecute(function () {
+            $controller = new DepDepartmentController();
+            $controller->action();
+        });
+        break;
+    case $base_url . '/hdactionhold':
+        checkSessionAndExecute(function () {
+            $controller = new HeadDepartmentController();
+            $controller->action();
+        });
+        break;
+    case $base_url . '/du1actionhold':
+        checkSessionAndExecute(function () {
+            $controller = new DepUnit1Controller();
+            $controller->action();
+        });
+        break;
+    case $base_url . '/du2actionhold':
+        checkSessionAndExecute(function () {
+            $controller = new DepUnit2Controller();
+            $controller->action();
+        });
+        break;
+
+    case $base_url . '/huactionhold':
+        checkSessionAndExecute(function () {
+            $controller = new HeadUnitController();
+            $controller->action();
+        });
+        break;
 
     case $base_url . '/headofficepending':
         checkSessionAndExecute(function () {

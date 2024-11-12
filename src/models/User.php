@@ -1420,6 +1420,9 @@ class User
         $approver = null;
 
         switch ($role) {
+            case 'NULL':
+                $approver = $userModel->getEmailLeaderDOApi($userId, $token);
+                break;
             case 'Deputy Head Of Office':
                 $approver = $userModel->getEmailLeaderHOApi($userId, $token);
                 break;
@@ -1436,8 +1439,14 @@ class User
                     $approver = $userModel->getEmailLeaderDHU2Api($userId, $token);
                 }
                 break;
+            case 'Deputy Head Of Unit 1':
+                $approver = $userModel->getEmailLeaderHUApi($userId, $token);
+                break;
+            case 'Deputy Head Of Unit 2':
+                $approver = $userModel->getEmailLeaderHUApi($userId, $token);
+                break;
             default:
-                $approver = $userModel->getEmailLeaderDOApi($userId, $token);
+                $approver = $userModel->getEmailLeaderHUApi($userId, $token);
                 break;
         }
 

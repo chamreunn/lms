@@ -1665,7 +1665,6 @@ class DepOfficeModel
         }
     }
 
-
     public function updateResignApproval($userId, $resignId, $approverId, $action, $comment)
     {
         try {
