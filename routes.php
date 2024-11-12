@@ -369,7 +369,6 @@ switch ($uri) {
             $controller->action();
         });
         break;
-<<<<<<< HEAD
     case $base_url . '/hoactionhold':
         checkSessionAndExecute(function () {
             $controller = new HeadOfficeController();
@@ -407,15 +406,12 @@ switch ($uri) {
             $controller->action();
         });
         break;
-
-=======
     case $base_url . '/actionresign':
         checkSessionAndExecute(function () {
             $controller = new DepOfficeController();
             $controller->actionResign();
         });
         break;
->>>>>>> 762639e9a41658e76ba376c3517690fb2f303473
     case $base_url . '/headofficepending':
         checkSessionAndExecute(function () {
             $controller = new HeadOfficeController();
