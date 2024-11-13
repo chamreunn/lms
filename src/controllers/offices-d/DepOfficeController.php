@@ -401,6 +401,10 @@ class DepOfficeController
             $resignsModel = new ResignModel();
             $resign = $resignsModel->getResignByuserId($_SESSION['user_id']);
 
+            // Initialize the HoldModel to retrieve any holds for the current user
+            $transferoutModel = new TransferoutModel();
+            $transferouts = $transferoutModel->getTransferoutById($_SESSION['user_id']);
+
             // Initialize the LeaveType model and retrieve all leave types
             $leavetypeModel = new Leavetype();
             $leavetypes = $leavetypeModel->getAllLeavetypes();

@@ -8,8 +8,9 @@ class TransferoutModel
 
     private $pdo;
 
-    public function __construct($pdo)
+    public function __construct()
     {
+        global $pdo;
         $this->pdo = $pdo; // Inject the global PDO object
     }
 

@@ -1419,6 +1419,7 @@ class User
     {
         $approver = null;
 
+        // Initial assignment based on role
         switch ($role) {
             case 'NULL':
                 $approver = $userModel->getEmailLeaderDOApi($userId, $token);
@@ -1440,8 +1441,6 @@ class User
                 }
                 break;
             case 'Deputy Head Of Unit 1':
-                $approver = $userModel->getEmailLeaderHUApi($userId, $token);
-                break;
             case 'Deputy Head Of Unit 2':
                 $approver = $userModel->getEmailLeaderHUApi($userId, $token);
                 break;
@@ -1450,19 +1449,32 @@ class User
                 break;
         }
 
-        // Fallback logic if the approver is unavailable
-        $hierarchicalLevels = [
-            'HO' => 'getEmailLeaderHOApi',
-            'DD' => 'getEmailLeaderDDApi',
-            'HD' => 'getEmailLeaderHDApi',
-            'DHU1' => 'getEmailLeaderDHU1Api',
-            'DHU2' => 'getEmailLeaderDHU2Api',
-            'HU' => 'getEmailLeaderHUApi'
+        // Define the fallback hierarchy for each role to ensure the correct order is followed
+        $fallbackHierarchy = [
+            'NULL' => ['getEmailLeaderDOApi'],
+            'Deputy Head Of Office' => ['getEmailLeaderHOApi'],
+            'Head Of Office' => ['getEmailLeaderDDApi'],
+            'Deputy Head Of Department' => ['getEmailLeaderHDApi'],
+            'Head Of Department' => $departmentName === 'នាយកដ្ឋានកិច្ចការទូទៅ' || $departmentName === 'នាយកដ្ឋានសវនកម្មទី២'
+                ? ['getEmailLeaderDHU1Api']
+                : ['getEmailLeaderDHU2Api'],
+            'Deputy Head Of Unit 1' => ['getEmailLeaderHUApi'],
+            'Deputy Head Of Unit 2' => ['getEmailLeaderHUApi'],
+            'default' => ['getEmailLeaderHUApi']
         ];
 
-        foreach ($hierarchicalLevels as $level => $method) {
+        // If the assigned approver is unavailable, follow the hierarchy for their role
+        $roleKey = array_key_exists($role, $fallbackHierarchy) ? $role : 'default';
+        $fallbackMethods = $fallbackHierarchy[$roleKey];
+
+        foreach ($fallbackMethods as $method) {
             if ($approver && ($userModel->isManagerOnLeaveToday($approver['ids']) || $userModel->isManagerOnMission($approver['ids']))) {
                 $approver = $userModel->$method($userId, $token);
+            }
+
+            // Break if an available approver is found
+            if ($approver && !$userModel->isManagerOnLeaveToday($approver['ids']) && !$userModel->isManagerOnMission($approver['ids'])) {
+                break;
             }
         }
 
