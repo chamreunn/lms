@@ -887,6 +887,9 @@ class User
             $ids = [];
             $firstNameKh = [];
             $lastNameKh = [];
+            $image = [];
+            $roleName = [];
+            $departmentName = [];
 
             foreach ($leaders as $leader) {
                 if (isset($leader['roleName']) && $leader['roleName'] === 'ប្រធានការិយាល័យ') {
@@ -2193,5 +2196,4 @@ class User
         $stmt->execute([':user_id' => $userId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-
 }
