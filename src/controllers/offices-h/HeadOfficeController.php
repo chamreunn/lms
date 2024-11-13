@@ -423,6 +423,9 @@ class HeadOfficeController
             $holdsModel = new HoldModel();
             $hold = $holdsModel->getHoldByuserId($_SESSION['user_id']);
 
+            $resignsModel = new ResignModel();
+            $resigns = $resignsModel->getResignByuserId($_SESSION['user_id']);
+
             $leavetypeModel = new Leavetype();
             $leavetypes = $leavetypeModel->getAllLeavetypes();
 
@@ -522,7 +525,52 @@ class HeadOfficeController
                 }
                 // Commit transaction after successful approval update
                 $this->pdo->commit();
+            } catch (Exception $e) {
+                // Rollback transaction in case of error
+                $this->pdo->rollBack();
 
+                // Log the error and set error message
+                error_log("Error: " . $e->getMessage());
+                $_SESSION['error'] = [
+                    'title' => "កំហុស",
+                    'message' => "បញ្ហាក្នុងការបញ្ជូនសំណើ: " . $e->getMessage()
+                ];
+                header("Location: /elms/headofficepending");
+                exit();
+            }
+        }
+    }
+
+    public function actionResign()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            // Get values from form and session
+            $userId = $_SESSION['user_id'];
+            $resignId = $_POST['resignId'];
+            $approverId = $_POST['approverId'];
+            $action = $_POST['status'];
+            $comment = $_POST['comment'];
+
+            try {
+                // Start transaction
+                $this->pdo->beginTransaction();
+
+                // Create a DepOfficeModel instance and submit approval
+                $leaveApproval = new DepOfficeModel();
+                $leaveApproval->updateResignApproval($userId, $resignId, $approverId, $action, $comment);
+
+                if ($leaveApproval) {
+                    // Log the error and set error message
+                    $_SESSION['success'] = [
+                        'title' => "លិខិតលាឈប់",
+                        'message' => "អ្នកបាន " . $action . " លើលិខិតលិខិតលាឈប់រួចរាល់។"
+                    ];
+                    header("Location: /elms/headofficepending");
+                    exit();
+                }
+                // Commit transaction after successful approval update
+                $this->pdo->commit();
             } catch (Exception $e) {
                 // Rollback transaction in case of error
                 $this->pdo->rollBack();

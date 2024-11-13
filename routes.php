@@ -412,6 +412,12 @@ switch ($uri) {
             $controller->actionResign();
         });
         break;
+    case $base_url . '/hoactionresign':
+        checkSessionAndExecute(function () {
+            $controller = new HeadOfficeController();
+            $controller->actionResign();
+        });
+        break;
     case $base_url . '/headofficepending':
         checkSessionAndExecute(function () {
             $controller = new HeadOfficeController();
