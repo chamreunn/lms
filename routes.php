@@ -35,6 +35,7 @@ $controllers = [
     'src/controllers/transferout/TransferoutController.php',
     'src/controllers/resign/ResignController.php',
     'src/controllers/backwork/BackworkController.php',
+    'src/controllers/attendance/AttendanceController.php',
 ];
 
 // Require all controllers
@@ -579,6 +580,30 @@ switch ($uri) {
     case $base_url . '/holidays':
         checkSessionAndExecute(function () {
             $controller = new CalendarController();
+            $controller->index();
+        });
+        break;
+    case $base_url . '/qrcode':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->indexQR();
+        });
+        break;
+    case $base_url . '/generateQR':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->generate();
+        });
+        break;
+    case $base_url . '/deleteQR':
+        checkSessionAndExecute(function () {
+            $controller = new AdminController();
+            $controller->deleteQR();
+        });
+        break;
+    case $base_url . '/attendanceCheck':
+        checkSessionAndExecute(function () {
+            $controller = new AttendanceController();
             $controller->index();
         });
         break;

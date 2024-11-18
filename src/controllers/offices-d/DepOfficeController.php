@@ -391,7 +391,7 @@ class DepOfficeController
             $userModel = new User();
 
             // Get approver based on role and department
-            $approver = $userModel->getApproverByRole($userModel, $_SESSION['user_id'], $_SESSION['token'], $_SESSION['role'], $_SESSION['departmentName']);
+            $approver = $userModel->getApproverByRoleWithoutAvailabilityCheck($userModel, $_SESSION['user_id'], $_SESSION['token'], $_SESSION['role'], $_SESSION['departmentName']);
 
             // Initialize the HoldModel to retrieve any holds for the current user
             $holdsModel = new HoldModel();
@@ -400,10 +400,6 @@ class DepOfficeController
             // Initialize the HoldModel to retrieve any holds for the current user
             $resignsModel = new ResignModel();
             $resign = $resignsModel->getResignByuserId($_SESSION['user_id']);
-
-            // Initialize the HoldModel to retrieve any holds for the current user
-            $transferoutModel = new TransferoutModel();
-            $transferouts = $transferoutModel->getTransferoutById($_SESSION['user_id']);
 
             // Initialize the LeaveType model and retrieve all leave types
             $leavetypeModel = new Leavetype();

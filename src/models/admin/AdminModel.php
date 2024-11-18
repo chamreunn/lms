@@ -7,15 +7,15 @@ class AdminModel
 {
     private $pdo;
 
-    private $table_name = "late_in_out";
+    protected $table_name = "late_in_out";
 
-    private $lateApproval = "late_approvals";
+    protected $lateApproval = "late_approvals";
 
-    private $approval = "leave_approvals";
+    protected $approval = "leave_approvals";
 
-    private $leaveRequest = "leave_requests";
+    protected $leaveRequest = "leave_requests";
 
-    private $table = "missions";
+    protected $table = "missions";
 
     public function __construct()
     {

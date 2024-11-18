@@ -1,9 +1,18 @@
 <?php
+require_once 'vendor/autoload.php';
 require_once 'src/models/admin/AdminModel.php';
 require_once 'src/models/telegram/TelegramModel.php';
-require_once 'src/vendor/autoload.php'; // Ensure PHPMailer is autoloaded
+require_once 'src/models/qrcode/QrModel.php';
+// Ensure PHPMailer is autoloaded
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\Color\Color;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\Logo\Logo;
 
 class AdminController
 {
@@ -1285,5 +1294,216 @@ class AdminController
         $getMissions = $adminModel->getMissions();
 
         require 'src/views/attendence/adminAttendance.php';
+    }
+
+    public function indexQR()
+    {
+        // Retrieve the QR code data from the database
+        $qrModel = new QrModel();
+        $qrCodeData = $qrModel->getQRCodeByName();
+
+        if ($qrCodeData) {
+            // Pass the QR code's base64 data to the view
+            $qrCodeBase64 = $qrCodeData['image'];
+            $qrCodeBase64s = "data:image/png;base64," . $qrCodeBase64;
+            $url = $qrCodeData['url'];
+            $name = $qrCodeData['name'];
+            $qrCodeFound = true; // Flag to indicate QR code was found
+            $ids = $qrCodeData['id'];
+        } else {
+            $qrCodeBase64 = null;
+            $qrCodeFound = false; // Flag to indicate QR code was not found
+        }
+
+        // Include the view to display the QR code
+        require 'src/views/QRCode/qrcode.php';
+    }
+
+    public function generate()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $url = $_POST['url'];
+            $userId = $_POST['userId'];
+            $name = $_POST['name'];
+            $size = (int) $_POST['size'];
+            $latitude = $_POST['latitude'];  // Get the latitude from the form
+            $longitude = $_POST['longitude']; // Get the longitude from the form
+            $logoPath = null;
+
+            // Check if a logo is uploaded
+            if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
+                $fileType = mime_content_type($_FILES['logo']['tmp_name']);
+                $allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+
+                if (in_array($fileType, $allowedTypes)) {
+                    if (!is_dir('public/uploads/qrcodes')) {
+                        mkdir('public/uploads/qrcodes', 0777, true);
+                    }
+                    $logoPath = 'public/uploads/qrcodes/' . basename($_FILES['logo']['name']);
+                    move_uploaded_file($_FILES['logo']['tmp_name'], $logoPath);
+
+                    // Resize the logo
+                    $logoPath = $this->resizeLogo($logoPath, $size);
+                } else {
+                    $_SESSION['error'] = [
+                        'title' => "Invalid File Type",
+                        'message' => "Only PNG and JPEG files are allowed for logos."
+                    ];
+                    header("Location: /elms/qrcode");
+                    exit();
+                }
+            } else {
+                $logoPath = 'public/img/icons/brands/logo2.png';
+                // Resize the logo
+                $logoPath = $this->resizeLogo($logoPath, $size);
+            }
+
+            // Generate QR Code with specified size and resized logo
+            $qrCodeImage = $this->generateQRCodeWithLogo($url, $size, $logoPath);
+
+            // Convert the QR code image to a base64 string for database insertion
+            $qrCodeBase64 = base64_encode($qrCodeImage);
+
+            // Save QR code data and location to the database
+            try {
+                $adminModel = new QrModel();
+                $generated = $adminModel->createQR($url, $userId, $name, $qrCodeBase64, $latitude, $longitude);
+
+                if ($generated) {
+                    $_SESSION['success'] = [
+                        'title' => "Generate QR Code",
+                        'message' => "QR code generated and saved successfully."
+                    ];
+
+                    // Pass the base64 string to the view
+                    $_SESSION['qrCodeBase64'] = $qrCodeBase64;
+
+                    header("Location: /elms/qrcode");
+                    exit();
+                }
+            } catch (PDOException $e) {
+                $_SESSION['error'] = [
+                    'title' => "Error",
+                    'message' => "Could not generate QR code. " . $e->getMessage()
+                ];
+                header("Location: /elms/qrcode");
+                exit();
+            }
+        }
+    }
+
+    private function resizeLogo($logoPath, $qrCodeSize)
+    {
+        // Load the logo image
+        list($logoWidth, $logoHeight, $imageType) = getimagesize($logoPath);
+
+        // Set the desired width for the logo (adjust based on QR code size)
+        $logoMaxWidth = $qrCodeSize * 0.3; // Resize logo to 20% of QR code size
+        $logoMaxHeight = $qrCodeSize * 0.3; // Resize logo to 20% of QR code size
+
+        // Calculate the new dimensions while maintaining the aspect ratio
+        $ratio = min($logoMaxWidth / $logoWidth, $logoMaxHeight / $logoHeight);
+        $newWidth = floor($logoWidth * $ratio);
+        $newHeight = floor($logoHeight * $ratio);
+
+        // Create a new image resource for the resized logo
+        $resizedLogo = imagecreatetruecolor($newWidth, $newHeight);
+
+        // Create an image from the original logo based on its type
+        switch ($imageType) {
+            case IMAGETYPE_PNG:
+                $source = imagecreatefrompng($logoPath);
+                break;
+            case IMAGETYPE_JPEG:
+                $source = imagecreatefromjpeg($logoPath);
+                break;
+            default:
+                // Invalid file type
+                return $logoPath;
+        }
+
+        // Resize the logo
+        imagecopyresampled($resizedLogo, $source, 0, 0, 0, 0, $newWidth, $newHeight, $logoWidth, $logoHeight);
+
+        // Save the resized logo
+        $resizedLogoPath = 'public/uploads/qrcodes/resized_' . basename($logoPath);
+        imagepng($resizedLogo, $resizedLogoPath);
+
+        // Clean up
+        imagedestroy($source);
+        imagedestroy($resizedLogo);
+
+        return $resizedLogoPath;
+    }
+
+
+    public function generateQRCodeWithLogo($text, $size, $logoPath)
+    {
+        // Use the enum case ErrorCorrectionLevel::High directly
+        $qrCode = new QrCode(
+            data: $text,
+            encoding: new Encoding('UTF-8'),
+            errorCorrectionLevel: ErrorCorrectionLevel::High, // Use the enum case directly
+            size: $size,
+            margin: 10,
+            foregroundColor: new Color(0, 0, 0),
+            backgroundColor: new Color(255, 255, 255)
+        );
+
+        // Initialize a writer for the PNG format
+        $writer = new PngWriter();
+
+        // Correct instantiation for Logo
+        $logo = null;
+        if ($logoPath && file_exists($logoPath)) {
+            $logo = new Logo($logoPath); // Instantiate directly, no create method
+            $logo->getResizeToWidth();
+        }
+
+        // Generate the QR code with the optional logo
+        $result = $writer->write($qrCode, $logo);
+
+        // Return the QR code as a binary PNG string
+        return $result->getString();
+    }
+
+    public function deleteQR()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Collect form data
+            $id = $_POST['id'];
+
+            // Validate that the ID is provided
+            if (!empty($id)) {
+                // Call model to delete holiday
+                $qrcode = new QrModel();
+                $success = $qrcode->deleteQRCode($id);
+
+                if ($success) {
+                    // Redirect or show success message
+                    $_SESSION['success'] = [
+                        'title' => "ជោគជ័យ",
+                        'message' => "លុបបានជោគជ័យ។"
+                    ];
+                    header("Location: /elms/qrcode");
+                    exit();
+                } else {
+                    // Handle the error case
+                    $_SESSION['error'] = [
+                        'title' => "បរាជ័យ",
+                        'message' => "មិនអាចលុបបានទេ។"
+                    ];
+                    header("Location: /elms/qrcode");
+                    exit();
+                }
+            } else {
+                $_SESSION['error'] = [
+                    'title' => "បរាជ័យ",
+                    'message' => "សូមផ្តល់ ID ថ្ងៃឈប់សម្រាក។"
+                ];
+                header("Location: /elms/qrcode");
+                exit();
+            }
+        }
     }
 }

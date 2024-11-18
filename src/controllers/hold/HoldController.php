@@ -556,7 +556,7 @@ class HoldController
             $userModel = new User();
 
             // Get approver based on role and department
-            $approver = $userModel->getApproverByRole($userModel, $_SESSION['user_id'], $_SESSION['token'], $_SESSION['role'], $_SESSION['departmentName']);
+            $approver = $userModel->getApproverByRole($userModel, $_SESSION['user_id'], $_SESSION['token'], $_SESSION['position'], $_SESSION['departmentName']);
 
             // Fetch the total number of records to calculate the total pages for pagination
             $totalRecords = $holdModel->getHoldsCountById();

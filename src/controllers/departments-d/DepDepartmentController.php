@@ -312,7 +312,7 @@ class DepDepartmentController
                     : null;
 
                 if (!$managerId || !$managerEmail) {
-                    throw new Exception("No valid manager details found.");
+                    throw new Exception("No valid manager details found."); 
                 }
 
                 // Check if the manager is on leave or mission today
@@ -408,9 +408,6 @@ class DepDepartmentController
             // Initialize the HoldModel to retrieve any holds for the current user
             $holdsModel = new HoldModel();
             $hold = $holdsModel->getHoldByuserId($_SESSION['user_id']);
-
-            $resignsModel = new ResignModel();
-            $resigns = $resignsModel->getResignByuserId($_SESSION['user_id']);
 
             $leavetypeModel = new Leavetype();
             $leavetypes = $leavetypeModel->getAllLeavetypes();

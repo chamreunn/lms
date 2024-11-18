@@ -19,7 +19,7 @@ date_default_timezone_set('Asia/Bangkok');
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title><?php echo $title ?? "No Title" ?></title>
+    <title><?= $title ?? "No Title" ?></title>
     <link rel="icon" href="public/img/favicon/favicon.ico" type="image/x-icon" />
     <link rel="shortcut icon" href="public/img/favicon/favicon.ico" type="image/x-icon" />
     <!-- CSS -->
@@ -298,7 +298,7 @@ date_default_timezone_set('Asia/Bangkok');
 
         <div class="page-wrapper">
             <!-- Page header -->
-            <?php echo $pageheader ?? "" ?>
+            <?= $pageheader ?? "" ?>
             <!-- Page body -->
             <div class="page-body">
                 <div class="container-xl">

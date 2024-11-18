@@ -887,9 +887,6 @@ class User
             $ids = [];
             $firstNameKh = [];
             $lastNameKh = [];
-            $image = [];
-            $roleName = [];
-            $departmentName = [];
 
             foreach ($leaders as $leader) {
                 if (isset($leader['roleName']) && $leader['roleName'] === 'ប្រធានការិយាល័យ') {
@@ -1097,6 +1094,21 @@ class User
                     if (isset($leader['lastNameKh'])) {
                         $lastNameKh[] = $leader['lastNameKh'];
                     }
+                    if (isset($leader['image'])) {
+                        $image[] = $leader['image'];
+                    } else {
+                        $image[] = ''; // Fallback to empty if the field is not present
+                    }
+                    if (isset($leader['roleName'])) {
+                        $roleName[] = $leader['roleName'];
+                    } else {
+                        $roleName[] = ''; // Fallback to empty if the field is not present
+                    }
+                    if (isset($leader['departmentName'])) {
+                        $departmentName[] = $leader['departmentName'];
+                    } else {
+                        $departmentName[] = ''; // Fallback to empty if the field is not present
+                    }
                 }
             }
 
@@ -1110,6 +1122,9 @@ class User
                 'ids' => $ids,
                 'firstNameKh' => $firstNameKh,
                 'lastNameKh' => $lastNameKh,
+                'image' => $image,
+                'roleName' => $roleName,
+                'departmentName' => $departmentName,
             ];
         } else {
             error_log("Unexpected API Response: " . print_r($responseData, true));
@@ -1175,6 +1190,21 @@ class User
                     if (isset($leader['lastNameKh'])) {
                         $lastNameKh[] = $leader['lastNameKh'];
                     }
+                    if (isset($leader['image'])) {
+                        $image[] = $leader['image'];
+                    } else {
+                        $image[] = ''; // Fallback to empty if the field is not present
+                    }
+                    if (isset($leader['roleName'])) {
+                        $roleName[] = $leader['roleName'];
+                    } else {
+                        $roleName[] = ''; // Fallback to empty if the field is not present
+                    }
+                    if (isset($leader['departmentName'])) {
+                        $departmentName[] = $leader['departmentName'];
+                    } else {
+                        $departmentName[] = ''; // Fallback to empty if the field is not present
+                    }
                 }
             }
 
@@ -1188,6 +1218,9 @@ class User
                 'ids' => $ids,
                 'firstNameKh' => $firstNameKh,
                 'lastNameKh' => $lastNameKh,
+                'image' => $image,
+                'roleName' => $roleName,
+                'departmentName' => $departmentName,
             ];
         } else {
             error_log("Unexpected API Response: " . print_r($responseData, true));
@@ -1252,6 +1285,21 @@ class User
                     if (isset($leader['lastNameKh'])) {
                         $lastNameKh[] = $leader['lastNameKh'];
                     }
+                    if (isset($leader['image'])) {
+                        $image[] = $leader['image'];
+                    } else {
+                        $image[] = ''; // Fallback to empty if the field is not present
+                    }
+                    if (isset($leader['roleName'])) {
+                        $roleName[] = $leader['roleName'];
+                    } else {
+                        $roleName[] = ''; // Fallback to empty if the field is not present
+                    }
+                    if (isset($leader['departmentName'])) {
+                        $departmentName[] = $leader['departmentName'];
+                    } else {
+                        $departmentName[] = ''; // Fallback to empty if the field is not present
+                    }
                 }
             }
 
@@ -1265,6 +1313,9 @@ class User
                 'ids' => $ids,
                 'firstNameKh' => $firstNameKh,
                 'lastNameKh' => $lastNameKh,
+                'image' => $image,
+                'roleName' => $roleName,
+                'departmentName' => $departmentName,
             ];
         } else {
             error_log("Unexpected API Response: " . print_r($responseData, true));
@@ -1329,6 +1380,21 @@ class User
                     if (isset($leader['lastNameKh'])) {
                         $lastNameKh[] = $leader['lastNameKh'];
                     }
+                    if (isset($leader['image'])) {
+                        $image[] = $leader['image'];
+                    } else {
+                        $image[] = ''; // Fallback to empty if the field is not present
+                    }
+                    if (isset($leader['roleName'])) {
+                        $roleName[] = $leader['roleName'];
+                    } else {
+                        $roleName[] = ''; // Fallback to empty if the field is not present
+                    }
+                    if (isset($leader['departmentName'])) {
+                        $departmentName[] = $leader['departmentName'];
+                    } else {
+                        $departmentName[] = ''; // Fallback to empty if the field is not present
+                    }
                 }
             }
 
@@ -1342,6 +1408,9 @@ class User
                 'ids' => $ids,
                 'firstNameKh' => $firstNameKh,
                 'lastNameKh' => $lastNameKh,
+                'image' => $image,
+                'roleName' => $roleName,
+                'departmentName' => $departmentName,
             ];
         } else {
             error_log("Unexpected API Response: " . print_r($responseData, true));
@@ -1478,6 +1547,74 @@ class User
             // Break if an available approver is found
             if ($approver && !$userModel->isManagerOnLeaveToday($approver['ids']) && !$userModel->isManagerOnMission($approver['ids'])) {
                 break;
+            }
+        }
+
+        return $approver;
+    }
+
+
+    public function getApproverByRoleWithoutAvailabilityCheck($userModel, $userId, $token, $role, $departmentName)
+    {
+        $approver = null;
+
+        // Initial assignment based on role
+        switch ($role) {
+            case 'NULL':
+                $approver = $userModel->getEmailLeaderDOApi($userId, $token);
+                break;
+            case 'Deputy Head Of Office':
+                $approver = $userModel->getEmailLeaderHOApi($userId, $token);
+                break;
+            case 'Head Of Office':
+                $approver = $userModel->getEmailLeaderDDApi($userId, $token);
+                break;
+            case 'Deputy Head Of Department':
+                $approver = $userModel->getEmailLeaderHDApi($userId, $token);
+                break;
+            case 'Head Of Department':
+                if (in_array($departmentName, ['នាយកដ្ឋានកិច្ចការទូទៅ', 'នាយកដ្ឋានសវនកម្មទី២'])) {
+                    $approver = $userModel->getEmailLeaderDHU1Api($userId, $token);
+                } else {
+                    $approver = $userModel->getEmailLeaderDHU2Api($userId, $token);
+                }
+                break;
+            case 'Deputy Head Of Unit 1':
+            case 'Deputy Head Of Unit 2':
+                $approver = $userModel->getEmailLeaderHUApi($userId, $token);
+                break;
+            default:
+                $approver = $userModel->getEmailLeaderHUApi($userId, $token);
+                break;
+        }
+
+        // Define fallback hierarchy for each role
+        $fallbackHierarchy = [
+            'NULL' => ['getEmailLeaderHOApi', 'getEmailLeaderDDApi', 'getEmailLeaderHDApi'],
+            'Deputy Head Of Office' => ['getEmailLeaderDDApi', 'getEmailLeaderHDApi', 'getEmailLeaderHUApi'],
+            'Head Of Office' => ['getEmailLeaderDDApi', 'getEmailLeaderHDApi', 'getEmailLeaderHOApi'],
+            'Deputy Head Of Department' => ['getEmailLeaderHDApi', 'getEmailLeaderHOApi', 'getEmailLeaderDDApi'],
+            'Head Of Department' => $departmentName === 'នាយកដ្ឋានកិច្ចការទូទៅ' || $departmentName === 'នាយកដ្ឋានសវនកម្មទី២'
+                ? ['getEmailLeaderDHU1Api', 'getEmailLeaderHOApi']
+                : ['getEmailLeaderDHU2Api', 'getEmailLeaderHOApi'],
+            'Deputy Head Of Unit 1' => ['getEmailLeaderHUApi', 'getEmailLeaderHOApi'],
+            'Deputy Head Of Unit 2' => ['getEmailLeaderHUApi', 'getEmailLeaderHOApi'],
+            'default' => ['getEmailLeaderHUApi']
+        ];
+
+        // Apply fallback without checking for leave or mission
+        if (!$approver) {
+            // Get the fallback methods for the role
+            $roleKey = array_key_exists($role, $fallbackHierarchy) ? $role : 'default';
+            $fallbackMethods = $fallbackHierarchy[$roleKey];
+
+            foreach ($fallbackMethods as $method) {
+                $approver = $userModel->$method($userId, $token);
+
+                // Stop once the next fallback approver is assigned
+                if ($approver) {
+                    break;
+                }
             }
         }
 
@@ -2208,4 +2345,5 @@ class User
         $stmt->execute([':user_id' => $userId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
 }

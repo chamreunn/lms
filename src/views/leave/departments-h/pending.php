@@ -395,7 +395,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 
                             <input type="hidden" name="holdId" value="<?= $holds['id'] ?>">
 
-                            <div class="col-12" hidden>
+                            <div class="col-12" >
                                 <label class="form-label fw-bold">អ្នកអនុម័ត
                                     <span class="text-danger mx-1 fw-bold">*</span>
                                 </label>

@@ -92,6 +92,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     return $translatedDate;
 }
 ?>
+
 <div class="card rounded-3">
     <div class="card-header">
         <div class="d-flex align-items-center justify-content-between">
@@ -200,82 +201,5 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </ul>
     </div>
 </div>
+
 <?php include('src/common/footer.php'); ?>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var el;
-        window.TomSelect && (new TomSelect(el = document.getElementById('select-filter'), {
-            copyClassesToDropdown: false,
-            dropdownClass: 'dropdown-menu ts-dropdown',
-            optionClass: 'dropdown-item',
-            controlInput: '<input>',
-            render: {
-                item: function(data, escape) {
-                    if (data.customProperties) {
-                        return '<div><span class="dropdown-item-indicator">' + data.customProperties + '</span>' + escape(data.text) + '</div>';
-                    }
-                    return '<div>' + escape(data.text) + '</div>';
-                },
-                option: function(data, escape) {
-                    if (data.customProperties) {
-                        return '<div><span class="dropdown-item-indicator">' + data.customProperties + '</span>' + escape(data.text) + '</div>';
-                    }
-                    return '<div>' + escape(data.text) + '</div>';
-                },
-            },
-        }));
-
-        new Litepicker({
-            element: document.getElementById("start_date"),
-            singleMode: true,
-            format: "YYYY-MM-DD",
-            lang: 'kh', // Set language to Khmer
-            buttonText: {
-                previousMonth: `<!-- Download SVG icon from http://tabler-icons.io/i/chevron-left -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="15 6 9 12 15 18" /></svg>`,
-                nextMonth: `<!-- Download SVG icon from http://tabler-icons.io/i/chevron-right -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 6 15 12 9 18" /></svg>`,
-            }
-        });
-
-        new Litepicker({
-            element: document.getElementById("end_date"),
-            singleMode: true,
-            format: "YYYY-MM-DD",
-            lang: 'kh', // Set language to Khmer
-            buttonText: {
-                previousMonth: `<!-- Download SVG icon from http://tabler-icons.io/i/chevron-left -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="15 6 9 12 15 18" /></svg>`,
-                nextMonth: `<!-- Download SVG icon from http://tabler-icons.io/i/chevron-right -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 6 15 12 9 18" /></svg>`,
-            }
-        });
-
-        // Handle the clear button click
-        document.querySelector('.btn-outline-secondary').addEventListener('click', function() {
-            document.getElementById('start_date').value = '';
-            document.getElementById('end_date').value = '';
-            document.getElementById('select-filter').tomselect.clear();
-        });
-
-        // Handle the filter button click
-        document.getElementById('filter').addEventListener('click', function() {
-            var startDate = document.getElementById('start_date').value;
-            var endDate = document.getElementById('end_date').value;
-            var status = document.getElementById('select-filter').value;
-
-            var params = new URLSearchParams();
-            if (startDate) {
-                params.append('start_date', startDate);
-            }
-            if (endDate) {
-                params.append('end_date', endDate);
-            }
-            if (status) {
-                params.append('status', status);
-            }
-
-            window.location.href = '?' + params.toString();
-        });
-    });
-</script>
