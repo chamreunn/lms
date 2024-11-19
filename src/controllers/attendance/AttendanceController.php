@@ -33,9 +33,26 @@ class AttendanceController
             $distance = $this->calculateDistance($latitude, $longitude, $qrLatitude, $qrLongitude);
             $maxDistance = 0.1; // 100 meters in kilometers
 
+            // Validate device details
+            $storedIp = $qrCodeData['ip_address'] ?? 'Unknown';
+            $storedUserAgent = $qrCodeData['user_agent'] ?? 'Unknown';
+
+            $currentIp = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+            $currentUserAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+
+            // Device validation: Check IP and User Agent
+            if ($storedIp !== $currentIp || $storedUserAgent !== $currentUserAgent) {
+                $_SESSION['error'] = [
+                    'title' => "Attendance Check",
+                    'message' => "Unauthorized device. Attendance check-in/out is not allowed from this device."
+                ];
+                header("Location: /elms/attendanceCheck");
+                exit();
+            }
+
             // Check if the user is within the allowed range
             if ($distance <= $maxDistance) {
-                // Success: User is within the allowed range
+                // Success: User is within the allowed range and using the correct device
                 $_SESSION['success'] = [
                     'title' => "Attendance Check",
                     'message' => "You are within the allowed range. Distance: {$distance} km"
@@ -44,19 +61,19 @@ class AttendanceController
                 // Record attendance
                 $attendanceModel = new AttendanceModel();
                 if ($attendanceModel->recordAttendance($userId, $date, $check)) {
-
+                    // Notify via Telegram
                     $userModel = new User();
-                    $userModel->sendCheckToTelegram($userId, $date,  $check);
+                    $userModel->sendCheckToTelegram($userId, $date, $check);
 
                     // Redirect to attendance page
-                    header("Location: /elms/my-attendances");
+                    header("Location: /elms/attendanceCheck");
                     exit();
                 } else {
                     $_SESSION['error'] = [
                         'title' => "Attendance Check",
                         'message' => "Failed to record attendance. Please try again."
                     ];
-                    header("Location: /elms/my-attendances");
+                    header("Location: /elms/attendanceCheck");
                     exit();
                 }
             } else {
@@ -65,7 +82,7 @@ class AttendanceController
                     'title' => "Attendance Check",
                     'message' => "You are too far from the allowed location. Distance: {$distance} km"
                 ];
-                header("Location: /elms/my-attendances");
+                header("Location: /elms/attendanceCheck");
                 exit();
             }
         }
