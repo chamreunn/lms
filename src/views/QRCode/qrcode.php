@@ -214,7 +214,7 @@ include('src/common/header.php');
     <div class="container-xl d-flex justify-content-center text-center">
         <div class="card">
             <div class="card-body p-0">
-                <img src="<?=  $qrCodeBase64s; ?>" class="card-img-top mb-3" alt="...">
+                <img src="<?=  $qrCodeBase64s; ?>" class="card-img-top" alt="...">
                 <h3 class="text-muted mb-3"><?= $name ?? '' ?></h3>
             </div>
             <div class="card-footer">
@@ -232,7 +232,7 @@ include('src/common/header.php');
                             </svg>
                         </a>
                     </div>
-                    <div class="col">
+                    <div class="col" hidden>
                         <a href="#" data-bs-target="#deleteQr<?= $ids ?>" data-bs-toggle="modal"
                             class="btn btn-outline-danger w-100">
                             <span class="mx-2">លុប</span>
