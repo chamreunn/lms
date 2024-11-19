@@ -24,15 +24,25 @@ date_default_timezone_set('Asia/Phnom_Penh');
             <!-- Location Name Display (Clickable link) -->
             <a href="#" target="_blank" id="locationName" class="h4 mb-4 text-center">Loading location...</a>
 
-            <div class="map"  style="height: 400px; width: 100%;"></div>
+            <div class="map" hidden style="height: 400px; width: 100%;"></div>
             <div class="empty-action">
-                <a href="./." class="btn btn-primary">
-                    Check
-                </a>
+                <form action="/elms/actionCheck" method="POST">
+                    <div hidden>
+                        <input type="text" id="latitude" name="latitude" value="">
+                        <input type="text" id="longitude" name="longitude" value="">
+                        <input type="text" name="userId" value="<?= $_SESSION['user_id'] ?? 'No User Id Found' ?>">
+                        <input type="text" name="date" value="<?= date('Y-m-d') ?>">
+                        <input type="text" name="check" value="<?= date('H:i') ?>">
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        Check
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
 <?php require_once 'src/common/footer.php'; ?>
 
 <!-- Include Leaflet.js -->
@@ -56,9 +66,9 @@ date_default_timezone_set('Asia/Phnom_Penh');
         }
 
         // Initialize map
+        // Inside the LocationPicker class
         initMap() {
             if (navigator.geolocation) {
-                // Get the user's current location
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         this.userLocation = [
@@ -66,13 +76,12 @@ date_default_timezone_set('Asia/Phnom_Penh');
                             position.coords.longitude
                         ];
 
-                        // Call the reverse geocoding function
-                        this.getLocationName(this.userLocation[0], this.userLocation[1]);
-
-                        this.createMap();
-                        // Set initial values in input fields
+                        // Update the latitude and longitude in the hidden input fields
                         document.getElementById(this.latFieldId).value = this.userLocation[0];
                         document.getElementById(this.lngFieldId).value = this.userLocation[1];
+
+                        this.getLocationName(this.userLocation[0], this.userLocation[1]);
+                        this.createMap();
                     },
                     (error) => {
                         console.error("Geolocation Error: ", error);
@@ -82,6 +91,13 @@ date_default_timezone_set('Asia/Phnom_Penh');
             } else {
                 alert("Geolocation is not supported by this browser.");
             }
+        }
+
+        // Update fields when the marker is dragged or map is clicked
+        updateLatLngFields(e) {
+            const position = e.target.getLatLng();
+            document.getElementById(this.latFieldId).value = position.lat;
+            document.getElementById(this.lngFieldId).value = position.lng;
         }
 
         // Get location name using reverse geocoding
@@ -94,7 +110,7 @@ date_default_timezone_set('Asia/Phnom_Penh');
                     if (data && data.address) {
                         const address = data.address;
                         let locationName = '';
-                        
+
                         if (address.city) {
                             locationName = address.city;
                         } else if (address.town) {
@@ -110,7 +126,7 @@ date_default_timezone_set('Asia/Phnom_Penh');
 
                         // Create Google Maps URL dynamically
                         const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-                        
+
                         // Make the location name clickable to open Google Maps
                         this.locationNameLink.href = googleMapsUrl;
                     } else {

@@ -14,103 +14,6 @@ include('src/common/header.php');
                 </div>
                 <h2 class="page-title"><?= $title ?> </h2>
             </div>
-            <!-- Page title actions -->
-            <div class="col-auto ms-auto d-print-none">
-                <div class="btn-list">
-                    <div class="d-flex">
-                        <!-- Example single danger button -->
-                        <?php if (empty($qrCodeFound)): ?>
-                            <button type="button" data-bs-toggle="modal" data-bs-target="#generateqrcode"
-                                class="btn btn-primary d-none d-sm-inline-block">
-                                <span class="mx-2">បង្កើត QR Code</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="icon icon-tabler icons-tabler-outline icon-tabler-qrcode">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path
-                                        d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-                                    <path d="M7 17l0 .01" />
-                                    <path
-                                        d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-                                    <path d="M7 7l0 .01" />
-                                    <path
-                                        d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-                                    <path d="M17 7l0 .01" />
-                                    <path d="M14 14l3 0" />
-                                    <path d="M20 14l0 .01" />
-                                    <path d="M14 14l0 3" />
-                                    <path d="M14 20l3 0" />
-                                    <path d="M17 17l3 0" />
-                                    <path d="M20 17l0 3" />
-                                </svg>
-                            </button>
-                        <?php endif; ?>
-
-                        <div class="modal modal-blur fade" id="generateqrcode" tabindex="-1" aria-modal="true"
-                            role="dialog">
-                            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h2 class="modal-title">Generate Attendance QR Code</h2>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close">
-                                        </button>
-                                    </div>
-                                    <form action="/elms/generateQR" method="post" enctype="multipart/form-data">
-                                        <div class="modal-body">
-                                            <div class="row g-3">
-                                                <div class="col-12">
-                                                    <label class="form-label" for="name">ឈ្មោះ QR Code</label>
-                                                    <input type="text" class="form-control" id="name" name="name"
-                                                        autocomplete="off" placeholder="សូមបញ្ចូលឈ្មោះ" required>
-                                                </div>
-
-                                                <div class="col-12">
-                                                    <label class="form-label" for="size">ទំហំ</label>
-                                                    <input type="number" class="form-control" id="size" name="size"
-                                                        value="300" required>
-                                                </div>
-
-                                                <div class="col-12" hidden>
-                                                    <label class="form-label">Select Location on Map:</label>
-                                                    <div class="map rounded" style="height: 400px; width: 100%;"></div>
-
-                                                    <label class="form-label" for="name">QR Code URLs:</label>
-                                                    <input type="text" class="form-control" id="name" name="url"
-                                                        autocomplete="off" value="https://leave.iauoffsa.us" required>
-
-                                                    <!-- Hidden fields to store selected latitude and longitude -->
-                                                    <input type="hidden" class="latitude" name="latitude">
-                                                    <input type="hidden" class="longitude" name="longitude">
-                                                    <input type="hidden" name="userId"
-                                                        value="<?= $_SESSION['user_id'] ?>">
-                                                </div>
-
-                                                <div class="col-12">
-                                                    <label for="logo" class="form-label">រូបភាពឡូហ្គោ</label>
-                                                    <div class="text-center mb-3">
-                                                        <img src="public/img/icons/brands/logo2.png" alt="Default Logo"
-                                                            class="img-fluid rounded" style="max-width: 100px;">
-                                                    </div>
-                                                    <input type="file" class="form-control" id="logo" name="logo"
-                                                        accept="image/*"
-                                                        onchange="this.nextElementSibling.src = window.URL.createObjectURL(this.files[0])">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer bg-light">
-                                            <button type="button" class="btn me-auto"
-                                                data-bs-dismiss="modal">Close</button>
-                                            <button class="btn btn-primary" type="submit">Generate QR Code</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -159,7 +62,7 @@ include('src/common/header.php');
                                     <input type="number" class="form-control" id="size" name="size" value="300" required>
                                 </div>
 
-                                <div class="col-12" hidden>
+                                <div class="col-12">
                                     <label class="form-label">Select Location on Map:</label>
                                     <div class="map rounded" style="height: 400px; width: 100%;"></div>
 
@@ -168,8 +71,8 @@ include('src/common/header.php');
                                         value="https://leave.iauoffsa.us" required>
 
                                     <!-- Hidden fields to store selected latitude and longitude -->
-                                    <input type="hidden" class="latitude" name="latitude">
-                                    <input type="hidden" class="longitude" name="longitude">
+                                    <input type="text" id="latitude" class="latitude" name="latitude">
+                                    <input type="text" id="longitude" class="longitude" name="longitude">
                                     <input type="hidden" name="userId" value="<?= $_SESSION['user_id'] ?>">
                                 </div>
 
@@ -185,24 +88,140 @@ include('src/common/header.php');
                             </div>
                         </div>
                         <div class="justify-content-center mt-3">
-                            <button class="btn btn-primary" type="submit">Generate QR Code</button>
+                            <button class="btn btn-primary" type="submit">បង្កើត QR Code</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Include Leaflet.js -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <script>
+        class LocationPicker {
+            constructor(mapClass, latFieldId, lngFieldId, defaultLocation, maxDistanceMeters) {
+                this.mapClass = mapClass; // Map container class
+                this.latFieldId = latFieldId; // Latitude input field id
+                this.lngFieldId = lngFieldId; // Longitude input field id
+                this.defaultLocation = defaultLocation; // Default location (latitude, longitude)
+                this.maxDistanceMeters = maxDistanceMeters; // Maximum allowed distance in meters
+                this.map = null;
+                this.marker = null;
+
+                // Initialize the map
+                this.initMap();
+            }
+
+            // Initialize map
+            initMap() {
+                this.createMap();
+                // Set initial values in input fields
+                document.getElementById(this.latFieldId).value = this.defaultLocation[0];
+                document.getElementById(this.lngFieldId).value = this.defaultLocation[1];
+            }
+
+            // Create and set up the map
+            createMap() {
+                const mapContainer = document.querySelector(`.${this.mapClass}`);
+                if (mapContainer) {
+                    this.map = L.map(mapContainer).setView(this.defaultLocation, 16); // Set zoom level
+
+                    // Add standard tile layer (OpenStreetMap)
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '© OpenStreetMap contributors'
+                    }).addTo(this.map);
+
+                    // Add a draggable marker at the default location
+                    this.marker = L.marker(this.defaultLocation, { draggable: true }).addTo(this.map);
+
+                    // Update hidden input fields when marker is dragged
+                    this.marker.on('dragend', (e) => this.handleMarkerDrag(e));
+
+                    // Handle map clicks to place marker
+                    this.map.on('click', (e) => this.onMapClick(e));
+                } else {
+                    alert("Map container not found.");
+                }
+            }
+
+            // Handle map clicks to place the marker
+            onMapClick(e) {
+                const { lat, lng } = e.latlng;
+                if (this.isWithinAllowedDistance(lat, lng)) {
+                    this.marker.setLatLng([lat, lng]);
+                    this.updateLatLngFields({ target: this.marker });
+                } else {
+                    alert(`Selected location is outside the allowed 100-meter radius.`);
+                }
+            }
+
+            // Handle marker drag and check distance
+            handleMarkerDrag(e) {
+                const position = e.target.getLatLng();
+                if (this.isWithinAllowedDistance(position.lat, position.lng)) {
+                    this.updateLatLngFields(e);
+                } else {
+                    alert(`Selected location is outside the allowed 100-meter radius. Reverting to previous position.`);
+                    // Reset marker to the default location
+                    this.marker.setLatLng(this.defaultLocation);
+                    this.updateLatLngFields({ target: this.marker });
+                }
+            }
+
+            // Update hidden fields with the new latitude and longitude
+            updateLatLngFields(e) {
+                const position = e.target.getLatLng();
+                document.getElementById(this.latFieldId).value = position.lat;
+                document.getElementById(this.lngFieldId).value = position.lng;
+            }
+
+            // Check if the selected location is within the allowed distance
+            isWithinAllowedDistance(lat, lng) {
+                const R = 6371000; // Radius of Earth in meters
+                const toRad = (value) => (value * Math.PI) / 180;
+
+                const lat1 = this.defaultLocation[0];
+                const lng1 = this.defaultLocation[1];
+                const lat2 = lat;
+                const lng2 = lng;
+
+                const dLat = toRad(lat2 - lat1);
+                const dLng = toRad(lng2 - lng1);
+                const a =
+                    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.cos(toRad(lat1)) *
+                    Math.cos(toRad(lat2)) *
+                    Math.sin(dLng / 2) *
+                    Math.sin(dLng / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+                const distance = R * c; // Distance in meters
+                return distance <= this.maxDistanceMeters;
+            }
+        }
+
+        // Instantiate the LocationPicker class for the map
+        window.onload = () => {
+            const defaultLocation = [11.632825042495787, 104.88334294171813]; // Replace with your office coordinates (latitude, longitude)
+            const maxDistanceMeters = 100; // 100 meters
+            const locationPicker = new LocationPicker('map', 'latitude', 'longitude', defaultLocation, maxDistanceMeters);
+        };
+
+    </script>
 <?php else: ?>
     <div class="container-xl d-flex justify-content-center text-center">
         <div class="card">
             <div class="card-body p-0">
-                <img src="data:image/png;base64,<?php echo $qrCodeBase64; ?>" class="card-img-top" alt="...">
-                <h3 class="text-muted mt-2"><?= $name ?? '' ?></h3>
+                <img src="data:image/png;base64,<?php echo $qrCodeBase64; ?>" class="card-img-top mb-3" alt="...">
+                <h3 class="text-muted mb-3"><?= $name ?? '' ?></h3>
             </div>
             <div class="card-footer">
                 <div class="row g-3">
                     <div class="col">
-                        <a href="<?= $qrCodeBase64s ?>" download="<?= $name ?? '' ?>.png" class="btn btn-success w-100">
+                        <a href="<?= $qrCodeBase64s ?>" download="QR_<?= $name ?? '' ?>.png" class="btn btn-success w-100">
                             <span class="mx-2">ទាញយក</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -279,91 +298,3 @@ include('src/common/header.php');
 <?php endif; ?>
 
 <?php include('src/common/footer.php'); ?>
-
-<!-- Include Leaflet.js -->
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<script>
-    class LocationPicker {
-        constructor(mapClass, latFieldId, lngFieldId, defaultLocation) {
-            this.mapClass = mapClass;         // Map container class
-            this.latFieldId = latFieldId;     // Latitude input field id
-            this.lngFieldId = lngFieldId;     // Longitude input field id
-            this.defaultLocation = defaultLocation; // Default location (latitude, longitude)
-            this.map = null;
-            this.marker = null;
-
-            // Initialize the map
-            this.initMap();
-        }
-
-        // Initialize map
-        initMap() {
-            this.createMap();
-            // Set initial values in input fields
-            document.getElementById(this.latFieldId).value = this.defaultLocation[0];
-            document.getElementById(this.lngFieldId).value = this.defaultLocation[1];
-        }
-
-        // Create and set up the map
-        createMap() {
-            const mapContainer = document.querySelector(`.${this.mapClass}`);
-            if (mapContainer) {
-                this.map = L.map(mapContainer).setView(this.defaultLocation, 16); // Set zoom level
-
-                // Add standard tile layer (OpenStreetMap)
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '© OpenStreetMap contributors'
-                }).addTo(this.map);
-
-                // Add a draggable marker at the default location
-                this.marker = L.marker(this.defaultLocation, { draggable: true }).addTo(this.map);
-
-                // Update hidden input fields when marker is dragged
-                this.marker.on('dragend', (e) => this.updateLatLngFields(e));
-
-                // Handle map clicks to place marker
-                this.map.on('click', (e) => this.onMapClick(e));
-            } else {
-                alert("Map container not found.");
-            }
-        }
-
-        // Handle map clicks to place the marker
-        onMapClick(e) {
-            const { lat, lng } = e.latlng;
-            this.marker.setLatLng([lat, lng]);
-            this.updateLatLngFields({ target: this.marker });
-        }
-
-        // Update hidden fields with the new latitude and longitude
-        updateLatLngFields(e) {
-            const position = e.target.getLatLng();
-            document.getElementById(this.latFieldId).value = position.lat;
-            document.getElementById(this.lngFieldId).value = position.lng;
-        }
-    }
-
-    // Instantiate the LocationPicker class for the map
-    window.onload = () => {
-        const defaultLocation = [11.632825042495787, 104.88334294171813]; // Replace with your office coordinates (latitude, longitude)
-        const locationPicker = new LocationPicker('map', 'latitude', 'longitude', defaultLocation);
-
-        // Handle form submission to update the map with manual coordinates
-        document.getElementById('locationForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const lat = parseFloat(document.getElementById('latitude').value);
-            const lng = parseFloat(document.getElementById('longitude').value);
-
-            // Ensure coordinates are valid
-            if (!isNaN(lat) && !isNaN(lng)) {
-                locationPicker.map.setView([lat, lng], 16);
-                locationPicker.marker.setLatLng([lat, lng]);
-                locationPicker.updateLatLngFields({ target: locationPicker.marker });
-            } else {
-                alert("Please enter valid latitude and longitude.");
-            }
-        });
-    };
-</script>

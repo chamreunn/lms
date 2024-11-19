@@ -607,6 +607,12 @@ switch ($uri) {
             $controller->index();
         });
         break;
+    case $base_url . '/actionCheck':
+        checkSessionAndExecute(function () {
+            $controller = new AttendanceController();
+            $controller->action();
+        });
+        break;
     case $base_url . '/createHoliday':
         checkSessionAndExecute(function () {
             $controller = new CalendarController();
