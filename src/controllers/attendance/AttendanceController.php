@@ -38,6 +38,13 @@ class AttendanceController
             $storedUserAgent = $qrCodeData['user_agent'] ?? 'Unknown';
 
             $currentIp = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+
+            // If the app is behind a proxy or load balancer, we should check the HTTP_X_FORWARDED_FOR header
+            if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                // Sometimes multiple IPs are passed, so we take the first one
+                $currentIp = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
+            }
+
             $currentUserAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
 
             // Device validation: Check IP and User Agent
