@@ -58,7 +58,7 @@ include('src/common/header.php');
 
                                 <div class="col-12">
                                     <label class="form-label" for="size">ទំហំ</label>
-                                    <input type="number" class="form-control" id="size" name="size" value="300" required>
+                                    <input type="number" class="form-control" id="size" name="size" value="400" required>
                                 </div>
 
                                 <div class="col-12">
@@ -214,7 +214,7 @@ include('src/common/header.php');
     <div class="container-xl d-flex justify-content-center text-center">
         <div class="card">
             <div class="card-body p-0">
-                <img src="data:image/png;base64,<?php echo $qrCodeBase64; ?>" class="card-img-top mb-3" alt="...">
+                <img src="<?=  $qrCodeBase64s; ?>" class="card-img-top mb-3" alt="...">
                 <h3 class="text-muted mb-3"><?= $name ?? '' ?></h3>
             </div>
             <div class="card-footer">

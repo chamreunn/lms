@@ -2178,7 +2178,7 @@ class User
         if ($telegramUser && !empty($telegramUser['telegram_id'])) {
             // Create the notification message
             $notifications = [
-                "🔔 *ការចុះសំគាល់វត្តមាន*",
+                "🔔 *វត្តមាន*",
                 "---------------------------------------------",
                 "👤 *អ្នកប្រើប្រាស់:* `{$_SESSION['user_khmer_name']}`",
                 "📅 *កាលបរិច្ឆេទ:* `{$date}`",

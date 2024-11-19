@@ -14,7 +14,7 @@ date_default_timezone_set('Asia/Phnom_Penh');
     <div class="container-tight py-4">
         <div class="empty">
             <div class="empty-img">
-                <img src="<?= $_SESSION['user_profile'] ?>" class="avatar avatar-md" height="128" alt="">
+                <img src="<?= $_SESSION['user_profile'] ?>" class="avatar avatar-md" style="object-fit: cover;" alt="">
             </div>
             <p class="empty-title"><?= $_SESSION['user_khmer_name'] ?></p>
             <h1 class="empty-subtitle text-muted">
@@ -22,20 +22,20 @@ date_default_timezone_set('Asia/Phnom_Penh');
             </h1>
 
             <!-- Location Name Display (Clickable link) -->
-            <a href="#" target="_blank" id="locationName" class="h4 mb-4 text-center">Loading location...</a>
+            <a href="#" target="_blank" id="locationName" class="mb-4 text-center">Loading location...</a>
 
             <div class="map" hidden style="height: 400px; width: 100%;"></div>
             <div class="empty-action">
                 <form action="/elms/actionCheck" method="POST">
-                    <div>
+                    <div hidden>
                         <input type="text" id="latitude" name="latitude" value="">
                         <input type="text" id="longitude" name="longitude" value="">
                         <input type="text" name="userId" value="<?= $_SESSION['user_id'] ?? 'No User Id Found' ?>">
                         <input type="text" name="date" value="<?= date('Y-m-d') ?>">
-                        <input type="text" name="check" value="<?= date('H:i') ?>">
+                        <input type="text" name="check" value="<?= date('H:i:s') ?>">
                     </div>
                     <button type="submit" class="btn btn-primary">
-                        Check
+                        Check In
                     </button>
                 </form>
             </div>
@@ -122,7 +122,7 @@ date_default_timezone_set('Asia/Phnom_Penh');
                         }
 
                         // Update the location name display
-                        this.locationNameElement.textContent = `Current Location: ${locationName}`;
+                        this.locationNameElement.textContent = `ទីតាំងបច្ចុប្បន្ន: ${locationName}`;
 
                         // Create Google Maps URL dynamically
                         const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;

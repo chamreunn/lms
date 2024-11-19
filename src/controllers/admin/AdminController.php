@@ -1330,6 +1330,10 @@ class AdminController
             $longitude = $_POST['longitude']; // Get the longitude from the form
             $logoPath = null;
 
+            // Capture device details
+            $ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
+
             // Check if a logo is uploaded
             if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
                 $fileType = mime_content_type($_FILES['logo']['tmp_name']);
@@ -1358,6 +1362,7 @@ class AdminController
                 $logoPath = $this->resizeLogo($logoPath, $size);
             }
 
+
             // Generate QR Code with specified size and resized logo
             $qrCodeImage = $this->generateQRCodeWithLogo($url, $size, $logoPath);
 
@@ -1367,7 +1372,7 @@ class AdminController
             // Save QR code data and location to the database
             try {
                 $adminModel = new QrModel();
-                $generated = $adminModel->createQR($url, $userId, $name, $qrCodeBase64, $latitude, $longitude);
+                $generated = $adminModel->createQR($url, $userId, $name, $qrCodeBase64, $latitude, $longitude, $ipAddress, $userAgent);
 
                 if ($generated) {
                     $_SESSION['success'] = [
@@ -1396,19 +1401,24 @@ class AdminController
     {
         // Load the logo image
         list($logoWidth, $logoHeight, $imageType) = getimagesize($logoPath);
-
+    
         // Set the desired width for the logo (adjust based on QR code size)
-        $logoMaxWidth = $qrCodeSize * 0.3; // Resize logo to 20% of QR code size
-        $logoMaxHeight = $qrCodeSize * 0.3; // Resize logo to 20% of QR code size
-
+        $logoMaxWidth = $qrCodeSize * 0.3; // Resize logo to 30% of QR code size
+        $logoMaxHeight = $qrCodeSize * 0.3; // Resize logo to 30% of QR code size
+    
         // Calculate the new dimensions while maintaining the aspect ratio
         $ratio = min($logoMaxWidth / $logoWidth, $logoMaxHeight / $logoHeight);
         $newWidth = floor($logoWidth * $ratio);
         $newHeight = floor($logoHeight * $ratio);
-
-        // Create a new image resource for the resized logo
+    
+        // Create a new image resource for the resized logo with alpha support
         $resizedLogo = imagecreatetruecolor($newWidth, $newHeight);
-
+    
+        // Preserve alpha channel for transparency
+        imagesavealpha($resizedLogo, true);
+        $transparentColor = imagecolorallocatealpha($resizedLogo, 0, 0, 0, 127);
+        imagefill($resizedLogo, 0, 0, $transparentColor);
+    
         // Create an image from the original logo based on its type
         switch ($imageType) {
             case IMAGETYPE_PNG:
@@ -1421,21 +1431,20 @@ class AdminController
                 // Invalid file type
                 return $logoPath;
         }
-
-        // Resize the logo
+    
+        // Resize the logo and copy it into the resized image
         imagecopyresampled($resizedLogo, $source, 0, 0, 0, 0, $newWidth, $newHeight, $logoWidth, $logoHeight);
-
+    
         // Save the resized logo
         $resizedLogoPath = 'public/uploads/qrcodes/resized_' . basename($logoPath);
-        imagepng($resizedLogo, $resizedLogoPath);
-
+        imagepng($resizedLogo, $resizedLogoPath); // Save as PNG to preserve transparency
+    
         // Clean up
         imagedestroy($source);
         imagedestroy($resizedLogo);
-
+    
         return $resizedLogoPath;
-    }
-
+    }  
 
     public function generateQRCodeWithLogo($text, $size, $logoPath)
     {
@@ -1457,7 +1466,7 @@ class AdminController
         $logo = null;
         if ($logoPath && file_exists($logoPath)) {
             $logo = new Logo($logoPath); // Instantiate directly, no create method
-            $logo->getResizeToWidth();
+            $logo->getPunchoutBackground();
         }
 
         // Generate the QR code with the optional logo

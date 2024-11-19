@@ -12,17 +12,21 @@ class QrModel
     }
 
     // Method to save the QR code to the database
-    public function createQR($url, $userId, $name, $qrCodeBase64, $latitude, $longitude)
+    public function createQR($url, $userId, $name, $qrCodeBase64, $latitude, $longitude, $ipAddress, $userAgent)
     {
-        $sql = "INSERT INTO {$this->qrcode} (url, user_id, name, image, latitude, longitude) VALUES (:url, :user_id, :name, :qrCodeBase64, :latitude, :longitude)";
+        $sql = "INSERT INTO {$this->qrcode} (url, user_id, name, image, latitude, longitude, ip_address, user_agent) 
+        VALUES (:url, :user_id, :name, :qrCodeBase64, :latitude, :longitude, :ip_address, :user_agent)";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam(':url', $url);
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':qrCodeBase64', $qrCodeBase64);
-        $stmt->bindParam(':latitude', $latitude);
-        $stmt->bindParam(':longitude', $longitude);
-        return $stmt->execute();
+        return $stmt->execute([
+            ':url' => $url,
+            ':user_id' => $userId,
+            ':name' => $name,
+            ':qrCodeBase64' => $qrCodeBase64,
+            ':latitude' => $latitude,
+            ':longitude' => $longitude,
+            ':ip_address' => $ipAddress,
+            ':user_agent' => $userAgent
+        ]);
     }
 
     // Method to get QR code by name (or any identifier)

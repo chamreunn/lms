@@ -25,7 +25,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
             </a>
         </h1>
         <div class="navbar-nav flex-row order-md-last">
-            <div class="d-none d-md-flex me-3">
+            <div class="d-flex me-3">
                 <!-- qrcode  -->
                 <a href="/elms/qrcode" class="nav-link <?= ($current_page == 'qrcode') ? 'bg-primary-lt' : '' ?> px-0" title="Create QR For Attendance"
                     data-bs-toggle="tooltip" data-bs-placement="bottom">

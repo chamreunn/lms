@@ -1,20 +1,21 @@
 <?php
-// Configure session settings BEFORE starting the session
+// Set session cookie parameters for long lifetime
 session_set_cookie_params([
-    'lifetime' => 604800, // 1 week in seconds (7 days * 24 hours * 60 minutes * 60 seconds)
+    'lifetime' => 0, // Session persists until the browser is closed by default
     'path' => '/',
-    'domain' => '', // Leave as empty or set to your domain, e.g., 'example.com'
-    'secure' => isset($_SERVER['HTTPS']), // Only send over HTTPS if available
-    'httponly' => true, // Prevents JavaScript from accessing the session cookie
-    'samesite' => 'Lax' // Controls cross-site request handling
+    'domain' => '', // Use your domain or leave blank for default
+    'secure' => isset($_SERVER['HTTPS']), // Secure cookies for HTTPS
+    'httponly' => true, // Restrict access via JavaScript
+    'samesite' => 'Lax', // Prevent cross-site cookie usage
 ]);
 
-// Set server-side session garbage collection max lifetime
-ini_set('session.gc_maxlifetime', 604800); // 1 week in seconds
+// Configure PHP to keep session data indefinitely
+ini_set('session.gc_maxlifetime', 31536000); // 1 year (in seconds)
+ini_set('session.cookie_lifetime', 0); // Cookie persists until browser closes unless overridden above
 
-// Now start the session
+// Start the session
 session_start();
 
-// Include your database and routing files
+// Include database and routing files
 require 'config/database.php';
 require 'routes.php';

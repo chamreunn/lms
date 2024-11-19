@@ -11,7 +11,7 @@ class AttendanceController
     public function action()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $userId = $_POST['userId'] ?? '214748364';
+            $userId = $_POST['userId'] ?? '';
             $date = $_POST['date'];
             $check = $_POST['check'];
             $latitude = $_POST['latitude'];
@@ -49,14 +49,14 @@ class AttendanceController
                     $userModel->sendCheckToTelegram($userId, $date,  $check);
 
                     // Redirect to attendance page
-                    header("Location: /elms/attendanceCheck");
+                    header("Location: /elms/my-attendances");
                     exit();
                 } else {
                     $_SESSION['error'] = [
                         'title' => "Attendance Check",
                         'message' => "Failed to record attendance. Please try again."
                     ];
-                    header("Location: /elms/attendanceCheck");
+                    header("Location: /elms/my-attendances");
                     exit();
                 }
             } else {
@@ -65,7 +65,7 @@ class AttendanceController
                     'title' => "Attendance Check",
                     'message' => "You are too far from the allowed location. Distance: {$distance} km"
                 ];
-                header("Location: /elms/attendanceCheck");
+                header("Location: /elms/my-attendances");
                 exit();
             }
         }
