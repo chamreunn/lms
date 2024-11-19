@@ -7,6 +7,7 @@
         "pusher/pusher-php-server": "^7.2",
         "guzzlehttp/guzzle": "^7.9",
         "sonata-project/google-authenticator": "^2.3",
-        "endroid/qr-code": "^6.0"
+        "endroid/qr-code": "^6.0",
+        "intervention/image": "^3.9"
     }
 }
