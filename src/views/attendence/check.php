@@ -27,7 +27,7 @@ date_default_timezone_set('Asia/Phnom_Penh');
             <div class="map" hidden style="height: 400px; width: 100%;"></div>
             <div class="empty-action">
                 <form action="/elms/actionCheck" method="POST">
-                    <div hidden>
+                    <div>
                         <input type="text" id="latitude" name="latitude" value="">
                         <input type="text" id="longitude" name="longitude" value="">
                         <input type="text" name="userId" value="<?= $_SESSION['user_id'] ?? 'No User Id Found' ?>">

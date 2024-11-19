@@ -1300,7 +1300,7 @@ class AdminController
     {
         // Retrieve the QR code data from the database
         $qrModel = new QrModel();
-        $qrCodeData = $qrModel->getQRCodeByName();
+        $qrCodeData = $qrModel->getQRCodeByName($_SESSION['user_id']);
 
         if ($qrCodeData) {
             // Pass the QR code's base64 data to the view

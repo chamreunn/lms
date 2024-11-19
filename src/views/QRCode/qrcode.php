@@ -2,7 +2,6 @@
 $title = "QR Code";
 include('src/common/header.php');
 ?>
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 <!-- header of page  -->
 <div class="page-header d-print-none mt-0 mb-3">
     <div class="container-xl">
@@ -68,7 +67,7 @@ include('src/common/header.php');
 
                                     <label class="form-label" for="name">QR Code URLs:</label>
                                     <input type="text" class="form-control" id="name" name="url" autocomplete="off"
-                                        value="https://leave.iauoffsa.us" required>
+                                        value="https://leavebeta.iauoffsa.us/elms/attendanceCheck" required>
 
                                     <!-- Hidden fields to store selected latitude and longitude -->
                                     <input type="text" id="latitude" class="latitude" name="latitude">

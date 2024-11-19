@@ -80,6 +80,9 @@ date_default_timezone_set('Asia/Bangkok');
     <!-- FullCalendar CSS -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet">
 
+    <!-- map  -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+
     <!-- spinner button  -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {

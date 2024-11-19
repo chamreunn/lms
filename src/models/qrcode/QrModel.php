@@ -26,10 +26,12 @@ class QrModel
     }
 
     // Method to get QR code by name (or any identifier)
-    public function getQRCodeByName()
+    public function getQRCodeByName($user_id)
     {
-        $sql = "SELECT * FROM {$this->qrcode} LIMIT 1";
+        $sql = "SELECT * FROM {$this->qrcode} WHERE user_id =:user_id LIMIT 1";
         $stmt = $this->pdo->prepare($sql);
+        // Bind the QR code id to the SQL query
+        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC); // Returns associative array with QR code data
     }

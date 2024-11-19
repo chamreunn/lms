@@ -2170,6 +2170,37 @@ class User
         }
     }
 
+    public function sendCheckToTelegram($userId, $date, $check)
+    {
+        // Retrieve Telegram ID of the user
+        $userModel = new User();
+        $telegramUser = $userModel->getTelegramIdByUserId($userId);
+        if ($telegramUser && !empty($telegramUser['telegram_id'])) {
+            // Create the notification message
+            $notifications = [
+                "🔔 *ការចុះសំគាល់វត្តមាន*",
+                "---------------------------------------------",
+                "👤 *អ្នកប្រើប្រាស់:* `{$_SESSION['user_khmer_name']}`",
+                "📅 *កាលបរិច្ឆេទ:* `{$date}`",
+                "🕒 *ម៉ោង:* `{$check}`",
+            ];
+
+            // Joining notifications into a single message with new lines
+            $telegramMessage = implode("\n", $notifications);
+
+            // Send the Telegram notification
+            $telegramModel = new TelegramModel($this->pdo);
+            $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage);
+
+            // Log success or failure of the Telegram notification
+            if ($success) {
+                error_log("Telegram attendance notification sent to user ID: {$userId}");
+            } else {
+                error_log("Failed to send Telegram attendance notification to user ID: {$userId}");
+            }
+        }
+    }
+
     // send notification to next Manager 
     public function sendTelegramNextManager($managerId, $uname, $start_date, $end_date, $duration_days, $uremarks, $status, $link)
     {

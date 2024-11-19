@@ -104,7 +104,9 @@
     </script>
 </head>
 
-<body>
-
-    <body class=" border-top-wide border-primary d-flex flex-column">
-        <script src="public/dist/js/demo-theme.min.js?1668287865"></script>
+<body class="loading border-top-wide border-primary d-flex flex-column">
+    <!-- Loader HTML -->
+    <div id="loader-wrapper" class="loader-wrapper">
+        <div class="loader"></div>
+    </div>
+    <script src="public/dist/js/demo-theme.min.js?1668287865"></script>

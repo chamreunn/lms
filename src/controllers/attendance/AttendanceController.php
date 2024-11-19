@@ -19,7 +19,7 @@ class AttendanceController
 
             // Retrieve the QR code data from the database
             $qrModel = new QrModel();
-            $qrCodeData = $qrModel->getQRCodeByName(); // Fetch QR code data for the user
+            $qrCodeData = $qrModel->getQRCodeByName($userId); // Fetch QR code data for the user
 
             // Ensure QR code contains valid latitude and longitude
             $qrLatitude = $qrCodeData['latitude'] ?? null;
@@ -44,6 +44,10 @@ class AttendanceController
                 // Record attendance
                 $attendanceModel = new AttendanceModel();
                 if ($attendanceModel->recordAttendance($userId, $date, $check)) {
+
+                    $userModel = new User();
+                    $userModel->sendCheckToTelegram($userId, $date,  $check);
+
                     // Redirect to attendance page
                     header("Location: /elms/attendanceCheck");
                     exit();

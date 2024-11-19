@@ -1542,20 +1542,3 @@ function checkSessionAndExecute($callback)
         exit();
     }
 }
-
-function checkRoleAndExecute($roleViews)
-{
-    global $base_url;
-    if (isset($_SESSION['role'])) {
-        $role = $_SESSION['role'];
-        if (isset($roleViews[$role])) {
-            require $roleViews[$role];
-        } else {
-            header("Location: $base_url/login");
-            exit();
-        }
-    } else {
-        header("Location: $base_url/login");
-        exit();
-    }
-}
