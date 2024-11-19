@@ -27,12 +27,14 @@ date_default_timezone_set('Asia/Phnom_Penh');
             <div class="map" hidden style="height: 400px; width: 100%;"></div>
             <div class="empty-action">
                 <form action="/elms/actionCheck" method="POST">
-                    <div hidden>
+                    <div>
                         <input type="text" id="latitude" name="latitude" value="">
                         <input type="text" id="longitude" name="longitude" value="">
                         <input type="text" name="userId" value="<?= $_SESSION['user_id'] ?? 'No User Id Found' ?>">
                         <input type="text" name="date" value="<?= date('Y-m-d') ?>">
                         <input type="text" name="check" value="<?= date('H:i:s') ?>">
+                        <input type="text" id="deviceId" name="device_id" value="">
+                        <input type="text" id="ipAddress" name="ip_address" value="">
                     </div>
                     <button type="submit" class="btn btn-primary">
                         Check In
@@ -210,8 +212,51 @@ date_default_timezone_set('Asia/Phnom_Penh');
         }
     }
 
-    // Instantiate the LocationPicker class for the map
-    window.onload = () => {
+    window.onload = async () => {
         const locationPicker = new LocationPicker('map', 'latitude', 'longitude', 100);
+        // Generate a unique UUID for the device
+        function generateUUID() {
+            return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+                (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+            );
+        }
+
+        // Set a cookie
+        function setCookie(name, value, days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/;SameSite=Strict`;
+        }
+
+        // Get a cookie by name
+        function getCookie(name) {
+            const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
+            return match ? match[2] : null;
+        }
+
+        // Get public IP using an external API
+        async function getPublicIP() {
+            try {
+                const response = await fetch('https://api64.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                console.error('Unable to fetch IP address:', error);
+                return 'Unknown';
+            }
+        }
+
+        // UUID Management
+        let deviceId = getCookie('deviceId');
+        if (!deviceId) {
+            deviceId = generateUUID();
+            setCookie('deviceId', deviceId, 365); // Store UUID for 1 year
+        }
+
+        // Set UUID and IP in hidden form fields
+        document.getElementById('deviceId').value = deviceId;
+
+        const ipAddress = await getPublicIP();
+        document.getElementById('ipAddress').value = ipAddress;
     };
 </script>

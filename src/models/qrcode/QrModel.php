@@ -12,10 +12,10 @@ class QrModel
     }
 
     // Method to save the QR code to the database
-    public function createQR($url, $userId, $name, $qrCodeBase64, $latitude, $longitude, $ipAddress, $userAgent)
+    public function createQR($url, $userId, $name, $qrCodeBase64, $latitude, $longitude, $ipAddress, $userAgent, $deviceId)
     {
-        $sql = "INSERT INTO {$this->qrcode} (url, user_id, name, image, latitude, longitude, ip_address, user_agent) 
-        VALUES (:url, :user_id, :name, :qrCodeBase64, :latitude, :longitude, :ip_address, :user_agent)";
+        $sql = "INSERT INTO {$this->qrcode} (url, user_id, name, image, latitude, longitude, ip_address, user_agent, device_id) 
+        VALUES (:url, :user_id, :name, :qrCodeBase64, :latitude, :longitude, :ip_address, :user_agent, :device_id)";
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute([
             ':url' => $url,
@@ -25,7 +25,8 @@ class QrModel
             ':latitude' => $latitude,
             ':longitude' => $longitude,
             ':ip_address' => $ipAddress,
-            ':user_agent' => $userAgent
+            ':user_agent' => $userAgent,
+            ':device_id' => $deviceId
         ]);
     }
 

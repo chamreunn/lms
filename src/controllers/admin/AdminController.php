@@ -1341,6 +1341,9 @@ class AdminController
 
             $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
 
+            // Capture the device ID from the form (sent from the frontend)
+            $deviceId = $_POST['device_id'] ?? 'Unknown';
+
             // Check if a logo is uploaded
             if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
                 $fileType = mime_content_type($_FILES['logo']['tmp_name']);
@@ -1375,10 +1378,10 @@ class AdminController
             // Convert the QR code image to a base64 string for database insertion
             $qrCodeBase64 = base64_encode($qrCodeImage);
 
-            // Save QR code data and location to the database
+            // Save QR code data and location to the database, along with the device ID
             try {
                 $adminModel = new QrModel();
-                $generated = $adminModel->createQR($url, $userId, $name, $qrCodeBase64, $latitude, $longitude, $ipAddress, $userAgent);
+                $generated = $adminModel->createQR($url, $userId, $name, $qrCodeBase64, $latitude, $longitude, $ipAddress, $userAgent, $deviceId);
 
                 if ($generated) {
                     $_SESSION['success'] = [

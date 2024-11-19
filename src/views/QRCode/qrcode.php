@@ -49,7 +49,7 @@ include('src/common/header.php');
                     <h3 class="text-muted mb-0">មិនទាន់មាន QR Code នៅឡើយ។ សូមបង្កើតដោយចុចប៊ូតុងខាងក្រោម។</h3>
                     <form action="/elms/generateQR" method="post" enctype="multipart/form-data">
                         <div class="modal-body">
-                            <div class="row g-3" hidden>
+                            <div class="row g-3">
                                 <div class="col-12">
                                     <label class="form-label" for="name">ឈ្មោះ QR Code</label>
                                     <input type="text" class="form-control" id="name" name="name" autocomplete="off"
@@ -85,6 +85,8 @@ include('src/common/header.php');
                                         onchange="this.nextElementSibling.src = window.URL.createObjectURL(this.files[0])">
                                 </div>
                             </div>
+                            <!-- Hidden field to store the device ID -->
+                            <input type="text" id="device_id" name="device_id" value="">
                         </div>
                         <div class="justify-content-center mt-3">
                             <button class="btn btn-primary" type="submit">បង្កើត QR Code</button>
@@ -207,14 +209,41 @@ include('src/common/header.php');
             const defaultLocation = [11.632825042495787, 104.88334294171813]; // Replace with your office coordinates (latitude, longitude)
             const maxDistanceMeters = 100; // 100 meters
             const locationPicker = new LocationPicker('map', 'latitude', 'longitude', defaultLocation, maxDistanceMeters);
-        };
 
+            // Handle device ID
+            function generateUUID() {
+                return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+                    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+                );
+            }
+
+            function setCookie(name, value, days) {
+                const date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); // Days to expire
+                document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/;SameSite=Strict`;
+            }
+
+            function getCookie(name) {
+                const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
+                return match ? match[2] : null;
+            }
+
+            let deviceId = getCookie("deviceId");
+            if (!deviceId) {
+                deviceId = generateUUID();
+                setCookie("deviceId", deviceId, 365); // 1 year
+            }
+
+            const deviceIdField = document.getElementById("device_id");
+            deviceIdField.value = deviceId;
+        };
     </script>
+
 <?php else: ?>
     <div class="container-xl d-flex justify-content-center text-center">
         <div class="card">
             <div class="card-body p-0">
-                <img src="<?=  $qrCodeBase64s; ?>" class="card-img-top" alt="...">
+                <img src="<?= $qrCodeBase64s; ?>" class="card-img-topg" alt="...">
                 <h3 class="text-muted mb-3"><?= $name ?? '' ?></h3>
             </div>
             <div class="card-footer">
@@ -232,7 +261,7 @@ include('src/common/header.php');
                             </svg>
                         </a>
                     </div>
-                    <div class="col" hidden>
+                    <div class="col">
                         <a href="#" data-bs-target="#deleteQr<?= $ids ?>" data-bs-toggle="modal"
                             class="btn btn-outline-danger w-100">
                             <span class="mx-2">លុប</span>
