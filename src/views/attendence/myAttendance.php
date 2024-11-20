@@ -170,7 +170,7 @@ include('src/common/header.php');
                         class="avatar avatar-lg">
                 </div>
                 <div class="col-auto px-3">
-                    <h2><?= $attendances['user_info']['khmer_name'] ?? 'NULL' ?></h2>
+                    <h2><?= $_SESSION['user_khmer_name'] ?? 'No Name' ?></h2>
                     <div class="text-muted">
                         <span class="badge <?= $_SESSION['position_color'] ?>"><?= $_SESSION['position'] ?></span>
                     </div>
@@ -203,7 +203,12 @@ include('src/common/header.php');
                                         </span>
                                     </div>
                                     <div class="col">
-                                        <div class="fw-bolder font-weight-medium">
+                                        <div class="fw-bolder font-weight-medium 
+                                            <?php
+                                            if (isset($attendances['attendance']['checkIn']) && $attendances['attendance']['checkIn'] > '09:00:00') {
+                                                echo 'text-danger'; // Red for late check-in
+                                            }
+                                            ?>">
                                             <?= $attendances['attendance']['checkIn'] ?? '--:--:--' ?>
                                         </div>
                                         <div class="text-secondary">
@@ -234,7 +239,12 @@ include('src/common/header.php');
                                         </span>
                                     </div>
                                     <div class="col">
-                                        <div class="fw-bolder font-weight-medium">
+                                        <div class="fw-bolder font-weight-medium 
+                                            <?php
+                                            if (isset($attendances['attendance']['checkOut']) && $attendances['attendance']['checkOut'] > '17:30:00') {
+                                                echo 'text-danger'; // Red for late check-in
+                                            }
+                                            ?>">
                                             <?= $attendances['attendance']['checkOut'] ?? '--:--:--' ?>
                                         </div>
                                         <div class="text-secondary">
@@ -257,7 +267,12 @@ include('src/common/header.php');
         <div class="card-body">
             <div class="col-12">
                 <div class="row row-cards">
-                    <?php if (!empty($fullAttendances)): ?>
+                    <?php if (empty($fullAttendances)): ?>
+                        <div class="text-center">
+                            <img src="public/img/icons/svgs/empty.svg" alt="">
+                            <p>មិនមានទិន្នន័យ</p>
+                        </div>
+                    <?php else: ?>
                         <?php foreach ($fullAttendances as $attendance): ?>
                             <div class="col-sm-3 col-lg-3">
                                 <div class="card card-sm bg-light">
@@ -301,11 +316,21 @@ include('src/common/header.php');
                                         <div class="row">
                                             <div class="col text-center">
                                                 <p class="text-muted">ម៉ោងចូល</p>
-                                                <strong><?= $attendance['checkIn'] ?? '--:--:--' ?></strong>
+                                                <strong class="<?php
+                                                if (isset($attendance['checkIn']) && $attendance['checkIn'] > '09:00:00') {
+                                                    echo 'text-danger'; // Red for late check-out
+                                                } ?>">
+                                                    <?= $attendance['checkIn'] ?? '--:--:--' ?>
+                                                </strong>
                                             </div>
                                             <div class="col text-center">
                                                 <p class="text-muted">ម៉ោងចេញ</p>
-                                                <strong><?= $attendance['checkOut'] ?? '--:--:--' ?></strong>
+                                                <strong class="<?php
+                                                if (isset($attendance['checkOut']) && $attendance['checkOut'] > '17:30:00') {
+                                                    echo 'text-danger'; // Red for late check-out
+                                                } ?>">
+                                                    <?= $attendance['checkOut'] ?? '--:--:--' ?>
+                                                </strong>
                                             </div>
                                         </div>
                                     </div>
