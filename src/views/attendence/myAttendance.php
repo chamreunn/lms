@@ -176,7 +176,7 @@ include('src/common/header.php');
                     </div>
                 </div>
                 <div class="col-auto hour ms-auto">
-                    <h1 class="fw-bolder text-primary font-medium"><strong>កាលបរិច្ឆេទៈ</strong> <?= date('D-m-Y') ?>
+                    <h1 class="fw-bolder text-primary font-medium"><?= date('D,d-m-Y') ?>
                     </h1>
                 </div>
             </div>
@@ -267,13 +267,13 @@ include('src/common/header.php');
         <div class="card-body">
             <div class="col-12">
                 <div class="row row-cards">
-                    <?php if (empty($fullAttendances)): ?>
+                    <?php if (empty($fullAttendances['data'])): ?>
                         <div class="text-center">
                             <img src="public/img/icons/svgs/empty.svg" alt="">
                             <p>មិនមានទិន្នន័យ</p>
                         </div>
                     <?php else: ?>
-                        <?php foreach ($fullAttendances as $attendance): ?>
+                        <?php foreach ($fullAttendances['data'] as $attendance): ?>
                             <div class="col-sm-3 col-lg-3">
                                 <div class="card card-sm bg-light">
                                     <div class="card-body">
