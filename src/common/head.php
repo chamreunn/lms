@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title><?php echo $title ?? "No Title" ?></title>
+    <title><?= $title ?? "No Title" ?></title>
     <link rel="icon" href="public/img/favicon/favicon.ico" type="image/x-icon" />
     <link rel="shortcut icon" href="public/img/favicon/favicon.ico" type="image/x-icon" />
     <!-- CSS -->
@@ -104,9 +104,9 @@
     </script>
 </head>
 
-<body class="loading border-top-wide border-primary d-flex flex-column">
+<body class=" border-top-wide border-primary d-flex flex-column">
     <!-- Loader HTML -->
-    <div id="loader-wrapper" class="loader-wrapper">
+    <!-- <div id="loader-wrapper" class="loader-wrapper">
         <div class="loader"></div>
-    </div>
+    </div> -->
     <script src="public/dist/js/demo-theme.min.js?1668287865"></script>

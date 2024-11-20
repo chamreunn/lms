@@ -2170,23 +2170,34 @@ class User
         }
     }
 
-    public function sendCheckToTelegram($userId, $date, $check)
+    public function sendCheckToTelegram($userId, $date, $check, $status = null)
     {
         // Retrieve Telegram ID of the user
         $userModel = new User();
         $telegramUser = $userModel->getTelegramIdByUserId($userId);
         if ($telegramUser && !empty($telegramUser['telegram_id'])) {
-            // Create the notification message
+            // Create the notification message with Markdown styling
             $notifications = [
-                "🔔 *វត្តមាន*",
+                "🔔 *វត្តមានប្រចាំថ្ងៃ*",
                 "---------------------------------------------",
                 "👤 *អ្នកប្រើប្រាស់:* `{$_SESSION['user_khmer_name']}`",
                 "📅 *កាលបរិច្ឆេទ:* `{$date}`",
-                "🕒 *ម៉ោង:* `{$check}`",
+                "🕒 *ម៉ោងចូល:* `{$check}`",
             ];
 
-            // Joining notifications into a single message with new lines
-            $telegramMessage = implode("\n", $notifications);
+            // Add status with an emoji for emphasis if provided
+            if ($status) {
+                $statusEmojis = [
+                    "ចូលយឺត" => "⚠️",
+                    "ចេញមុន" => "🚪",
+                    "ចេញយឺត" => "🕒",
+                ];
+                $emoji = $statusEmojis[$status] ?? "⚠️";
+                $notifications[] = "{$emoji} *ស្ថានភាព:* `{$status}`";
+            }
+
+            // Join the notifications into a single message
+            $telegramMessage = implode("\n\n", $notifications);
 
             // Send the Telegram notification
             $telegramModel = new TelegramModel($this->pdo);

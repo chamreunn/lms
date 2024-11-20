@@ -30,11 +30,19 @@
     window.addEventListener('load', function () {
         // Add a delay before removing the loader
         setTimeout(function () {
+            // Get the loader wrapper element
             var loader = document.getElementById('loader-wrapper');
+
+            // Remove the 'loading' class from the body to unblur the content
             document.body.classList.remove('loading');
+
+            // Hide the loader wrapper after the delay
             loader.style.display = 'none';
         }, 500); // Delay for 0.5 second (500 milliseconds)
     });
+
+    // Optionally, apply the 'loading' class when the page starts loading to blur the page content
+    document.body.classList.add('loading');
 </script>
 <!-- end  -->
 

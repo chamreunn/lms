@@ -1330,18 +1330,19 @@ class AdminController
             $longitude = $_POST['longitude']; // Get the longitude from the form
             $logoPath = null;
 
+            // Generate a unique token for the QR code
+            $qrToken = bin2hex(random_bytes(16));
+
+            // Append the token and user ID to the URL
+            $secureUrl = $url . '?token=' . $qrToken . '&userId=' . $userId;
+
             // Capture device details
             $ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
-
-            // If the app is behind a proxy or load balancer, we should check the HTTP_X_FORWARDED_FOR header
             if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-                // Sometimes multiple IPs are passed, so we take the first one
                 $ipAddress = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
             }
-
+            
             $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
-
-            // Capture the device ID from the form (sent from the frontend)
             $deviceId = $_POST['device_id'] ?? 'Unknown';
 
             // Check if a logo is uploaded
@@ -1368,30 +1369,37 @@ class AdminController
                 }
             } else {
                 $logoPath = 'public/img/icons/brands/logo2.png';
-                // Resize the logo
                 $logoPath = $this->resizeLogo($logoPath, $size);
             }
 
-            // Generate QR Code with specified size and resized logo
-            $qrCodeImage = $this->generateQRCodeWithLogo($url, $size, $logoPath);
+            // Generate QR Code with the secure URL
+            $qrCodeImage = $this->generateQRCodeWithLogo($secureUrl, $size, $logoPath);
 
-            // Convert the QR code image to a base64 string for database insertion
+            // Convert the QR code image to a base64 string
             $qrCodeBase64 = base64_encode($qrCodeImage);
 
-            // Save QR code data and location to the database, along with the device ID
+            // Save QR code data, token, and other details to the database
             try {
                 $adminModel = new QrModel();
-                $generated = $adminModel->createQR($url, $userId, $name, $qrCodeBase64, $latitude, $longitude, $ipAddress, $userAgent, $deviceId);
+                $generated = $adminModel->createQR(
+                    $secureUrl,
+                    $userId,
+                    $name,
+                    $qrCodeBase64,
+                    $latitude,
+                    $longitude,
+                    $ipAddress,
+                    $userAgent,
+                    $deviceId,
+                    $qrToken // Store the token in the database
+                );
 
                 if ($generated) {
                     $_SESSION['success'] = [
-                        'title' => "Generate QR Code",
-                        'message' => "QR code generated and saved successfully."
+                        'title' => "បង្កើត QR Code",
+                        'message' => "អ្នកបានបង្កើត QR Code ដោយជោគជ័យ។"
                     ];
-
-                    // Pass the base64 string to the view
                     $_SESSION['qrCodeBase64'] = $qrCodeBase64;
-
                     header("Location: /elms/qrcode");
                     exit();
                 }

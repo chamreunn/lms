@@ -19,3 +19,22 @@ session_start();
 // Include database and routing files
 require 'config/database.php';
 require 'routes.php';
+
+// Function to handle asynchronous routes
+function asyncHandler($callback)
+{
+    try {
+        // Begin output buffering
+        ob_start();
+        $callback();
+        ob_end_flush(); // Flush the output buffer
+    } catch (Throwable $e) {
+        // Catch any errors and return a 500 response
+        ob_end_clean(); // Clear output buffer on error
+        http_response_code(500);
+        echo json_encode([
+            'error' => true,
+            'message' => $e->getMessage(),
+        ]);
+    }
+}

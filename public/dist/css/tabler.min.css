@@ -2892,7 +2892,7 @@ progress {
     border: var(--tblr-border-width) solid var(--tblr-border-color);
     border-radius: var(--tblr-border-radius);
     box-shadow: var(--tblr-box-shadow-input);
-    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out
 }
 
 @media (prefers-reduced-motion:reduce) {
@@ -5760,6 +5760,24 @@ fieldset:disabled .btn {
     .progress-bar-animated {
         animation: none
     }
+}
+
+@keyframes slideInUpShort {
+    0% {
+        transform: translateY(10px);
+        /* Start from a small offset */
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.card.animate__slideInUpShort {
+    animation: slideInUpShort 0.5s ease-out forwards;
+    /* Adjust speed here */
 }
 
 .list-group {

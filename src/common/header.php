@@ -32,12 +32,7 @@ date_default_timezone_set('Asia/Bangkok');
     <link href="public/dist/libs/litepicker/dist/css/plugins/multiselect.js.css?1668287865" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
     <style>
-        .sortable:hover {
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        /* Full-Page Loader with Blur */
+        /* Default (Light Mode) Styles */
         .loader-wrapper {
             position: fixed;
             top: 0;
@@ -45,6 +40,7 @@ date_default_timezone_set('Asia/Bangkok');
             width: 100%;
             height: 100%;
             background-color: rgba(255, 255, 255, 0.7);
+            /* Light background */
             backdrop-filter: blur(8px);
             z-index: 9999;
             display: flex;
@@ -52,28 +48,61 @@ date_default_timezone_set('Asia/Bangkok');
             align-items: center;
         }
 
-        .loader {
-            border: 6px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 6px solid #3498db;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
+        .bouncing-balls {
+            display: flex;
+            gap: 10px;
         }
 
-        @keyframes spin {
+        .ball {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #3498db;
+            /* Light blue balls */
+            animation: bounce 0.6s infinite alternate;
+        }
+
+        .ball:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .ball:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .ball:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
             0% {
-                transform: rotate(0deg);
+                transform: translateY(0);
             }
 
             100% {
-                transform: rotate(360deg);
+                transform: translateY(-30px);
             }
         }
 
-        /* Page content blur when loader is visible */
-        body.loading .page {
-            filter: blur(8px);
+        /* Dark Mode Styles */
+        body.dark-theme .loader-wrapper {
+            background-color: rgba(0, 0, 0, 0.8);
+            /* Dark background */
+            backdrop-filter: blur(8px);
+        }
+
+        body.dark-theme .ball {
+            background-color: #ffffff;
+            /* White balls for dark mode */
+        }
+
+        /* Dark theme loader text (optional) */
+        body.dark-theme .loader-wrapper::after {
+            content: "Loading...";
+            color: #ffffff;
+            font-size: 18px;
+            position: absolute;
+            bottom: 10px;
         }
     </style>
 
@@ -121,7 +150,11 @@ date_default_timezone_set('Asia/Bangkok');
 <body class="loading">
     <!-- Loader HTML -->
     <div id="loader-wrapper" class="loader-wrapper">
-        <div class="loader"></div>
+        <div class="bouncing-balls">
+            <div class="ball"></div>
+            <div class="ball"></div>
+            <div class="ball"></div>
+        </div>
     </div>
 
     <script src="public/dist/js/demo-theme.min.js?1668287865"></script>

@@ -12,38 +12,44 @@ date_default_timezone_set('Asia/Phnom_Penh');
 
 <div class="page page-center">
     <div class="container-tight py-4">
-        <div class="empty">
-            <div class="empty-img">
-                <img src="<?= $_SESSION['user_profile'] ?>" class="avatar avatar-md" style="object-fit: cover;" alt="">
-            </div>
-            <p class="empty-title"><?= $_SESSION['user_khmer_name'] ?></p>
-            <h1 class="empty-subtitle text-muted">
-                <?= date('Y-m-d | H:i A') ?>
-            </h1>
+        <div class="card animate__animated animate__slideInUpShort">
+            <div class="empty">
+                <div class="empty-img">
+                    <img src="<?= $_SESSION['user_profile'] ?>" class="avatar avatar-md" style="object-fit: cover;"
+                        alt="">
+                </div>
+                <p class="empty-title"><?= $_SESSION['user_khmer_name'] ?></p>
+                <h1 class="empty-subtitle text-muted">
+                    <?= date('Y-m-d | H:i A') ?>
+                </h1>
 
-            <!-- Location Name Display (Clickable link) -->
-            <a href="#" target="_blank" id="locationName" class="mb-4 text-center">Loading location...</a>
+                <!-- Location Name Display (Clickable link) -->
+                <a href="#" target="_blank" id="locationName" class="mb-4 text-center">កំពុងពិនិត្យទីតាំង...</a>
 
-            <div class="map" hidden style="height: 400px; width: 100%;"></div>
-            <div class="empty-action">
-                <form action="/elms/actionCheck" method="POST">
-                    <div>
-                        <input type="text" id="latitude" name="latitude" value="">
-                        <input type="text" id="longitude" name="longitude" value="">
-                        <input type="text" name="userId" value="<?= $_SESSION['user_id'] ?? 'No User Id Found' ?>">
-                        <input type="text" name="date" value="<?= date('Y-m-d') ?>">
-                        <input type="text" name="check" value="<?= date('H:i:s') ?>">
-                        <input type="text" id="deviceId" name="device_id" value="">
-                        <input type="text" id="ipAddress" name="ip_address" value="">
-                    </div>
-                    <button type="submit" class="btn btn-primary">
-                        Check In
-                    </button>
-                </form>
+                <div class="map" hidden style="height: 400px; width: 100%;"></div>
+
+                <!-- Updated button logic in the form -->
+                <div class="empty-action">
+                    <form action="/elms/actionCheck" method="POST">
+                        <div hidden>
+                            <input type="text" id="latitude" name="latitude" value="">
+                            <input type="text" id="longitude" name="longitude" value="">
+                            <input type="text" name="userId" value="<?= $_SESSION['user_id'] ?? 'No User Id Found' ?>">
+                            <input type="text" name="date" value="<?= date('Y-m-d') ?>">
+                            <input type="text" name="check" value="<?= date('H:i:s') ?>">
+                            <input type="text" id="deviceId" name="device_id" value="">
+                            <input type="text" id="ipAddress" name="ip_address" value="">
+                        </div>
+                        <button type="submit" id="checkInButton" class="btn btn-primary w-100" disabled>
+                            កំពុងពិនិត្យ...
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 
 <?php require_once 'src/common/footer.php'; ?>
 
@@ -213,7 +219,29 @@ date_default_timezone_set('Asia/Phnom_Penh');
     }
 
     window.onload = async () => {
-        const locationPicker = new LocationPicker('map', 'latitude', 'longitude', 100);
+        const defaultLocation = [11.632825042495787, 104.88334294171813];
+        const maxDistance = 100; // in meters
+        const checkInButton = document.getElementById('checkInButton');
+
+        // Function to calculate distance between two coordinates (Haversine formula)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; // Radius of the Earth in meters
+            const toRadians = (degrees) => degrees * (Math.PI / 180);
+            const dLat = toRadians(lat2 - lat1);
+            const dLon = toRadians(lon2 - lon1);
+
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(toRadians(lat1)) *
+                Math.cos(toRadians(lat2)) *
+                Math.sin(dLon / 2) *
+                Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c; // Distance in meters
+        }
+
+        const locationPicker = new LocationPicker('map', 'latitude', 'longitude', maxDistance);
+
         // Generate a unique UUID for the device
         function generateUUID() {
             return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
@@ -258,5 +286,32 @@ date_default_timezone_set('Asia/Phnom_Penh');
 
         const ipAddress = await getPublicIP();
         document.getElementById('ipAddress').value = ipAddress;
+
+        // Check location and update button behavior
+        setTimeout(() => {
+            const latitude = parseFloat(document.getElementById('latitude').value);
+            const longitude = parseFloat(document.getElementById('longitude').value);
+
+            if (!isNaN(latitude) && !isNaN(longitude)) {
+                const distance = calculateDistance(
+                    defaultLocation[0],
+                    defaultLocation[1],
+                    latitude,
+                    longitude
+                );
+
+                if (distance <= maxDistance) {
+                    checkInButton.textContent = "ចុចទីនេះ";
+                    checkInButton.disabled = false;
+                } else {
+                    checkInButton.textContent =
+                        "សូមទៅពិនិត្យតាំងអោយបានត្រឹមត្រូវ! សូមអរគុណ។";
+                    checkInButton.disabled = true;
+                }
+            } else {
+                checkInButton.textContent = "Unable to get location. Please try again.";
+                checkInButton.disabled = true;
+            }
+        }, 3000); // Delay for 3 seconds to allow geolocation to fetch coordinates
     };
 </script>

@@ -9,7 +9,7 @@ $title = "ទំព័រដើម";
 include('src/common/header.php');
 function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 {
-    date_default_timezone_set(timezoneId: 'Asia/Bangkok');
+    date_default_timezone_set(timezoneId: 'Asia/Phnom_Penh');
     // Define Khmer translations for days and months
     $days = [
         'Mon' => 'ច័ន្ទ',
@@ -538,4 +538,4 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 
     // Initial update.
     updateDateTime();
-</script>c
+</script>
