@@ -163,178 +163,160 @@ include('src/common/header.php');
 
 <div class="container-xl">
     <div class="card mb-3">
-        <!-- Form for filtering attendance -->
-        <div class="card-header">
-            <form action="/elms/my-attendances" class="row w-100" method="GET">
-                <!-- Start Date -->
-                <div class="col-lg-5">
-                    <div class="input-icon">
-                        <span class="input-icon-addon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="icon">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path
-                                    d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z">
-                                </path>
-                                <path d="M16 3v4"></path>
-                                <path d="M8 3v4"></path>
-                                <path d="M4 11h16"></path>
-                                <path d="M11 15h1"></path>
-                                <path d="M12 15v3"></path>
-                            </svg>
-                        </span>
-                        <input class="form-control date-picker" name="fromDate" placeholder="កាលបរិច្ឆេទ"
-                            autocomplete="off">
+        <div class="card-body">
+            <div class="row g-3 align-items-center mb-3">
+                <div class="col-auto">
+                    <img src="<?= $_SESSION['user_profile'] ?? 'no image' ?>" alt="" style="object-fit: cover;"
+                        class="avatar avatar-lg">
+                </div>
+                <div class="col-auto px-3">
+                    <h2><?= $attendances['user_info']['khmer_name'] ?? 'NULL' ?></h2>
+                    <div class="text-muted">
+                        <span class="badge <?= $_SESSION['position_color'] ?>"><?= $_SESSION['position'] ?></span>
                     </div>
                 </div>
+                <div class="col-auto hour ms-auto">
+                    <h1 class="fw-bolder text-primary font-medium"><strong>កាលបរិច្ឆេទៈ</strong> <?= date('D-m-Y') ?>
+                    </h1>
+                </div>
+            </div>
 
-                <!-- End Date -->
-                <div class="col-lg-5">
-                    <div class="input-icon">
-                        <span class="input-icon-addon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="icon">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path
-                                    d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z">
-                                </path>
-                                <path d="M16 3v4"></path>
-                                <path d="M8 3v4"></path>
-                                <path d="M4 11h16"></path>
-                                <path d="M11 15h1"></path>
-                                <path d="M12 15v3"></path>
-                            </svg>
-                        </span>
-                        <input class="form-control date-picker" name="toDate" placeholder="កាលបរិច្ឆេទ"
-                            autocomplete="off">
+            <div class="col-12">
+                <div class="row row-cards">
+                    <div class="col-sm-6 col-lg-6">
+                        <div class="card card-sm bg-light">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <span
+                                            class="bg-primary-lt text-white avatar"><!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-login">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path
+                                                    d="M15 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+                                                <path d="M21 12h-13l3 -3" />
+                                                <path d="M11 15l-3 -3" />
+                                            </svg>
+                                        </span>
+                                    </div>
+                                    <div class="col">
+                                        <div class="fw-bolder font-weight-medium">
+                                            <?= $attendances['attendance']['checkIn'] ?? '--:--:--' ?>
+                                        </div>
+                                        <div class="text-secondary">
+                                            ម៉ោងចូល
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-6">
+                        <div class="card card-sm bg-light">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <span
+                                            class="bg-red-lt text-white avatar"><!-- Download SVG icon from http://tabler-icons.io/i/shopping-cart -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-logout">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path
+                                                    d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+                                                <path d="M9 12h12l-3 -3" />
+                                                <path d="M18 15l3 -3" />
+                                            </svg>
+                                        </span>
+                                    </div>
+                                    <div class="col">
+                                        <div class="fw-bolder font-weight-medium">
+                                            <?= $attendances['attendance']['checkOut'] ?? '--:--:--' ?>
+                                        </div>
+                                        <div class="text-secondary">
+                                            ម៉ោងចេញ
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Search Button -->
-                <div class="col-lg-2">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="icon icon-tabler icons-tabler-outline icon-tabler-search">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
-                            <path d="M21 21l-6 -6"></path>
-                        </svg>
-                        ស្វែងរក
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Attendance Table -->
-        <table class="table table-responsive table-hover mb-0">
-            <thead>
-                <tr>
-                    <th>កាលបរិច្ឆេទ</th>
-                    <th>ច្បាប់ឈប់សម្រាក</th>
-                    <th class="d-none d-md-table-cell">បេសកម្ម</th>
-                    <th>ម៉ោងចូល</th>
-                    <th class="d-none d-md-table-cell">ចូលយឺត</th>
-                    <th>ម៉ោងចេញ</th>
-                    <th class="d-none d-md-table-cell">ចេញមុន</th>
-                    <th class="d-none d-md-table-cell">ចេញយឺត</th>
-                    <th>សរុប</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (!empty($userAttendances['data'])): ?>
-                    <?php foreach ($userAttendances['data'] as $key => $attendance): ?>
-                        <tr>
-                            <td><?= $attendance['date'] ?></td>
-                            <td><?= $attendance['leave'] ?></td>
-                            <td class="d-none d-md-table-cell"><?= $attendance['mission'] ?></td>
-                            <td class="<?= ($attendance['checkIn'] > '09:00:00') ? 'text-danger' : '' ?>">
-                                <?= $attendance['checkIn'] ?>
-                            </td>
-                            <td class="d-none d-md-table-cell text-red"><?= $attendance['lateIn'] ?></td>
-                            <td
-                                class="<?= ($attendance['checkOut'] < '16:00:00' || $attendance['checkOut'] > '17:30:00') ? 'text-danger' : '' ?>">
-                                <?= $attendance['checkOut'] ?>
-                            </td>
-                            <td class="d-none d-md-table-cell text-red"><?= $attendance['exitFirst'] ?></td>
-                            <td class="d-none d-md-table-cell"><?= $attendance['lateOut'] ?></td>
-                            <td><?= $attendance['total'] ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="10" class="text-center">មិនមានទិន្នន័យ</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
-        <div class="card-footer">
-            <ul class="pagination justify-content-end mb-0">
-                <!-- Previous Page -->
-                <?php if ($page > 1): ?>
-                    <li class="page-item">
-                        <a class="page-link" href="?page=<?= $page - 1 ?>&limit=<?= $limit ?>">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                class="icon">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M15 6l-6 6l6 6"></path>
-                            </svg>
-                        </a>
-                    </li>
-                <?php endif; ?>
-
-                <!-- First Page -->
-                <?php if ($page > 3): ?>
-                    <li class="page-item">
-                        <a class="page-link" href="?page=1&limit=<?= $limit ?>">1</a>
-                    </li>
-                    <?php if ($page > 4): ?>
-                        <li class="page-item disabled">
-                            <span class="page-link">...</span>
-                        </li>
-                    <?php endif; ?>
-                <?php endif; ?>
-
-                <!-- Page Numbers -->
-                <?php
-                $start = max(1, $page - 2);
-                $end = min($totalPages, $page + 2);
-                for ($i = $start; $i <= $end; $i++): ?>
-                    <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
-                        <a class="page-link" href="?page=<?= $i ?>&limit=<?= $limit ?>"><?= $i ?></a>
-                    </li>
-                <?php endfor; ?>
-
-                <!-- Last Page -->
-                <?php if ($page < $totalPages - 2): ?>
-                    <?php if ($page < $totalPages - 3): ?>
-                        <li class="page-item disabled">
-                            <span class="page-link">...</span>
-                        </li>
-                    <?php endif; ?>
-                    <li class="page-item">
-                        <a class="page-link" href="?page=<?= $totalPages ?>&limit=<?= $limit ?>"><?= $totalPages ?></a>
-                    </li>
-                <?php endif; ?>
-
-                <!-- Next Page -->
-                <?php if ($page < $totalPages): ?>
-                    <li class="page-item">
-                        <a class="page-link" href="?page=<?= $page + 1 ?>&limit=<?= $limit ?>">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                class="icon">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M9 6l6 6l-6 6"></path>
-                            </svg>
-                        </a>
-                    </li>
-                <?php endif; ?>
-            </ul>
+            </div>
         </div>
     </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="mb-0">វត្តមានទាំងអស់</h3>
+        </div>
+        <div class="card-body">
+            <div class="col-12">
+                <div class="row row-cards">
+                    <?php if (!empty($fullAttendances)): ?>
+                        <?php foreach ($fullAttendances as $attendance): ?>
+                            <div class="col-sm-3 col-lg-3">
+                                <div class="card card-sm bg-light">
+                                    <div class="card-body">
+                                        <div class="row justify-content-between align-items-center mb-3">
+                                            <div class="col-auto">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-clock">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                                                    <path d="M12 7v5l3 3" />
+                                                </svg>
+                                                <span><?= $attendance['date'] ?? '--:--:--' ?></span>
+                                            </div>
+                                            <div class="col-auto">
+                                                <div class="badge 
+                                                    <?php
+                                                    if (!empty($attendance['lateIn'])) {
+                                                        echo 'bg-danger'; // Red for Late Check-In
+                                                    } elseif (!empty($attendance['lateOut'])) {
+                                                        echo 'bg-warning'; // Yellow for Late Check-Out
+                                                    } else {
+                                                        echo 'bg-primary'; // Blue for On Time
+                                                    }
+                                                    ?>">
+                                                    <?php
+                                                    if (!empty($attendance['lateIn'])) {
+                                                        echo $attendance['lateIn']; // Display Late Check-In
+                                                    } elseif (!empty($attendance['lateOut'])) {
+                                                        echo $attendance['lateOut']; // Display Late Check-Out
+                                                    } else {
+                                                        echo 'On Time'; // Default Text
+                                                    }
+                                                    ?>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col text-center">
+                                                <p class="text-muted">ម៉ោងចូល</p>
+                                                <strong><?= $attendance['checkIn'] ?? '--:--:--' ?></strong>
+                                            </div>
+                                            <div class="col text-center">
+                                                <p class="text-muted">ម៉ោងចេញ</p>
+                                                <strong><?= $attendance['checkOut'] ?? '--:--:--' ?></strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- old one  -->
 </div>
 <?php include('src/common/footer.php'); ?>

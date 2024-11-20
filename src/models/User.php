@@ -23,6 +23,8 @@ class User
 
     private $telegramUser = "telegram_users";
 
+    protected $attendance = "attendances";
+
     public function getApi()
     {
         return $this->api;
@@ -1553,7 +1555,6 @@ class User
         return $approver;
     }
 
-
     public function getApproverByRoleWithoutAvailabilityCheck($userModel, $userId, $token, $role, $departmentName)
     {
         $approver = null;
@@ -1997,6 +1998,105 @@ class User
                 'error' => "Unexpected API Response",
                 'response' => $responseData
             ];
+        }
+    }
+
+    public function getAttendanceByUserid($userId, $date, $token)
+    {
+        try {
+            // Check if an attendance record exists for the user on the given date
+            $sql = "SELECT * FROM {$this->attendance} WHERE userId = :user_id AND date = :date";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':user_id', $userId);
+            $stmt->bindParam(':date', $date);
+            $stmt->execute();
+
+            $attendance = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$attendance) {
+                return [
+                    'error' => true,
+                    'message' => 'No attendance record found for the specified user and date.'
+                ];
+            }
+
+            // Fetch user details from the external API
+            $userApiResponse = $this->getUserByIdApi($attendance['userId'], $token);
+
+            $userInfo = [];
+            if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                $userData = $userApiResponse['data'];
+                $userInfo = [
+                    'khmer_name' => isset($userData['lastNameKh'], $userData['firstNameKh'])
+                        ? $userData['lastNameKh'] . " " . $userData['firstNameKh']
+                        : 'N/A',
+                    'phone_number' => $userData['phoneNumber'] ?? 'N/A',
+                    'email' => $userData['email'] ?? 'N/A',
+                    'dob' => $userData['date_of_birth'] ?? 'N/A',
+                    'deputy_head_name' => $userData['deputy_head_name'] ?? 'N/A'
+                ];
+            } else {
+                error_log("Failed to fetch user data for user ID: $userId");
+                $userInfo = [
+                    'khmer_name' => 'N/A',
+                    'phone_number' => 'N/A',
+                    'email' => 'N/A',
+                    'dob' => 'N/A',
+                    'deputy_head_name' => 'N/A'
+                ];
+            }
+
+            // Combine attendance data with user information
+            return [
+                'error' => false,
+                'attendance' => $attendance,
+                'user_info' => $userInfo
+            ];
+        } catch (Exception $e) {
+            error_log("Error fetching attendance or user data: " . $e->getMessage());
+            return [
+                'error' => true,
+                'message' => 'An unexpected error occurred while processing the request.'
+            ];
+        }
+    }
+
+    public function fullAttendanceByUserid($userId, $token)
+    {
+        try {
+            // Fetch all attendance records for the user
+            $sql = "SELECT * FROM {$this->attendance} WHERE userId = :user_id ORDER BY id DESC";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':user_id', $userId);
+            $stmt->execute();
+
+            $attendances = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (!$attendances) {
+                return []; // Return an empty array if no attendance records are found
+            }
+
+            // Analyze each record to determine late check-in or check-out
+            foreach ($attendances as &$attendance) {
+                // Default statuses
+                $attendance['lateIn'] = null;
+                $attendance['lateOut'] = null;
+
+                // Check for late check-in
+                if (isset($attendance['checkIn']) && strtotime($attendance['checkIn']) > strtotime('09:00:00')) {
+                    $attendance['lateIn'] = 'ចូលយឺត';
+                }
+
+                // Check for late check-out
+                if (isset($attendance['checkOut']) && strtotime($attendance['checkOut']) > strtotime('17:30:00')) {
+                    $attendance['lateOut'] = 'ចេញយឺត';
+                }
+            }
+
+            return $attendances; // Return the modified attendance records
+        } catch (Exception $e) {
+            error_log("Error fetching attendance records: " . $e->getMessage());
+            return []; // Return an empty array on error
         }
     }
 

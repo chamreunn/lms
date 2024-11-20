@@ -517,33 +517,11 @@ class LeaveController
 
     public function displayAttendances()
     {
-        // Get the current page and limit from the request, default to 1 and 10 respectively
-        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-        $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 10;
-
         // Fetch all user attendance data from the model
         $userModel = new User();
-        $userAttendances = $userModel->getUserAttendanceByIdApi($_SESSION['user_id'], $_SESSION['token']);
-
-        // Check if the API response is valid
-        if (isset($userAttendances['data'])) {
-            // Get total records for pagination
-            $totalRecords = count($userAttendances['data']); // Total records from API response
-
-            // Calculate total pages
-            $totalPages = ceil($totalRecords / $limit);
-
-            // Calculate the offset for the current page
-            $offset = ($page - 1) * $limit;
-
-            // Slice the data for the current page
-            $pagedData = array_slice($userAttendances['data'], $offset, $limit);
-
-            // Assign paged data back to the variable
-            $userAttendances['data'] = $pagedData;
-        } else {
-            $userAttendances['data'] = []; // Fallback if no data is present
-        }
+        $currentdate = date('Y-m-d');
+        $attendances = $userModel->getAttendanceByUserid($_SESSION['user_id'], $currentdate, $_SESSION['token'], );
+        $fullAttendances = $userModel->fullAttendanceByUserid($_SESSION['user_id'], $_SESSION['token'], );
 
         // Pass the data and pagination info to the view
         require 'src/views/attendence/myAttendance.php';

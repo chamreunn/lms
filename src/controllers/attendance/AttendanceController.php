@@ -67,8 +67,7 @@ class AttendanceController
         $qrModel = new QrModel();
         $qrModel->logScan($logData);
     }
-
-
+    
     public function action()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
