@@ -305,13 +305,13 @@ include('src/common/header.php');
         <div class="card-body">
             <div class="col-12">
                 <div class="row row-cards">
-                    <?php if (empty($pagedData) || !is_array($pagedData)): ?>
+                    <?php if (empty($pagedData['data']) || !is_array($pagedData['data'])): ?>
                         <div class="text-center">
                             <img src="public/img/icons/svgs/empty.svg" alt="">
                             <p>មិនមានទិន្នន័យ</p>
                         </div>
                     <?php else: ?>
-                        <?php foreach ($pagedData as $attendance): ?>
+                        <?php foreach ($pagedData['data'] as $attendance): ?>
                             <div class="col-sm-3 col-lg-3">
                                 <div class="card card-sm bg-light">
                                     <div class="card-body">

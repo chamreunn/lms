@@ -1898,33 +1898,33 @@ class User
         return !empty($result);
     }
 
-    public function getUserAttendanceByIdApi($id, $token, $page = '1', $limit = '5')
+    public function getUserAttendanceByIdApi($id, $token, $page = 1, $limit = 10)
     {
         try {
-            // Calculate the offset based on page and limit
+            // Calculate the offset based on page and limit (optional since pagination is handled by the API)
             $offset = ($page - 1) * $limit;
-
+    
             // Construct the API URL with pagination query parameters
             $url = "{$this->api}/api/v1/attendances/user/{$id}?page={$page}&limit={$limit}";
-
+    
             // Initialize cURL session
             $ch = curl_init($url);
-
+    
             // Set cURL options
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Authorization: Bearer ' . $token
             ]);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
+    
             // Execute the cURL request
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $error = curl_error($ch);
-
+    
             // Close cURL session
             curl_close($ch);
-
+    
             // Check for cURL errors
             if ($response === false) {
                 error_log("CURL Error: $error");
@@ -1933,28 +1933,22 @@ class User
                     'error' => "CURL Error: $error"
                 ];
             }
-
+    
             // Decode JSON response
             $responseData = json_decode($response, true);
-
+    
             // Handle non-200 HTTP response codes
-            if ($httpCode !== 200) {
+            if ($httpCode !== 200 || !isset($responseData['data'])) {
+                error_log("API Error: HTTP Code $httpCode, Message: " . ($responseData['message'] ?? 'Unknown error'));
                 return [
                     'http_code' => $httpCode,
-                    'error' => $responseData['message'] ?? 'An error occurred while fetching attendance data'
+                    'error' => $responseData['message'] ?? 'Unknown API error'
                 ];
             }
-
-            // Check if data is available in the API response
-            if (!isset($responseData['data']) || empty($responseData['data'])) {
-                return [
-                    'http_code' => $httpCode,
-                    'data' => [] // Return an empty array if no data is available
-                ];
-            }
-
-            $attendances = $responseData['data']; // Extract attendance records
-
+    
+            // Extract attendance records
+            $attendances = $responseData['data'];
+    
             // Process attendance records to include additional statuses
             foreach ($attendances as &$attendance) {
                 // Default statuses
@@ -1962,47 +1956,46 @@ class User
                 $attendance['lateOut'] = null;
                 $attendance['leaveEarly'] = null;
                 $attendance['status'] = null;
-
+    
                 // Check for late check-in
-                if (isset($attendance['checkIn']) && strtotime($attendance['checkIn']) > strtotime('09:00:00')) {
+                if (!empty($attendance['checkIn']) && strtotime($attendance['checkIn']) > strtotime('09:00:00')) {
                     $attendance['lateIn'] = 'ចូលយឺត'; // Late Check-In
                 }
-
+    
                 // Check for early check-out
-                if (isset($attendance['checkOut']) && strtotime($attendance['checkOut']) < strtotime('16:00:00')) {
+                if (!empty($attendance['checkOut']) && strtotime($attendance['checkOut']) < strtotime('16:00:00')) {
                     $attendance['leaveEarly'] = 'ចេញមុន'; // Leave Early
                 }
-
+    
                 // Check for late check-out
-                if (isset($attendance['checkOut']) && strtotime($attendance['checkOut']) > strtotime('17:30:00')) {
+                if (!empty($attendance['checkOut']) && strtotime($attendance['checkOut']) > strtotime('17:30:00')) {
                     $attendance['lateOut'] = 'ចេញយឺត'; // Late Check-Out
                 }
-
+    
                 // Check for leave
-                if (isset($attendance['leave']) && $attendance['leave'] == 1) {
+                if (!empty($attendance['leave']) && $attendance['leave'] == 1) {
                     $attendance['status'] = 'ច្បាប់'; // Leave
                 }
-
+    
                 // Check for mission
-                if (isset($attendance['mission']) && $attendance['mission'] == 1) {
+                if (!empty($attendance['mission']) && $attendance['mission'] == 1) {
                     $attendance['status'] = 'បេសកកម្ម'; // Mission
                 }
             }
-
+    
             // Return the processed attendance records
             return [
                 'http_code' => $httpCode,
                 'data' => $attendances
             ];
         } catch (Exception $e) {
-            // Log any unexpected exceptions
-            error_log("Error fetching attendance records: " . $e->getMessage());
+            error_log("Error fetching user attendance via API: " . $e->getMessage());
             return [
                 'http_code' => 500,
-                'error' => "An unexpected error occurred: " . $e->getMessage()
+                'error' => $e->getMessage()
             ];
         }
-    }
+    }    
 
     public function todayAttendanceByUseridApi($userId, $date, $token)
     {
@@ -2057,6 +2050,7 @@ class User
             return []; // Return an empty array on error
         }
     }
+
 
     public function getAllUserAttendance($token)
     {
