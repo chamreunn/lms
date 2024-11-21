@@ -530,8 +530,8 @@ class LeaveController
 
             // Fetch all attendance records for the user
             $userModel = new User();
-            $fullAttendances = $userModel->fullAttendanceByUserid($_SESSION['user_id'], $currentDate);
-            $todayAttendances = $userModel->todayAttendanceByUserid($_SESSION['user_id'], $currentDate);
+            $fullAttendances = $userModel->getUserAttendanceByIdApi($_SESSION['user_id'], $_SESSION['token'], $page, $limit);
+            $todayAttendances = $userModel->todayAttendanceByUseridApi($_SESSION['user_id'], $currentDate, $_SESSION['token']);
 
             // Total records
             $totalRecords = count($fullAttendances);
