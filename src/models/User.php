@@ -1898,7 +1898,7 @@ class User
         return !empty($result);
     }
 
-    public function getUserAttendanceByIdApi($id, $token, $page, $limit)
+    public function getUserAttendanceByIdApi($id, $token, $page = '1', $limit = '5')
     {
         try {
             // Calculate the offset based on page and limit
@@ -2057,7 +2057,6 @@ class User
             return []; // Return an empty array on error
         }
     }
-
 
     public function getAllUserAttendance($token)
     {
