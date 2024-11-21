@@ -517,36 +517,49 @@ class LeaveController
 
     public function displayAttendances()
     {
-        // Get the current page and limit from the request, default to 1 and 10 respectively
-        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-        $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 10;
+        try {
+            // Validate user session
+            if (!isset($_SESSION['user_id'])) {
+                throw new Exception("User not logged in.");
+            }
 
-        // Fetch all user attendance data from the model
-        $userModel = new User();
-        $fullAttendances = $userModel->getUserAttendanceByIdApi($_SESSION['user_id'], $_SESSION['token']);
+            // Get the current page and limit from the request, default to 1 and 10 respectively
+            $page = isset($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
+            $limit = isset($_GET['limit']) ? max(1, (int) $_GET['limit']) : 5;
+            $currentDate = date('Y-m-d');
 
-        // Check if the API response is valid
-        if (isset($fullAttendances['data'])) {
-            // Get total records for pagination
-            $totalRecords = count($fullAttendances['data']); // Total records from API response
+            // Fetch all attendance records for the user
+            $userModel = new User();
+            $fullAttendances = $userModel->fullAttendanceByUserid($_SESSION['user_id'], $currentDate);
+            $todayAttendances = $userModel->todayAttendanceByUserid($_SESSION['user_id'], $currentDate);
 
-            // Calculate total pages
-            $totalPages = ceil($totalRecords / $limit);
+            // Total records
+            $totalRecords = count($fullAttendances);
+            if ($totalRecords === 0) {
+                $pagedData = []; // No records to paginate
+                $totalPages = 1; // Default to one page for empty data
+            } else {
+                // Calculate total pages
+                $totalPages = ceil($totalRecords / $limit);
 
-            // Calculate the offset for the current page
-            $offset = ($page - 1) * $limit;
+                // Calculate the offset for the current page
+                $offset = ($page - 1) * $limit;
 
-            // Slice the data for the current page
-            $pagedData = array_slice($fullAttendances['data'], $offset, $limit);
+                // Slice the data for the current page
+                $pagedData = array_slice($fullAttendances, $offset, $limit);
+            }
 
-            // Assign paged data back to the variable
-            $fullAttendances['data'] = $pagedData;
-        } else {
-            $fullAttendances['data'] = []; // Fallback if no data is present
+            // Pass the paginated data and pagination info to the view
+            require 'src/views/attendence/myAttendance.php';
+        } catch (Exception $e) {
+            // Log error and display a user-friendly message
+            error_log("Error in displayAttendances: " . $e->getMessage());
+            $pagedData = [];
+            $totalPages = 1;
+
+            // Render the view with no data
+            require 'src/views/attendence/myAttendance.php';
         }
-
-        // Pass the data and pagination info to the view
-        require 'src/views/attendence/myAttendance.php';
     }
 
     public function filterAttendence()

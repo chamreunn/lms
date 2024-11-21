@@ -15,6 +15,7 @@ class User
         if (isset($_SERVER['SERVER_NAME']) && ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_ADDR'] == '127.0.0.1')) {
             // Local development environment
             $this->api = "http://127.0.0.1:8000";
+            // $this->api = "http://172.25.26.6:8000";
         } else {
             // Production environment
             $this->api = "http://172.25.26.6:8000";
@@ -2061,13 +2062,41 @@ class User
         }
     }
 
-    public function fullAttendanceByUserid($userId, $token)
+    public function todayAttendanceByUserid($userId, $date)
+    {
+        try {
+            // Query to fetch today's attendance records for the user
+            $sql = "SELECT * FROM {$this->attendance} 
+                WHERE userId = :user_id AND date = :date 
+                ORDER BY id DESC";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindParam(':date', $date, PDO::PARAM_STR);
+
+            if (!$stmt->execute()) {
+                error_log("Database Query Error: " . implode(" | ", $stmt->errorInfo()));
+                return [];
+            }
+
+            // Ensure result is always an array
+            $attendances = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+            return $attendances; // Return the attendance records
+        } catch (Exception $e) {
+            error_log("Error fetching today's attendance records: " . $e->getMessage());
+            return []; // Return an empty array on error
+        }
+    }
+
+    public function fullAttendanceByUserid($userId, $date)
     {
         try {
             // Fetch all attendance records for the user
-            $sql = "SELECT * FROM {$this->attendance} WHERE userId = :user_id ORDER BY id DESC";
+            $sql = "SELECT * FROM {$this->attendance} WHERE userId = :user_id AND date != :date ORDER BY id DESC";
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindParam(':user_id', $userId);
+            $stmt->bindParam(':date', $date);
             $stmt->execute();
 
             $attendances = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -2076,20 +2105,37 @@ class User
                 return []; // Return an empty array if no attendance records are found
             }
 
-            // Analyze each record to determine late check-in or check-out
+            // Analyze each record to determine statuses
             foreach ($attendances as &$attendance) {
                 // Default statuses
                 $attendance['lateIn'] = null;
                 $attendance['lateOut'] = null;
+                $attendance['leaveEarly'] = null;
+                $attendance['status'] = null;
 
                 // Check for late check-in
                 if (isset($attendance['checkIn']) && strtotime($attendance['checkIn']) > strtotime('09:00:00')) {
-                    $attendance['lateIn'] = 'ចូលយឺត';
+                    $attendance['lateIn'] = 'ចូលយឺត'; // Late Check-In
+                }
+
+                // Check for early check-out
+                if (isset($attendance['checkOut']) && strtotime($attendance['checkOut']) < strtotime('16:00:00')) {
+                    $attendance['leaveEarly'] = 'ចេញមុន'; // Leave Early
                 }
 
                 // Check for late check-out
                 if (isset($attendance['checkOut']) && strtotime($attendance['checkOut']) > strtotime('17:30:00')) {
-                    $attendance['lateOut'] = 'ចេញយឺត';
+                    $attendance['lateOut'] = 'ចេញយឺត'; // Late Check-Out
+                }
+
+                // Check for leave
+                if (isset($attendance['leave']) && $attendance['leave'] == 1) {
+                    $attendance['status'] = 'ច្បាប់'; // Leave
+                }
+
+                // Check for mission
+                if (isset($attendance['mission']) && $attendance['mission'] == 1) {
+                    $attendance['status'] = 'បេសកកម្ម'; // Mission
                 }
             }
 
