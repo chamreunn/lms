@@ -181,12 +181,12 @@ include('src/common/header.php');
                 </div>
             </div>
 
-            <?php if (!empty($todayAttendances)): ?>
+            <?php if (!empty($todayAttendance)): ?>
                 <div class="col-12">
                     <div class="row row-cards">
                         <?php
-                        // Assuming $todayAttendances[0] is the record you're dealing with
-                        $attendance = $todayAttendances[0]; // Access the first attendance record
+                        // Assuming $todayAttendance[0] is the record you're dealing with
+                        $attendance = $todayAttendance[0]; // Access the first attendance record
                         if ($attendance['leave'] !== '1' && $attendance['mission'] !== '1'):
                             ?>
                             <div class="col-sm-6 col-lg-6">
@@ -268,10 +268,11 @@ include('src/common/header.php');
                                 <div class="card card-sm bg-light">
                                     <div class="card-body">
                                         <div class="row align-items-center">
-                                            <div class="col">
-                                                <div class="text-danger fw-bolder text-center">
+                                            <div class="col text-center">
+                                                <h1 class="text-danger fw-bolder">
                                                     ច្បាប់ឈប់សម្រាក
-                                                </div>
+                                                </h1>
+                                                <p class="text-muted mb-0">អ្នកបានដាក់ច្បាប់ឈប់សម្រាកសម្រាប់ថ្ងៃនេះ។</p>
                                             </div>
                                         </div>
                                     </div>
@@ -282,10 +283,11 @@ include('src/common/header.php');
                                 <div class="card card-sm bg-light">
                                     <div class="card-body">
                                         <div class="row align-items-center">
-                                            <div class="col">
-                                                <div class="text-danger fw-bolder text-center">
-                                                    បេសកកម្ម
-                                                </div>
+                                            <div class="col text-center">
+                                                <h1 class="text-danger fw-bolder">
+                                                បេសកកម្ម
+                                                </h1>
+                                                <p class="text-muted mb-0">អ្នកមានបេសកកម្មថ្ងៃនេះ។</p>
                                             </div>
                                         </div>
                                     </div>
@@ -305,13 +307,13 @@ include('src/common/header.php');
         <div class="card-body">
             <div class="col-12">
                 <div class="row row-cards">
-                    <?php if (empty($pagedData['data']) || !is_array($pagedData['data'])): ?>
+                    <?php if (empty($pagedData) || !is_array($pagedData)): ?>
                         <div class="text-center">
                             <img src="public/img/icons/svgs/empty.svg" alt="">
                             <p>មិនមានទិន្នន័យ</p>
                         </div>
                     <?php else: ?>
-                        <?php foreach ($pagedData['data'] as $attendance): ?>
+                        <?php foreach ($pagedData as $attendance): ?>
                             <div class="col-sm-3 col-lg-3">
                                 <div class="card card-sm bg-light">
                                     <div class="card-body">

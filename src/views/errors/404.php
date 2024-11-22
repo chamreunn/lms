@@ -252,5 +252,6 @@ if (isset($_GET['unset_session'])) {
             </div>
         </div>
     </div>
+</div>
 
-    <?php include('src/common/footer.php') ?>
+<?php include('src/common/footer.php') ?>

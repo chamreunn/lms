@@ -95,29 +95,6 @@ class LeaveController
                     throw new Exception("ប្រភេទច្បាប់ឈប់សម្រាកនេះមានរយៈពេល " . $leave_type_duration . " ថ្ងៃ។ សូមពិនិត្យមើលប្រភេទច្បាប់ដែលអ្នកបានជ្រើសរើសម្តងទៀត");
                 }
 
-                // Fetch the user's office details via API
-                $Depoffice = $userModel->getEmailLeaderDOApi($user_id, $_SESSION['token']);
-                if (!$Depoffice || $Depoffice['http_code'] !== 200 || empty($Depoffice['ids'])) {
-                    throw new Exception("Unable to find office details. Please contact support.");
-                }
-
-                // Use the first available manager's ID and email
-                $managerId = !empty($Depoffice['ids']) ? $Depoffice['ids'][0] : null;
-                $managerEmail = !empty($Depoffice['emails']) ? $Depoffice['emails'][0] : null;
-                $managerName = !empty($Depoffice['lastNameKh']) && !empty($Depoffice['firstNameKh'])
-                    ? $Depoffice['lastNameKh'][0] . ' ' . $Depoffice['firstNameKh'][0]
-                    : null;
-
-                if (!$managerId || !$managerEmail) {
-                    throw new Exception("No valid manager details found.");
-                }
-
-                // Check if the manager is on leave or mission today using the leave_requests table
-                $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
-                $isManagerOnMission = $userModel->isManagerOnMission($managerId);
-
-                $link = "https://leave.iauoffsa.us/elms/pending";
-
                 // Create leave request
                 $leaveRequestModel = new LeaveModel();
                 $leaveRequestId = $leaveRequestModel->create(
@@ -139,39 +116,92 @@ class LeaveController
                     throw new Exception("Failed to create leave request. Please try again.");
                 }
 
-                if ($isManagerOnLeave || $isManagerOnMission) {
-                    // Submit approval to backup manager if primary is on leave or mission
-                    $leaveApproval = new LeaveModel();
-                    $leaveApproval->submitApproval($leaveRequestId, $managerId, $isManagerOnLeave ? $status : $mission, $isManagerOnLeave ? $leaveRemarks : $mission);
+                // Define all manager API methods
+                $managerApis = [
+                    'getEmailLeaderDOApi',
+                    'getEmailLeaderHOApi',
+                    'getEmailLeaderDDApi',
+                    'getEmailLeaderHDApi',
+                ];
 
-                    // Fetch another available manager if the current manager is on leave
-                    $backupManager = $userModel->getEmailLeaderHOApi($user_id, $_SESSION['token']);
-                    if (!$backupManager || empty($backupManager['emails'])) {
-                        throw new Exception("Both the primary and backup managers are unavailable. Please contact support.");
+                // Dynamically determine which DHU API to use based on department
+                if (in_array($department, ['នាយកដ្ឋានកិច្ចការទូទៅ', 'នាយកដ្ឋានសវនកម្មទី២'])) {
+                    $managerApis[] = 'getEmailLeaderDHU1Api';
+                } else {
+                    $managerApis[] = 'getEmailLeaderDHU2Api';
+                }
+
+                // Add the final HU API
+                $managerApis[] = 'getEmailLeaderHUApi';
+
+                $link = "https://leave.iauoffsa.us/elms/pending";
+                $approvingManagerId = null;
+                $approvingManagerEmail = null;
+                $approvingManagerName = null;
+
+                foreach ($managerApis as $apiMethod) {
+                    $managerDetails = $userModel->$apiMethod($user_id, $_SESSION['token']);
+                    if (!$managerDetails || empty($managerDetails['ids'])) {
+                        continue; // Skip if no managers found
                     }
 
-                    // Update to backup manager's details
-                    $managerId = !empty($backupManager['ids']) ? $backupManager['ids'][0] : null;
-                    $managerEmail = $backupManager['emails'][0];
-                    $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
-                    $link = "https://leave.iauoffsa.us/elms/headofficepending";
+                    foreach ($managerDetails['ids'] as $index => $managerId) {
+                        $managerEmail = $managerDetails['emails'][$index] ?? null;
+                        $managerName = $managerDetails['lastNameKh'][$index] . ' ' . $managerDetails['firstNameKh'][$index];
 
-                    // Send Telegram notification for backup manager
-                    $userModel->sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link);
-                } else {
+                        // Check if the manager is on leave or mission
+                        $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+                        $isManagerOnMission = $userModel->isManagerOnMission($managerId);
 
-                    // Send Telegram notification for primary manager
-                    $userModel->sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link);
+                        if ($isManagerOnLeave || $isManagerOnMission) {
+                            // Update approval for this manager
+                            $approvalStatus = $isManagerOnLeave ? $status : $mission;
+                            $approvalRemarks = $isManagerOnLeave ? $leaveRemarks : $mission;
+
+                            $leaveApproval = new LeaveModel();
+                            $leaveApproval->submitApproval($leaveRequestId, $managerId, $approvalStatus, $approvalRemarks);
+
+                            // Notify manager via Telegram
+                            $userModel->sendTelegramNotification(
+                                $userModel,
+                                $managerId,
+                                $start_date,
+                                $end_date,
+                                $duration_days,
+                                $remarks,
+                                $leaveRequestId,
+                                $link
+                            );
+                        } else {
+                            // Assign the first available manager
+                            $approvingManagerId = $managerId;
+                            $approvingManagerEmail = $managerEmail;
+                            $approvingManagerName = $managerName;
+                            break 2; // Exit both loops once a valid manager is found
+                        }
+                    }
                 }
 
-                // Send email notification
-                if (!$this->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
+                // Ensure a valid manager was found
+                if (!$approvingManagerId) {
+                    throw new Exception("No available managers for approval. Please contact support.");
+                }
+
+                // Send email notification to the assigned manager
+                if (
+                    !$this->sendEmailNotification(
+                        $approvingManagerEmail,
+                        $message,
+                        $leaveRequestId,
+                        $start_date,
+                        $end_date,
+                        $duration_days,
+                        $remarks,
+                        $leaveType['name']
+                    )
+                ) {
                     throw new Exception("Notification email could not be sent. Please try again.");
                 }
-
-                // Create notification for the user
-                $notificationModel = new Notification();
-                $notificationModel->createNotification([$managerId], $user_id, $leaveRequestId, $message);
 
                 // Log user activity
                 $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
@@ -181,7 +211,7 @@ class LeaveController
 
                 $_SESSION['success'] = [
                     'title' => "ជោគជ័យ",
-                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
+                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $approvingManagerName
                 ];
                 header("Location: /elms/my-leaves");
                 exit();
@@ -518,49 +548,40 @@ class LeaveController
     public function displayAttendances()
     {
         try {
-            // Validate user session
-            if (!isset($_SESSION['user_id'])) {
+            // Validate session
+            if (empty($_SESSION['user_id'])) {
                 throw new Exception("User not logged in.");
             }
 
-            // Get the current page and limit from the request, default to 1 and 10 respectively
-            $page = isset($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
-            $limit = isset($_GET['limit']) ? max(1, (int) $_GET['limit']) : 5;
+            // Get pagination values
+            $page = max(1, (int) ($_GET['page'] ?? 1));
+            $limit = max(1, (int) ($_GET['limit'] ?? 31));
             $currentDate = date('Y-m-d');
 
-            // Fetch all attendance records for the user
+            // Fetch attendance data
             $userModel = new User();
-            $fullAttendances = $userModel->getUserAttendanceByIdApi($_SESSION['user_id'], $_SESSION['token'], $page, $limit);
-            $todayAttendances = $userModel->todayAttendanceByUseridApi($_SESSION['user_id'], $currentDate, $_SESSION['token']);
-
-            // Total records
-            $totalRecords = count($fullAttendances);
-            if ($totalRecords === 0) {
-                $pagedData = []; // No records to paginate
-                $totalPages = 1; // Default to one page for empty data
-            } else {
-                // Calculate total pages
-                $totalPages = ceil($totalRecords / $limit);
-
-                // Calculate the offset for the current page
-                $offset = ($page - 1) * $limit;
-
-                // Slice the data for the current page
-                $pagedData = array_slice($fullAttendances, $offset, $limit);
+            $attendanceResponse = $userModel->getUserAttendanceByIdApi($_SESSION['user_id'], $_SESSION['token'], $page, $limit);
+            $todayAttendance = $userModel->todayAttendanceByUseridApi($_SESSION['user_id'], $currentDate, $_SESSION['token'], );
+            // Check response status
+            if ($attendanceResponse['http_code'] !== 200 || !isset($attendanceResponse['data'])) {
+                throw new Exception("Failed to fetch attendance data.");
             }
 
-            // Pass the paginated data and pagination info to the view
+            // Prepare paginated data
+            $totalRecords = count($attendanceResponse['data']);
+            $totalPages = ceil($totalRecords / $limit);
+            $pagedData = array_slice($attendanceResponse['data'], ($page - 1) * $limit, $limit);
+
+            // Load the view
             require 'src/views/attendence/myAttendance.php';
         } catch (Exception $e) {
-            // Log error and display a user-friendly message
             error_log("Error in displayAttendances: " . $e->getMessage());
             $pagedData = [];
             $totalPages = 1;
-
-            // Render the view with no data
             require 'src/views/attendence/myAttendance.php';
         }
     }
+
 
     public function filterAttendence()
     {

@@ -35,18 +35,18 @@ class FontVariables
 			'backupSIPFont' => 'sun-extb',
 
 			/*
-			  This array defines translations from font-family in CSS or HTML
-			  to the internal font-family name used in mPDF.
-			  Can include as many as want, regardless of which fonts are installed.
-			  By default mPDF will take a CSS/HTML font-family and remove spaces
-			  and change to lowercase e.g. "Times New Roman" will be recognised as
-			  "timesnewroman"
-			  You only need to define additional translations.
-			  You can also use it to define specific substitutions e.g.
-			  'helvetica' => 'arial'
-			  Generic substitutions (i.e. to a sans-serif or serif font) are set
-			  by including the font-family in e.g. 'sans_fonts' below
-			 */
+														   This array defines translations from font-family in CSS or HTML
+														   to the internal font-family name used in mPDF.
+														   Can include as many as want, regardless of which fonts are installed.
+														   By default mPDF will take a CSS/HTML font-family and remove spaces
+														   and change to lowercase e.g. "Times New Roman" will be recognised as
+														   "timesnewroman"
+														   You only need to define additional translations.
+														   You can also use it to define specific substitutions e.g.
+														   'helvetica' => 'arial'
+														   Generic substitutions (i.e. to a sans-serif or serif font) are set
+														   by including the font-family in e.g. 'sans_fonts' below
+														  */
 			'fonttrans' => [
 				'times' => 'timesnewroman',
 				'courier' => 'couriernew',
@@ -59,38 +59,38 @@ class FontVariables
 			],
 
 			/*
-			  This array lists the file names of the TrueType .ttf or .otf font files
-			  for each variant of the (internal mPDF) font-family name.
-			  ['R'] = Regular (Normal), others are Bold, Italic, and Bold-Italic
-			  Each entry must contain an ['R'] entry, but others are optional.
-			  Only the font (files) entered here will be available to use in mPDF.
-			  Put preferred default first in order
-			  This will be used if a named font cannot be found in any of
-			  'sans_fonts', 'serif_fonts' or 'mono_fonts'
+														   This array lists the file names of the TrueType .ttf or .otf font files
+														   for each variant of the (internal mPDF) font-family name.
+														   ['R'] = Regular (Normal), others are Bold, Italic, and Bold-Italic
+														   Each entry must contain an ['R'] entry, but others are optional.
+														   Only the font (files) entered here will be available to use in mPDF.
+														   Put preferred default first in order
+														   This will be used if a named font cannot be found in any of
+														   'sans_fonts', 'serif_fonts' or 'mono_fonts'
 
-			  ['sip-ext'] = 'sun-extb', name a related font file containing SIP characters
-			  ['useOTL'] => 0xFF,	Enable use of OTL features.
-			  ['useKashida'] => 75,	Enable use of kashida for text justification in Arabic text
+														   ['sip-ext'] = 'sun-extb', name a related font file containing SIP characters
+														   ['useOTL'] => 0xFF,	Enable use of OTL features.
+														   ['useKashida'] => 75,	Enable use of kashida for text justification in Arabic text
 
-			  If a .ttc TrueType collection file is referenced, the number of the font
-			  within the collection is required. Fonts in the collection are numbered
-			  starting at 1, as they appear in the .ttc file e.g.
-			  "cambria" => array(
-					'R' => "cambria.ttc",
-					'B' => "cambriab.ttf",
-					'I' => "cambriai.ttf",
-					'BI' => "cambriaz.ttf",
-					'TTCfontID' => array(
-						'R' => 1,
-					),
-				),
-				"cambriamath" => array(
-					'R' => "cambria.ttc",
-					'TTCfontID' => array(
-						'R' => 2,
-					),
-				),
-			 */
+														   If a .ttc TrueType collection file is referenced, the number of the font
+														   within the collection is required. Fonts in the collection are numbered
+														   starting at 1, as they appear in the .ttc file e.g.
+														   "cambria" => array(
+																 'R' => "cambria.ttc",
+																 'B' => "cambriab.ttf",
+																 'I' => "cambriai.ttf",
+																 'BI' => "cambriaz.ttf",
+																 'TTCfontID' => array(
+																	 'R' => 1,
+																 ),
+															 ),
+															 "cambriamath" => array(
+																 'R' => "cambria.ttc",
+																 'TTCfontID' => array(
+																	 'R' => 2,
+																 ),
+															 ),
+														  */
 
 			'fontdata' => [
 				"dejavusanscondensed" => [
@@ -218,6 +218,11 @@ class FontVariables
 					'R' => "KhmerOS.ttf",
 					'useOTL' => 0xFF,
 				],
+				"khmermef1" => [/* Khmer MEF1 */
+					'R' => "Khmer MEF1 Regular.ttf",
+					'B' => "Khmer MEF2 Regular.ttf",  // Replace with the correct file path for MEF1 font
+					'useOTL' => 0xFF,
+				],
 				"dhyana" => [/* Lao fonts */
 					'R' => "Dhyana-Regular.ttf",
 					'B' => "Dhyana-Bold.ttf",
@@ -305,21 +310,83 @@ class FontVariables
 			//     (Otherwise the order is irrelevant)
 			// Use the mPDF font-family names i.e. lowercase and no spaces (after any translations in $fonttrans)
 			// Always include "sans-serif", "serif" and "monospace" etc.
-			'sans_fonts' => ['dejavusanscondensed', 'sans', 'sans-serif', 'cursive', 'fantasy', 'dejavusans', 'freesans', 'liberationsans',
-				'arial', 'helvetica', 'verdana', 'geneva', 'lucida', 'arialnarrow', 'arialblack',
-				'franklin', 'franklingothicbook', 'tahoma', 'garuda', 'calibri', 'trebuchet', 'lucidagrande', 'microsoftsansserif',
-				'trebuchetms', 'lucidasansunicode', 'franklingothicmedium', 'albertusmedium', 'xbriyaz', 'albasuper', 'quillscript',
-				'humanist777', 'humanist777black', 'humanist777light', 'futura', 'hobo', 'segoeprint'
+			'sans_fonts' => [
+				'dejavusanscondensed',
+				'sans',
+				'sans-serif',
+				'cursive',
+				'fantasy',
+				'dejavusans',
+				'freesans',
+				'liberationsans',
+				'arial',
+				'helvetica',
+				'verdana',
+				'geneva',
+				'lucida',
+				'arialnarrow',
+				'arialblack',
+				'franklin',
+				'franklingothicbook',
+				'tahoma',
+				'garuda',
+				'calibri',
+				'trebuchet',
+				'lucidagrande',
+				'microsoftsansserif',
+				'trebuchetms',
+				'lucidasansunicode',
+				'franklingothicmedium',
+				'albertusmedium',
+				'xbriyaz',
+				'albasuper',
+				'quillscript',
+				'humanist777',
+				'humanist777black',
+				'humanist777light',
+				'futura',
+				'hobo',
+				'segoeprint'
 			],
 
-			'serif_fonts' => ['dejavuserifcondensed', 'serif', 'dejavuserif', 'freeserif', 'liberationserif',
-				'timesnewroman', 'times', 'centuryschoolbookl', 'palatinolinotype', 'centurygothic',
-				'bookmanoldstyle', 'bookantiqua', 'cyberbit', 'cambria',
-				'norasi', 'charis', 'palatino', 'constantia', 'georgia', 'albertus', 'xbzar', 'algerian', 'garamond',
+			'serif_fonts' => [
+				'dejavuserifcondensed',
+				'serif',
+				'dejavuserif',
+				'freeserif',
+				'liberationserif',
+				'timesnewroman',
+				'times',
+				'centuryschoolbookl',
+				'palatinolinotype',
+				'centurygothic',
+				'bookmanoldstyle',
+				'bookantiqua',
+				'cyberbit',
+				'cambria',
+				'norasi',
+				'charis',
+				'palatino',
+				'constantia',
+				'georgia',
+				'albertus',
+				'xbzar',
+				'algerian',
+				'garamond',
 			],
 
-			'mono_fonts' => ['dejavusansmono', 'mono', 'monospace', 'freemono', 'liberationmono', 'courier', 'ocrb', 'ocr-b', 'lucidaconsole',
-				'couriernew', 'monotypecorsiva'
+			'mono_fonts' => [
+				'dejavusansmono',
+				'mono',
+				'monospace',
+				'freemono',
+				'liberationmono',
+				'courier',
+				'ocrb',
+				'ocr-b',
+				'lucidaconsole',
+				'couriernew',
+				'monotypecorsiva'
 			],
 		];
 	}

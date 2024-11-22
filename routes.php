@@ -1100,28 +1100,6 @@ asyncHandler(function () {
                 $userController->index();
             });
             break;
-        case $base_url . '/create_user':
-            checkSessionAndExecute(function () {
-                $userController = new UserController();
-                if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/elms/create_user') {
-                    $userController->create();
-                } else {
-                    header("Location: /elms/login");
-                    exit();
-                }
-            });
-            break;
-        case $base_url . '/edit_user':
-            checkSessionAndExecute(function () {
-                $userController = new UserController();
-                if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
-                    $userController->update();
-                } else {
-                    header("Location: /elms/login");
-                    exit();
-                }
-            });
-            break;
         case $base_url . '/create_role':
             checkSessionAndExecute(function () {
                 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
@@ -1162,17 +1140,6 @@ asyncHandler(function () {
                     $controller->delete($_POST['id']);
                 } else {
                     header("Location: /elms/login");
-                    exit();
-                }
-            });
-            break;
-        case $base_url . '/delete_user':
-            checkSessionAndExecute(function () {
-                if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id']) && isset($_POST['user_id'])) {
-                    $controller = new UserController();
-                    $controller->delete($_POST['user_id']);
-                } else {
-                    header("Location: /elms/user_index");
                     exit();
                 }
             });
@@ -1311,6 +1278,12 @@ asyncHandler(function () {
                     header("Location: /elms/hold");
                     exit();
                 }
+            });
+            break;
+        case $base_url . '/exportFile':
+            checkSessionAndExecute(function () {
+                $controller = new HoldController();
+                $controller->export();
             });
             break;
         case $base_url . '/delete-hold':

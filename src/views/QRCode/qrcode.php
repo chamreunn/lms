@@ -2,6 +2,20 @@
 $title = "QR Code";
 include('src/common/header.php');
 ?>
+<!-- header of page  -->
+<div class="page-header d-print-none mt-0 mb-3">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+
+                </div>
+                <h2 class="page-title"></h2>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- <div class="container-xl mb-3">
     <a href="/elms/attendanceCheck" type="button" class="btn btn-primary d-none d-sm-inline-block">

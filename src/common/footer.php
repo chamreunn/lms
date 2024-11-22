@@ -311,6 +311,80 @@
     });
 </script>
 
+<!-- camera scanner for attendance  -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const scanQrButton = document.getElementById("scanQrButton");
+        const stopScanButton = document.getElementById("stopScanButton");
+        const qrResult = document.getElementById("qrResult");
+        const cameraWrapper = document.getElementById("cameraWrapper");
+        const reader = document.getElementById("reader");
+
+        let html5QrCode;
+
+        const handleDecodedResult = (decodedText) => {
+            qrResult.textContent = `ស្កេនបានជោគជ័យ! កំពុងដំណើរការបន្ត...`;
+            if (isValidUrl(decodedText)) {
+                setTimeout(() => {
+                    window.location.href = decodedText; // Redirect to the URL in the QR code
+                }, 1000);
+            } else {
+                qrResult.textContent = `Invalid QR Code Content: ${decodedText}`;
+            }
+        };
+
+        const isValidUrl = (url) => {
+            try {
+                new URL(url);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        };
+
+        // Open camera and start scanning
+        scanQrButton.addEventListener("click", () => {
+            qrResult.textContent = ""; // Clear previous result
+            cameraWrapper.style.display = "flex";
+
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("reader");
+            }
+
+            html5QrCode.start(
+                { facingMode: "environment" }, // Rear camera
+                { fps: 10, qrbox: 250 },
+                (decodedText) => {
+                    html5QrCode.stop();
+                    cameraWrapper.style.display = "none";
+                    handleDecodedResult(decodedText);
+                },
+                (error) => {
+                    console.error("QR Code Scanning Error:", error);
+                }
+            ).catch((err) => {
+                console.error("Error starting the camera:", err);
+            });
+
+            // Show the stop button when scanning starts
+            stopScanButton.style.display = "block";
+        });
+
+        // Stop scanning and close camera
+        stopScanButton.addEventListener("click", () => {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    cameraWrapper.style.display = "none";
+                    stopScanButton.style.display = "none";
+                }).catch((err) => {
+                    console.error("Error stopping the camera:", err);
+                });
+            }
+        });
+    });
+</script>
+
+
 </body>
 
 </html>

@@ -15,7 +15,6 @@ class User
         if (isset($_SERVER['SERVER_NAME']) && ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_ADDR'] == '127.0.0.1')) {
             // Local development environment
             $this->api = "http://127.0.0.1:8000";
-            // $this->api = "http://172.25.26.6:8000";
         } else {
             // Production environment
             $this->api = "http://172.25.26.6:8000";
@@ -102,71 +101,6 @@ class User
         $stmt = $this->pdo->prepare('INSERT INTO user_activity_log (user_id, action, timestamp, details, ip_address) VALUES (?, ?, NOW(), ?, ?)');
         $stmt->execute([$userId, $action, $details, $_SERVER['REMOTE_ADDR']]);
         return true;
-    }
-
-    public function create($data)
-    {
-        // Password hashing
-        $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-
-        $sql = "INSERT INTO users (email, username, password_hash, role, khmer_name, english_name, gender, phone_number, date_of_birth, address, department_id, office_id, position_id, profile_picture)
-                VALUES (:email, :username, :password, :role, :khmer_name, :english_name, :gender, :phone, :dob, :address, :department, :office, :position, :profile_image)";
-        $stmt = $this->pdo->prepare($sql);
-
-        if (!$stmt->execute($data)) {
-            print_r($stmt->errorInfo());
-            exit();
-        }
-    }
-
-    public function update($data)
-    {
-        $sql = "UPDATE users SET 
-        email = :email, 
-        username = :username, 
-        role = :role, 
-        khmer_name = :khmer_name, 
-        english_name = :english_name, 
-        gender = :gender, 
-        phone_number = :phone_number, 
-        date_of_birth = :dob, 
-        address = :address, 
-        department_id = :department, 
-        office_id = :office, 
-        position_id = :position, 
-        status = :status, 
-        profile_picture = :profile_image 
-        WHERE id = :id";
-
-        $stmt = $this->pdo->prepare($sql);
-
-        if (!$stmt->execute($data)) {
-            print_r($stmt->errorInfo());
-            exit();
-        }
-    }
-
-    public function delete($id)
-    {
-        $sql = "DELETE FROM users WHERE id = :id";
-        $stmt = $this->pdo->prepare($sql);
-
-        if (!$stmt->execute(['id' => $id])) {
-            print_r($stmt->errorInfo());
-            exit();
-        }
-    }
-
-    public function getUserById($user_id)
-    {
-        $stmt = $this->pdo->prepare(
-            'SELECT u.*, m.email AS manager_email
-             FROM users u
-             LEFT JOIN users m ON u.office_id = m.office_id AND m.position_id = (SELECT doffice_id FROM offices WHERE id = u.office_id)
-             WHERE u.id = ?'
-        );
-        $stmt->execute([$user_id]);
-        return $stmt->fetch();
     }
 
     public function getAllUserApi($token, $retries = 3)
@@ -1898,104 +1832,76 @@ class User
         return !empty($result);
     }
 
-    public function getUserAttendanceByIdApi($id, $token, $page = 1, $limit = 10)
+    public function getUserAttendanceByIdApi($id, $token, $page = 1, $limit = 31)
     {
-        try {
-            // Calculate the offset based on page and limit (optional since pagination is handled by the API)
-            $offset = ($page - 1) * $limit;
-    
-            // Construct the API URL with pagination query parameters
-            $url = "{$this->api}/api/v1/attendances/user/{$id}?page={$page}&limit={$limit}";
-    
-            // Initialize cURL session
-            $ch = curl_init($url);
-    
-            // Set cURL options
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Authorization: Bearer ' . $token
-            ]);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    
-            // Execute the cURL request
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $error = curl_error($ch);
-    
-            // Close cURL session
-            curl_close($ch);
-    
-            // Check for cURL errors
-            if ($response === false) {
-                error_log("CURL Error: $error");
-                return [
-                    'http_code' => 500,
-                    'error' => "CURL Error: $error"
-                ];
-            }
-    
-            // Decode JSON response
-            $responseData = json_decode($response, true);
-    
-            // Handle non-200 HTTP response codes
-            if ($httpCode !== 200 || !isset($responseData['data'])) {
-                error_log("API Error: HTTP Code $httpCode, Message: " . ($responseData['message'] ?? 'Unknown error'));
-                return [
-                    'http_code' => $httpCode,
-                    'error' => $responseData['message'] ?? 'Unknown API error'
-                ];
-            }
-    
-            // Extract attendance records
-            $attendances = $responseData['data'];
-    
-            // Process attendance records to include additional statuses
-            foreach ($attendances as &$attendance) {
-                // Default statuses
-                $attendance['lateIn'] = null;
-                $attendance['lateOut'] = null;
-                $attendance['leaveEarly'] = null;
-                $attendance['status'] = null;
-    
-                // Check for late check-in
-                if (!empty($attendance['checkIn']) && strtotime($attendance['checkIn']) > strtotime('09:00:00')) {
-                    $attendance['lateIn'] = 'ចូលយឺត'; // Late Check-In
-                }
-    
-                // Check for early check-out
-                if (!empty($attendance['checkOut']) && strtotime($attendance['checkOut']) < strtotime('16:00:00')) {
-                    $attendance['leaveEarly'] = 'ចេញមុន'; // Leave Early
-                }
-    
-                // Check for late check-out
-                if (!empty($attendance['checkOut']) && strtotime($attendance['checkOut']) > strtotime('17:30:00')) {
-                    $attendance['lateOut'] = 'ចេញយឺត'; // Late Check-Out
-                }
-    
-                // Check for leave
-                if (!empty($attendance['leave']) && $attendance['leave'] == 1) {
-                    $attendance['status'] = 'ច្បាប់'; // Leave
-                }
-    
-                // Check for mission
-                if (!empty($attendance['mission']) && $attendance['mission'] == 1) {
-                    $attendance['status'] = 'បេសកកម្ម'; // Mission
-                }
-            }
-    
-            // Return the processed attendance records
-            return [
-                'http_code' => $httpCode,
-                'data' => $attendances
-            ];
-        } catch (Exception $e) {
-            error_log("Error fetching user attendance via API: " . $e->getMessage());
-            return [
-                'http_code' => 500,
-                'error' => $e->getMessage()
-            ];
+        // Calculate offset
+        $offset = ($page - 1) * $limit;
+
+        // API URL with pagination
+        $url = "{$this->api}/api/v1/attendances/user/{$id}?page={$page}&limit={$limit}";
+
+        // Initialize cURL session
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $token],
+            CURLOPT_SSL_VERIFYPEER => false
+        ]);
+
+        // Execute cURL and capture response
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        // Handle cURL errors
+        if ($response === false) {
+            error_log("CURL Error: $error");
+            return ['http_code' => 500, 'error' => "CURL Error: $error"];
         }
-    }    
+
+        // Decode API response
+        $responseData = json_decode($response, true);
+        $attendances = $responseData['data'] ?? [];
+
+        // Process attendance data
+        foreach ($attendances as &$attendance) {
+            $attendance['lateIn'] = null;
+            $attendance['lateOut'] = null;
+            $attendance['leaveEarly'] = null;
+            $attendance['status'] = null;
+
+            // Late Check-In
+            if (isset($attendance['checkIn']) && strtotime($attendance['checkIn']) > strtotime('09:00:00')) {
+                $attendance['lateIn'] = 'ចូលយឺត';
+            }
+
+            // Early Check-Out
+            if (isset($attendance['checkOut']) && strtotime($attendance['checkOut']) < strtotime('16:00:00')) {
+                $attendance['leaveEarly'] = 'ចេញមុន';
+            }
+
+            // Late Check-Out
+            if (isset($attendance['checkOut']) && strtotime($attendance['checkOut']) > strtotime('17:30:00')) {
+                $attendance['lateOut'] = 'ចេញយឺត';
+            }
+
+            // Leave Status
+            if (!empty($attendance['leave'])) {
+                $attendance['status'] = 'ច្បាប់';
+            }
+
+            // Mission Status
+            if (!empty($attendance['mission'])) {
+                $attendance['status'] = 'បេសកកម្ម';
+            }
+        }
+
+        return [
+            'http_code' => $httpCode,
+            'data' => $attendances
+        ];
+    }
 
     public function todayAttendanceByUseridApi($userId, $date, $token)
     {
@@ -2007,11 +1913,11 @@ class User
             $ch = curl_init($url);
 
             // Set cURL options
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Authorization: Bearer ' . $token
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $token],
+                CURLOPT_SSL_VERIFYPEER => false
             ]);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
             // Execute the cURL request
             $response = curl_exec($ch);
@@ -2044,13 +1950,17 @@ class User
             // Extract today's attendance records
             $attendances = $responseData['data'];
 
-            return $attendances; // Return the attendance records
+            // Filter the attendance records for the given date
+            $todayAttendances = array_filter($attendances, function ($attendance) use ($date) {
+                return isset($attendance['date']) && $attendance['date'] === $date;
+            });
+
+            return $todayAttendances; // Return today's attendance records
         } catch (Exception $e) {
             error_log("Error fetching today's attendance records via API: " . $e->getMessage());
             return []; // Return an empty array on error
         }
     }
-
 
     public function getAllUserAttendance($token)
     {
@@ -2642,5 +2552,4 @@ class User
         $stmt->execute([':user_id' => $userId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-
 }

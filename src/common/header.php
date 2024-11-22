@@ -16,7 +16,7 @@ date_default_timezone_set('Asia/Bangkok');
 <html lang="en">
 
 <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title><?= $title ?? "No Title" ?></title>
@@ -112,6 +112,13 @@ date_default_timezone_set('Asia/Bangkok');
     <!-- map  -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 
+    <!-- camera  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"
+        integrity="sha512-r6rDA7W6ZeQhvl8S7yRVQUKVHdexq+GAlNkNNqVC7YyIV+NwqCTJe2hDWCiffTyRNOeGEzRRJ9ifvRm/HCzGYg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- lottie animation icon loop  -->
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
     <!-- spinner button  -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {

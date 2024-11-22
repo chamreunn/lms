@@ -324,7 +324,7 @@ require_once 'src/common/header.php';
 
         <!-- Approval Tracking Section -->
         <div class="col-lg-6 col-sm-12 col-md-12">
-            <div class="card border-0">
+            <div class="card mb-3">
                 <div class="card-header bg-light d-flex align-items-center justify-content-between">
                     <h3 class="text-primary mb-0">ការអនុម័ត</h3>
                 </div>
@@ -393,6 +393,66 @@ require_once 'src/common/header.php';
                         <?php endif; ?>
                     </ul>
                 </div>
+            </div>
+
+            <div class="card">
+                <form action="/elms/exportFile" method="POST">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 class="mb-0">ទាញយករបាយការណ៍</h3>
+                            <button type="submit" class="btn btn-primary">
+                                <span class="mx-2">ពិនិត្យមើលឯកសារ</span>
+                            </button>
+                        </div>
+                        <div class="row" hidden>
+                            <!-- Hidden input to store the request ID -->
+                            <div class="col-md-12">
+                                <label for="start_date" class="form-label fw-bold text-primary">User ID</label>
+                                <div class="mb-3">
+                                    <input type="text" class="form-control" name="holdId"
+                                        value="<?= $getHoldById[0]['id'] ?? '' ?>">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="start_date"
+                                        class="form-label fw-bold text-primary">ថ្ងៃចាប់ផ្តើម</label>
+                                    <input type="text" class="form-control date-picker" id="start_date"
+                                        name="start_date" value="<?= $getHoldById[0]['start_date'] ?? '' ?>"
+                                        <?= ($getHoldById[0]['status'] === 'approved' ? 'disabled' : '') ?> required>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="end_date" class="form-label fw-bold text-primary">ថ្ងៃបញ្ចប់</label>
+                                    <input type="text" class="form-control date-picker" id="end_date" name="end_date"
+                                        value="<?= $getHoldById[0]['end_date'] ?? '' ?>"
+                                        <?= ($getHoldById[0]['status'] === 'approved' ? 'disabled' : '') ?> required>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="created_at" class="form-label fw-bold text-primary">ស្នើនៅ</label>
+                                    <input type="text" class="form-control" id="created_at"
+                                        value="<?= $getHoldById[0]['created_at'] ?? '' ?>" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="duration" class="form-label fw-bold text-primary">រយៈពេល</label>
+                                    <input type="text" class="form-control" id="duration"
+                                        value="<?= $getHoldById[0]['duration'] ?? '' ?>" disabled>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="reason" class="form-label fw-bold text-primary">មូលហេតុ</label>
+                                <textarea class="form-control" id="reason" name="reason"
+                                    <?= ($getHoldById[0]['status'] === 'approved' ? 'disabled' : '') ?>
+                                    required><?= $getHoldById[0]['reason'] ?? '' ?></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

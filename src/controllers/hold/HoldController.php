@@ -1,5 +1,9 @@
 <?php
 require_once 'src/models/hold/HoldModel.php';
+require_once 'src/vendor/autoload.php';
+
+use Mpdf\Mpdf;
+use PhpOffice\PhpWord\PhpWord;
 
 class HoldController
 {
@@ -600,6 +604,16 @@ class HoldController
 
 
             require 'src/views/hold/rejected.php';
+        }
+    }
+
+    public function export()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            $startDate = $_POST['start_date'];
+            require_once 'src/views/hold/print.php';
+
         }
     }
 }
