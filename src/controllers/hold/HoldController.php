@@ -102,6 +102,17 @@ class HoldController
                 exit();
             }
 
+            // Handle file upload for attachment
+            $signature = $this->handleFileUpload($_FILES['signature'], ['png', 'jpg', 'jpeg'], 2097152, 'public/uploads/hold-signatures/');
+            if ($signature === false) {
+                $_SESSION['error'] = [
+                    'title' => "ឯកសារភ្ជាប់",
+                    'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។​ សូមព្យាយាមម្តងទៀត"
+                ];
+                header("Location: /elms/hold");
+                exit();
+            }
+
             $type = 'hold';
             $color = 'bg-primary';
             $title = "លិខិតព្យួរការងារ";
@@ -149,7 +160,8 @@ class HoldController
                     'duration' => $duration,
                     'type' => $type,
                     'color' => $color,
-                    'approver_id' => $approver
+                    'approver_id' => $approver,
+                    'signature' => $signature
                 ];
 
                 // Save the hold request using the HoldModel
@@ -239,13 +251,13 @@ class HoldController
         foreach ($levels as $apiMethod) {
             $approver = $userModel->$apiMethod($user_id, $_SESSION['token']);
             if ($approver && !$userModel->isManagerOnLeaveToday($approver['ids']) && !$userModel->isManagerOnMission($approver['ids'])) {
-                $holdRequestModel->insertManagerStatusToHoldsApprovals($hold_id, $approver['ids'], 'pending');
+                $holdRequestModel->insertManagerStatusAndUpdateApprover($hold_id, $approver['ids'], 'pending');
                 return; // Stop when a valid approver is found
             }
 
             // Insert status if the manager is on leave or mission
             $status = $userModel->isManagerOnLeaveToday($approver['ids']) ? $statuses['leave'] : $statuses['mission'];
-            $holdRequestModel->insertManagerStatusToHoldsApprovals($hold_id, $approver['ids'], $status);
+            $holdRequestModel->insertManagerStatusAndUpdateApprover($hold_id, $approver['ids'], $status);
         }
     }
 
@@ -607,13 +619,275 @@ class HoldController
         }
     }
 
+    private function convertToKhmerNumbers($number)
+    {
+        $khmerNumbers = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩'];
+        $number = (string) $number;
+        $converted = '';
+        for ($i = 0; $i < strlen($number); $i++) {
+            $digit = $number[$i];
+            $converted .= is_numeric($digit) ? $khmerNumbers[$digit] : $digit;
+        }
+        return $converted;
+    }
+
+    function convertDateToKhmer($date)
+    {
+        if (empty($date)) {
+            return '';
+        }
+
+        // Convert Arabic numerals to Khmer numerals
+        $khmerNumbers = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩'];
+
+        // Khmer month names
+        $khmerMonths = [
+            1 => 'មករា',
+            2 => 'កុម្ភៈ',
+            3 => 'មិនា',
+            4 => 'មេសា',
+            5 => 'ឧសភា',
+            6 => 'មិថុនា',
+            7 => 'កក្កដា',
+            8 => 'សីហា',
+            9 => 'កញ្ញា',
+            10 => 'តុលា',
+            11 => 'វិច្ឆិកា',
+            12 => 'ធ្នូ'
+        ];
+
+        // Parse the date
+        $timestamp = strtotime($date);
+        if (!$timestamp) {
+            return ''; // Return empty if the date is invalid
+        }
+
+        // Extract date components
+        $day = date('j', $timestamp);
+        $month = (int) date('n', $timestamp);
+        $year = date('Y', $timestamp);
+
+        // Convert day and year to Khmer numerals
+        $khmerDay = '';
+        $khmerYear = '';
+
+        foreach (str_split($day) as $digit) {
+            $khmerDay .= $khmerNumbers[$digit];
+        }
+
+        foreach (str_split($year) as $digit) {
+            $khmerYear .= $khmerNumbers[$digit];
+        }
+
+        // Return formatted Khmer date
+        return $khmerDay . ' ' . $khmerMonths[$month] . ' ' . $khmerYear;
+    }
+
     public function export()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $fileType = $_POST['fileType'];
+            $holdId = $_POST['holdId'] ?? '';
+            $duration = $_POST['duration'] ?? '';
+            $startDate = $_POST['start_date'] ?? '';
+            $endDate = $_POST['end_date'] ?? '';
+            $reason = $_POST['reason'] ?? '';
+            $filename = 'សំណើសុំស្ថិតនៅក្នុងភាពទំនេរ';
 
-            $startDate = $_POST['start_date'];
-            require_once 'src/views/hold/print.php';
+            $khmerNumber = $this->convertToKhmerNumbers($duration);
+            $startDate = $this->convertDateToKhmer($startDate);
+            $endDate = $this->convertDateToKhmer($endDate);
 
+            if ($fileType === 'PDF') {
+                // Configure mPDF
+                $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+                $fontDirs = $defaultConfig['fontDir'];
+
+                $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+                $fontData = $defaultFontConfig['fontdata'];
+
+                $mpdf = new Mpdf([
+                    'fontDir' => array_merge($defaultConfig['fontDir'], ['public/dist/fonts']),
+                    'fontdata' => $fontData + [
+                        'khmermef1' => [
+                            'R' => 'Khmer MEF1 Regular.ttf',  // Regular font
+                            'B' => 'Khmer MEF2 Regular.ttf',    // Bold font
+                        ],
+                    ],
+                    'default_font' => 'khmermef1',   // Set default font to khmermef1
+                    'percentSubset' => 0, // Embed full font
+                    'allow_charset_conversion' => true,
+                    'useAdobeCJK' => false,
+                    'useOTL' => 0xFF, // required for Khmer
+                    'useKashida' => 75, // required for Khmer
+                ]);
+
+                // HTML content
+                $html = '
+                    <!DOCTYPE html>
+                    <html lang="km">
+                    <head>
+                        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                        <title>សំណើសុំស្ថិតនៅក្នុងភាពទំនេរ</title>
+                        <style>
+                            body {
+                                font-family: "khmermef1";
+                                font-size: 13px;
+                                line-height: 1.5;
+                                margin: 0;
+                                padding: 0;
+                            }
+                            .header {
+                                text-align: center;
+                            }
+
+                            .content img {
+                                width: 100px; /* Adjust size of the logo */
+                            }
+                            .content {
+                                line-height: 25px;
+                                font-size: 14px;
+                            }
+
+                            /* Table layout for footer */
+                            .footer-table {
+                                width: 100%;
+                                border-collapse: collapse; /* Ensures borders collapse into single lines */
+                                margin-top: 20px;
+                            }
+
+                            .footer-table td {
+                                padding: 20px;
+                                text-align: center;
+                                font-size: 14px;
+                                line-height: 25px;
+                            }
+
+                            .footer-table td strong {
+                                font-weight: bold;
+                            }
+
+                            /* Right-align the bottom footer */
+                            .footer-right {
+                                text-align: right; /* Aligns the last footer to the right side */
+                                vertical-align: top; /* Align to the top for better placement */
+                            }
+
+                            /* Styling for the first row */
+                            .footer-table .footer-top {
+                                vertical-align: top;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h2>ព្រះរាជាណាចក្រកម្ពុជា</h2>
+                            <h3>ជាតិ សាសនា ព្រះមហាក្សត្រ</h3>
+                        </div>
+
+                        <div class="sub-header">
+                            <h3>អាជ្ញាធរសេវាហិរញ្ញវត្ថុមិនមែនធនាគារ</h3>
+                            <h3 style="text-indent: 50px;">អង្គភាពសវនកម្មផ្ទៃក្នុង</h3>
+                        </div>
+
+                        <div class="header">
+                            <h3>សូមគោរពជូន</h3>
+                            <h3>ឯកឧត្តមអង្គភាពសវនកម្មផ្ទៃក្នុងនៃអាជ្ញាធរសេវាហិរញ្ញវត្ថុមិនមែនធនាគារ</h3>
+                        </div>
+
+                         <table style="width: 100%; border-collapse: collapse; font-family: KhmerMEF1; font-size: 14px; line-height: 2.5;">
+                            <tr>
+                                <td style="font-weight: bold; width: 10%; vertical-align: top;">កម្មវត្ថុ ៖</td>
+                                <td style="width: 90%; vertical-align: top;">ការស្នើសុំគោលការណ៍អនុញ្ញាតព្យួរការងារ រយៈពេល ' . $khmerNumber . ' ចាប់ពីថ្ងៃទី ' . $startDate . ' ដល់ថ្ងៃទី ' . $endDate . '។</td>
+                            </tr>
+                        </table>
+
+                        <table style="width: 100%; border-collapse: collapse; font-family: KhmerMEF1; font-size: 14px; line-height: 2.5;">
+                            <tr>
+                                <td style="font-weight: bold; width: 10%; vertical-align: top;">មូលហេតុ៖</td>
+                                <td style="width: 90%; vertical-align: top;">'. $reason .'។</td>
+                            </tr>
+                        </table>
+
+                        <div class="content">
+                            <p style="text-indent: 50px;">សេចក្តីដូចមានក្នុងកម្មវត្ថុ និងមូលហេតុខាងលើ សូមគោរពជម្រាបជូន <strong>ឯកឧត្តមប្រធាន</strong> មេត្តាជ្រាបដ៍ខ្ពង់ខ្ពស់ថា៖ ខ្ញុំបាទ/នាងខ្ញុំឈ្មោះ................. កើតថ្ងៃទី....... ខែ......... ឆ្នាំ....... ប្រភេទមន្រ្តី........ បច្ចុប្បន្នជា.......................... នៃនាយកដ្ឋាន.......... សូមគោរពស្នើសុំការអនុញ្ញាតដ៍ខ្ពង់ខ្ពស់ពី ឯកឧត្តមប្រធាន ដើម្បីព្យួរការងារ (ការដាក់ឱ្យស្ថិតនៅក្នុងភាពទំនេរគ្មានបៀវត្ស) រយៈពេល......ឆ្នាំ ចាប់ពីថ្ងៃទី.....ខែ........ឆ្នាំ.......ដល់ថ្ងៃទី.....ខែ........ឆ្នាំ............ ដោយក្តីអនុគ្រោះ។ </p>
+                            <p style="text-indent: 50px;">សេចក្តីដូចបានគោរពជម្រាបជូនខាងលើ សូម <strong>ឯកឧត្តមប្រធាន</strong> មេត្តាពិនិត្យ និងសម្រេចដោយសេចក្តីអនុគ្រោះ។</p>
+                            <p style="text-indent: 50px;">សូម <strong>ឯកឧត្តមប្រធាន</strong> មេត្តទទួលនូវការគោរពដ៏ខ្ពង់ខ្ពស់ពីខ្ញុំ</p>
+                        </div>
+
+                        <!-- Footer using Table Layout -->
+                        <table class="footer-table">
+                            <tr>
+                                <!-- First row with two columns for top footers -->
+                                <td class="footer-top">
+                                    <p>បានឃើញ និងសូមគោរពជូន</p>
+                                    <strong>ឯកឧត្តមប្រធានអង្គភាព</strong>
+                                    <p>ពិនិត្យនិងសម្រេច</p>
+                                    <p>ថ្ងៃ.........................ខែ.............ឆ្នាំ.............ព.ស. ២៥...</p>
+                                    <p>..................ថ្ងៃទី...........ខែ............ឆ្នាំ２０..........</p>
+                                    <strong>នាយកដ្ឋាន.................</strong>
+                                    <strong>ប្រធាន</strong>
+                                </td>
+                                <td class="footer-top">
+                                    <p>បានឃើញ និងសូមគោរពជូន</p>
+                                    <strong>ឯកឧត្តមប្រធានអង្គភាព</strong>
+                                    <p>ពិនិត្យនិងសម្រេច</p>
+                                    <p>ថ្ងៃ.........................ខែ.............ឆ្នាំ.............ព.ស. ២៥...</p>
+                                    <p>..................ថ្ងៃទី...........ខែ............ឆ្នាំ２０..........</p>
+                                    <strong>នាយកដ្ឋាន.................</strong>
+                                    <strong>ប្រធាន</strong>
+                                </td>
+                            </tr>
+                            <!-- Second row with the bottom footer aligned to the right -->
+                            <tr>
+                                <td colspan="2" class="footer-right">
+                                    <p>បានឃើញ និងសូមគោរពជូន</p>
+                                    <strong>ឯកឧត្តមប្រធានអង្គភាព</strong>
+                                    <p>ពិនិត្យនិងសម្រេច</p>
+                                    <p>ថ្ងៃ.........................ខែ.............ឆ្នាំ.............ព.ស. ២៥...</p>
+                                    <p>..................ថ្ងៃទី...........ខែ............ឆ្នាំ２０..........</p>
+                                    <strong>នាយកដ្ឋាន.................</strong>
+                                    <strong>ប្រធាន</strong>
+                                </td>
+                            </tr>
+                        </table>
+                    </body>
+                    </html>
+                ';
+
+                // Write the HTML to PDF
+                $mpdf->WriteHTML($html);
+
+                $mpdf->Output("$filename.pdf", 'D'); // Force download
+            } elseif ($fileType === 'DOCX') {
+                // Generate DOCX using PHPWord
+                $phpWord = new PhpWord();
+                $section = $phpWord->addSection();
+                $section->addText('សំណើសុំស្ថិតនៅក្នុងភាពទំនេរ');
+                $section->addText("User ID: $holdId");
+                $section->addText("នេះជាឯកសារដែលបានបង្កើតជា DOCX");
+
+                // Save the DOCX file
+                $tempFile = tempnam(sys_get_temp_dir(), 'docx');
+                $phpWord->save($tempFile, 'Word2007');
+
+                // Deliver the file
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+                header('Content-Disposition: attachment; filename="' . "$filename.docx" . '"');
+                header('Content-Transfer-Encoding: binary');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                header('Pragma: public');
+                readfile($tempFile);
+                unlink($tempFile); // Delete temp file
+                exit;
+            } else {
+                echo "Invalid file type selected.";
+            }
+        } else {
+            echo "Invalid request method.";
         }
+
     }
 }

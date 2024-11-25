@@ -24,12 +24,6 @@ class AttendanceController
         $result = $qrModel->validateQR($token, $userId);
 
         if ($result['status'] === 'valid') {
-            // QR code is valid, load the attendance check view
-            $_SESSION['success'] = [
-                'title' => "QR Code Valid",
-                'message' => "Attendance recorded successfully."
-            ];
-
             // Optionally, you can log the scan details, like time and location
             $this->logScanDetails($result['data']);
 
@@ -67,126 +61,122 @@ class AttendanceController
         $qrModel = new QrModel();
         $qrModel->logScan($logData);
     }
-    
+
     public function action()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $userId = $_POST['userId'] ?? '';
-            $date = $_POST['date'];
-            $check = $_POST['check'];
-            $latitude = $_POST['latitude'];
-            $longitude = $_POST['longitude'];
-            $uuid = $_POST['device_id'] ?? '';
-            $ipAddress = $_POST['ip_address'] ?? '';
+            try {
+                $userId = $_POST['userId'] ?? '';
+                $date = $_POST['date'];
+                $check = $_POST['check'];
+                $latitude = $_POST['latitude'];
+                $longitude = $_POST['longitude'];
+                $uuid = $_POST['device_id'] ?? '';
+                $ipAddress = $_POST['ip_address'] ?? '';
+                $roldLeave = $_SESSION['role'];
 
-            // Retrieve QR code and device details from the database
-            $qrModel = new QrModel();
-            $qrCodeData = $qrModel->getQRCodeByName($userId);
+                // Retrieve QR code and device details from the database
+                $qrModel = new QrModel();
+                $qrCodeData = $qrModel->getQRCodeByName($userId);
 
-            // Ensure QR code data exists
-            if (!$qrCodeData) {
-                $_SESSION['error'] = [
-                    'title' => "វត្តមានប្រចាំថ្ងៃ",
-                    'message' => "ទិន្នន័យ QR Code មិនត្រឹមត្រូវ។"
-                ];
-                header("Location: /elms/qrcode");
-                exit();
-            }
-
-            // Validate UUID
-            $storedUuid = $qrCodeData['device_id'] ?? null;
-            if ($uuid !== $storedUuid) {
-                $_SESSION['error'] = [
-                    'title' => "វត្តមានប្រចាំថ្ងៃ",
-                    'message' => "ឧបករណ៍ស្កេនមិនត្រឹមត្រូវ។ សូមប្រើប្រាស់ឧបករណ៍ដែលបង្កើត QR Code ។"
-                ];
-                header("Location: /elms/qrcode");
-                exit();
-            }
-
-            // Validate IP Address
-            $storedIp = $qrCodeData['ip_address'] ?? null;
-            $clientIp = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
-
-            // Handle proxies/load balancers
-            if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-                $clientIp = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
-            }
-
-            if ($ipAddress !== $storedIp || $clientIp !== $storedIp) {
-                $_SESSION['error'] = [
-                    'title' => "វត្តមានប្រចាំថ្ងៃ",
-                    'message' => "ទីតាំងមិនត្រឹមត្រូវ។ សូមទៅកាន់ការិយាល័យដើម្បីស្កេន។"
-                ];
-                header("Location: /elms/qrcode");
-                exit();
-            }
-
-            // Validate latitude/longitude
-            $qrLatitude = $qrCodeData['latitude'] ?? null;
-            $qrLongitude = $qrCodeData['longitude'] ?? null;
-
-            if (!is_numeric($qrLatitude) || !is_numeric($qrLongitude)) {
-                die('QR Code location data is invalid.');
-            }
-
-            $distance = $this->calculateDistance($latitude, $longitude, $qrLatitude, $qrLongitude);
-            $maxDistance = 0.1; // 100 meters
-
-            if ($distance > $maxDistance) {
-                $_SESSION['error'] = [
-                    'title' => "វត្តមានប្រចាំថ្ងៃ",
-                    'message' => "ទីតាំងរបស់អ្នកនៅឆ្ងាយជាងកន្លែងធ្វើការ {$distance} គីឡូម៉ែត្រ"
-                ];
-                header("Location: /elms/my-attendances");
-                exit();
-            }
-
-            $currentTime = strtotime($check);
-            $morningStart = strtotime('07:30:00');
-            $lateMorningStart = strtotime('09:00:00');
-            $afternoonStart = strtotime('13:00:00');
-            $endTime = strtotime('17:30:00');
-
-            $isCheckIn = false; // Default to check-out
-            $alertMessage = ""; // Initialize an empty alert message
-
-            // Determine if it's checkIn or checkOut based on time
-            if ($currentTime >= $morningStart && $currentTime <= $afternoonStart) {
-                $isCheckIn = true; // Morning session
-                if ($currentTime >= $lateMorningStart) {
-                    $alertMessage = "ចូលយឺត"; // Late in
+                // Ensure QR code data exists
+                if (!$qrCodeData) {
+                    throw new Exception("ទិន្នន័យ QR Code មិនត្រឹមត្រូវ។");
                 }
-            } elseif ($currentTime >= $afternoonStart) {
-                $isCheckIn = false; // Afternoon session
-                if ($currentTime < $endTime) {
-                    $alertMessage = "ចេញមុន"; // Late out
-                } elseif ($currentTime >= $endTime) {
-                    $alertMessage = "ចេញយឺត"; // Leave early
-                }
-            }
 
-            // Record attendance with the determined type
-            $attendanceModel = new AttendanceModel();
-            if ($attendanceModel->recordAttendance($userId, $date, $check, $isCheckIn)) {
+                // Validate UUID
+                $storedUuid = $qrCodeData['device_id'] ?? null;
+                if ($uuid !== $storedUuid) {
+                    throw new Exception("ឧបករណ៍ស្កេនមិនត្រឹមត្រូវ។ សូមប្រើប្រាស់ឧបករណ៍ដែលបង្កើត QR Code ។");
+                }
+
+                // Retrieve IP address status
+                $ipModel = new AdminModel(); // Assuming the AdminModel handles IP management
+                $ipData = $ipModel->getIPByAddress($ipAddress);
+
+                // If IP status is "on," validate the IP address
+                if ($ipData && $ipData['status'] === 1) {
+                    $storedIp = $qrCodeData['ip_address'] ?? null;
+                    $clientIp = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+
+                    // Handle proxies/load balancers
+                    if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                        $clientIp = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
+                    }
+
+                    if ($ipAddress !== $storedIp || $clientIp !== $storedIp) {
+                        throw new Exception("ទីតាំងមិនត្រឹមត្រូវ។ សូមទៅកាន់ការិយាល័យដើម្បីស្កេន។");
+                    }
+                }
+
+                // Validate latitude/longitude
+                $qrLatitude = $qrCodeData['latitude'] ?? null;
+                $qrLongitude = $qrCodeData['longitude'] ?? null;
+
+                if (!is_numeric($qrLatitude) || !is_numeric($qrLongitude)) {
+                    throw new Exception('QR Code location data is invalid.');
+                }
+
+                $distance = $this->calculateDistance($latitude, $longitude, $qrLatitude, $qrLongitude);
+                $maxDistance = 0.1; // 100 meters
+
+                if ($distance > $maxDistance) {
+                    throw new Exception("ទីតាំងរបស់អ្នកនៅឆ្ងាយជាងកន្លែងធ្វើការ {$distance} គីឡូម៉ែត្រ");
+                }
+
+                $currentTime = strtotime($check);
+                $morningStart = strtotime('07:30:00');
+                $lateMorningStart = strtotime('09:00:00');
+                $afternoonStart = strtotime('13:00:00');
+                $endTime = strtotime('17:30:00');
+
+                $alertMessage = ""; // Initialize an empty alert message
+
+                // Determine if it's checkIn or checkOut based on time
+                if ($currentTime >= $morningStart && $currentTime <= $afternoonStart) {
+                    if ($currentTime >= $lateMorningStart) {
+                        $alertMessage = "ចូលយឺត"; // Late in
+                    }
+                } elseif ($currentTime >= $afternoonStart) {
+                    if ($currentTime < $endTime) {
+                        $alertMessage = "ចេញមុន"; // Late out
+                    } elseif ($currentTime >= $endTime) {
+                        $alertMessage = "ចេញយឺត"; // Leave early
+                    }
+                }
+
+                // Record attendance with the determined type
+                $attendanceModel = new AttendanceModel();
+                $response = $attendanceModel->recordAttendanceApi($userId, $date, $check, $_SESSION['token']);
+
+                if (!$response['success']) {
+                    throw new Exception($response['error'] ?? "មានកំហុសកើតឡើងសូមធ្វើការស្កេនម្តងទៀត។");
+                }
 
                 // Notify via Telegram
                 $userModel = new User();
                 $userModel->sendCheckToTelegram($userId, $date, $check, $alertMessage);
 
-                // Display success message with alert (if any)
+                if ($roldLeave == 'Admin') {
+                    $location = 'admin-attendances';
+                } else {
+                    $location = 'my-attendances';
+                }
+                // Set success message in the session and redirect
                 $_SESSION['success'] = [
                     'title' => "វត្តមានប្រចាំថ្ងៃ",
-                    'message' => "អបអរសាទរអ្នកបានស្កេនវត្តមានដោយជោគជ័យ" . ($alertMessage ? " ({$alertMessage})" : "")
+                    'message' => $response['response']['message'] ?? "វត្តមានបានកត់ត្រាដោយជោគជ័យ។"
                 ];
-                header("Location: /elms/my-attendances");
+
+                header("Location: /elms/" . $location);
                 exit();
-            } else {
+            } catch (Exception $e) {
+                // Handle any exceptions
                 $_SESSION['error'] = [
                     'title' => "វត្តមានប្រចាំថ្ងៃ",
-                    'message' => "មានកំហុសកើតឡើងសូមធ្វើការស្កេនម្តងទៀត។"
+                    'message' => $e->getMessage(),
                 ];
-                header("Location: /elms/my-attendances");
+                header("Location: /elms/qrcode");
                 exit();
             }
         }

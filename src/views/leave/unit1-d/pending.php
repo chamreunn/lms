@@ -60,7 +60,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 }
 ?>
 <!-- leave request  -->
-<?php if (empty($requests)): ?>
+<?php if (empty($requests) && empty($hold)): ?>
     <div class="card">
         <div class="card-body">
             <div class="d-flex align-items-center justify-content-center">
@@ -72,7 +72,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </div>
     </div>
 <?php else: ?>
-    <div class="row">
+    <div class="row mt-2 g-3">
         <?php foreach ($requests as $request): ?>
             <div class="col-md-6 col-lg-3 mb-3">
                 <div class="card h-100 p-0 border">
@@ -332,13 +332,8 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
             </div>
         <?php endforeach; ?>
     </div>
-<?php endif; ?>
 
-<!-- hold request  -->
-<?php if (!empty($hold)): ?>
-
-    <h1 class="hr-text mt-0">លិខិតផ្សេងៗ</h1>
-
+    <!-- hold request  -->
     <div class="row g-3">
         <?php foreach ($hold as $index => $holds): ?>
             <div class="col-md-6 col-lg-3">

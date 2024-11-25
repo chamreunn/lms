@@ -1263,6 +1263,7 @@ class User
         }
     }
 
+    // ប្រធានអង្គភាព​
     public function getEmailLeaderHUApi($id, $token)
     {
         $url = "{$this->api}/api/v1/users/leader/contact/" . $id;
@@ -2347,7 +2348,7 @@ class User
                 "---------------------------------------------",
                 "👤 *អ្នកប្រើប្រាស់:* `{$_SESSION['user_khmer_name']}`",
                 "📅 *កាលបរិច្ឆេទ:* `{$date}`",
-                "🕒 *ម៉ោងចូល:* `{$check}`",
+                "🕒 *ម៉ោង:* `{$check}`",
             ];
 
             // Add status with an emoji for emphasis if provided

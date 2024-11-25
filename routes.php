@@ -594,6 +594,12 @@ asyncHandler(function () {
                 $controller->deleteQR();
             });
             break;
+        case $base_url . '/ipaddress':
+            checkSessionAndExecute(function () {
+                $controller = new AdminController();
+                $controller->actionIP();
+            });
+            break;
         case $base_url . '/attendanceCheck':
             checkSessionAndExecute(function () {
                 $controller = new AttendanceController();

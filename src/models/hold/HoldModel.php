@@ -19,8 +19,8 @@ class HoldModel
     public function createHoldRequest($data)
     {
         // Prepare the SQL query using PDO
-        $sql = "INSERT INTO $this->tblholds (user_id, approver_id, start_date, end_date, reason, duration, type, color, created_at) 
-            VALUES (:user_id, :approver_id, :start_date, :end_date, :reason, :duration, :type, :color, NOW())";
+        $sql = "INSERT INTO $this->tblholds (user_id, approver_id, start_date, end_date, reason, signature, duration, type, color, created_at) 
+            VALUES (:user_id, :approver_id, :start_date, :end_date, :reason, :signature, :duration, :type, :color, NOW())";
 
         // Prepare the statement
         $stmt = $this->pdo->prepare($sql);
@@ -31,6 +31,7 @@ class HoldModel
         $stmt->bindParam(':start_date', $data['start_date'], PDO::PARAM_STR);
         $stmt->bindParam(':end_date', $data['end_date'], PDO::PARAM_STR);
         $stmt->bindParam(':reason', $data['reason'], PDO::PARAM_STR);
+        $stmt->bindParam(':signature', $data['signature'], PDO::PARAM_STR);
         $stmt->bindParam(':duration', $data['duration'], PDO::PARAM_STR);
         $stmt->bindParam(':type', $data['type'], PDO::PARAM_STR);
         $stmt->bindParam(':color', $data['color'], PDO::PARAM_STR);
@@ -499,12 +500,12 @@ class HoldModel
         return $result['pending_count'] ?? 0; // Return 0 if no rows found
     }
 
-    public function insertManagerStatusToHoldsApprovals($hold_id, $approver_id, $status)
+    public function insertManagerStatusAndUpdateApprover($hold_id, $approver_id, $status)
     {
-        // Debugging
+        // Debugging checks
         if (is_array($hold_id)) {
             error_log('Error: $hold_id is an array, using the first element');
-            $hold_id = $hold_id[0]; // Adjust as needed based on what $hold_id should be
+            $hold_id = $hold_id[0]; // Adjust as needed
         }
         if (is_array($approver_id)) {
             error_log('Error: $approver_id is an array, using the first element');
@@ -515,15 +516,36 @@ class HoldModel
             $status = $status[0]; // Adjust as needed
         }
 
-        $sql = "INSERT INTO holds_approvals (hold_id, approver_id, status)
-                VALUES (:hold_id, :approver_id, :status)";
+        try {
+            // Begin transaction
+            $this->pdo->beginTransaction();
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            ':hold_id' => $hold_id,
-            ':approver_id' => $approver_id,
-            ':status' => $status,
-        ]);
+            // Insert into holds_approvals
+            $insertSql = "INSERT INTO holds_approvals (hold_id, approver_id, status)
+                      VALUES (:hold_id, :approver_id, :status)";
+            $insertStmt = $this->pdo->prepare($insertSql);
+            $insertStmt->execute([
+                ':hold_id' => $hold_id,
+                ':approver_id' => $approver_id,
+                ':status' => $status,
+            ]);
+
+            // Update approver_id in holds table
+            $updateSql = "UPDATE holds SET approver_id = :approver_id WHERE id = :hold_id";
+            $updateStmt = $this->pdo->prepare($updateSql);
+            $updateStmt->execute([
+                ':approver_id' => $approver_id,
+                ':hold_id' => $hold_id,
+            ]);
+
+            // Commit transaction
+            $this->pdo->commit();
+        } catch (Exception $e) {
+            // Rollback on error
+            $this->pdo->rollBack();
+            error_log("Error in insertManagerStatusAndUpdateApprover: " . $e->getMessage());
+            throw $e; // Re-throw exception to handle it upstream
+        }
     }
 
     public function deleteHold($id)

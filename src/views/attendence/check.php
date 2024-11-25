@@ -5,7 +5,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$title = "បញ្ជីវត្តមាន";
+$title = "កត់ត្រាវត្តមានប្រចាំថ្ងៃ | " . $_SESSION['user_khmer_name'];
 require_once 'src/common/head.php';
 date_default_timezone_set('Asia/Phnom_Penh');
 ?>
@@ -19,12 +19,13 @@ date_default_timezone_set('Asia/Phnom_Penh');
                         alt="">
                 </div>
                 <p class="empty-title"><?= $_SESSION['user_khmer_name'] ?></p>
-                <h1 class="empty-subtitle text-muted">
+                <h1 class="empty-subtitle fw-bolder"
+                    style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">
                     <?= date('Y-m-d | H:i A') ?>
                 </h1>
 
                 <!-- Location Name Display (Clickable link) -->
-                <a href="#" target="_blank" id="locationName" class="mb-4 text-center">កំពុងពិនិត្យទីតាំង...</a>
+                <a href="#" id="locationName" class="mb-4 text-center">កំពុងពិនិត្យទីតាំង...</a>
 
                 <div class="map" hidden style="height: 400px; width: 100%;"></div>
 
@@ -41,7 +42,7 @@ date_default_timezone_set('Asia/Phnom_Penh');
                             <input type="text" id="ipAddress" name="ip_address" value="">
                         </div>
                         <button type="submit" id="checkInButton" class="btn btn-primary w-100" disabled>
-                            កំពុងពិនិត្យ...
+                            កំពុងពិនិត្យទីតាំង...
                         </button>
                     </form>
                 </div>
@@ -305,7 +306,7 @@ date_default_timezone_set('Asia/Phnom_Penh');
                     checkInButton.disabled = false;
                 } else {
                     checkInButton.textContent =
-                        "សូមទៅពិនិត្យតាំងអោយបានត្រឹមត្រូវ! សូមអរគុណ។";
+                        "សូមអភ័យទោសអ្នកមិនស្ថិតនៅទីតាំងដែលអាចស្កេនវត្តមានបានទេ ។";
                     checkInButton.disabled = true;
                 }
             } else {

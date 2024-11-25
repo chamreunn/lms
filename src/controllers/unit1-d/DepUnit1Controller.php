@@ -498,8 +498,12 @@ class DepUnit1Controller
                 $this->pdo->beginTransaction();
 
                 // Create a DepOfficeModel instance and submit approval
-                $leaveApproval = new DepOfficeModel();
-                $leaveApproval->updateHoldApproval($userId, $holdId, $approverId, $action, $comment);
+                $leaveApproval = new DepUnit1Model();
+                $userModel = new User();
+
+                $leaveApproval->updateHoldApproval($userId, $holdId, $action, $comment);
+                // Recursive manager delegation
+                $leaveApproval->delegateManager($leaveApproval, $userModel, $holdId, $userId, $action);
 
                 if ($leaveApproval) {
                     // Log the error and set error message

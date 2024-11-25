@@ -395,65 +395,101 @@ require_once 'src/common/header.php';
                 </div>
             </div>
 
-            <div class="card">
-                <form action="/elms/exportFile" method="POST">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
+            <?php if ($getHoldById[0]['status'] == 'approved'): ?>
+                <div class="card">
+                    <form action="/elms/exportFile" method="POST">
+                        <div class="card-header">
                             <h3 class="mb-0">ទាញយករបាយការណ៍</h3>
+                        </div>
+                        <div class="card-body">
+
+                            <div class="row" hidden>
+                                <!-- Hidden input to store the request ID -->
+                                <div class="col-md-12">
+                                    <label for="start_date" class="form-label fw-bold text-primary">User ID</label>
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" name="holdId"
+                                            value="<?= $getHoldById[0]['id'] ?? '' ?>">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="start_date"
+                                            class="form-label fw-bold text-primary">ថ្ងៃចាប់ផ្តើម</label>
+                                        <input type="text" class="form-control date-picker" id="start_date"
+                                            name="start_date" value="<?= $getHoldById[0]['start_date'] ?? '' ?>"
+                                            <?= ($getHoldById[0]['status'] === 'approved' ? '' : '') ?> required>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="end_date" class="form-label fw-bold text-primary">ថ្ងៃបញ្ចប់</label>
+                                        <input type="text" class="form-control date-picker" id="end_date" name="end_date"
+                                            value="<?= $getHoldById[0]['end_date'] ?? '' ?>"
+                                            <?= ($getHoldById[0]['status'] === 'approved' ? '' : '') ?> required>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="created_at" class="form-label fw-bold text-primary">ស្នើនៅ</label>
+                                        <input type="text" class="form-control" name="created_at" id="created_at"
+                                            value="<?= $getHoldById[0]['created_at'] ?? '' ?>">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="duration" class="form-label fw-bold text-primary">រយៈពេល</label>
+                                        <input type="text" name="duration" class="form-control" id="duration"
+                                            value="<?= $getHoldById[0]['duration'] ?? '' ?>">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="reason" class="form-label fw-bold text-primary">មូលហេតុ</label>
+                                    <textarea class="form-control" id="reason" name="reason"
+                                        <?= ($getHoldById[0]['status'] === 'approved' ? '' : '') ?>
+                                        required><?= $getHoldById[0]['reason'] ?? '' ?></textarea>
+                                </div>
+                            </div>
+
+                            <!-- File Type Selection -->
+                            <div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
+                                <!-- PDF Option -->
+                                <label class="form-selectgroup-item flex-fill">
+                                    <input type="radio" name="fileType" value="PDF" class="form-selectgroup-input"
+                                        checked="" required>
+                                    <div class="form-selectgroup-label d-flex align-items-center p-3">
+                                        <div class="me-3">
+                                            <span class="form-selectgroup-check"></span>
+                                        </div>
+                                        <div>
+                                            <span class="me-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-file-type-pdf text-red fw-bolder">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                                    <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />
+                                                    <path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" />
+                                                    <path d="M17 18h2" />
+                                                    <path d="M20 15h-3v6" />
+                                                    <path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z" />
+                                                </svg>
+                                            </span>
+                                            សំណើសុំស្ថិតនៅក្នុងភាពទំនេរគ្មានបៀវត្ស.pdf
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light text-end">
                             <button type="submit" class="btn btn-primary">
-                                <span class="mx-2">ពិនិត្យមើលឯកសារ</span>
+                                <span class="mx-2">ទាញយក</span>
                             </button>
                         </div>
-                        <div class="row" hidden>
-                            <!-- Hidden input to store the request ID -->
-                            <div class="col-md-12">
-                                <label for="start_date" class="form-label fw-bold text-primary">User ID</label>
-                                <div class="mb-3">
-                                    <input type="text" class="form-control" name="holdId"
-                                        value="<?= $getHoldById[0]['id'] ?? '' ?>">
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label for="start_date"
-                                        class="form-label fw-bold text-primary">ថ្ងៃចាប់ផ្តើម</label>
-                                    <input type="text" class="form-control date-picker" id="start_date"
-                                        name="start_date" value="<?= $getHoldById[0]['start_date'] ?? '' ?>"
-                                        <?= ($getHoldById[0]['status'] === 'approved' ? 'disabled' : '') ?> required>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label for="end_date" class="form-label fw-bold text-primary">ថ្ងៃបញ្ចប់</label>
-                                    <input type="text" class="form-control date-picker" id="end_date" name="end_date"
-                                        value="<?= $getHoldById[0]['end_date'] ?? '' ?>"
-                                        <?= ($getHoldById[0]['status'] === 'approved' ? 'disabled' : '') ?> required>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label for="created_at" class="form-label fw-bold text-primary">ស្នើនៅ</label>
-                                    <input type="text" class="form-control" id="created_at"
-                                        value="<?= $getHoldById[0]['created_at'] ?? '' ?>" disabled>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label for="duration" class="form-label fw-bold text-primary">រយៈពេល</label>
-                                    <input type="text" class="form-control" id="duration"
-                                        value="<?= $getHoldById[0]['duration'] ?? '' ?>" disabled>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="reason" class="form-label fw-bold text-primary">មូលហេតុ</label>
-                                <textarea class="form-control" id="reason" name="reason"
-                                    <?= ($getHoldById[0]['status'] === 'approved' ? 'disabled' : '') ?>
-                                    required><?= $getHoldById[0]['reason'] ?? '' ?></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
+                    </form>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

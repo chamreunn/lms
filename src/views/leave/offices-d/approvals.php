@@ -90,7 +90,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 }
 ?>
 
-<?php if (empty($requests)): ?>
+<?php if (empty($requests) && empty($hold)): ?>
     <div class="empty-state d-flex flex-column align-items-center justify-content-center" style="height: 70vh;">
         <div class="text-center">
             <img src="public/img/icons/svgs/empty.svg" alt="Empty Data" class="img-fluid" style="max-width: 350px;">
@@ -113,7 +113,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </div>
     </div>
 <?php else: ?>
-    <div class="row g-3">
+    <div class="row mt-2 g-3">
         <?php foreach ($requests as $request): ?>
             <div class="col-md-6 col-lg-3 mb-3">
                 <div class="card h-100 p-0">
@@ -189,7 +189,8 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                     <path d="M4 11l16 0" />
                                     <path d="M8 15h2v2h-2z" />
                                 </svg>
-                                <strong>ដល់កាលបរិច្ឆេទ : </strong><?= translateDateToKhmer($request['end_date'], 'j F, Y') ?>
+                                <strong>ដល់កាលបរិច្ឆេទ :
+                                </strong><?= translateDateToKhmer($request['end_date'], 'j F, Y') ?>
                             </div>
                             <?php if ($request['attachment'] > 0): ?>
                                 <div class="text-primary mb-2">
@@ -398,11 +399,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
             </div>
         <?php endforeach; ?>
     </div>
-<?php endif; ?>
-
-<?php if (!empty($hold)): ?>
-
-    <h1 class="hr-text mt-0">លិខិតផ្សេងៗ</h1>
 
     <div class="row g-3">
         <?php foreach ($hold as $index => $holds): ?>
@@ -453,7 +449,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 
                             <input type="hidden" name="holdId" value="<?= $holds['id'] ?>">
 
-                            <div class="col-12">
+                            <div class="col-12" hidden>
                                 <label class="form-label fw-bold">អ្នកអនុម័ត
                                     <span class="text-danger mx-1 fw-bold">*</span>
                                 </label>
@@ -615,6 +611,8 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         <?php endforeach; ?>
     </div>
 <?php endif; ?>
+
+
 
 <?php if (!empty($resign)): ?>
 

@@ -18,7 +18,8 @@ ob_start();
             <!-- Page title actions -->
             <div class="col-auto ms-auto d-print-none">
                 <div class="btn-list">
-                    <a href="#" data-bs-target="#head-office-apply-leave" data-bs-toggle="modal" class="btn btn-primary d-none d-sm-inline-block">
+                    <a href="#" data-bs-target="#head-office-apply-leave" data-bs-toggle="modal"
+                        class="btn btn-primary d-none d-sm-inline-block">
                         <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                             stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
@@ -29,7 +30,8 @@ ob_start();
                         </svg>
                         បង្កើតសំណើច្បាប់
                     </a>
-                    <a href="#" data-bs-target="#head-office-apply-leave" data-bs-toggle="modal" class="btn btn-primary d-sm-none btn-icon">
+                    <a href="#" data-bs-target="#head-office-apply-leave" data-bs-toggle="modal"
+                        class="btn btn-primary d-sm-none btn-icon">
                         <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                             stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
@@ -86,7 +88,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 }
 ?>
 <!-- leave requests  -->
-<?php if (empty($requests)): ?>
+<?php if (empty($requests) && empty($hold)): ?>
     <div class="card">
         <div class="card-body">
             <div class="d-flex align-items-center justify-content-center">
@@ -98,7 +100,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </div>
     </div>
 <?php else: ?>
-    <div class="row">
+    <div class="row g-3 mt-2">
         <?php foreach ($requests as $request): ?>
             <div class="col-md-6 col-lg-3 mb-3">
                 <div class="card h-100 p-0 border">
@@ -383,13 +385,8 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
             </div>
         <?php endforeach; ?>
     </div>
-<?php endif; ?>
 
-<!-- hold request  -->
-<?php if (!empty($hold)): ?>
-
-    <h1 class="hr-text mt-0">លិខិតផ្សេងៗ</h1>
-
+    <!-- hold request  -->
     <div class="row g-3">
         <?php foreach ($hold as $index => $holds): ?>
             <div class="col-md-6 col-lg-3">
@@ -800,7 +797,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 <?php include('src/common/footer.php'); ?>
 <script>
     // @formatter:off
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         var el;
         window.TomSelect &&
             new TomSelect((el = document.getElementById("select-status")), {
@@ -809,13 +806,13 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                 optionClass: "dropdown-item",
                 controlInput: "<input>",
                 render: {
-                    item: function(data, escape) {
+                    item: function (data, escape) {
                         if (data.customProperties) {
                             return '<div><span class="dropdown-item-indicator">' + data.customProperties + "</span>" + escape(data.text) + "</div>";
                         }
                         return "<div>" + escape(data.text) + "</div>";
                     },
-                    option: function(data, escape) {
+                    option: function (data, escape) {
                         if (data.customProperties) {
                             return '<div><span class="dropdown-item-indicator">' + data.customProperties + "</span>" + escape(data.text) + "</div>";
                         }

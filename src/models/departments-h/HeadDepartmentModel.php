@@ -1474,4 +1474,97 @@ class HeadDepartmentModel
 
         return $leaveRequest;
     }
+
+    public function updateHoldApproval($userId, $holdId, $action, $comment)
+    {
+        try {
+            // Start transaction if not already started
+            if (!$this->pdo->inTransaction()) {
+                $this->pdo->beginTransaction();
+            }
+
+            // Update `status` and `comments` in `holds_approvals` if a record exists
+            $updateApprovalSql = "UPDATE holds_approvals SET status = ?, comments = ? WHERE hold_id = ? AND approver_id = ?";
+            $updateApprovalStmt = $this->pdo->prepare($updateApprovalSql);
+            $updateApprovalStmt->execute([$action, $comment, $holdId, $userId]);
+
+            // Debugging log for the update
+            if ($updateApprovalStmt->rowCount() === 0) {
+                error_log("No rows updated in holds_approvals. Either no matching record or `status` and `comments` are already set as requested.");
+            } else {
+                error_log("Row successfully updated in holds_approvals table.");
+            }
+
+            // Commit the transaction if it was started here
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->commit();
+            }
+        } catch (Exception $e) {
+            // Rollback if there's an error
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            error_log("Error: Approval update failed: " . $e->getMessage());
+            throw new Exception("Approval update failed: " . $e->getMessage());
+        }
+    }
+
+    public function delegateManager($holdRequestModel, $userModel, $managers, $hold_id, $user_id)
+    {
+        $levels = [$managers, 'getEmailLeaderHUApi'];
+        $statuses = ['leave' => 'leave', 'mission' => 'mission'];
+
+        foreach ($levels as $apiMethod) {
+            $approver = $userModel->$apiMethod($user_id, $_SESSION['token']);
+            if ($approver && !$userModel->isManagerOnLeaveToday($approver['ids']) && !$userModel->isManagerOnMission($approver['ids'])) {
+                $holdRequestModel->insertManagerStatusAndUpdateApprover($hold_id, $approver['ids'], 'pending');
+                return; // Stop when a valid approver is found
+            }
+
+            // Insert status if the manager is on leave or mission
+            $status = $userModel->isManagerOnLeaveToday($approver['ids']) ? $statuses['leave'] : $statuses['mission'];
+            $holdRequestModel->insertManagerStatusAndUpdateApprover($hold_id, $approver['ids'], $status);
+        }
+    }
+
+    public function insertManagerStatusAndUpdateApprover($hold_id, $approver_id, $status)
+    {
+        // Debugging checks
+        if (is_array($hold_id)) {
+            error_log('Error: $hold_id is an array, using the first element');
+            $hold_id = $hold_id[0];
+        }
+        if (is_array($approver_id)) {
+            error_log('Error: $approver_id is an array, using the first element');
+            $approver_id = $approver_id[0];
+        }
+        if (is_array($status)) {
+            error_log('Error: $status is an array, using the first element');
+            $status = $status[0];
+        }
+
+        try {
+            // Insert into holds_approvals
+            $insertSql = "INSERT INTO holds_approvals (hold_id, approver_id, status)
+                      VALUES (:hold_id, :approver_id, :status)";
+            $insertStmt = $this->pdo->prepare($insertSql);
+            $insertStmt->execute([
+                ':hold_id' => $hold_id,
+                ':approver_id' => $approver_id,
+                ':status' => $status,
+            ]);
+
+            // Update approver_id in holds table
+            $updateSql = "UPDATE holds SET approver_id = :approver_id WHERE id = :hold_id";
+            $updateStmt = $this->pdo->prepare($updateSql);
+            $updateStmt->execute([
+                ':approver_id' => $approver_id,
+                ':hold_id' => $hold_id,
+            ]);
+        } catch (Exception $e) {
+            // Log the error and rethrow it for handling upstream
+            error_log("Error in insertManagerStatusAndUpdateApprover: " . $e->getMessage());
+            throw $e;
+        }
+    }
 }

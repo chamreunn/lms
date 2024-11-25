@@ -69,7 +69,7 @@ include('src/common/header.php');
 
                                         <label class="form-label" for="name">QR Code URLs:</label>
                                         <input type="text" class="form-control" id="name" name="url" autocomplete="off"
-                                            value="https://leavebeta.iauoffsa.us/elms/attendanceCheck" required>
+                                            value="<?= $link ?? 'link not found' ?>" required>
 
                                         <!-- Hidden fields to store selected latitude and longitude -->
                                         <input type="text" id="latitude" class="latitude" name="latitude">

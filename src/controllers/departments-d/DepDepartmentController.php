@@ -312,7 +312,7 @@ class DepDepartmentController
                     : null;
 
                 if (!$managerId || !$managerEmail) {
-                    throw new Exception("No valid manager details found."); 
+                    throw new Exception("No valid manager details found.");
                 }
 
                 // Check if the manager is on leave or mission today
@@ -505,14 +505,25 @@ class DepDepartmentController
             $approverId = $_POST['approverId'];
             $action = $_POST['status'];
             $comment = $_POST['comment'];
+            $department = $_SESSION['departmentName'];
 
             try {
                 // Start transaction
                 $this->pdo->beginTransaction();
 
                 // Create a DepOfficeModel instance and submit approval
-                $leaveApproval = new DepOfficeModel();
-                $leaveApproval->updateHoldApproval($userId, $holdId, $approverId, $action, $comment);
+                $leaveApproval = new DepDepartmentModel();
+                $userModel = new User();
+
+                if (in_array($department, ['នាយកដ្ឋានកិច្ចការទូទៅ', 'នាយកដ្ឋានសវនកម្មទី២'])) {
+                    $managers = 'getEmailLeaderDHU1Api';
+                } else {
+                    $managers = 'getEmailLeaderDHU2Api';
+                }
+
+                $leaveApproval->updateHoldApproval($userId, $holdId, $action, $comment);
+                // Recursive manager delegation
+                $leaveApproval->delegateManager($leaveApproval, $userModel, $managers, $holdId, $userId);
 
                 if ($leaveApproval) {
                     // Log the error and set error message

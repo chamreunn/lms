@@ -41,6 +41,7 @@ class AuthController
                             $_SESSION['2fa_attempts'] = $user2FA['is_2fa_enabled'];
                             $_SESSION['temp_secret'] = $user2FA['secret_code'];
                             $_SESSION['user_id'] = $user['id'];
+                            $_SESSION['idCard'] = $user['idCard'];
                             $_SESSION['temp_token'] = $token;
                             $_SESSION['temp_user_data'] = $user;
                             $_SESSION['user_khmer_name'] = $user['lastNameKh'] . ' ' . $user['firstNameKh'];
@@ -70,6 +71,7 @@ class AuthController
 
                         // Store user data if 2FA is not enabled
                         $_SESSION['user_id'] = $user['id'];
+                        $_SESSION['idCard'] = $user['idCard'];
                         $_SESSION['email'] = $user['email'];
                         $_SESSION['user_khmer_name'] = $user['lastNameKh'] . ' ' . $user['firstNameKh'];
                         $_SESSION['user_eng_name'] = $user['engName'];

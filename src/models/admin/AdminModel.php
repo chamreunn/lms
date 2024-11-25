@@ -2932,4 +2932,37 @@ class AdminModel
         return $result['leave_count'] ?? 0; // Return the count or 0 if no result found
     }
 
+    public function getAllIPAddresses()
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM ip_addresses');
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function createIP($ipAddress)
+    {
+        $stmt = $this->pdo->prepare('INSERT INTO ip_addresses (ip_address, status) VALUES (:ip_address, 1)');
+        return $stmt->execute([':ip_address' => $ipAddress]);
+    }
+
+    public function updateIPStatus($id, $status)
+    {
+        $stmt = $this->pdo->prepare('UPDATE ip_addresses SET status = :status WHERE id = :id');
+        return $stmt->execute([':status' => $status, ':id' => $id]);
+    }
+
+    public function deleteIP($id)
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM ip_addresses WHERE id = :id');
+        return $stmt->execute([':id' => $id]);
+    }
+
+    public function getIPByAddress($ipAddress)
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM ip_addresses WHERE ip_address = :ip_address LIMIT 1");
+        $stmt->execute([':ip_address' => $ipAddress]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+
 }

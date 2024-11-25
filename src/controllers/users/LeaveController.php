@@ -545,7 +545,7 @@ class LeaveController
         }
     }
 
-    public function displayAttendances()
+    public function displayAttendances() 
     {
         try {
             // Validate session

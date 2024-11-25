@@ -384,7 +384,126 @@
     });
 </script>
 
+<!-- display signature  -->
+<style>
+    .custom-file-label {
+        cursor: pointer;
+        position: relative;
+        display: inline-block;
+    }
 
+    .custom-file-label:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .visually-hidden {
+        position: absolute;
+        clip: rect(0, 0, 0, 0);
+        height: 1px;
+        width: 1px;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .signature-list-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .signature-card {
+        width: calc(33.333% - 10px);
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+        text-align: center;
+        background: #f9f9f9;
+    }
+
+    .signature-card img {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+    }
+
+    .signature-card p {
+        margin: 0;
+        padding: 5px;
+        font-size: 14px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .signature-card button {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: red;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .signature-card button:hover {
+        background: darkred;
+    }
+</style>
+
+<script>
+    document.addEventListener('change', function (event) {
+        if (event.target.matches('.signature-input')) {
+            const input = event.target;
+            const container = input.closest('.row').querySelector('.signature-list-container');
+            container.innerHTML = ''; // Clear existing items
+
+            if (input.files && input.files.length > 0) {
+                Array.from(input.files).forEach((file, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'signature-card';
+
+                    // Create an image preview
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.alt = file.name;
+                        card.appendChild(img);
+                    };
+
+                    // File name
+                    const fileName = document.createElement('p');
+                    fileName.textContent = file.name;
+                    card.appendChild(fileName);
+
+                    // Delete button
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'x';
+                    deleteButton.setAttribute('data-index', index);
+                    deleteButton.addEventListener('click', function () {
+                        card.remove();
+                        // Update file input to exclude removed files
+                        const newFiles = Array.from(input.files).filter((_, i) => i !== index);
+                        const dataTransfer = new DataTransfer();
+                        newFiles.forEach(file => dataTransfer.items.add(file));
+                        input.files = dataTransfer.files;
+                    });
+                    card.appendChild(deleteButton);
+
+                    reader.readAsDataURL(file);
+                    container.appendChild(card);
+                });
+            }
+        }
+    });
+</script>
+<!-- end display signature  -->
+ 
 </body>
 
 </html>

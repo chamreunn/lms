@@ -1278,9 +1278,25 @@ class AdminController
 
     public function displayAllAttendances()
     {
+        // Get pagination values
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+        $limit = max(1, (int) ($_GET['limit'] ?? 31));
+        $currentDate = date('Y-m-d');
+
+        // Fetch attendance data
         $userModel = new User();
+        $attendanceResponse = $userModel->getUserAttendanceByIdApi($_SESSION['user_id'], $_SESSION['token'], $page, $limit);
+
         $adminModel = new AdminModel();
         $userAttendances = $userModel->getAllUserAttendance($_SESSION['token']);
+
+        $currentDate = date('Y-m-d');
+        $todayAttendance = $userModel->todayAttendanceByUseridApi($_SESSION['user_id'], $currentDate, $_SESSION['token'], );
+
+        // Prepare paginated data
+        $totalRecords = count($attendanceResponse['data']);
+        $totalPages = ceil($totalRecords / $limit);
+        $pagedData = array_slice($attendanceResponse['data'], ($page - 1) * $limit, $limit);
 
         // get leaves approved 
         $getLeavesApproved = $adminModel->getApprovedLeaveCount();
@@ -1302,6 +1318,13 @@ class AdminController
         $qrModel = new QrModel();
         $qrCodeData = $qrModel->getQRCodeByName($_SESSION['user_id']);
 
+        // Determine the link based on the environment
+        if ($_SERVER['HTTP_HOST'] === '127.0.0.1' || $_SERVER['HTTP_HOST'] === 'localhost') {
+            $link = "http://127.0.0.1/elms/attendanceCheck";
+        } else {
+            $link = "https://leavebeta.iauoffsa.us/elms/attendanceCheck";
+        }
+
         if ($qrCodeData) {
             // Pass the QR code's base64 data to the view
             $qrCodeBase64 = $qrCodeData['image'];
@@ -1317,6 +1340,60 @@ class AdminController
 
         // Include the view to display the QR code
         require 'src/views/QRCode/qrcode.php';
+    }
+
+    public function actionIP()
+    {
+        $model = new AdminModel();
+
+        // Handle POST requests
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Delete request
+            if (isset($_POST['delete_id'])) {
+                $id = $_POST['delete_id'];
+                $model->deleteIP($id);
+
+                $_SESSION['success'] = [
+                    'title' => 'Successfully',
+                    'message' => 'You have been deleted the IP Address.'
+                ];
+
+                header('Location: /elms/ipaddress'); // Redirect to avoid resubmission
+                exit;
+            }
+            // Update status request
+            elseif (isset($_POST['id'])) {
+                $id = $_POST['id'];
+                $status = isset($_POST['status']) ? 1 : 0; // Checkbox sends value if checked
+                $model->updateIPStatus($id, $status);
+
+                $_SESSION['success'] = [
+                    'title' => 'Successfully',
+                    'message' => 'You have been updated the IP Address.'
+                ];
+
+                header('Location: /elms/ipaddress'); // Redirect to avoid resubmission
+                exit;
+            }
+            // Create request
+            elseif (isset($_POST['new_ip'])) {
+                $new_ip = $_POST['new_ip'];
+                $model->createIP($new_ip);
+
+                $_SESSION['success'] = [
+                    'title' => 'Successfully',
+                    'message' => 'You have been created the IP Address.'
+                ];
+
+                header('Location: /elms/ipaddress'); // Redirect to avoid resubmission
+                exit;
+            }
+        }
+
+        // Fetch all IP addresses
+        $ipList = $model->getAllIPAddresses();
+
+        require 'src/views/ipaddress/ipaddress.php';
     }
 
     public function generate()
@@ -1341,7 +1418,7 @@ class AdminController
             if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
                 $ipAddress = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
             }
-            
+
             $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
             $deviceId = $_POST['device_id'] ?? 'Unknown';
 

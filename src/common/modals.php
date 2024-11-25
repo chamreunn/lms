@@ -1314,6 +1314,24 @@
                             <input type="hidden" id="leave_type_name_hof" name="leave_type_name"
                                 value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
+                         <!-- Signature Field -->
+                         <div class="col-12">
+                            <label for="signature" class="form-label fw-bold">ហត្ថលេខា
+                                <span class="text-danger mx-1 fw-bold">*</span>
+                            </label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <label class="custom-file-label btn btn-outline-primary w-100">
+                                        ជ្រើសរើសហត្ថលេខា
+                                        <input type="file" class="form-control signature-input visually-hidden" 
+                                            name="signature" accept=".png,.jpg,.jpeg" required>
+                                    </label>
+                                </div>
+                                <div class="col-12 mt-3 mb-0">
+                                    <div class="signature-list-container row g-2"></div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-12">
                             <label for="reason" class="form-label fw-bold">មូលហេតុ
                                 <span class="text-danger mx-1 fw-bold">*</span>
