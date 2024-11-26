@@ -45,6 +45,7 @@ class AuthController
                             $_SESSION['temp_token'] = $token;
                             $_SESSION['temp_user_data'] = $user;
                             $_SESSION['user_khmer_name'] = $user['lastNameKh'] . ' ' . $user['firstNameKh'];
+                            $_SESSION['dob'] = $user['dateOfBirth'];
                             $_SESSION['user_profile'] = 'https://hrms.iauoffsa.us/images/' . $user['image'];
                             $_SESSION['role'] = $user['roleLeave'] ?? 'NULL';
                             $_SESSION['token'] = $token;
@@ -74,6 +75,7 @@ class AuthController
                         $_SESSION['idCard'] = $user['idCard'];
                         $_SESSION['email'] = $user['email'];
                         $_SESSION['user_khmer_name'] = $user['lastNameKh'] . ' ' . $user['firstNameKh'];
+                        $_SESSION['dob'] = $user['dateOfBirth'];
                         $_SESSION['user_eng_name'] = $user['engName'];
                         $_SESSION['user_profile'] = 'https://hrms.iauoffsa.us/images/' . $user['image'];
                         $_SESSION['role'] = $user['roleLeave'] ?? 'NULL';
@@ -82,6 +84,7 @@ class AuthController
                         $_SESSION['isAdmin'] = $user['isAdmin'];
                         $_SESSION['token'] = $token;
 
+                        // telegram information 
                         $_SESSION['BotUsername'] = "myelmsbot";
                         $_SESSION['LateInBot'] = "lateinoutbot";
 

@@ -88,7 +88,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 }
 ?>
 <!-- leave requests  -->
-<?php if (empty($requests) && empty($hold)): ?>
+<?php if (empty($requests) && empty($hold) && empty($transferouts)): ?>
     <div class="card">
         <div class="card-body">
             <div class="d-flex align-items-center justify-content-center">
@@ -596,6 +596,433 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                 </div>
             </div>
         <?php endforeach; ?>
+
+        <div class="row g-3">
+            <?php foreach ($hold as $index => $transferout): ?>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 hover-shadow-lg overflow-hidden">
+                        <div class="ribbon <?= $holds['color'] ?>">
+                            <?php if ($holds['type'] == 'transfer'): ?>
+                                <span>លិខិតផ្ទេរចេញ</span>
+                            <?php elseif ($holds['type'] == 'hold'): ?>
+                                <span>លិខិតពួ្យរការងារ</span>
+                            <?php elseif ($holds['type'] == 'resign'): ?>
+                                <span>លិខិតលាឈប់</span>
+                            <?php else: ?>
+                                <span>លិខិតចូលបម្រើការងារវិញ</span>
+                            <?php endif; ?>
+                        </div>
+                        <!-- Trigger modal on click by adding data attributes -->
+                        <a href="#" class="text-decoration-none text-dark" data-bs-toggle="modal"
+                            data-bs-target="#detailModal<?= $index ?>">
+                            <div class="card-body p-3 d-flex align-items-center">
+                                <div class="avatar-container me-3">
+                                    <img class="avatar" style="object-fit: cover;" src="<?= $holds['profile'] ?>"
+                                        alt="User Profile">
+                                </div>
+                                <div class="info-container flex-grow-1">
+                                    <h5 class="mb-1 text-primary"><?= $holds['user_name'] ?></h5>
+                                    <small class="text-muted fw-bold">
+                                        <?= translateDateToKhmer($holds['created_at'], 'j F Y h:i A') ?>
+                                    </small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Modal Structure -->
+                <div class="modal modal-blur fade" id="detailModal<?= $index ?>" tabindex="-1"
+                    aria-labelledby="detailModalLabel<?= $index ?>" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-md">
+                        <div class="modal-content">
+                            <div class="modal-header <?= $holds['color'] ?> text-light">
+                                <h5 class="modal-title" id="detailModalLabel<?= $index ?>">លិខិតពួ្យរការងារ</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <!-- detail section  -->
+                            <form action="/elms/action<?= $holds['type'] ?>" method="POST">
+
+                                <input type="hidden" name="holdId" value="<?= $holds['id'] ?>">
+
+                                <div class="col-12" hidden>
+                                    <label class="form-label fw-bold">អ្នកអនុម័ត
+                                        <span class="text-danger mx-1 fw-bold">*</span>
+                                    </label>
+                                    <select class="form-select select-people" id="transfer_id_hof" name="approverId" required>
+                                        <?php if (isset($approver['ids'][0])): ?>
+                                            <option value="<?= htmlspecialchars($approver['ids'][0], ENT_QUOTES, 'UTF-8') ?>"
+                                                data-custom-properties="&lt;span class=&quot;avatar avatar-xs&quot; style=&quot;background-image: url('https://hrms.iauoffsa.us/images/<?= htmlspecialchars($approver['image'][0], ENT_QUOTES, 'UTF-8') ?>')&quot;&gt;&lt;/span&gt;">
+                                                <?= htmlspecialchars($approver['lastNameKh'][0], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($approver['firstNameKh'][0], ENT_QUOTES, 'UTF-8') ?>
+                                            </option>
+                                        <?php endif; ?>
+
+                                        <?php foreach ($approver['ids'] as $index => $id): ?>
+                                            <option value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>"
+                                                data-custom-properties="&lt;span class=&quot;avatar avatar-xs&quot; style=&quot;background-image: url('https://hrms.iauoffsa.us/images/<?= htmlspecialchars($approver['image'][$index], ENT_QUOTES, 'UTF-8') ?>')&quot;&gt;&lt;/span&gt;">
+                                                <?= htmlspecialchars($approver['lastNameKh'][$index], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($approver['firstNameKh'][$index], ENT_QUOTES, 'UTF-8') ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <input type="hidden" id="leave_type_name_hof" name="leave_type_name"
+                                        value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                </div>
+
+                                <div class="modal-body">
+                                    <div class="row mb-3 g-3">
+                                        <div class="col-12 text-center">
+                                            <!-- User Profile Picture -->
+                                            <img src="<?= $holds['profile'] ?>" alt="User Profile" class="avatar avatar-xl"
+                                                style="object-fit: cover;">
+                                        </div>
+                                    </div>
+
+                                    <!-- Details as a List -->
+                                    <div class="bg-light p-3 rounded-3">
+                                        <dl class="row g-1 mb-0">
+                                            <dt class="col-sm-12 col-md-4"><strong>ឈ្មោះ:</strong></dt>
+                                            <dd class="col-sm-12 col-md-8"><?= $holds['user_name'] ?></dd>
+
+                                            <dt class="col-sm-12 col-md-4"><strong>កាលបរិច្ឆេទព្យួរ:</strong></dt>
+                                            <dd class="col-sm-12 col-md-8">
+                                                <?= translateDateToKhmer($holds['start_date'], 'j F Y') ?>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-narrow-right text-primary">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M5 12l14 0" />
+                                                    <path d="M15 16l4 -4" />
+                                                    <path d="M15 8l4 4" />
+                                                </svg>
+                                                <?= translateDateToKhmer($holds['end_date'], 'j F Y') ?>
+                                            </dd>
+
+                                            <dt class="col-sm-12 col-md-4"><strong>រយៈពេល:</strong></dt>
+                                            <dd class="col-sm-12 col-md-8"><?= $holds['duration'] ?></dd>
+
+                                            <dt class="col-sm-12 col-md-4"><strong>កាលបរិច្ឆេទស្នើ:</strong></dt>
+                                            <dd class="col-sm-12 col-md-8">
+                                                <?= translateDateToKhmer($holds['created_at'], 'j F Y h:i A') ?>
+                                            </dd>
+
+                                            <dt class="col-sm-12 col-md-4"><strong>មូលហេតុ:</strong></dt>
+                                            <dd class="col-sm-12 col-md-8"><?= $holds['reason'] ?></dd>
+
+                                            <!-- Status Section -->
+                                            <dt class="col-sm-12 col-md-4"><strong>ស្ថានភាព:</strong></dt>
+                                            <dd class="col-sm-12 col-md-8">
+                                                <?php if ($holds['status'] == 'approved'): ?>
+                                                    <span class="badge bg-success">អនុម័ត</span>
+                                                <?php elseif ($holds['status'] == 'rejected'): ?>
+                                                    <span class="badge bg-danger">មិនអនុម័ត</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-warning">រង់ចាំអនុម័ត</span>
+                                                <?php endif; ?>
+                                            </dd>
+
+                                            <!-- Attachments Section -->
+                                            <?php if (!empty($holds['attachments'])): ?>
+                                                <dt class="col-sm-12 col-md-4"><strong>ឯកសារភ្ជាប់:</strong></dt>
+                                                <dd class="col-sm-12 col-md-8">
+                                                    <ul class="list-unstyled">
+                                                        <?php
+                                                        // Convert attachments string to an array
+                                                        $attachments = explode(',', $holds['attachments']);
+                                                        foreach ($attachments as $attachment): ?>
+                                                            <li>
+                                                                <a href="public/uploads/hold-attachments/<?= htmlspecialchars($attachment) ?>"
+                                                                    target="_blank" class="text-primary">
+                                                                    <i class="bi bi-paperclip"></i> <?= htmlspecialchars($attachment) ?>
+                                                                </a>
+                                                            </li>
+                                                        <?php endforeach; ?>
+                                                    </ul>
+                                                </dd>
+                                            <?php endif; ?>
+                                        </dl>
+                                    </div>
+                                </div>
+
+                                <!-- approved or rejected section  -->
+                                <div class="modal-body">
+                                    <div class="row g-3">
+                                        <div class="col-xl-6 col-sm-12 col-md-6">
+                                            <div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
+                                                <label class="form-selectgroup-item flex-fill">
+                                                    <input type="radio" name="status" value="approved"
+                                                        class="form-selectgroup-input" checked>
+                                                    <div
+                                                        class="form-selectgroup-label d-flex align-items-center p-3 text-success fw-bold">
+                                                        <div class="me-3">
+                                                            <span class="form-selectgroup-check"></span>
+                                                        </div>
+                                                        <div>
+                                                            <strong>អនុម័ត</strong>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-6 col-sm-12 col-md-6">
+                                            <div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
+                                                <label class="form-selectgroup-item flex-fill">
+                                                    <input type="radio" name="status" value="rejected"
+                                                        class="form-selectgroup-input">
+                                                    <div
+                                                        class="form-selectgroup-label d-flex align-items-center p-3 text-danger fw-bold">
+                                                        <div class="me-3">
+                                                            <span class="form-selectgroup-check"></span>
+                                                        </div>
+                                                        <div>
+                                                            <strong>មិនអនុម័ត</strong>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="comment" class="form-label fw-bold">មតិយោបល់</label>
+                                            <textarea name="comment" id="comment" placeholder="សូមបញ្ចូលមតិយោបល់..."
+                                                class="form-control"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- footer section  -->
+                                <div class="modal-footer bg-light">
+                                    <div class="row w-100">
+                                        <div class="col-6">
+                                            <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
+                                        </div>
+                                        <div class="col-6">
+                                            <button type="submit" class="btn btn-primary w-100">បន្ត</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+
+            <?php foreach ($transferouts as $index => $transferout): ?>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 hover-shadow-lg overflow-hidden">
+                        <div class="ribbon <?= $transferout['color'] ?>">
+                            <?php if ($transferout['type'] == 'transferout'): ?>
+                                <span>លិខិតផ្ទេរចេញ</span>
+                            <?php elseif ($transferout['type'] == 'hold'): ?>
+                                <span>លិខិតពួ្យរការងារ</span>
+                            <?php elseif ($transferout['type'] == 'resign'): ?>
+                                <span>លិខិតលាឈប់</span>
+                            <?php else: ?>
+                                <span>លិខិតចូលបម្រើការងារវិញ</span>
+                            <?php endif; ?>
+                        </div>
+                        <!-- Trigger modal on click by adding data attributes -->
+                        <a href="#" class="text-decoration-none text-dark" data-bs-toggle="modal"
+                            data-bs-target="#detailModal<?= $index ?>">
+                            <div class="card-body p-3 d-flex align-items-center">
+                                <div class="avatar-container me-3">
+                                    <img class="avatar" style="object-fit: cover;" src="<?= $transferout['profile'] ?>"
+                                        alt="User Profile">
+                                </div>
+                                <div class="info-container flex-grow-1">
+                                    <h5 class="mb-1 text-primary"><?= $transferout['user_name'] ?></h5>
+                                    <small class="text-muted fw-bold">
+                                        <?= translateDateToKhmer($transferout['created_at'], 'j F Y h:i A') ?>
+                                    </small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Modal Structure -->
+                <div class="modal modal-blur fade" id="detailModal<?= $index ?>" tabindex="-1"
+                    aria-labelledby="detailModalLabel<?= $index ?>" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header <?= $transferout['color'] ?> text-light">
+                                <h5 class="modal-title" id="detailModalLabel<?= $index ?>">លិខិតផ្ទេរការងារ</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <!-- detail section  -->
+                            <form action="/elms/hoaction<?= $transferout['type'] ?>" method="POST">
+                                <div class="col-12" hidden>
+                                    <input type="text" name="transferoutId" value="<?= $transferout['id'] ?>">
+                                    <label class="form-label fw-bold">អ្នកអនុម័ត
+                                        <span class="text-danger mx-1 fw-bold">*</span>
+                                    </label>
+                                    <select class="form-select select-people" id="transfer_id_hof" name="approverId" required>
+                                        <?php if (isset($approver['ids'][0])): ?>
+                                            <option value="<?= htmlspecialchars($approver['ids'][0], ENT_QUOTES, 'UTF-8') ?>"
+                                                data-custom-properties="&lt;span class=&quot;avatar avatar-xs&quot; style=&quot;background-image: url('https://hrms.iauoffsa.us/images/<?= htmlspecialchars($approver['image'][0], ENT_QUOTES, 'UTF-8') ?>')&quot;&gt;&lt;/span&gt;">
+                                                <?= htmlspecialchars($approver['lastNameKh'][0], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($approver['firstNameKh'][0], ENT_QUOTES, 'UTF-8') ?>
+                                            </option>
+                                        <?php endif; ?>
+
+                                        <?php foreach ($approver['ids'] as $index => $id): ?>
+                                            <option value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>"
+                                                data-custom-properties="&lt;span class=&quot;avatar avatar-xs&quot; style=&quot;background-image: url('https://hrms.iauoffsa.us/images/<?= htmlspecialchars($approver['image'][$index], ENT_QUOTES, 'UTF-8') ?>')&quot;&gt;&lt;/span&gt;">
+                                                <?= htmlspecialchars($approver['lastNameKh'][$index], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($approver['firstNameKh'][$index], ENT_QUOTES, 'UTF-8') ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <input type="hidden" id="leave_type_name_hof" name="leave_type_name"
+                                        value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                </div>
+
+                                <div class="modal-body">
+                                    <!-- Details as a List -->
+                                    <div class="bg-light p-3 rounded-3">
+                                        <div class="col-12 text-center mb-3">
+                                            <!-- User Profile Picture -->
+                                            <img src="<?= $transferout['profile'] ?>" alt="User Profile"
+                                                class="avatar avatar-xl" style="object-fit: cover;">
+                                        </div>
+                                        <dl class="row g-1 mb-0">
+                                            <dt class="col-sm-12 col-md-4"><strong>ឈ្មោះ:</strong></dt>
+                                            <dd class="col-sm-12 col-md-8"><?= $transferout['user_name'] ?></dd>
+
+                                            <dt class="col-sm-12 col-md-4"><strong>កាលបរិច្ឆេទស្នើ:</strong></dt>
+                                            <dd class="col-sm-12 col-md-8">
+                                                <?= translateDateToKhmer($transferout['created_at'], 'j F Y') ?>
+                                            </dd>
+
+                                            <dt class="col-sm-12 col-md-4"><strong>ផ្ទេរពី:</strong></dt>
+                                            <dd class="col-sm-12 col-md-8">
+                                                <?= $transferout['from_department_name'] ?>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-narrow-right text-primary">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M5 12l14 0" />
+                                                    <path d="M15 16l4 -4" />
+                                                    <path d="M15 8l4 4" />
+                                                </svg>
+                                                <strong><?= $transferout['to_department_name'] ?></strong>
+                                            </dd>
+
+                                            <dt class="col-sm-12 col-md-4"><strong>ផ្ទេរពី:</strong></dt>
+                                            <dd class="col-sm-12 col-md-8">
+                                                <?= $transferout['from_office_name'] ?>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-narrow-right text-primary">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M5 12l14 0" />
+                                                    <path d="M15 16l4 -4" />
+                                                    <path d="M15 8l4 4" />
+                                                </svg>
+                                                <strong><?= $transferout['to_office_name'] ?></strong>
+                                            </dd>
+
+                                            <dt class="col-sm-12 col-md-4"><strong>មូលហេតុ:</strong></dt>
+                                            <dd class="col-sm-12 col-md-8"><?= $transferout['reason'] ?></dd>
+
+                                            <!-- Status Section -->
+                                            <dt class="col-sm-12 col-md-4"><strong>ស្ថានភាព:</strong></dt>
+                                            <dd class="col-sm-12 col-md-8">
+                                                <?php if ($transferout['status'] == 'approved'): ?>
+                                                    <span class="badge bg-success">អនុម័ត</span>
+                                                <?php elseif ($transferout['status'] == 'rejected'): ?>
+                                                    <span class="badge bg-danger">មិនអនុម័ត</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-warning">រង់ចាំអនុម័ត</span>
+                                                <?php endif; ?>
+                                            </dd>
+
+                                            <!-- Attachments Section -->
+                                            <?php if (!empty($transferout['attachments'])): ?>
+                                                <dt class="col-sm-12 col-md-4"><strong>ឯកសារភ្ជាប់:</strong></dt>
+                                                <dd class="col-sm-12 col-md-8">
+                                                    <ul class="list-unstyled">
+                                                        <?php
+                                                        // Convert attachments string to an array
+                                                        $attachments = explode(',', $transferout['attachments']);
+                                                        foreach ($attachments as $attachment): ?>
+                                                            <li>
+                                                                <a href="public/uploads/hold-attachments/<?= htmlspecialchars($attachment) ?>"
+                                                                    target="_blank" class="text-primary">
+                                                                    <i class="bi bi-paperclip"></i> <?= htmlspecialchars($attachment) ?>
+                                                                </a>
+                                                            </li>
+                                                        <?php endforeach; ?>
+                                                    </ul>
+                                                </dd>
+                                            <?php endif; ?>
+                                        </dl>
+                                    </div>
+                                </div>
+
+                                <!-- approved or rejected section  -->
+                                <div class="modal-body">
+                                    <div class="row g-3">
+                                        <div class="col-xl-6 col-sm-12 col-md-6">
+                                            <div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
+                                                <label class="form-selectgroup-item flex-fill">
+                                                    <input type="radio" name="status" value="approved"
+                                                        class="form-selectgroup-input" checked>
+                                                    <div
+                                                        class="form-selectgroup-label d-flex align-items-center p-3 text-success fw-bold">
+                                                        <div class="me-3">
+                                                            <span class="form-selectgroup-check"></span>
+                                                        </div>
+                                                        <div>
+                                                            <strong>អនុម័ត</strong>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-6 col-sm-12 col-md-6">
+                                            <div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
+                                                <label class="form-selectgroup-item flex-fill">
+                                                    <input type="radio" name="status" value="rejected"
+                                                        class="form-selectgroup-input">
+                                                    <div
+                                                        class="form-selectgroup-label d-flex align-items-center p-3 text-danger fw-bold">
+                                                        <div class="me-3">
+                                                            <span class="form-selectgroup-check"></span>
+                                                        </div>
+                                                        <div>
+                                                            <strong>មិនអនុម័ត</strong>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="comment" class="form-label fw-bold">មតិយោបល់</label>
+                                            <textarea name="comment" id="comment" placeholder="សូមបញ្ចូលមតិយោបល់..."
+                                                class="form-control"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- footer section  -->
+                                <div class="modal-footer bg-light">
+                                    <div class="row w-100">
+                                        <div class="col-6">
+                                            <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
+                                        </div>
+                                        <div class="col-6">
+                                            <button type="submit" class="btn btn-primary w-100">បន្ត</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
     </div>
 <?php endif; ?>
 

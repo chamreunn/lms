@@ -75,7 +75,7 @@ class AttendanceModel
             $data = [
                 'uid' => $userId,
                 'date' => $date,
-                'check' => $check,
+                'timestamp' => $check,
             ];
 
             $jsonData = json_encode($data);

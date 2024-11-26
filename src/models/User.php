@@ -2553,4 +2553,68 @@ class User
         $stmt->execute([':user_id' => $userId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    function convertToKhmerNumbers($number)
+    {
+        $khmerNumbers = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩'];
+        $number = (string) $number;
+        $converted = '';
+        for ($i = 0; $i < strlen($number); $i++) {
+            $digit = $number[$i];
+            $converted .= is_numeric($digit) ? $khmerNumbers[$digit] : $digit;
+        }
+        return $converted;
+    }
+
+    function convertDateToKhmer($date)
+    {
+        if (empty($date)) {
+            return '';
+        }
+
+        // Convert Arabic numerals to Khmer numerals
+        $khmerNumbers = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩'];
+
+        // Khmer month names
+        $khmerMonths = [
+            1 => 'មករា',
+            2 => 'កុម្ភៈ',
+            3 => 'មិនា',
+            4 => 'មេសា',
+            5 => 'ឧសភា',
+            6 => 'មិថុនា',
+            7 => 'កក្កដា',
+            8 => 'សីហា',
+            9 => 'កញ្ញា',
+            10 => 'តុលា',
+            11 => 'វិច្ឆិកា',
+            12 => 'ធ្នូ'
+        ];
+
+        // Parse the date
+        $timestamp = strtotime($date);
+        if (!$timestamp) {
+            return ''; // Return empty if the date is invalid
+        }
+
+        // Extract date components
+        $day = date('j', $timestamp);
+        $month = (int) date('n', $timestamp);
+        $year = date('Y', $timestamp);
+
+        // Convert day and year to Khmer numerals
+        $khmerDay = '';
+        $khmerYear = '';
+
+        foreach (str_split($day) as $digit) {
+            $khmerDay .= $khmerNumbers[$digit];
+        }
+
+        foreach (str_split($year) as $digit) {
+            $khmerYear .= $khmerNumbers[$digit];
+        }
+
+        // Return formatted Khmer date
+        return $khmerDay . ' ' . $khmerMonths[$month] . ' ' . $khmerYear;
+    }
 }

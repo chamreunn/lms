@@ -6,6 +6,8 @@ class TransferoutModel
 
     protected $transferout_approval = 'transferout_approval';
 
+    protected $transferout_attachment = 'transferout_attachments';
+
     private $pdo;
 
     public function __construct()
@@ -47,12 +49,12 @@ class TransferoutModel
         $stmt->execute($data);
     }
 
-    public function insertManagerStatusToHoldsApprovals($hold_id, $approver_id, $status)
+    public function insertManagerStatusAndUpdateApprover($transferout_id, $approver_id, $status)
     {
-        // Debugging
-        if (is_array($hold_id)) {
-            error_log('Error: $hold_id is an array, using the first element');
-            $hold_id = $hold_id[0]; // Adjust as needed based on what $hold_id should be
+        // Debugging checks
+        if (is_array($transferout_id)) {
+            error_log('Error: $transferout_id is an array, using the first element');
+            $transferout_id = $transferout_id[0]; // Adjust as needed
         }
         if (is_array($approver_id)) {
             error_log('Error: $approver_id is an array, using the first element');
@@ -63,15 +65,36 @@ class TransferoutModel
             $status = $status[0]; // Adjust as needed
         }
 
-        $sql = "INSERT INTO $this->transferout_approval (transferout_id, approver_id, status)
-                VALUES (:transfer_id, :approver_id, :status)";
+        try {
+            // Begin transaction
+            $this->pdo->beginTransaction();
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            ':transfer_id' => $hold_id,
-            ':approver_id' => $approver_id,
-            ':status' => $status,
-        ]);
+            // Insert into holds_approvals
+            $insertSql = "INSERT INTO transferout_approval (transferout_id, approver_id, status)
+                      VALUES (:transferout_id, :approver_id, :status)";
+            $insertStmt = $this->pdo->prepare($insertSql);
+            $insertStmt->execute([
+                ':transferout_id' => $transferout_id,
+                ':approver_id' => $approver_id,
+                ':status' => $status,
+            ]);
+
+            // Update approver_id in holds table
+            $updateSql = "UPDATE transferout SET approver_id = :approver_id WHERE id = :transferout_id";
+            $updateStmt = $this->pdo->prepare($updateSql);
+            $updateStmt->execute([
+                ':approver_id' => $approver_id,
+                ':transferout_id' => $transferout_id,
+            ]);
+
+            // Commit transaction
+            $this->pdo->commit();
+        } catch (Exception $e) {
+            // Rollback on error
+            $this->pdo->rollBack();
+            error_log("Error in insertManagerStatusAndUpdateApprover: " . $e->getMessage());
+            throw $e; // Re-throw exception to handle it upstream
+        }
     }
 
     public function getTransferoutWithDetails($offset, $limit)
@@ -201,13 +224,20 @@ class TransferoutModel
 
     public function getTransferoutById($id)
     {
-        // Prepare the SQL query to get the transfer request and approval tracking details
-        $sql = "SELECT h.*, GROUP_CONCAT(a.filename) AS attachments, a.created_at, a.transferout_id,  ha.status AS approval_status, ha.updated_at AS approved_at, ha.approver_id, ha.comment AS comment
-        FROM $this->transferout_approval ha
-        JOIN $this->tbltransferout h ON ha.transferout_id = h.id
-        LEFT JOIN transferout_attachments a ON h.id = a.transferout_id
-        WHERE h.user_id = :userId AND h.id = :id ORDER BY ha.id DESC
-    ";
+        // SQL query to get the transfer request and approvals as separate rows
+        $sql = "SELECT h.*, 
+                    GROUP_CONCAT(DISTINCT a.filename) AS attachments, 
+                    MAX(a.created_at) AS latest_uploaded_at, 
+                    ha.status AS approval_status, 
+                    ha.updated_at AS approved_at, 
+                    ha.approver_id, 
+                    ha.comment AS comment
+                FROM $this->tbltransferout h
+                JOIN $this->transferout_approval ha ON ha.transferout_id = h.id
+                LEFT JOIN transferout_attachments a ON h.id = a.transferout_id
+                WHERE h.user_id = :userId AND h.id = :id
+                GROUP BY ha.id -- Group by approval ID to ensure distinct approval records
+                ORDER BY ha.id DESC";
 
         // Prepare the statement
         $stmt = $this->pdo->prepare($sql);
@@ -223,12 +253,12 @@ class TransferoutModel
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if ($results) {
-            // Initialize UserModel to fetch department and office data
+            // Initialize UserModel and fetch department/office data once
             $userModel = new User();
             $departments = $userModel->getAllDepartmentApi($_SESSION['token']);
             $offices = $userModel->getAllOfficeApi($_SESSION['token']);
 
-            // Map departments and offices for easy lookup by ID
+            // Create lookup maps for departments and offices
             $departmentMap = [];
             foreach ($departments['data'] as $department) {
                 $departmentMap[$department['id']] = $department['departmentNameKh'];
@@ -239,24 +269,24 @@ class TransferoutModel
                 $officeMap[$office['id']] = $office['officeNameKh'];
             }
 
-            // Fetch the submitter (user) data from the API
-            $userApiResponse = $userModel->getUserByIdApi($results[0]['user_id'], $_SESSION['token']);
-            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
-                $user = $userApiResponse['data'];
+            // Fetch submitter details for the first result
+            $submitterApiResponse = $userModel->getUserByIdApi($results[0]['user_id'], $_SESSION['token']);
+            if ($submitterApiResponse && $submitterApiResponse['http_code'] === 200 && isset($submitterApiResponse['data'])) {
+                $submitter = $submitterApiResponse['data'];
 
-                // Add user info to the first result (submitter details)
-                $results[0]['user_name'] = trim(($user['lastNameKh'] ?? 'Unknown') . " " . ($user['firstNameKh'] ?? ''));
-                $results[0]['dob'] = $user['dateOfBirth'] ?? 'Unknown';
-                $results[0]['user_email'] = $user['email'] ?? 'Unknown';
-                $results[0]['department_name'] = $user['department']['name'] ?? 'Unknown';
-                $results[0]['position_name'] = $user['position']['name'] ?? 'Unknown';
-                $results[0]['office_name'] = $user['office']['name'] ?? 'Unknown';
-                $results[0]['user_profile'] = !empty($user['image']) ? 'https://hrms.iauoffsa.us/images/' . $user['image'] : 'default-profile.png';
+                // Add submitter details to the first result
+                $results[0]['user_name'] = trim(($submitter['lastNameKh'] ?? 'Unknown') . " " . ($submitter['firstNameKh'] ?? ''));
+                $results[0]['dob'] = $submitter['dateOfBirth'] ?? 'Unknown';
+                $results[0]['user_email'] = $submitter['email'] ?? 'Unknown';
+                $results[0]['department_name'] = $submitter['department']['name'] ?? 'Unknown';
+                $results[0]['position_name'] = $submitter['position']['name'] ?? 'Unknown';
+                $results[0]['office_name'] = $submitter['office']['name'] ?? 'Unknown';
+                $results[0]['user_profile'] = !empty($submitter['image']) ? 'https://hrms.iauoffsa.us/images/' . $submitter['image'] : 'default-profile.png';
             }
 
-            // Add department and office names for from/to fields
+            // Iterate over each approval step
             foreach ($results as &$result) {
-                // From/To department and office names based on their IDs
+                // Populate department and office names for from/to fields
                 $result['from_department_name'] = $departmentMap[$result['from_department']] ?? 'Unknown Department';
                 $result['to_department_name'] = $departmentMap[$result['to_department']] ?? 'Unknown Department';
                 $result['from_office_name'] = $officeMap[$result['from_office']] ?? 'Unknown Office';
@@ -267,27 +297,129 @@ class TransferoutModel
                     $approverApiResponse = $userModel->getUserByIdApi($result['approver_id'], $_SESSION['token']);
                     if ($approverApiResponse && $approverApiResponse['http_code'] === 200 && isset($approverApiResponse['data'])) {
                         $approver = $approverApiResponse['data'];
+
+                        // Add approver details to the result
                         $result['approver_name'] = trim(($approver['lastNameKh'] ?? 'Unknown') . " " . ($approver['firstNameKh'] ?? ''));
                         $result['profile'] = !empty($approver['image']) ? 'https://hrms.iauoffsa.us/images/' . $approver['image'] : 'default-profile.png';
-                        $result['position_name'] = $approver['position']['name'] ?? 'Unknown';
-                        // Assign the attachments string directly
-                        $result['attachments'] = !empty($result['attachments']) ? $result['attachments'] : '';
+                        $result['approver_department_name'] = $approver['department']['name'] ?? 'Unknown';
+                        $result['approver_office_name'] = $approver['office']['name'] ?? 'Unknown';
                     } else {
                         $result['approver_name'] = 'Unknown';
-                        $result['profile'] = 'default-profile.png'; // Default profile if no approver info is available
+                        $result['profile'] = 'default-profile.png';
+                        $result['approver_department_name'] = 'Unknown Department';
+                        $result['approver_office_name'] = 'Unknown Office';
                     }
                 } else {
+                    // Default values if no approver is assigned
                     $result['approver_name'] = 'No approver assigned';
-                    $result['profile'] = 'default-profile.png'; // Default profile if no approver assigned
+                    $result['profile'] = 'default-profile.png';
+                    $result['approver_department_name'] = 'Unknown Department';
+                    $result['approver_office_name'] = 'Unknown Office';
                 }
             }
 
             return $results;
         }
 
-        return [];
+        return []; // Return an empty array if no results are found
     }
 
+    public function getTransferoutByUserId($userId)
+    {
+        // SQL query to fetch transfer-out data and associated attachments
+        $sql = "SELECT h.*, 
+                GROUP_CONCAT(DISTINCT a.filename) AS attachments, 
+                MAX(a.created_at) AS latest_uploaded_at
+            FROM $this->tbltransferout h
+            LEFT JOIN $this->transferout_attachment a ON h.id = a.transferout_id
+            WHERE h.approver_id = :user_id AND h.status = 'pending'
+            GROUP BY h.id
+            ORDER BY h.id DESC";
+
+        // Prepare and execute the query
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Cache for user, department, and office data
+        $userCache = [];
+        $departmentMap = [];
+        $officeMap = [];
+
+        // Fetch all departments and offices once to avoid redundant API calls
+        $userModel = new User();
+        $departments = $userModel->getAllDepartmentApi($_SESSION['token']);
+        $offices = $userModel->getAllOfficeApi($_SESSION['token']);
+
+        // Map departments and offices by their IDs for easy lookup
+        if (!empty($departments['data'])) {
+            foreach ($departments['data'] as $department) {
+                $departmentMap[$department['id']] = $department['departmentNameKh'];
+            }
+        }
+
+        if (!empty($offices['data'])) {
+            foreach ($offices['data'] as $office) {
+                $officeMap[$office['id']] = $office['officeNameKh'];
+            }
+        }
+
+        foreach ($results as &$request) {
+            $requestUserId = $request['user_id'];
+
+            // Check the cache for user data
+            if (!isset($userCache[$requestUserId])) {
+                $retryCount = 3;
+
+                while ($retryCount > 0) {
+                    $userApiResponse = $userModel->getUserByIdApi($requestUserId, $_SESSION['token']);
+
+                    if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                        $userCache[$requestUserId] = $userApiResponse['data'];
+                        break;
+                    }
+
+                    $retryCount--;
+                    usleep(200000); // Wait 200ms before retrying
+                }
+            }
+
+            // Retrieve user data from cache or default to null
+            $user = $userCache[$requestUserId] ?? null;
+
+            // Populate department and office names
+            $request['from_department_name'] = $departmentMap[$request['from_department']] ?? 'Unknown Department';
+            $request['to_department_name'] = $departmentMap[$request['to_department']] ?? 'Unknown Department';
+            $request['from_office_name'] = $officeMap[$request['from_office']] ?? 'Unknown Office';
+            $request['to_office_name'] = $officeMap[$request['to_office']] ?? 'Unknown Office';
+
+            if ($user) {
+                // Populate user details if available
+                $request['user_name'] = trim(($user['lastNameKh'] ?? '') . " " . ($user['firstNameKh'] ?? 'Unknown'));
+                $request['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $request['user_email'] = $user['email'] ?? 'Unknown';
+                $request['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $request['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $request['profile'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png');
+            } else {
+                // Default values if user data is not available
+                $request['user_name'] = 'Unknown';
+                $request['dob'] = 'Unknown';
+                $request['user_email'] = 'Unknown';
+                $request['department_name'] = 'Unknown';
+                $request['position_name'] = 'Unknown';
+                $request['profile'] = 'default-profile.png';
+                error_log("Failed to fetch user data for User ID $requestUserId after retries.");
+            }
+
+            // Ensure 'attachments' is always a string for consistent handling
+            $request['attachments'] = $request['attachments'] ?? '';
+        }
+
+        return $results;
+    }
+    
     public function deleteAttachment($transferoutId, $filename)
     {
         // Prepare the SQL statement to delete the attachment from the transferout_attachments table

@@ -363,10 +363,22 @@ asyncHandler(function () {
                 $controller->action();
             });
             break;
+        case $base_url . '/actiontransferout':
+            checkSessionAndExecute(function () {
+                $controller = new DepOfficeController();
+                $controller->actiontransferout();
+            });
+            break;
         case $base_url . '/hoactionhold':
             checkSessionAndExecute(function () {
                 $controller = new HeadOfficeController();
                 $controller->action();
+            });
+            break;
+        case $base_url . '/hoactiontransferout':
+            checkSessionAndExecute(function () {
+                $controller = new HeadOfficeController();
+                $controller->actionTransferout();
             });
             break;
         case $base_url . '/ddactionhold':
@@ -375,16 +387,34 @@ asyncHandler(function () {
                 $controller->action();
             });
             break;
+        case $base_url . '/ddactiontransferout':
+            checkSessionAndExecute(function () {
+                $controller = new DepDepartmentController();
+                $controller->actionTransferout();
+            });
+            break;
         case $base_url . '/hdactionhold':
             checkSessionAndExecute(function () {
                 $controller = new HeadDepartmentController();
                 $controller->action();
             });
             break;
+        case $base_url . '/hdactiontransferout':
+            checkSessionAndExecute(function () {
+                $controller = new HeadDepartmentController();
+                $controller->actionTransferout();
+            });
+            break;
         case $base_url . '/du1actionhold':
             checkSessionAndExecute(function () {
                 $controller = new DepUnit1Controller();
                 $controller->action();
+            });
+            break;
+        case $base_url . '/du1actiontransferout':
+            checkSessionAndExecute(function () {
+                $controller = new DepUnit1Controller();
+                $controller->actionTransferout();
             });
             break;
         case $base_url . '/du2actionhold':
@@ -398,6 +428,12 @@ asyncHandler(function () {
             checkSessionAndExecute(function () {
                 $controller = new HeadUnitController();
                 $controller->action();
+            });
+            break;
+        case $base_url . '/huactiontransferout':
+            checkSessionAndExecute(function () {
+                $controller = new HeadUnitController();
+                $controller->actionTransferout();
             });
             break;
         case $base_url . '/actionresign':
@@ -1289,6 +1325,12 @@ asyncHandler(function () {
         case $base_url . '/exportFile':
             checkSessionAndExecute(function () {
                 $controller = new HoldController();
+                $controller->export();
+            });
+            break;
+        case $base_url . '/exportTransferoutDoc':
+            checkSessionAndExecute(function () {
+                $controller = new TransferoutController();
                 $controller->export();
             });
             break;

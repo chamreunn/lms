@@ -11,6 +11,10 @@ class HeadDepartmentModel
 
     private $approval = "leave_approvals";
 
+    protected $tbltransferout = "transferout";
+
+    protected $tbltransferout_approval = "transferout_approval";
+
     public function __construct()
     {
         global $pdo;
@@ -1567,4 +1571,100 @@ class HeadDepartmentModel
             throw $e;
         }
     }
+
+    // transferout 
+
+    public function updateTransferoutApproval($userId, $transferout_id, $action, $comment)
+    {
+        try {
+            // Start transaction if not already started
+            if (!$this->pdo->inTransaction()) {
+                $this->pdo->beginTransaction();
+            }
+
+            // Update `status` and `comments` in `holds_approvals` if a record exists
+            $updateApprovalSql = "UPDATE $this->tbltransferout_approval SET status = ?, comment = ? WHERE transferout_id = ? AND approver_id = ?";
+            $updateApprovalStmt = $this->pdo->prepare($updateApprovalSql);
+            $updateApprovalStmt->execute([$action, $comment, $transferout_id, $userId]);
+
+            // Debugging log for the update
+            if ($updateApprovalStmt->rowCount() === 0) {
+                error_log("No rows updated in holds_approvals. Either no matching record or `status` and `comments` are already set as requested.");
+            } else {
+                error_log("Row successfully updated in holds_approvals table.");
+            }
+
+            // Commit the transaction if it was started here
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->commit();
+            }
+        } catch (Exception $e) {
+            // Rollback if there's an error
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            error_log("Error: Approval update failed: " . $e->getMessage());
+            throw new Exception("Approval update failed: " . $e->getMessage());
+        }
+    }
+
+    public function delegateManagerTransferout($transferoutapproval, $userModel, $managers, $transferout_id, $user_id)
+    {
+        $levels = [$managers, 'getEmailLeaderHUApi'];
+        $statuses = ['leave' => 'leave', 'mission' => 'mission'];
+
+        foreach ($levels as $apiMethod) {
+            $approver = $userModel->$apiMethod($user_id, $_SESSION['token']);
+            if ($approver && !$userModel->isManagerOnLeaveToday($approver['ids']) && !$userModel->isManagerOnMission($approver['ids'])) {
+                $transferoutapproval->updateMannager($transferout_id, $approver['ids'], 'pending');
+                return; // Stop when a valid approver is found
+            }
+
+            // Insert status if the manager is on leave or mission
+            $status = $userModel->isManagerOnLeaveToday($approver['ids']) ? $statuses['leave'] : $statuses['mission'];
+            $transferoutapproval->updateMannager($transferout_id, $approver['ids'], $status);
+        }
+    }
+
+    public function updateMannager($transferout_id, $approver_id, $status)
+    {
+        // Debugging checks
+        if (is_array($transferout_id)) {
+            error_log('Error: $transferout_id is an array, using the first element');
+            $transferout_id = $transferout_id[0];
+        }
+        if (is_array($approver_id)) {
+            error_log('Error: $approver_id is an array, using the first element');
+            $approver_id = $approver_id[0];
+        }
+        if (is_array($status)) {
+            error_log('Error: $status is an array, using the first element');
+            $status = $status[0];
+        }
+
+        try {
+            // Insert into tblholds_approvals
+            $insertSql = "INSERT INTO $this->tbltransferout_approval (transferout_id, approver_id, status)
+                       VALUES (:transferout_id, :approver_id, :status)";
+            $insertStmt = $this->pdo->prepare($insertSql);
+            $insertStmt->execute([
+                ':transferout_id' => $transferout_id,
+                ':approver_id' => $approver_id,
+                ':status' => $status,
+            ]);
+
+            // Update approver_id in holds table
+            $updateSql = "UPDATE $this->tbltransferout SET approver_id = :approver_id WHERE id = :transferout_id";
+            $updateStmt = $this->pdo->prepare($updateSql);
+            $updateStmt->execute([
+                ':approver_id' => $approver_id,
+                ':transferout_id' => $transferout_id,
+            ]);
+        } catch (Exception $e) {
+            // Log the error and rethrow it for handling upstream
+            error_log("Error in insertManagerStatusAndUpdateApprover: " . $e->getMessage());
+            throw $e;
+        }
+    }
+    // end transferout 
 }

@@ -218,8 +218,6 @@ class HoldController
                     }
                 }
 
-                $link = "https://leave.iauoffsa.us/elms/pending";
-
                 // Send notification after saving the request
                 // $userModel->sendTelegramNotification($userModel, $title, $approver, $start_date, $end_date, $duration, $reason, $link);
 
@@ -692,11 +690,15 @@ class HoldController
             $startDate = $_POST['start_date'] ?? '';
             $endDate = $_POST['end_date'] ?? '';
             $reason = $_POST['reason'] ?? '';
+            $position = $_SESSION['position'];
+            $dob = $_SESSION['dob'];
+            $department = $_SESSION['departmentName'];
             $filename = 'សំណើសុំស្ថិតនៅក្នុងភាពទំនេរ';
 
             $khmerNumber = $this->convertToKhmerNumbers($duration);
             $startDate = $this->convertDateToKhmer($startDate);
             $endDate = $this->convertDateToKhmer($endDate);
+            $dob = $this->convertDateToKhmer($dob);
 
             if ($fileType === 'PDF') {
                 // Configure mPDF
@@ -792,27 +794,27 @@ class HoldController
 
                         <div class="header">
                             <h3>សូមគោរពជូន</h3>
-                            <h3>ឯកឧត្តមអង្គភាពសវនកម្មផ្ទៃក្នុងនៃអាជ្ញាធរសេវាហិរញ្ញវត្ថុមិនមែនធនាគារ</h3>
+                            <h3>ឯកឧត្តមប្រធានអង្គភាពសវនកម្មផ្ទៃក្នុងនៃអាជ្ញាធរសេវាហិរញ្ញវត្ថុមិនមែនធនាគារ</h3>
                         </div>
 
-                         <table style="width: 100%; border-collapse: collapse; font-family: KhmerMEF1; font-size: 14px; line-height: 2.5;">
+                         <table style="width: 100%; border-collapse: collapse; font-family: KhmerMEF1; font-size: 14px; line-height: 1.5;">
                             <tr>
-                                <td style="font-weight: bold; width: 10%; vertical-align: top;">កម្មវត្ថុ ៖</td>
-                                <td style="width: 90%; vertical-align: top;">ការស្នើសុំគោលការណ៍អនុញ្ញាតព្យួរការងារ រយៈពេល ' . $khmerNumber . ' ចាប់ពីថ្ងៃទី ' . $startDate . ' ដល់ថ្ងៃទី ' . $endDate . '។</td>
+                                <td style="font-weight: bold; width: 10%; vertical-align: top;">កម្មវត្ថុ</td>
+                                <td style="width: 90%; vertical-align: top;">៖ ការស្នើសុំគោលការណ៍អនុញ្ញាតព្យួរការងារ រយៈពេល ' . $khmerNumber . ' ចាប់ពីថ្ងៃទី ' . $startDate . ' ដល់ថ្ងៃទី ' . $endDate . '។</td>
                             </tr>
                         </table>
 
-                        <table style="width: 100%; border-collapse: collapse; font-family: KhmerMEF1; font-size: 14px; line-height: 2.5;">
+                        <table style="width: 100%; border-collapse: collapse; font-family: KhmerMEF1; font-size: 14px; line-height: 1.5;">
                             <tr>
-                                <td style="font-weight: bold; width: 10%; vertical-align: top;">មូលហេតុ៖</td>
-                                <td style="width: 90%; vertical-align: top;">'. $reason .'។</td>
+                                <td style="font-weight: bold; width: 10%; vertical-align: top;">មូលហេតុ</td>
+                                <td style="width: 90%; vertical-align: top;">៖ ' . $reason . '។</td>
                             </tr>
                         </table>
 
                         <div class="content">
-                            <p style="text-indent: 50px;">សេចក្តីដូចមានក្នុងកម្មវត្ថុ និងមូលហេតុខាងលើ សូមគោរពជម្រាបជូន <strong>ឯកឧត្តមប្រធាន</strong> មេត្តាជ្រាបដ៍ខ្ពង់ខ្ពស់ថា៖ ខ្ញុំបាទ/នាងខ្ញុំឈ្មោះ................. កើតថ្ងៃទី....... ខែ......... ឆ្នាំ....... ប្រភេទមន្រ្តី........ បច្ចុប្បន្នជា.......................... នៃនាយកដ្ឋាន.......... សូមគោរពស្នើសុំការអនុញ្ញាតដ៍ខ្ពង់ខ្ពស់ពី ឯកឧត្តមប្រធាន ដើម្បីព្យួរការងារ (ការដាក់ឱ្យស្ថិតនៅក្នុងភាពទំនេរគ្មានបៀវត្ស) រយៈពេល......ឆ្នាំ ចាប់ពីថ្ងៃទី.....ខែ........ឆ្នាំ.......ដល់ថ្ងៃទី.....ខែ........ឆ្នាំ............ ដោយក្តីអនុគ្រោះ។ </p>
+                            <p style="text-indent: 50px;">សេចក្តីដូចមានក្នុងកម្មវត្ថុ និងមូលហេតុខាងលើ សូមគោរពជម្រាបជូន <strong>ឯកឧត្តមប្រធាន</strong> មេត្តាជ្រាបដ៍ខ្ពង់ខ្ពស់ថា៖ ខ្ញុំបាទ/នាងខ្ញុំឈ្មោះ ' . $_SESSION['user_khmer_name'] . ' កើតថ្ងៃទី ' . $dob . ' ប្រភេទ' . $position . ' បច្ចុប្បន្នជា ' . $position . ' នៃ' . $department . ' សូមគោរពស្នើសុំការអនុញ្ញាតដ៍ខ្ពង់ខ្ពស់ពី <strong>ឯកឧត្តមប្រធាន</strong> ដើម្បីព្យួរការងារ (ការដាក់ឱ្យស្ថិតនៅក្នុងភាពទំនេរគ្មានបៀវត្ស) រយៈពេល ' . $khmerNumber . ' ចាប់ពីថ្ងៃទី ' . $startDate . ' ដល់ថ្ងៃទី ' . $endDate . ' ដោយក្តីអនុគ្រោះ។ </p>
                             <p style="text-indent: 50px;">សេចក្តីដូចបានគោរពជម្រាបជូនខាងលើ សូម <strong>ឯកឧត្តមប្រធាន</strong> មេត្តាពិនិត្យ និងសម្រេចដោយសេចក្តីអនុគ្រោះ។</p>
-                            <p style="text-indent: 50px;">សូម <strong>ឯកឧត្តមប្រធាន</strong> មេត្តទទួលនូវការគោរពដ៏ខ្ពង់ខ្ពស់ពីខ្ញុំ</p>
+                            <p style="text-indent: 50px;">សូម <strong>ឯកឧត្តមប្រធាន</strong> មេត្តាទទួលនូវការគោរពដ៏ខ្ពង់ខ្ពស់ពីខ្ញុំ</p>
                         </div>
 
                         <!-- Footer using Table Layout -->
@@ -823,31 +825,27 @@ class HoldController
                                     <p>បានឃើញ និងសូមគោរពជូន</p>
                                     <strong>ឯកឧត្តមប្រធានអង្គភាព</strong>
                                     <p>ពិនិត្យនិងសម្រេច</p>
-                                    <p>ថ្ងៃ.........................ខែ.............ឆ្នាំ.............ព.ស. ២៥...</p>
-                                    <p>..................ថ្ងៃទី...........ខែ............ឆ្នាំ２０..........</p>
-                                    <strong>នាយកដ្ឋាន.................</strong>
-                                    <strong>ប្រធាន</strong>
+                                    <p>ថ្ងៃ...............ខែ.............ឆ្នាំ.............ព.ស. ២៥...</p>
+                                    <p>..................ថ្ងៃទី...........ខែ............ឆ្នាំ២០..........</p>
+                                    <strong>' . $department . '</strong>
+                                    <p style="font-weight: bold;">ប្រធាន</p>
                                 </td>
                                 <td class="footer-top">
-                                    <p>បានឃើញ និងសូមគោរពជូន</p>
-                                    <strong>ឯកឧត្តមប្រធានអង្គភាព</strong>
-                                    <p>ពិនិត្យនិងសម្រេច</p>
-                                    <p>ថ្ងៃ.........................ខែ.............ឆ្នាំ.............ព.ស. ២៥...</p>
-                                    <p>..................ថ្ងៃទី...........ខែ............ឆ្នាំ２０..........</p>
-                                    <strong>នាយកដ្ឋាន.................</strong>
-                                    <strong>ប្រធាន</strong>
+                                    <p>ថ្ងៃ..............ខែ.............ឆ្នាំ.............ព.ស. ២៥...</p>
+                                    <p>..................ថ្ងៃទី...........ខែ............ឆ្នាំ២០..........</p>
+                                    <strong>ហត្ថលេខាសមីខ្លួន</strong>
                                 </td>
                             </tr>
                             <!-- Second row with the bottom footer aligned to the right -->
                             <tr>
                                 <td colspan="2" class="footer-right">
-                                    <p>បានឃើញ និងសូមគោរពជូន</p>
-                                    <strong>ឯកឧត្តមប្រធានអង្គភាព</strong>
-                                    <p>ពិនិត្យនិងសម្រេច</p>
+                                    <p>បានឃើញ និងឯកភាព</p>
+                                    <p>សូមជូន នាយកដ្ឋានកិច្ចការទូទៅ</p>
+                                    <p>ដើម្បីមុខងារ</p>
                                     <p>ថ្ងៃ.........................ខែ.............ឆ្នាំ.............ព.ស. ២៥...</p>
-                                    <p>..................ថ្ងៃទី...........ខែ............ឆ្នាំ２０..........</p>
-                                    <strong>នាយកដ្ឋាន.................</strong>
-                                    <strong>ប្រធាន</strong>
+                                    <p>..................ថ្ងៃទី...........ខែ............ឆ្នាំ២០..........</p>
+                                    <strong>អង្គភាពសវនកម្មផ្ទៃក្នុង</strong>
+                                    <p style="font-weight: bold;">ប្រធាន</p>
                                 </td>
                             </tr>
                         </table>
