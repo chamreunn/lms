@@ -28,7 +28,7 @@ class ResignController
             $offset = ($currentPage - 1) * $recordsPerPage;
 
             // Initialize the HoldModel with the database connection
-            $resignModel = new ResignModel($this->pdo);
+            $resignModel = new ResignModel();
 
             // Fetch the holds for the current user based on the offset and records per page
             $getResigns = $resignModel->getResigns($offset, $recordsPerPage);

@@ -1588,7 +1588,7 @@ class AdminController
                         'title' => "ជោគជ័យ",
                         'message' => "លុបបានជោគជ័យ។"
                     ];
-                    header("Location: /elms/qrcode");
+                    header("Location: /elms/allqr");
                     exit();
                 } else {
                     // Handle the error case
@@ -1596,7 +1596,7 @@ class AdminController
                         'title' => "បរាជ័យ",
                         'message' => "មិនអាចលុបបានទេ។"
                     ];
-                    header("Location: /elms/qrcode");
+                    header("Location: /elms/allqr");
                     exit();
                 }
             } else {
@@ -1604,7 +1604,7 @@ class AdminController
                     'title' => "បរាជ័យ",
                     'message' => "សូមផ្តល់ ID ថ្ងៃឈប់សម្រាក។"
                 ];
-                header("Location: /elms/qrcode");
+                header("Location: /elms/allqr");
                 exit();
             }
         }

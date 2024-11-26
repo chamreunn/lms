@@ -36,6 +36,7 @@ $controllers = [
     'src/controllers/resign/ResignController.php',
     'src/controllers/backwork/BackworkController.php',
     'src/controllers/attendance/AttendanceController.php',
+    'src/controllers/qrcode/QrcodeController.php',
 ];
 
 // Require all controllers
@@ -645,6 +646,12 @@ asyncHandler(function () {
         case $base_url . '/holidays':
             checkSessionAndExecute(function () {
                 $controller = new CalendarController();
+                $controller->index();
+            });
+            break;
+        case $base_url . '/allqr':
+            checkSessionAndExecute(function () {
+                $controller = new QrcodeController();
                 $controller->index();
             });
             break;

@@ -99,5 +99,71 @@ class QrModel
         return $stmt->execute();
     }
 
+    public function getAllUserQRcode()
+    {
+        $sql = "SELECT * FROM {$this->qrcode}"; // Fetch all QR codes
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+    
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+        if (empty($results)) {
+            return []; // Return an empty array if no QR codes are found
+        }
+    
+        // Instantiate the user model to interact with the API
+        $userModel = new User();
+        $userCache = []; // Cache for user data to avoid redundant API calls
+    
+        foreach ($results as &$request) {
+            $requestUserId = $request['user_id'];
+    
+            // Check cache for user details
+            if (!isset($userCache[$requestUserId])) {
+                $retryCount = 3; // Retry up to 3 times for API call
+    
+                while ($retryCount > 0) {
+                    $userApiResponse = $userModel->getUserByIdApi($requestUserId, $_SESSION['token']);
+    
+                    // Check if the API response is valid and contains data
+                    if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                        $userCache[$requestUserId] = $userApiResponse['data'];
+                        break;
+                    }
+    
+                    $retryCount--;
+                    usleep(200000); // Wait 200ms before retrying
+                }
+            }
+    
+            // Retrieve user details from cache or fallback to default values
+            $user = $userCache[$requestUserId] ?? null;
+    
+            if ($user) {
+                // Map API data to the request details
+                $request['user_name'] = trim(($user['lastNameKh'] ?? '') . " " . ($user['firstNameKh'] ?? 'Unknown'));
+                $request['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $request['user_email'] = $user['email'] ?? 'Unknown';
+                $request['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $request['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $request['profile'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png');
+            } else {
+                // Fallback for missing user data
+                $request['user_name'] = 'Unknown';
+                $request['dob'] = 'Unknown';
+                $request['user_email'] = 'Unknown';
+                $request['department_name'] = 'Unknown';
+                $request['position_name'] = 'Unknown';
+                $request['profile'] = 'default-profile.png';
+                error_log("Failed to fetch user data for User ID $requestUserId after retries.");
+            }
+    
+            // Ensure 'attachments' is always set for consistency
+            $request['attachments'] = $request['attachments'] ?? '';
+        }
+    
+        return $results;
+    }
+    
 }
 
