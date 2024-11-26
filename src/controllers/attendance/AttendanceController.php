@@ -73,7 +73,7 @@ class AttendanceController
                 $longitude = $_POST['longitude'];
                 $uuid = $_POST['device_id'] ?? '';
                 $ipAddress = $_POST['ip_address'] ?? '';
-                $roldLeave = $_SESSION['role'];
+                $roleLeave = $_SESSION['role'];
 
                 // Retrieve QR code and device details from the database
                 $qrModel = new QrModel();
@@ -139,9 +139,9 @@ class AttendanceController
                     }
                 } elseif ($currentTime >= $afternoonStart) {
                     if ($currentTime < $endTime) {
-                        $alertMessage = "ចេញមុន"; // Late out
+                        $alertMessage = "ចេញមុន"; // Leave early
                     } elseif ($currentTime >= $endTime) {
-                        $alertMessage = "ចេញយឺត"; // Leave early
+                        $alertMessage = "ចេញយឺត"; // Late out
                     }
                 }
 
@@ -150,18 +150,21 @@ class AttendanceController
                 $response = $attendanceModel->recordAttendanceApi($userId, $date, $check, $_SESSION['token']);
 
                 if (!$response['success']) {
-                    throw new Exception($response['error'] ?? "មានកំហុសកើតឡើងសូមធ្វើការស្កេនម្តងទៀត។");
+                    // Use the message from the API response if available
+                    $apiErrorMessage = $response['response']['message'] ?? "មានកំហុសកើតឡើងសូមធ្វើការស្កេនម្តងទៀត។";
+                    throw new Exception($apiErrorMessage);
                 }
 
                 // Notify via Telegram
                 $userModel = new User();
                 $userModel->sendCheckToTelegram($userId, $date, $check, $alertMessage);
 
-                if ($roldLeave == 'Admin') {
+                if ($roleLeave == 'Admin') {
                     $location = 'admin-attendances';
                 } else {
                     $location = 'my-attendances';
                 }
+
                 // Set success message in the session and redirect
                 $_SESSION['success'] = [
                     'title' => "វត្តមានប្រចាំថ្ងៃ",

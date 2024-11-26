@@ -12,61 +12,12 @@ class AttendanceModel
         $this->pdo = $pdo; // Store the PDO instance
     }
 
-    // Method to save the QR code to the database
-    public function recordAttendance($userId, $date, $check, $isCheckIn = true)
-    {
-        // Check if an attendance record exists for the user on the given date
-        $sql = "SELECT * FROM {$this->attendance} WHERE userId = :user_id AND date = :date";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->bindParam(':date', $date);
-        $stmt->execute();
-
-        $existingRecord = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($existingRecord) {
-            // Update the appropriate field based on the time of the action
-            if ($isCheckIn) {
-                $sql = "UPDATE {$this->attendance} SET checkIn = :checkIn WHERE userId = :user_id AND date = :date";
-            } else {
-                $sql = "UPDATE {$this->attendance} SET checkOut = :checkOut WHERE userId = :user_id AND date = :date";
-            }
-        } else {
-            // Insert a new record
-            $sql = "INSERT INTO {$this->attendance} (userId, date, checkIn, checkOut) 
-                VALUES (:user_id, :date, :checkIn, :checkOut)";
-        }
-
-        $stmt = $this->pdo->prepare($sql);
-
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->bindParam(':date', $date);
-
-        if ($existingRecord) {
-            // Update query parameters
-            if ($isCheckIn) {
-                $stmt->bindParam(':checkIn', $check);
-            } else {
-                $stmt->bindParam(':checkOut', $check);
-            }
-        } else {
-            // Insert query parameters
-            if ($isCheckIn) {
-                $stmt->bindParam(':checkIn', $check);
-                $stmt->bindValue(':checkOut', null, PDO::PARAM_NULL);
-            } else {
-                $stmt->bindValue(':checkIn', null, PDO::PARAM_NULL);
-                $stmt->bindParam(':checkOut', $check);
-            }
-        }
-
-        return $stmt->execute();
-    }
-
     public function recordAttendanceApi($userId, $date, $check, $token)
     {
         $maxRetries = 3; // Number of retries for the API call
         $retryDelay = 2; // Delay (in seconds) between retries
+
+        $messages = []; // Collect messages from retries
 
         try {
             $userModel = new User();
@@ -112,12 +63,14 @@ class AttendanceModel
                     $error = curl_error($ch);
                     curl_close($ch);
 
+                    $messages[] = "Attempt $attempt: cURL error - $error";
+
                     // If maximum retries reached, return failure
                     if ($attempt >= $maxRetries) {
                         return [
                             'success' => false,
-                            'error' => "Request failed after $maxRetries attempts: $error",
                             'http_code' => $httpCode,
+                            'messages' => $messages,
                             'response' => null,
                         ];
                     }
@@ -135,19 +88,24 @@ class AttendanceModel
 
                 // Check HTTP status code for success
                 if ($httpCode >= 200 && $httpCode < 300) {
+                    $messages[] = "Attempt $attempt: Success - {$decodedResponse['message']}";
                     return [
                         'success' => true,
                         'http_code' => $httpCode,
+                        'messages' => $messages,
                         'response' => $decodedResponse,
                     ];
                 } else {
+                    $errorMessage = $decodedResponse['message'] ?? 'An error occurred.';
+                    $messages[] = "Attempt $attempt: API Error - $errorMessage (HTTP Code: $httpCode)";
+
                     // If maximum retries reached, return failure
                     if ($attempt >= $maxRetries) {
                         return [
                             'success' => false,
                             'http_code' => $httpCode,
+                            'messages' => $messages,
                             'response' => $decodedResponse,
-                            'error' => $decodedResponse['message'] ?? 'An error occurred.', // Adjust based on API response format
                         ];
                     }
 
@@ -157,19 +115,21 @@ class AttendanceModel
             } while ($attempt < $maxRetries);
 
             // If the loop exits without a valid response, return failure
+            $messages[] = "Unknown error occurred after $maxRetries attempts.";
             return [
                 'success' => false,
-                'error' => 'Unknown error occurred after maximum retries.',
                 'http_code' => null,
+                'messages' => $messages,
                 'response' => null,
             ];
         } catch (\Exception $e) {
             // Catch PHP exceptions
+            $messages[] = "Exception: {$e->getMessage()}";
             return [
                 'success' => false,
-                'error' => $e->getMessage(),
-                'exception' => $e,
                 'http_code' => null,
+                'messages' => $messages,
+                'exception' => $e,
                 'response' => null,
             ];
         }

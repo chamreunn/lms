@@ -18,8 +18,8 @@ date_default_timezone_set('Asia/Phnom_Penh');
                     <img src="<?= $_SESSION['user_profile'] ?>" class="avatar avatar-md" style="object-fit: cover;"
                         alt="">
                 </div>
-                <p class="empty-title"><?= $_SESSION['user_khmer_name'] ?></p>
-                <h1 class="empty-subtitle fw-bolder"
+                <p class="empty-title h1"><?= $_SESSION['user_khmer_name'] ?></p>
+                <h1 class="empty-subtitle fw-bolder text-primary"
                     style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">
                     <?= date('Y-m-d | H:i A') ?>
                 </h1>
@@ -50,7 +50,6 @@ date_default_timezone_set('Asia/Phnom_Penh');
         </div>
     </div>
 </div>
-
 
 <?php require_once 'src/common/footer.php'; ?>
 
