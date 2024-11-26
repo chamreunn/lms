@@ -367,6 +367,10 @@ class DepUnit1Controller
             $transferoutModel = new TransferoutModel();
             $transferouts = $transferoutModel->getTransferoutByUserId($_SESSION['user_id']);
 
+            // Initialize the backWork to retrieve transfer-out details for the current user
+            $backworkModel = new BackworkModel();
+            $backworks = $backworkModel->getBackworkByUserId($_SESSION['user_id']);
+
             $leavetypeModel = new Leavetype();
             $leavetypes = $leavetypeModel->getAllLeavetypes();
 
@@ -568,6 +572,63 @@ class DepUnit1Controller
                 $transferoutapproval->delegateManagerTransferout($transferoutapproval, $userModel, $managers, $transferoutId, $userId);
 
                 if ($transferoutapproval) {
+                    // Log the error and set error message
+                    $_SESSION['success'] = [
+                        'title' => "លិខិតព្យួរការងារ",
+                        'message' => "អ្នកបាន " . $action . " លើលិខិតព្យួរការងាររួចរាល់។"
+                    ];
+                    header("Location: /elms/dunit1pending");
+                    exit();
+                }
+                // Commit transaction after successful approval update
+                $this->pdo->commit();
+            } catch (Exception $e) {
+                // Rollback transaction in case of error
+                $this->pdo->rollBack();
+
+                // Log the error and set error message
+                error_log("Error: " . $e->getMessage());
+                $_SESSION['error'] = [
+                    'title' => "កំហុស",
+                    'message' => "បញ្ហាក្នុងការបញ្ជូនសំណើ: " . $e->getMessage()
+                ];
+                header("Location: /elms/dunit1pending");
+                exit();
+            }
+        }
+    }
+
+    public function actionback()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            // Get values from form and session
+            $userId = $_SESSION['user_id'];
+            $backworkId = $_POST['backworkId'];
+            $approverId = $_POST['approverId'];
+            $action = $_POST['status'];
+            $comment = $_POST['comment'];
+            $department = $_SESSION['departmentName'];
+
+            try {
+                // Start transaction
+                $this->pdo->beginTransaction();
+
+                // Create a DepOfficeModel instance and submit approval
+                $backworkApproval = new DepUnit1Model();
+                $userModel = new User();
+
+                if (in_array($department, ['នាយកដ្ឋានកិច្ចការទូទៅ', 'នាយកដ្ឋានសវនកម្មទី២'])) {
+                    $managers = 'getEmailLeaderDHU1Api';
+                } else {
+                    $managers = 'getEmailLeaderDHU2Api';
+                }
+
+                $backworkApproval->updateTransBackworkApproval($userId, $backworkId, $action, $comment);
+                // Recursive manager delegation
+                $backworkApproval->delegateManagerBackwork($backworkApproval, $userModel, $managers, $backworkId, $userId);
+
+                if ($backworkApproval) {
                     // Log the error and set error message
                     $_SESSION['success'] = [
                         'title' => "លិខិតព្យួរការងារ",

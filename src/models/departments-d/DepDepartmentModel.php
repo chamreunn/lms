@@ -6,14 +6,12 @@ use PHPMailer\PHPMailer\Exception;
 class DepDepartmentModel
 {
     private $pdo;
-
     private $table_name = "leave_requests";
-
     private $approval = "leave_approvals";
-
     protected $tbltransferout = "transferout";
-
     protected $tbltransferout_approval = "transferout_approval";
+    protected $tblbackwork = "backwork";
+    protected $tblbackwork_approval = "backwork_approval";
 
     public function __construct()
     {
@@ -1710,4 +1708,100 @@ class DepDepartmentModel
         }
     }
     // end transferout 
+
+    // backwork 
+
+    public function updateTransBackworkApproval($userId, $backworkId, $action, $comment)
+    {
+        try {
+            // Start transaction if not already started
+            if (!$this->pdo->inTransaction()) {
+                $this->pdo->beginTransaction();
+            }
+
+            // Update `status` and `comments` in `holds_approvals` if a record exists
+            $updateApprovalSql = "UPDATE $this->tblbackwork_approval SET status = ?, comment = ? WHERE back_id = ? AND approver_id = ?";
+            $updateApprovalStmt = $this->pdo->prepare($updateApprovalSql);
+            $updateApprovalStmt->execute([$action, $comment, $backworkId, $userId]);
+
+            // Debugging log for the update
+            if ($updateApprovalStmt->rowCount() === 0) {
+                error_log("No rows updated in holds_approvals. Either no matching record or `status` and `comments` are already set as requested.");
+            } else {
+                error_log("Row successfully updated in holds_approvals table.");
+            }
+
+            // Commit the transaction if it was started here
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->commit();
+            }
+        } catch (Exception $e) {
+            // Rollback if there's an error
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            error_log("Error: Approval update failed: " . $e->getMessage());
+            throw new Exception("Approval update failed: " . $e->getMessage());
+        }
+    }
+
+    public function delegateManagerBackwork($backworkApproval, $userModel, $managers, $backworkId, $userId)
+    {
+        $levels = ['getEmailLeaderHDApi', $managers, 'getEmailLeaderHUApi'];
+        $statuses = ['leave' => 'leave', 'mission' => 'mission'];
+
+        foreach ($levels as $apiMethod) {
+            $approver = $userModel->$apiMethod($userId, $_SESSION['token']);
+            if ($approver && !$userModel->isManagerOnLeaveToday($approver['ids']) && !$userModel->isManagerOnMission($approver['ids'])) {
+                $backworkApproval->updateMannagerBackwork($backworkId, $approver['ids'], 'pending');
+                return; // Stop when a valid approver is found
+            }
+
+            // Insert status if the manager is on leave or mission
+            $status = $userModel->isManagerOnLeaveToday($approver['ids']) ? $statuses['leave'] : $statuses['mission'];
+            $backworkApproval->updateMannagerBackwork($backworkId, $approver['ids'], $status);
+        }
+    }
+
+    public function updateMannagerBackwork($backworkId, $approver_id, $status)
+    {
+        // Debugging checks
+        if (is_array($backworkId)) {
+            error_log('Error: $backworkId is an array, using the first element');
+            $backworkId = $backworkId[0];
+        }
+        if (is_array($approver_id)) {
+            error_log('Error: $approver_id is an array, using the first element');
+            $approver_id = $approver_id[0];
+        }
+        if (is_array($status)) {
+            error_log('Error: $status is an array, using the first element');
+            $status = $status[0];
+        }
+
+        try {
+            // Insert into tblholds_approvals
+            $insertSql = "INSERT INTO $this->tblbackwork_approval (back_id, approver_id, status)
+                      VALUES (:back_id, :approver_id, :status)";
+            $insertStmt = $this->pdo->prepare($insertSql);
+            $insertStmt->execute([
+                ':back_id' => $backworkId,
+                ':approver_id' => $approver_id,
+                ':status' => $status,
+            ]);
+
+            // Update approver_id in holds table
+            $updateSql = "UPDATE $this->tblbackwork SET approver_id = :approver_id WHERE id = :back_id";
+            $updateStmt = $this->pdo->prepare($updateSql);
+            $updateStmt->execute([
+                ':approver_id' => $approver_id,
+                ':back_id' => $backworkId,
+            ]);
+        } catch (Exception $e) {
+            // Log the error and rethrow it for handling upstream
+            error_log("Error in insertManagerStatusAndUpdateApprover: " . $e->getMessage());
+            throw $e;
+        }
+    }
+    // end backwork 
 }

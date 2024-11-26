@@ -1,5 +1,9 @@
 <?php
 require_once 'src/models/backwork/BackworkModel.php';
+require_once 'src/vendor/autoload.php';
+
+use Mpdf\Mpdf;
+use PhpOffice\PhpWord\PhpWord;
 
 class BackworkController
 {
@@ -95,7 +99,7 @@ class BackworkController
             }
         }
     }
-    
+
     public function create()
     {
         // Ensure the session is started
@@ -124,18 +128,23 @@ class BackworkController
             $reason = $_POST['reason'];
             $approver = $_POST['approverId'];
 
+            $type = "back";
+            $color = "bg-lime";
+
             // Prepare data for saving
             $data = [
                 'user_id' => $user_id,
                 'date' => $startDate,
                 'reason' => $reason,
-                'approver_id' => $approver
+                'approver_id' => $approver,
+                'type' => $type,
+                'color' => $color
             ];
 
             try {
 
                 $userModel = new User();
-                $RequestModel = new BackworkModel($this->pdo);
+                $RequestModel = new BackworkModel();
                 $backId = $RequestModel->Request($data);
 
                 // Process attachments
@@ -207,7 +216,7 @@ class BackworkController
 
     public function view($id)
     {
-        $backworkModel = new BackworkModel($this->pdo);
+        $backworkModel = new BackworkModel();
         $getbackworkById = $backworkModel->getBackworkForEdit($id);
         require 'src/views/backwork/view&edit.php';
     }
@@ -355,6 +364,220 @@ class BackworkController
             // Redirect or return response
             header('Location:  /elms/view&edit-backwork?backworkId=' . $backworkId); // Change to your success page
             exit();
+        }
+    }
+
+    public function export()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            $fileType = $_POST['fileType'];
+            $backworkId = $_POST['backworkId'] ?? '';
+            $date = $_POST['date'];
+            $created_at = $_POST['created_at'] ?? '';
+            $reason = $_POST['reason'] ?? '';
+            $filename = $_POST['fileName'] ?? 'Unknown Name File';
+
+            // session 
+            $position = $_SESSION['position'];
+            $dob = $_SESSION['dob'];
+            $department = $_SESSION['departmentName'];
+
+            $convert = new User();
+            $created_at = $convert->convertDateToKhmer($created_at);
+            $dob = $convert->convertDateToKhmer($dob);
+            $date = $convert->convertDateToKhmer($date);
+
+            if ($fileType === 'PDF') {
+                // Configure mPDF
+                $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+                $fontDirs = $defaultConfig['fontDir'];
+
+                $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+                $fontData = $defaultFontConfig['fontdata'];
+
+                $mpdf = new Mpdf([
+                    'fontDir' => array_merge($defaultConfig['fontDir'], ['public/dist/fonts']),
+                    'fontdata' => $fontData + [
+                        'khmermef1' => [
+                            'R' => 'Khmer MEF1 Regular.ttf',  // Regular font
+                            'B' => 'Khmer MEF2 Regular.ttf',    // Bold font
+                        ],
+                    ],
+                    'default_font' => 'khmermef1',   // Set default font to khmermef1
+                    'percentSubset' => 0, // Embed full font
+                    'allow_charset_conversion' => true,
+                    'useAdobeCJK' => false,
+                    'useOTL' => 0xFF, // required for Khmer
+                    'useKashida' => 75, // required for Khmer
+                ]);
+
+                // HTML content
+                $html = '
+                    <!DOCTYPE html>
+                    <html lang="km">
+                    <head>
+                        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                        <title>សំណើសុំស្ថិតនៅក្នុងភាពទំនេរ</title>
+                        <style>
+                            body {
+                                font-family: "khmermef1";
+                                font-size: 13px;
+                                line-height: 1.5;
+                                margin: 0;
+                                padding: 0;
+                            }
+                            .header {
+                                text-align: center;
+                                line-height: 0.5;
+                            }
+
+                            .content img {
+                                width: 100px; /* Adjust size of the logo */
+                            }
+
+                            .content {
+                                line-height: 1.7;
+                                font-size: 15px;
+                                text-align: justify;
+                            }
+
+                            /* Table layout for footer */
+                            .footer-table {
+                                width: 100%;
+                                border-collapse: collapse; /* Ensures borders collapse into single lines */
+                                margin-top: -30px;
+                            }
+
+                            .footer-table td {
+                                padding: 20px;
+                                text-align: center;
+                                font-size: 15px;
+                                line-height: 1.7;
+                            }
+
+                            .footer-table td strong {
+                                font-weight: bold;
+                            }
+
+                            /* Right-align the bottom footer */
+                            .footer-right {
+                                text-align: right; /* Aligns the last footer to the right side */
+                                vertical-align: top; /* Align to the top for better placement */
+                                justify-content: right;
+                            }
+
+                            /* Styling for the first row */
+                            .footer-table .footer-top {
+                                vertical-align: top;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h2>ព្រះរាជាណាចក្រកម្ពុជា</h2>
+                            <h3>ជាតិ សាសនា ព្រះមហាក្សត្រ</h3>
+                        </div>
+
+                        <div class="sub-header" style="line-height: 0.5; color: #2F5496;">
+                            <img src="' . $_SESSION['user_profile'] . '" alt="no image found" />
+                            <h3>អាជ្ញាធរសេវាហិរញ្ញវត្ថុមិនមែនធនាគារ</h3>
+                            <h3 style="text-indent: 50px;">អង្គភាពសវនកម្មផ្ទៃក្នុង</h3>
+                        </div>
+
+                        <div class="header">
+                            <h3>សូមគោរពជូន</h3>
+                            <h3>ឯកឧត្តមប្រធានអង្គភាពសវនកម្មផ្ទៃក្នុងនៃអាជ្ញាធរសេវាហិរញ្ញវត្ថុមិនមែនធនាគារ</h3>
+                        </div>
+
+                         <table style="width: 100%; border-collapse: collapse; font-family: KhmerMEF1; font-size: 15px; line-height: 1.7; text-align: justify;">
+                            <tr>
+                                <td style="font-weight: bold; width: 10%; vertical-align: top;">កម្មវត្ថុ</td>
+                                <td style="width: 90%; vertical-align: top;">៖ ការស្នើសុំគោលការណ៍អនុញ្ញាតចូលម្រើការងារវិញបន្ទាប់ពីការព្យួរការងារចាប់ពីថ្ងៃទី ' . $date . ' ។</td>
+                            </tr>
+                        </table>
+
+                        <table style="width: 100%; border-collapse: collapse; font-family: KhmerMEF1; font-size: 15px; line-height: 1.7; text-align: justify;">
+                            <tr>
+                                <td style="font-weight: bold; width: 10%; vertical-align: top;">យោង</td>
+                                <td style="width: 90%; vertical-align: top;">៖ ' . $reason . '។</td>
+                            </tr>
+                        </table>
+
+                        <div class="content">
+                            <p style="text-indent: 50px;">សេចក្តីដូចមានក្នុងកម្មវត្ថុ និងយោងខាងលើ សូមគោរពជម្រាបជូន <strong>ឯកឧត្តមប្រធាន</strong> មេត្តាជ្រាបដ៍ខ្ពង់ខ្ពស់ថា៖ ខ្ញុំបាទ/នាងខ្ញុំឈ្មោះ ' . $_SESSION['user_khmer_name'] . ' កើតថ្ងៃទី ' . $dob . ' ប្រភេទ' . $position . ' បច្ចុប្បន្នជា ' . $position . ' នៃ' . $department . ' ដើម្បីចូលម្រើការងារវិញបន្ទាប់ពីការព្យួរការងារចាប់ពីថ្ងៃទី ' . $date . ' ដោយក្តីអនុគ្រោះ។ </p>
+                            <p style="text-indent: 50px;">សេចក្តីដូចបានគោរពជម្រាបជូនខាងលើ សូម <strong>ឯកឧត្តមប្រធាន</strong> មេត្តាពិនិត្យ និងសម្រេចដោយសេចក្តីអនុគ្រោះបំផុត។</p>
+                            <p style="text-indent: 50px;">សូម <strong>ឯកឧត្តមប្រធាន</strong> មេត្តាទទួលនូវការគោរពដ៏ខ្ពង់ខ្ពស់ពីខ្ញុំ</p>
+                        </div>
+
+                        <!-- Footer using Table Layout -->
+                        <table class="footer-table">
+                            <tr>
+                                <!-- First row with two columns for top footers -->
+                                <td class="footer-top">
+                                    <p>បានឃើញ និងសូមគោរពជូន</p>
+                                    <strong>ឯកឧត្តមប្រធានអង្គភាព</strong>
+                                    <p>ពិនិត្យនិងសម្រេច</p>
+                                    <p>ថ្ងៃ.......ខែ..........ឆ្នាំ..........ព.ស. ២៥.........</p>
+                                    <p>.........ថ្ងៃទី........ខែ.........ឆ្នាំ២០..........</p>
+                                    <strong>' . $department . '</strong>
+                                    <p style="font-weight: bold;">ប្រធាន</p>
+                                </td>
+                                <td class="footer-top">
+                                    <p>ថ្ងៃ..............ខែ.............ឆ្នាំ.............ព.ស. ២៥...</p>
+                                    <p>.............ថ្ងៃទី...........ខែ............ឆ្នាំ២០..........</p>
+                                    <strong>ហត្ថលេខាសមីខ្លួន</strong>
+                                </td>
+                            </tr>
+                            <!-- Second row with the bottom footer aligned to the right -->
+                            <tr>
+                                <td colspan="3" class="footer-right">
+                                    <p>បានឃើញ និងឯកភាព</p>
+                                    <p>សូមជូន នាយកដ្ឋានកិច្ចការទូទៅ</p>
+                                    <p>ដើម្បីមុខងារ</p>
+                                    <p>ថ្ងៃ..............ខែ..........ឆ្នាំ.............ព.ស. ២៥...</p>
+                                    <p>..........ថ្ងៃទី.........ខែ.......ឆ្នាំ២០..........</p>
+                                    <strong>អង្គភាពសវនកម្មផ្ទៃក្នុង</strong>
+                                    <p style="font-weight: bold;">ប្រធាន</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </body>
+                    </html>
+                ';
+
+                // Write the HTML to PDF
+                $mpdf->WriteHTML($html);
+
+                $mpdf->Output("$filename.pdf", 'D'); // Force download
+            } elseif ($fileType === 'DOCX') {
+                // Generate DOCX using PHPWord
+                $phpWord = new PhpWord();
+                $section = $phpWord->addSection();
+                $section->addText('សំណើសុំស្ថិតនៅក្នុងភាពទំនេរ');
+                $section->addText("User ID: $backworkId");
+                $section->addText("នេះជាឯកសារដែលបានបង្កើតជា DOCX");
+
+                // Save the DOCX file
+                $tempFile = tempnam(sys_get_temp_dir(), 'docx');
+                $phpWord->save($tempFile, 'Word2007');
+
+                // Deliver the file
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+                header('Content-Disposition: attachment; filename="' . "$filename.docx" . '"');
+                header('Content-Transfer-Encoding: binary');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                header('Pragma: public');
+                readfile($tempFile);
+                unlink($tempFile); // Delete temp file
+                exit;
+            } else {
+                echo "Invalid file type selected.";
+            }
+        } else {
+            echo "Invalid request method.";
         }
     }
 }

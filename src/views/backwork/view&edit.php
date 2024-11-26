@@ -107,7 +107,8 @@ require_once 'src/common/header.php';
                                 class="btn btn-primary w-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                     <path d="M12 5l0 14" />
                                     <path d="M5 12l14 0" />
@@ -124,7 +125,7 @@ require_once 'src/common/header.php';
                                     foreach ($attachments as $attachment): // Loop through each attachment
                                         // Generate a unique ID for the modal using the attachment name
                                         $attachmentId = md5($attachment);
-                                    ?>
+                                        ?>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
                                             <div>
                                                 <a href="public/uploads/resign-attachments/<?= htmlspecialchars($attachment) ?>"
@@ -134,9 +135,9 @@ require_once 'src/common/header.php';
                                             </div>
                                             <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
                                                 data-bs-target="#deleteAttachment<?= $attachmentId ?>">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                    stroke-linejoin="round"
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
                                                     class="icon icon-tabler icons-tabler-outline icon-tabler-trash mx-0">
                                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                     <path d="M4 7l16 0" />
@@ -252,7 +253,7 @@ require_once 'src/common/header.php';
 
         <!-- Approval Tracking Section -->
         <div class="col-lg-8 col-sm-12 col-md-12">
-            <div class="card border-0">
+            <div class="card mb-3">
                 <div class="card-header bg-light d-flex align-items-center justify-content-between">
                     <h3 class="text-primary mb-0">តាមដានលិខិតលាឈប់</h3>
                 </div>
@@ -271,10 +272,10 @@ require_once 'src/common/header.php';
                                                     <?= $approvalStep['approver_name'] ?? 'Unknown' ?>
                                                 </strong>
                                                 <span class="mx-1 <?= $approvalStep['approval_status'] == 'approved' ? 'badge bg-success'
-                                                                        : ($approvalStep['approval_status'] == 'rejected' ? 'badge bg-danger'
-                                                                            : ($approvalStep['approval_status'] == 'mission' ? 'badge bg-danger-lt'
-                                                                                : ($approvalStep['approval_status'] == 'leave' ? 'badge bg-info'
-                                                                                    : 'badge bg-warning'))) ?>">
+                                                    : ($approvalStep['approval_status'] == 'rejected' ? 'badge bg-danger'
+                                                        : ($approvalStep['approval_status'] == 'mission' ? 'badge bg-danger-lt'
+                                                            : ($approvalStep['approval_status'] == 'leave' ? 'badge bg-info'
+                                                                : 'badge bg-warning'))) ?>">
                                                     <?php
                                                     if ($approvalStep['approval_status'] == 'approved') {
                                                         echo 'បានអនុម័ត';
@@ -322,6 +323,93 @@ require_once 'src/common/header.php';
                     </ul>
                 </div>
             </div>
+
+            <!-- export file  -->
+            <?php if ($getbackworkById[0]['status'] == 'approved'): ?>
+                <div class="card">
+                    <form action="/elms/exportBackworkDoc" method="POST">
+                        <div class="card-header">
+                            <h3 class="mb-0">ទាញយករបាយការណ៍</h3>
+                        </div>
+                        <div class="card-body">
+
+                            <div class="row" hidden>
+                                <!-- Hidden input to store the request ID -->
+                                <input type="text" name="backworkId" value="<?= $getbackworkById[0]['id'] ?? '' ?>">
+
+                                <input type="text" name="fileName" value="សំណើសុំចូលបម្រើការងារបន្ទាប់ពីការព្យួរការងារ">
+                                <div class="mb-3">
+
+                                    <label for="start_date" class="form-label fw-bold">កាលបរិច្ឆេទ
+                                        <span class="text-danger mx-1 fw-bold">*</span>
+                                    </label>
+                                    <div class="input-icon">
+                                        <span class="input-icon-addon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <rect x="4" y="5" width="16" height="16" rx="2"></rect>
+                                                <line x1="16" y1="3" x2="16" y2="7"></line>
+                                                <line x1="8" y1="3" x2="8" y2="7"></line>
+                                                <line x1="4" y1="11" x2="20" y2="11"></line>
+                                                <rect x="8" y="15" width="2" height="2"></rect>
+                                            </svg>
+                                        </span>
+                                        <!-- Retain the value of start_date -->
+                                        <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទចាប់ពី"
+                                            class="form-control date-picker" name="date"
+                                            value="<?= $getbackworkById[0]['date'] ?? '' ?>">
+                                    </div>
+
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="reason" class="form-label fw-bold text-primary">មូលហេតុ</label>
+                                    <textarea class="form-control" id="reason" name="reason"
+                                        required><?= $getbackworkById[0]['reason'] ?? '' ?></textarea>
+                                </div>
+                            </div>
+
+                            <!-- File Type Selection -->
+                            <div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
+                                <!-- PDF Option -->
+                                <label class="form-selectgroup-item flex-fill">
+                                    <input type="radio" name="fileType" value="PDF" class="form-selectgroup-input"
+                                        checked="" required>
+                                    <div class="form-selectgroup-label d-flex align-items-center p-3">
+                                        <div class="me-3">
+                                            <span class="form-selectgroup-check"></span>
+                                        </div>
+                                        <div>
+                                            <span class="me-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-file-type-pdf text-red fw-bolder">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                                    <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />
+                                                    <path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" />
+                                                    <path d="M17 18h2" />
+                                                    <path d="M20 15h-3v6" />
+                                                    <path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z" />
+                                                </svg>
+                                            </span>
+                                            សំណើសុំចូលបម្រើការងារបន្ទាប់ពីការព្យួរការងារ.pdf
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <span class="mx-2">ទាញយក</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

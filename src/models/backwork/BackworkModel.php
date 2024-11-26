@@ -6,10 +6,11 @@ class BackworkModel
     protected $tblapproval = 'backwork_approval'; // Table for approval data
     protected $tblattachment = 'backwork_attachment'; // Table for attachment data
 
-    protected $pdo;
+    private $pdo;
 
-    public function __construct($pdo)
+    public function __construct()
     {
+        global $pdo;
         $this->pdo = $pdo; // Inject the PDO object into the class
     }
 
@@ -193,8 +194,8 @@ class BackworkModel
     public function Request($data)
     {
         // Prepare the SQL query using PDO
-        $sql = "INSERT INTO $this->tblbackwork (user_id, approver_id, date, reason, created_at) 
-            VALUES (:user_id, :approver_id, :date, :reason, NOW())";
+        $sql = "INSERT INTO $this->tblbackwork (user_id, approver_id, date, reason, type, color, created_at) 
+            VALUES (:user_id, :approver_id, :date, :reason, :type, :color, NOW())";
 
         // Prepare the statement
         $stmt = $this->pdo->prepare($sql);
@@ -204,6 +205,8 @@ class BackworkModel
         $stmt->bindParam(':approver_id', $data['approver_id'], PDO::PARAM_INT);
         $stmt->bindParam(':date', $data['date'], PDO::PARAM_STR);
         $stmt->bindParam(':reason', $data['reason'], PDO::PARAM_STR);
+        $stmt->bindParam(':type', $data['type'], PDO::PARAM_STR);
+        $stmt->bindParam(':color', $data['color'], PDO::PARAM_STR);
 
         // Execute the statement
         $stmt->execute();
@@ -262,10 +265,10 @@ class BackworkModel
 
     public function managerStatus($back_id, $approver_id, $status)
     {
-        // Debugging
+        // Debugging checks
         if (is_array($back_id)) {
             error_log('Error: $back_id is an array, using the first element');
-            $back_id = $back_id[0]; // Adjust as needed based on what $back_id should be
+            $back_id = $back_id[0]; // Adjust as needed
         }
         if (is_array($approver_id)) {
             error_log('Error: $approver_id is an array, using the first element');
@@ -276,15 +279,36 @@ class BackworkModel
             $status = $status[0]; // Adjust as needed
         }
 
-        $sql = "INSERT INTO $this->tblapproval (back_id, approver_id, status)
-                VALUES (:back_id, :approver_id, :status)";
+        try {
+            // Begin transaction
+            $this->pdo->beginTransaction();
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            ':back_id' => $back_id,
-            ':approver_id' => $approver_id,
-            ':status' => $status,
-        ]);
+            // Insert into holds_approvals
+            $insertSql = "INSERT INTO $this->tblapproval (back_id, approver_id, status)
+                      VALUES (:back_id, :approver_id, :status)";
+            $insertStmt = $this->pdo->prepare($insertSql);
+            $insertStmt->execute([
+                ':back_id' => $back_id,
+                ':approver_id' => $approver_id,
+                ':status' => $status,
+            ]);
+
+            // Update approver_id in holds table
+            $updateSql = "UPDATE $this->tblbackwork SET approver_id = :approver_id WHERE id = :back_id";
+            $updateStmt = $this->pdo->prepare($updateSql);
+            $updateStmt->execute([
+                ':approver_id' => $approver_id,
+                ':back_id' => $back_id,
+            ]);
+
+            // Commit transaction
+            $this->pdo->commit();
+        } catch (Exception $e) {
+            // Rollback on error
+            $this->pdo->rollBack();
+            error_log("Error in insertManagerStatusAndUpdateApprover: " . $e->getMessage());
+            throw $e; // Re-throw exception to handle it upstream
+        }
     }
 
     // Update an existing hold request
@@ -308,5 +332,75 @@ class BackworkModel
         } else {
             throw new Exception('Failed to update Back work request.');
         }
+    }
+
+    public function getBackworkByUserId($userId)
+    {
+        // SQL query to fetch transfer-out data and associated attachments
+        $sql = "SELECT h.*, 
+                GROUP_CONCAT(DISTINCT a.file_name) AS attachments, 
+                MAX(a.uploaded_at) AS latest_uploaded_at
+            FROM $this->tblbackwork h
+            LEFT JOIN $this->tblattachment a ON h.id = a.back_id
+            WHERE h.approver_id = :user_id AND h.status = 'pending'
+            GROUP BY h.id
+            ORDER BY h.id DESC";
+
+        // Prepare and execute the query
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Fetch all departments and offices once to avoid redundant API calls
+        $userModel = new User();
+
+        foreach ($results as &$request) {
+            $requestUserId = $request['user_id'];
+
+            // Check the cache for user data
+            if (!isset($userCache[$requestUserId])) {
+                $retryCount = 3;
+
+                while ($retryCount > 0) {
+                    $userApiResponse = $userModel->getUserByIdApi($requestUserId, $_SESSION['token']);
+
+                    if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
+                        $userCache[$requestUserId] = $userApiResponse['data'];
+                        break;
+                    }
+
+                    $retryCount--;
+                    usleep(200000); // Wait 200ms before retrying
+                }
+            }
+
+            // Retrieve user data from cache or default to null
+            $user = $userCache[$requestUserId] ?? null;
+
+            if ($user) {
+                // Populate user details if available
+                $request['user_name'] = trim(($user['lastNameKh'] ?? '') . " " . ($user['firstNameKh'] ?? 'Unknown'));
+                $request['dob'] = $user['dateOfBirth'] ?? 'Unknown';
+                $request['user_email'] = $user['email'] ?? 'Unknown';
+                $request['department_name'] = $user['department']['name'] ?? 'Unknown';
+                $request['position_name'] = $user['position']['name'] ?? 'Unknown';
+                $request['profile'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default-profile.png');
+            } else {
+                // Default values if user data is not available
+                $request['user_name'] = 'Unknown';
+                $request['dob'] = 'Unknown';
+                $request['user_email'] = 'Unknown';
+                $request['department_name'] = 'Unknown';
+                $request['position_name'] = 'Unknown';
+                $request['profile'] = 'default-profile.png';
+                error_log("Failed to fetch user data for User ID $requestUserId after retries.");
+            }
+
+            // Ensure 'attachments' is always a string for consistent handling
+            $request['attachments'] = $request['attachments'] ?? '';
+        }
+
+        return $results;
     }
 }

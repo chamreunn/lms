@@ -61,7 +61,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 ?>
 
 <!-- leave request  -->
-<?php if (empty($requests) && empty($hold) && empty($transferouts)): ?>
+<?php if (empty($requests) && empty($hold) && empty($transferouts) && empty($backworks)): ?>
     <div class="card">
         <div class="card-body">
             <div class="d-flex align-items-center justify-content-center">
@@ -689,6 +689,198 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                                     foreach ($attachments as $attachment): ?>
                                                         <li>
                                                             <a href="public/uploads/hold-attachments/<?= htmlspecialchars($attachment) ?>"
+                                                                target="_blank" class="text-primary">
+                                                                <i class="bi bi-paperclip"></i> <?= htmlspecialchars($attachment) ?>
+                                                            </a>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                </ul>
+                                            </dd>
+                                        <?php endif; ?>
+                                    </dl>
+                                </div>
+                            </div>
+
+                            <!-- approved or rejected section  -->
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <div class="col-xl-6 col-sm-12 col-md-6">
+                                        <div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
+                                            <label class="form-selectgroup-item flex-fill">
+                                                <input type="radio" name="status" value="approved"
+                                                    class="form-selectgroup-input" checked>
+                                                <div
+                                                    class="form-selectgroup-label d-flex align-items-center p-3 text-success fw-bold">
+                                                    <div class="me-3">
+                                                        <span class="form-selectgroup-check"></span>
+                                                    </div>
+                                                    <div>
+                                                        <strong>អនុម័ត</strong>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6 col-sm-12 col-md-6">
+                                        <div class="form-selectgroup form-selectgroup-boxes d-flex flex-column">
+                                            <label class="form-selectgroup-item flex-fill">
+                                                <input type="radio" name="status" value="rejected"
+                                                    class="form-selectgroup-input">
+                                                <div
+                                                    class="form-selectgroup-label d-flex align-items-center p-3 text-danger fw-bold">
+                                                    <div class="me-3">
+                                                        <span class="form-selectgroup-check"></span>
+                                                    </div>
+                                                    <div>
+                                                        <strong>មិនអនុម័ត</strong>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="comment" class="form-label fw-bold">មតិយោបល់</label>
+                                        <textarea name="comment" id="comment" placeholder="សូមបញ្ចូលមតិយោបល់..."
+                                            class="form-control"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- footer section  -->
+                            <div class="modal-footer bg-light">
+                                <div class="row w-100">
+                                    <div class="col-6">
+                                        <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button type="submit" class="btn btn-primary w-100">បន្ត</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+
+        <!-- backwork  -->
+        <?php foreach ($backworks as $index => $backwork): ?>
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 hover-shadow-lg overflow-hidden">
+                    <div class="ribbon <?= $backwork['color'] ?>">
+                        <?php if ($backwork['type'] == 'transferout'): ?>
+                            <span>លិខិតផ្ទេរចេញ</span>
+                        <?php elseif ($backwork['type'] == 'hold'): ?>
+                            <span>លិខិតពួ្យរការងារ</span>
+                        <?php elseif ($backwork['type'] == 'resign'): ?>
+                            <span>លិខិតលាឈប់</span>
+                        <?php elseif ($backwork['type'] == 'back'): ?>
+                            <span>លិខិតចូលបម្រើការងារវិញ</span>
+                        <?php endif; ?>
+                    </div>
+                    <!-- Trigger modal on click by adding data attributes -->
+                    <a href="#" class="text-decoration-none text-dark" data-bs-toggle="modal"
+                        data-bs-target="#detailModal<?= $index ?>">
+                        <div class="card-body p-3 d-flex align-items-center">
+                            <div class="avatar-container me-3">
+                                <img class="avatar" style="object-fit: cover;" src="<?= $backwork['profile'] ?>"
+                                    alt="User Profile">
+                            </div>
+                            <div class="info-container flex-grow-1">
+                                <h5 class="mb-1 text-primary"><?= $backwork['user_name'] ?></h5>
+                                <small class="text-muted fw-bold">
+                                    <?= translateDateToKhmer($backwork['created_at'], 'j F Y h:i A') ?>
+                                </small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Modal Structure -->
+            <div class="modal modal-blur fade" id="detailModal<?= $index ?>" tabindex="-1"
+                aria-labelledby="detailModalLabel<?= $index ?>" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header <?= $backwork['color'] ?> text-light">
+                            <h5 class="modal-title" id="detailModalLabel<?= $index ?>">លិខិតផ្ទេរការងារ</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <!-- detail section  -->
+                        <form action="/elms/huaction<?= $backwork['type'] ?>" method="POST">
+                            <div class="col-12" hidden>
+                                <input type="text" name="backworkId" value="<?= $backwork['id'] ?>">
+                                <label class="form-label fw-bold">អ្នកអនុម័ត
+                                    <span class="text-danger mx-1 fw-bold">*</span>
+                                </label>
+                                <select class="form-select select-people" id="transfer_id_hof" name="approverId" required>
+                                    <?php if (isset($approver['ids'][0])): ?>
+                                        <option value="<?= htmlspecialchars($approver['ids'][0], ENT_QUOTES, 'UTF-8') ?>"
+                                            data-custom-properties="&lt;span class=&quot;avatar avatar-xs&quot; style=&quot;background-image: url('https://hrms.iauoffsa.us/images/<?= htmlspecialchars($approver['image'][0], ENT_QUOTES, 'UTF-8') ?>')&quot;&gt;&lt;/span&gt;">
+                                            <?= htmlspecialchars($approver['lastNameKh'][0], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($approver['firstNameKh'][0], ENT_QUOTES, 'UTF-8') ?>
+                                        </option>
+                                    <?php endif; ?>
+
+                                    <?php foreach ($approver['ids'] as $index => $id): ?>
+                                        <option value="<?= htmlspecialchars($id, ENT_QUOTES, 'UTF-8') ?>"
+                                            data-custom-properties="&lt;span class=&quot;avatar avatar-xs&quot; style=&quot;background-image: url('https://hrms.iauoffsa.us/images/<?= htmlspecialchars($approver['image'][$index], ENT_QUOTES, 'UTF-8') ?>')&quot;&gt;&lt;/span&gt;">
+                                            <?= htmlspecialchars($approver['lastNameKh'][$index], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($approver['firstNameKh'][$index], ENT_QUOTES, 'UTF-8') ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <input type="hidden" id="leave_type_name_hof" name="leave_type_name"
+                                    value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                            </div>
+
+                            <div class="modal-body">
+                                <!-- Details as a List -->
+                                <div class="bg-light p-3 rounded-3">
+                                    <div class="col-12 text-center mb-3">
+                                        <!-- User Profile Picture -->
+                                        <img src="<?= $backwork['profile'] ?>" alt="User Profile" class="avatar avatar-xl"
+                                            style="object-fit: cover;">
+                                    </div>
+                                    <dl class="row g-1 mb-0">
+                                        <dt class="col-sm-12 col-md-4"><strong>ឈ្មោះ:</strong></dt>
+                                        <dd class="col-sm-12 col-md-8"><?= $backwork['user_name'] ?></dd>
+
+                                        <dt class="col-sm-12 col-md-4"><strong>កាលបរិច្ឆេទស្នើ:</strong></dt>
+                                        <dd class="col-sm-12 col-md-8">
+                                            <?= translateDateToKhmer($backwork['created_at'], 'j F Y') ?>
+                                        </dd>
+
+                                        <dt class="col-sm-12 col-md-4"><strong>សុំចូលបម្រើការងារនៅ:</strong></dt>
+                                        <dd class="col-sm-12 col-md-8">
+                                            <?= translateDateToKhmer($backwork['date'], 'j F Y') ?>
+                                        </dd>
+
+                                        <dt class="col-sm-12 col-md-4"><strong>មូលហេតុ:</strong></dt>
+                                        <dd class="col-sm-12 col-md-8"><?= $backwork['reason'] ?></dd>
+
+                                        <!-- Status Section -->
+                                        <dt class="col-sm-12 col-md-4"><strong>ស្ថានភាព:</strong></dt>
+                                        <dd class="col-sm-12 col-md-8">
+                                            <?php if ($backwork['status'] == 'approved'): ?>
+                                                <span class="badge bg-success">អនុម័ត</span>
+                                            <?php elseif ($backwork['status'] == 'rejected'): ?>
+                                                <span class="badge bg-danger">មិនអនុម័ត</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-warning">រង់ចាំអនុម័ត</span>
+                                            <?php endif; ?>
+                                        </dd>
+
+                                        <!-- Attachments Section -->
+                                        <?php if (!empty($backwork['attachments'])): ?>
+                                            <dt class="col-sm-12 col-md-4"><strong>ឯកសារភ្ជាប់:</strong></dt>
+                                            <dd class="col-sm-12 col-md-8">
+                                                <ul class="list-unstyled">
+                                                    <?php
+                                                    // Convert attachments string to an array
+                                                    $attachments = explode(',', $backwork['attachments']);
+                                                    foreach ($attachments as $attachment): ?>
+                                                        <li>
+                                                            <a href="public/uploads/backwork-attachments/<?= htmlspecialchars($attachment) ?>"
                                                                 target="_blank" class="text-primary">
                                                                 <i class="bi bi-paperclip"></i> <?= htmlspecialchars($attachment) ?>
                                                             </a>
