@@ -1,22 +1,8 @@
 <?php
+$pretitle="ទំព័រដើម";
 $title = "QR Code";
 include('src/common/header.php');
 ?>
-<!-- header of page  -->
-<div class="page-header d-print-none mt-0 mb-3">
-    <div class="container-xl">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <!-- Page pre-title -->
-                <div class="page-pretitle">
-
-                </div>
-                <h2 class="page-title"></h2>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- <div class="container-xl mb-3">
     <a href="/elms/attendanceCheck" type="button" class="btn btn-primary d-none d-sm-inline-block">
         <span class="mx-2">check in</span>
@@ -248,9 +234,8 @@ include('src/common/header.php');
             <div class="card animate__animated animate__slideInUpShort p-0">
                 <div class="card-body">
                     <div class="empty">
-
                         <div class="mb-3">
-                            <h1 class="">ស្កេន QR ទីនេះ</h1>
+                            <h1 class="">ស្កេន <span class="text-danger fw-bolder" style="font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">QR Code</span> ទីនេះ</h1>
                         </div>
                         <div class="mb-3">
                             <p class="text-muted">សូមប្រើប្រាស់កាមេរ៉ាទូរស័ព្ទដើម្បីស្កេនវត្តមានប្រចាំថ្ងៃ</p>

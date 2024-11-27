@@ -83,30 +83,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     return $translatedDate;
 }
 ?>
-
-<div class="page-header d-print-none mt-0 mb-3">
-    <div class="col-12">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <!-- Page pre-title -->
-                <div class="page-pretitle mb-1">
-
-                </div>
-                <h2 class="page-title">
-                    <?php echo htmlspecialchars($title ?? ""); ?>
-                </h2>
-            </div>
-
-            <!-- Page title actions -->
-            <div class="col-auto ms-auto d-print-none">
-                <div class="btn-list">
-                    <h3 class="text-primary mb-0" id="real-time-clock"></h3>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- alert leave count  -->
 <?php if ($pendingRequestsCount > 0): ?>
     <div class="col">
@@ -371,7 +347,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </div>
     </div>
 </div>
-
 
 <?php if (count($getUserApprove) > 0): ?>
     <div class="col-12 mb-3">

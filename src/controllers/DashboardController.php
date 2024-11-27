@@ -96,6 +96,9 @@ class DashboardController
                     $getMissionToday = $getAllMission->missionsToday($_SESSION['user_id'], $_SESSION['token']);
                     $missionCount = new MissionModel();
                     $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
+                    $userModel = new User();
+                    $currentDate = date('Y-m-d');
+                    $todayAttendance = $userModel->todayAttendanceByUseridApi($_SESSION['user_id'], $currentDate, $_SESSION['token'], );
                     require 'src/views/dashboard/offices-d/dashboard.php';
                     break;
                 case 'Head Of Office':
@@ -115,6 +118,9 @@ class DashboardController
                     $leavetypes = $leavetypeModel->getAllLeavetypes();
                     $missionCount = new MissionModel();
                     $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
+                    $userModel = new User();
+                    $currentDate = date('Y-m-d');
+                    $todayAttendance = $userModel->todayAttendanceByUseridApi($_SESSION['user_id'], $currentDate, $_SESSION['token'], );
                     require 'src/views/dashboard/offices-h/dashboard.php';
                     break;
                 case 'Deputy Head Of Department':
@@ -131,6 +137,9 @@ class DashboardController
                     $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
                     $missionCount = new MissionModel();
                     $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
+                    $userModel = new User();
+                    $currentDate = date('Y-m-d');
+                    $todayAttendance = $userModel->todayAttendanceByUseridApi($_SESSION['user_id'], $currentDate, $_SESSION['token'], );
                     require 'src/views/dashboard/departments-d/dashboard.php';
                     break;
                 case 'Head Of Department':
@@ -148,6 +157,9 @@ class DashboardController
                     $leavetypes = $leavetypeModel->getAllLeavetypes();
                     $missionCount = new MissionModel();
                     $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
+                    $userModel = new User();
+                    $currentDate = date('Y-m-d');
+                    $todayAttendance = $userModel->todayAttendanceByUseridApi($_SESSION['user_id'], $currentDate, $_SESSION['token'], );
                     require 'src/views/dashboard/departments-h/dashboard.php';
                     break;
                 case 'Deputy Head Of Unit 1':
@@ -163,6 +175,9 @@ class DashboardController
                     $leavetypes = $leavetypeModel->getAllLeavetypes();
                     $missionCount = new MissionModel();
                     $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
+                    $userModel = new User();
+                    $currentDate = date('Y-m-d');
+                    $todayAttendance = $userModel->todayAttendanceByUseridApi($_SESSION['user_id'], $currentDate, $_SESSION['token'], );
                     require 'src/views/dashboard/unit1-d/dashboard.php';
                     break;
                 case 'Deputy Head Of Unit 2':
@@ -177,6 +192,9 @@ class DashboardController
                     $leavetypes = $leavetypeModel->getAllLeavetypes();
                     $missionCount = new MissionModel();
                     $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
+                    $userModel = new User();
+                    $currentDate = date('Y-m-d');
+                    $todayAttendance = $userModel->todayAttendanceByUseridApi($_SESSION['user_id'], $currentDate, $_SESSION['token'], );
                     require 'src/views/dashboard/unit2-d/dashboard.php';
                     break;
                 case 'Head Of Unit':
@@ -196,6 +214,9 @@ class DashboardController
                     $missionCount = new MissionModel();
                     $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
                     $leavetypes = $leavetypeModel->getAllLeavetypes();
+                    $userModel = new User();
+                    $currentDate = date('Y-m-d');
+                    $todayAttendance = $userModel->todayAttendanceByUseridApi($_SESSION['user_id'], $currentDate, $_SESSION['token'], );
                     require 'src/views/dashboard/unit-h/dashboard.php';
                     break;
                 case 'Admin':
@@ -209,6 +230,9 @@ class DashboardController
                     $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
                     $leavetypes = new Leavetype();
                     $leavetype = $leavetypes->getLeaveTypeById($_SESSION['user_id']);
+                    $userModel = new User();
+                    $currentDate = date('Y-m-d');
+                    $todayAttendance = $userModel->todayAttendanceByUseridApi($_SESSION['user_id'], $currentDate, $_SESSION['token'], );
                     require 'src/views/dashboard/admin/dashboard.php';
                     break;
                 case 'superadmin':

@@ -41,7 +41,7 @@ class TransferoutController
         $offset = ($currentPage - 1) * $recordsPerPage;
 
         // Initialize the HoldModel with the database connection
-        $transferModel = new TransferoutModel($this->pdo);
+        $transferModel = new TransferoutModel();
 
         // Fetch the holds for the current user based on the offset and records per page
         $gettransferouts = $transferModel->getTransferoutWithDetails($offset, $recordsPerPage);

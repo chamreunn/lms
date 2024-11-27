@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: /elms/login");
     exit();
 }
-
+$pretitle = "ទំព័រដើម";
 $title = "បេសកកម្ម";
 function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 {
@@ -75,27 +75,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 
     return $translatedDate;
 }
-ob_start();
-?>
-<!-- Page header -->
-<div class="page-header d-print-none">
-    <div class="container-xl">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <!-- Page pre-title -->
-                <div class="page-pretitle">
-                    ទំព័រដើម
-                </div>
-                <h2 class="page-title">
-                    <?php echo $title ?? "" ?>
-                </h2>
-            </div>
-        </div>
-    </div>
-</div>
-
-<?php
-$pageheader = ob_get_clean();
 include('src/common/header.php');
 ?>
 
@@ -278,45 +257,4 @@ include('src/common/header.php');
     </div>
 </div>
 
-
-
 <?php include('src/common/footer.php'); ?>
-
-<script>
-    // @formatter:off
-    document.addEventListener("DOMContentLoaded", function () {
-        var el;
-        window.TomSelect && (new TomSelect(el = document.getElementById('select-status'), {
-            copyClassesToDropdown: false,
-            dropdownClass: 'dropdown-menu ts-dropdown',
-            optionClass: 'dropdown-item',
-            controlInput: '<input>',
-            render: {
-                item: function (data, escape) {
-                    if (data.customProperties) {
-                        return '<div><span class="dropdown-item-indicator">' + data.customProperties + '</span>' + escape(data.text) + '</div>';
-                    }
-                    return '<div>' + escape(data.text) + '</div>';
-                },
-                option: function (data, escape) {
-                    if (data.customProperties) {
-                        return '<div><span class="dropdown-item-indicator">' + data.customProperties + '</span>' + escape(data.text) + '</div>';
-                    }
-                    return '<div>' + escape(data.text) + '</div>';
-                },
-            },
-        }));
-    });
-    // @formatter:on
-    function displayFileName(inputId, labelId) {
-        var inputElement = document.getElementById(inputId);
-        var labelElement = document.getElementById(labelId);
-
-        if (inputElement.files && inputElement.files.length > 0) {
-            var fileName = inputElement.files[0].name;
-            labelElement.textContent = fileName;
-        } else {
-            labelElement.textContent = "ជ្រើសឯកសារថ្មី"; // Default text
-        }
-    }
-</script>

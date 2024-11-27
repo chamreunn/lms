@@ -345,3 +345,31 @@ date_default_timezone_set('Asia/Bangkok');
             <!-- Page body -->
             <div class="page-body">
                 <div class="container-xl">
+                    <div class="page-header d-print-none mt-0 mb-3">
+                        <div class="col-12">
+                            <div class="row g-2 align-items-center">
+                                <div class="col">
+                                    <!-- Page pre-title -->
+                                    <a href="./." class="page-pretitle text-decoration-none mb-1">
+                                        <?= $pretitle ?? "" ?>
+                                    </a>
+                                    <h2 class="page-title">
+                                        <?php echo htmlspecialchars($title ?? ""); ?>
+                                    </h2>
+                                </div>
+
+                                <div class="col-auto ms-auto d-print-none">
+                                    <div class="btn-list">
+                                        <?= $customButton ?? "" ?>
+                                    </div>
+                                </div>
+
+                                <!-- Page title actions -->
+                                <div class="col-auto ms-auto d-print-none">
+                                    <div class="btn-list">
+                                        <h3 class="text-primary mb-0" id="real-time-clock"></h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>

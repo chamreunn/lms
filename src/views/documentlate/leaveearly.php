@@ -1,58 +1,35 @@
 <?php
+$pretitle = "ការចេញ ចូលយឺត";
 $title = "លិខិតចេញមុន";
-ob_start();
-?>
-<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
-<!-- Page header -->
-<div class="page-header d-print-none">
-    <div class="container-xl">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <!-- Page pre-title -->
-                <div class="page-pretitle mx-1">
-                    ទំព័រដើម
-                </div>
-                <h2 class="page-title">
-                    <?php echo $title ?? "" ?>
-                </h2>
-            </div>
-            <!-- Page title actions -->
-            <div class="col-auto ms-auto d-print-none">
-                <div class="btn-list">
-                    <div class="d-flex">
-                        <!-- <input type="search" class="form-control d-inline-block w-9 me-3" placeholder="ស្វែងរកនាយកដ្ឋាន…" id="customSearch" /> -->
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#apply-leaveearly"
-                            class="btn btn-primary d-none d-sm-inline-block">
-                            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <line x1="12" y1="5" x2="12" y2="19" />
-                                <line x1="5" y1="12" x2="19" y2="12" />
-                            </svg>
-                            បន្ថែមថ្មី
-                        </a>
-                        <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal"
-                            data-bs-target="#apply-leaveearly" aria-expanded="false">
-                            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+// Define the button HTML
+$customButton = '
+    <div class="d-flex">
+       <a href="#" data-bs-toggle="modal" data-bs-target="#apply-leaveearly"
+            class="btn btn-primary d-none d-sm-inline-block">
+            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            បន្ថែមថ្មី
+        </a>
+        <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal"
+            data-bs-target="#apply-leaveearly" aria-expanded="false">
+            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </a>
     </div>
-</div>
-<?php
-$pageheader = ob_get_clean();
+';
 include('src/common/header.php');
 function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 {
@@ -138,6 +115,8 @@ function convertToKhmerNumerals($number)
     return str_replace($arabicNumerals, $khmerNumerals, $number);
 }
 ?>
+<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
 <!-- display office  -->
 <div class="col-12">
     <div class="card rounded-3">
@@ -308,7 +287,8 @@ function convertToKhmerNumerals($number)
                                                 </a>
 
                                                 <a href="#" class="icon me-2 edit-btn text-danger"
-                                                    data-bs-target="#deleteLateEarliess<?= $getlate['id'] ?>" data-bs-toggle="modal">
+                                                    data-bs-target="#deleteLateEarliess<?= $getlate['id'] ?>"
+                                                    data-bs-toggle="modal">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                         stroke-linecap="round" stroke-linejoin="round"

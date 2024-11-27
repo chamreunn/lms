@@ -35,58 +35,81 @@ class User
         $url = "{$this->api}/api/login";
         $data = json_encode(['email' => $email, 'password' => $password]);
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($data)
-        ]);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        // Initialize retry mechanism
+        $maxRetries = 3; // Maximum number of retries
+        $retryDelay = 2; // Seconds to wait before retrying
+        $attempt = 0;
 
-        // Check if running on localhost
-        if (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
-            // Ignore SSL certificate verification on localhost (only for development)
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        } else {
-            // Enforce SSL certificate verification on live server
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        }
+        do {
+            $attempt++;
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10); // Set a timeout to prevent long hangs
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($data)
+            ]);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
-        curl_close($ch);
+            // Handle SSL based on environment
+            if (strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false) {
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            } else {
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            }
 
-        // Debugging output
-        if ($response === false) {
-            error_log("CURL Error: $error");
-            return null;
-        }
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $error = curl_error($ch);
+            curl_close($ch);
 
-        $responseData = json_decode($response, true);
+            // Handle cURL errors
+            if ($response === false) {
+                error_log("Attempt $attempt: CURL Error - $error");
+                sleep($retryDelay); // Wait before retrying
+                continue;
+            }
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log("JSON Decode Error: " . json_last_error_msg());
-            return null;
-        }
+            // Decode and validate JSON response
+            $responseData = json_decode($response, true);
 
-        if ($httpCode === 200 && isset($responseData['user'], $responseData['token'])) {
-            // Password is assumed to be hashed and verified internally by the API
-            return [
-                'http_code' => $httpCode,
-                'user' => $responseData['user'],
-                'token' => $responseData['token']
-            ];
-        } else {
-            error_log("Unexpected API Response: " . print_r($responseData, true));
-            return [
-                'http_code' => $httpCode,
-                'response' => $responseData
-            ];
-        }
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                error_log("Attempt $attempt: JSON Decode Error - " . json_last_error_msg());
+                sleep($retryDelay); // Wait before retrying
+                continue;
+            }
+
+            // Check if the response contains the expected data
+            if ($httpCode === 200 && isset($responseData['user'], $responseData['token'])) {
+                return [
+                    'success' => true,
+                    'message' => 'Authentication successful',
+                    'data' => [
+                        'user' => $responseData['user'],
+                        'token' => $responseData['token']
+                    ],
+                    'http_code' => $httpCode
+                ];
+            } else {
+                // Log unexpected response details for debugging
+                error_log("Attempt $attempt: Unexpected API Response - HTTP Code $httpCode");
+                error_log("Response Data: " . print_r($responseData, true));
+            }
+
+            // Wait before retrying if needed
+            sleep($retryDelay);
+        } while ($attempt < $maxRetries);
+
+        // If all attempts fail
+        return [
+            'success' => false,
+            'message' => 'Failed to authenticate after multiple attempts.',
+            'data' => null,
+            'http_code' => $httpCode ?? null
+        ];
     }
 
     public function logLoginTrace($userId, $ipAddress)

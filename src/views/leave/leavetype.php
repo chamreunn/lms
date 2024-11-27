@@ -11,44 +11,23 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 require_once 'src/controllers/LeavetypeController.php';
+$pretitle = "ទំព័រដើម";
 $title = "ប្រភេទច្បាប់ឈប់សម្រាក";
-ob_start();
-?>
-<!-- Page header -->
-<div class="page-header d-print-none">
-    <div class="container-xl">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <!-- Page pre-title -->
-                <div class="page-pretitle mx-1">
-                    ទំព័រដើម
-                </div>
-                <h2 class="page-title">
-                    <?php echo $title ?? "" ?>
-                </h2>
-            </div>
-            <!-- Page title actions -->
-            <div class="col-auto ms-auto d-print-none">
-                <div class="btn-list">
-                    <div class="d-flex">
-                        <!-- <input type="search" class="form-control d-inline-block w-9 me-3" placeholder="ស្វែងរកនាយកដ្ឋាន…" id="customSearch" /> -->
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#modal-team" class="btn btn-primary">
-                            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <line x1="12" y1="5" x2="12" y2="19" />
-                                <line x1="5" y1="12" x2="19" y2="12" />
-                            </svg>
-                            បង្កើតប្រភេទច្បាប់ថ្មី
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+// Define the button HTML
+$customButton = '
+    <div class="d-flex">
+         <a href="#" data-bs-toggle="modal" data-bs-target="#modal-team" class="btn btn-primary">
+            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            បង្កើតប្រភេទច្បាប់ថ្មី
+        </a>
     </div>
-</div>
-<?php
-$pageheader = ob_get_clean();
+';
 include('src/common/header.php');
 ?>
 <style>
@@ -80,14 +59,16 @@ include('src/common/header.php');
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (empty($leavetypes)) : ?>
+                    <?php if (empty($leavetypes)): ?>
                         <tr>
                             <td colspan="7" class="text-center">
                                 <img src="public/img/icons/svgs/empty.svg" alt="">
                                 <p>មិនទាន់មានប្រភេទច្បាប់ថ្មីនៅឡើយ។ សូមបង្កើតដោយចុចប៊ូតុងខាងក្រោយ ឬស្តាំដៃខាងលើ</p>
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#modal-team" class="btn btn-primary">
                                     <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <line x1="12" y1="5" x2="12" y2="19" />
                                         <line x1="5" y1="12" x2="19" y2="12" />
@@ -96,8 +77,8 @@ include('src/common/header.php');
                                 </a>
                             </td>
                         </tr>
-                    <?php else : ?>
-                        <?php foreach ($leavetypes as $leavetype) : ?>
+                    <?php else: ?>
+                        <?php foreach ($leavetypes as $leavetype): ?>
                             <tr>
                                 <td><?= $leavetype['id'] ?></td>
                                 <td><?= $leavetype['name'] ?></td>
@@ -108,16 +89,26 @@ include('src/common/header.php');
                                 <td><?= $leavetype['description'] ?></td>
                                 <td><?= $leavetype['attachment_required'] ? 'Yes' : 'No' ?></td>
                                 <td>
-                                    <a href="#" class="icon me-2 edit-btn" data-id="<?= $leavetype['id'] ?>" data-name="<?= $leavetype['name'] ?>" data-duration="<?= $leavetype['duration'] ?>" data-color="<?= $leavetype['color'] ?>" data-description="<?= $leavetype['description'] ?>" data-attachment="<?= $leavetype['attachment_required'] ?>" data-bs-toggle="modal" data-bs-target="#editModal">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icon-tabler-edit">
+                                    <a href="#" class="icon me-2 edit-btn" data-id="<?= $leavetype['id'] ?>"
+                                        data-name="<?= $leavetype['name'] ?>" data-duration="<?= $leavetype['duration'] ?>"
+                                        data-color="<?= $leavetype['color'] ?>"
+                                        data-description="<?= $leavetype['description'] ?>"
+                                        data-attachment="<?= $leavetype['attachment_required'] ?>" data-bs-toggle="modal"
+                                        data-bs-target="#editModal">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" class="icon icon-tabler icon-tabler-edit">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                             <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
                                             <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
                                             <path d="M16 5l3 3" />
                                         </svg>
                                     </a>
-                                    <a href="#" class="icon delete-btn text-danger" data-id="<?= $leavetype['id'] ?>" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <a href="#" class="icon delete-btn text-danger" data-id="<?= $leavetype['id'] ?>"
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                            stroke-linecap="round" stroke-linejoin="round">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                             <path d="M4 7l16 0" />
                                             <path d="M10 11l0 6" />
@@ -136,12 +127,14 @@ include('src/common/header.php');
 
         <!-- Collapsible view for small screens -->
         <div class="accordion d-md-none" id="leaveTypeAccordion">
-            <?php if (empty($leavetypes)) : ?>
+            <?php if (empty($leavetypes)): ?>
                 <div class="text-center">
                     <img src="public/img/icons/svgs/empty.svg" alt="">
                     <p>មិនទាន់មានប្រភេទច្បាប់ថ្មីនៅឡើយ។ សូមបង្កើតដោយចុចប៊ូតុងខាងក្រោយ ឬស្តាំដៃខាងលើ</p>
                     <a href="#" data-bs-toggle="modal" data-bs-target="#modal-team" class="btn btn-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                            stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                             <line x1="12" y1="5" x2="12" y2="19" />
                             <line x1="5" y1="12" x2="19" y2="12" />
@@ -149,23 +142,33 @@ include('src/common/header.php');
                         បង្កើតប្រភេទច្បាប់ថ្មី
                     </a>
                 </div>
-            <?php else : ?>
-                <?php foreach ($leavetypes as $key => $leavetype) : ?>
+            <?php else: ?>
+                <?php foreach ($leavetypes as $key => $leavetype): ?>
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="heading<?= $key ?>">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?= $key ?>" aria-expanded="false" aria-controls="collapse<?= $key ?>">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapse<?= $key ?>" aria-expanded="false" aria-controls="collapse<?= $key ?>">
                                 <?= $leavetype['name'] ?>
                             </button>
                         </h2>
-                        <div id="collapse<?= $key ?>" class="accordion-collapse collapse" aria-labelledby="heading<?= $key ?>" data-bs-parent="#leaveTypeAccordion">
+                        <div id="collapse<?= $key ?>" class="accordion-collapse collapse" aria-labelledby="heading<?= $key ?>"
+                            data-bs-parent="#leaveTypeAccordion">
                             <div class="accordion-body">
-                                <p><strong>ពណ៌:</strong> <span class="badge <?= $leavetype['color'] ?>"><?= $leavetype['color'] ?></span></p>
+                                <p><strong>ពណ៌:</strong> <span
+                                        class="badge <?= $leavetype['color'] ?>"><?= $leavetype['color'] ?></span></p>
                                 <p><strong>រយៈពេល:</strong> <?= $leavetype['duration'] ?></p>
                                 <p><strong>ពិពណ៌នា:</strong> <?= $leavetype['description'] ?></p>
-                                <p><strong>តម្រូវការឯកសារភ្ជាប់:</strong> <?= $leavetype['attachment_required'] ? 'Yes' : 'No' ?></p>
+                                <p><strong>តម្រូវការឯកសារភ្ជាប់:</strong>
+                                    <?= $leavetype['attachment_required'] ? 'Yes' : 'No' ?></p>
                                 <div class="d-flex">
-                                    <a href="#" class="btn btn-sm btn-primary me-2 edit-btn" data-id="<?= $leavetype['id'] ?>" data-name="<?= $leavetype['name'] ?>" data-duration="<?= $leavetype['duration'] ?>" data-color="<?= $leavetype['color'] ?>" data-description="<?= $leavetype['description'] ?>" data-attachment="<?= $leavetype['attachment_required'] ?>" data-bs-toggle="modal" data-bs-target="#editModal">Edit</a>
-                                    <a href="#" class="btn btn-sm btn-danger delete-btn" data-id="<?= $leavetype['id'] ?>" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</a>
+                                    <a href="#" class="btn btn-sm btn-primary me-2 edit-btn" data-id="<?= $leavetype['id'] ?>"
+                                        data-name="<?= $leavetype['name'] ?>" data-duration="<?= $leavetype['duration'] ?>"
+                                        data-color="<?= $leavetype['color'] ?>"
+                                        data-description="<?= $leavetype['description'] ?>"
+                                        data-attachment="<?= $leavetype['attachment_required'] ?>" data-bs-toggle="modal"
+                                        data-bs-target="#editModal">Edit</a>
+                                    <a href="#" class="btn btn-sm btn-danger delete-btn" data-id="<?= $leavetype['id'] ?>"
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</a>
                                 </div>
                             </div>
                         </div>
@@ -175,7 +178,8 @@ include('src/common/header.php');
         </div>
 
         <div class="card-footer d-flex align-items-center rounded-3">
-            <p class="m-0 text-secondary">Showing <span id="showing-start">1</span> to <span id="showing-end">8</span> of <span id="total-entries">16</span> entries</p>
+            <p class="m-0 text-secondary">Showing <span id="showing-start">1</span> to <span id="showing-end">8</span>
+                of <span id="total-entries">16</span> entries</p>
             <ul id="custom-pagination" class="pagination m-0 ms-auto"></ul>
         </div>
     </div>
@@ -191,8 +195,10 @@ include('src/common/header.php');
             <form action="/elms/create_leavetype" method="POST">
                 <div class="modal-body">
                     <div class="col mb-3">
-                        <label class="form-label">ឈ្មោះប្រភេទច្បាប់<span class="text-danger fw-bold mx-1">*</span></label>
-                        <input type="text" name="name" placeholder="ឈ្មោះប្រភេទច្បាប់" class="form-control" autofocus required>
+                        <label class="form-label">ឈ្មោះប្រភេទច្បាប់<span
+                                class="text-danger fw-bold mx-1">*</span></label>
+                        <input type="text" name="name" placeholder="ឈ្មោះប្រភេទច្បាប់" class="form-control" autofocus
+                            required>
                     </div>
                     <div class="col mb-3">
                         <label class="form-label">រយៈពេល (ថ្ងៃ)<span class="text-danger fw-bold mx-1">*</span></label>
@@ -210,7 +216,8 @@ include('src/common/header.php');
                                 </div>
                                 <div class="col-auto">
                                     <label class="form-colorinput form-colorinput-light">
-                                        <input name="color" type="radio" value="bg-white" class="form-colorinput-input" checked="">
+                                        <input name="color" type="radio" value="bg-white" class="form-colorinput-input"
+                                            checked="">
                                         <span class="form-colorinput-color bg-white"></span>
                                     </label>
                                 </div>
@@ -228,13 +235,15 @@ include('src/common/header.php');
                                 </div>
                                 <div class="col-auto">
                                     <label class="form-colorinput">
-                                        <input name="color" type="radio" value="bg-indigo" class="form-colorinput-input">
+                                        <input name="color" type="radio" value="bg-indigo"
+                                            class="form-colorinput-input">
                                         <span class="form-colorinput-color bg-indigo"></span>
                                     </label>
                                 </div>
                                 <div class="col-auto">
                                     <label class="form-colorinput">
-                                        <input name="color" type="radio" value="bg-purple" class="form-colorinput-input">
+                                        <input name="color" type="radio" value="bg-purple"
+                                            class="form-colorinput-input">
                                         <span class="form-colorinput-color bg-purple"></span>
                                     </label>
                                 </div>
@@ -252,13 +261,15 @@ include('src/common/header.php');
                                 </div>
                                 <div class="col-auto">
                                     <label class="form-colorinput">
-                                        <input name="color" type="radio" value="bg-orange" class="form-colorinput-input">
+                                        <input name="color" type="radio" value="bg-orange"
+                                            class="form-colorinput-input">
                                         <span class="form-colorinput-color bg-orange"></span>
                                     </label>
                                 </div>
                                 <div class="col-auto">
                                     <label class="form-colorinput">
-                                        <input name="color" type="radio" value="bg-yellow" class="form-colorinput-input">
+                                        <input name="color" type="radio" value="bg-yellow"
+                                            class="form-colorinput-input">
                                         <span class="form-colorinput-color bg-yellow"></span>
                                     </label>
                                 </div>
@@ -289,7 +300,8 @@ include('src/common/header.php');
                                 <button type="button" class="btn me-auto w-100" data-bs-dismiss="modal">បិទ</button>
                             </div>
                             <div class="col">
-                                <button type="submit" name="create" class="btn btn-primary w-100">បង្កើតប្រភេទច្បាប់</button>
+                                <button type="submit" name="create"
+                                    class="btn btn-primary w-100">បង្កើតប្រភេទច្បាប់</button>
                             </div>
                         </div>
                     </div>
@@ -310,12 +322,15 @@ include('src/common/header.php');
                 <input type="hidden" name="id" id="edit-id">
                 <div class="modal-body">
                     <div class="col mb-3">
-                        <label class="form-label">ឈ្មោះប្រភេទច្បាប់<span class="text-danger fw-bold mx-1">*</span></label>
-                        <input type="text" name="name" id="edit-name" placeholder="ឈ្មោះប្រភេទច្បាប់" class="form-control" required>
+                        <label class="form-label">ឈ្មោះប្រភេទច្បាប់<span
+                                class="text-danger fw-bold mx-1">*</span></label>
+                        <input type="text" name="name" id="edit-name" placeholder="ឈ្មោះប្រភេទច្បាប់"
+                            class="form-control" required>
                     </div>
                     <div class="col mb-3">
                         <label class="form-label">រយៈពេល (ថ្ងៃ)<span class="text-danger fw-bold mx-1">*</span></label>
-                        <input type="number" name="duration" id="edit-duration" placeholder="រយៈពេល (ថ្ងៃ)" class="form-control" required>
+                        <input type="number" name="duration" id="edit-duration" placeholder="រយៈពេល (ថ្ងៃ)"
+                            class="form-control" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">ជ្រើសរើសព័ណ៌<span class="text-danger fw-bold mx-1">*</span></label>
@@ -323,67 +338,78 @@ include('src/common/header.php');
                             <div class="row g-2">
                                 <div class="col-auto">
                                     <label class="form-colorinput">
-                                        <input name="color" type="radio" value="bg-dark-lt" class="form-colorinput-input" id="editColor1">
+                                        <input name="color" type="radio" value="bg-dark-lt"
+                                            class="form-colorinput-input" id="editColor1">
                                         <span class="form-colorinput-color bg-dark"></span>
                                     </label>
                                 </div>
                                 <div class="col-auto">
                                     <label class="form-colorinput form-colorinput-light">
-                                        <input name="color" type="radio" value="bg-white" class="form-colorinput-input" id="editColor2">
+                                        <input name="color" type="radio" value="bg-white" class="form-colorinput-input"
+                                            id="editColor2">
                                         <span class="form-colorinput-color bg-white"></span>
                                     </label>
                                 </div>
                                 <div class="col-auto">
                                     <label class="form-colorinput">
-                                        <input name="color" type="radio" value="bg-blue" class="form-colorinput-input" id="editColor3">
+                                        <input name="color" type="radio" value="bg-blue" class="form-colorinput-input"
+                                            id="editColor3">
                                         <span class="form-colorinput-color bg-blue"></span>
                                     </label>
                                 </div>
                                 <div class="col-auto">
                                     <label class="form-colorinput">
-                                        <input name="color" type="radio" value="bg-azure" class="form-colorinput-input" id="editColor4">
+                                        <input name="color" type="radio" value="bg-azure" class="form-colorinput-input"
+                                            id="editColor4">
                                         <span class="form-colorinput-color bg-azure"></span>
                                     </label>
                                 </div>
                                 <div class="col-auto">
                                     <label class="form-colorinput">
-                                        <input name="color" type="radio" value="bg-indigo" class="form-colorinput-input" id="editColor5">
+                                        <input name="color" type="radio" value="bg-indigo" class="form-colorinput-input"
+                                            id="editColor5">
                                         <span class="form-colorinput-color bg-indigo"></span>
                                     </label>
                                 </div>
                                 <div class="col-auto">
                                     <label class="form-colorinput">
-                                        <input name="color" type="radio" value="bg-purple" class="form-colorinput-input" id="editColor6">
+                                        <input name="color" type="radio" value="bg-purple" class="form-colorinput-input"
+                                            id="editColor6">
                                         <span class="form-colorinput-color bg-purple"></span>
                                     </label>
                                 </div>
                                 <div class="col-auto">
                                     <label class="form-colorinput">
-                                        <input name="color" type="radio" value="bg-pink" class="form-colorinput-input" id="editColor7">
+                                        <input name="color" type="radio" value="bg-pink" class="form-colorinput-input"
+                                            id="editColor7">
                                         <span class="form-colorinput-color bg-pink"></span>
                                     </label>
                                 </div>
                                 <div class="col-auto">
                                     <label class="form-colorinput">
-                                        <input name="color" type="radio" value="bg-red" class="form-colorinput-input" id="editColor8">
+                                        <input name="color" type="radio" value="bg-red" class="form-colorinput-input"
+                                            id="editColor8">
                                         <span class="form-colorinput-color bg-red"></span>
                                     </label>
                                 </div>
                                 <div class="col-auto">
                                     <label class="form-colorinput">
-                                        <input name="color" type="radio" value="bg-orange" class="form-colorinput-input" id="editColor9">
+                                        <input name="color" type="radio" value="bg-orange" class="form-colorinput-input"
+                                            id="editColor9">
                                         <span class="form-colorinput-color bg-orange"></span>
                                     </label>
                                 </div>
                                 <div class="col-auto">
                                     <label class="form-colorinput">
-                                        <input name="color" type="radio" value="bg-yellow" class="form-colorinput-input" id="editColor10">
+                                        <input name="color" type="radio" value="bg-yellow" class="form-colorinput-input"
+                                            id="editColor10">
                                         <span class="form-colorinput-color bg-yellow"></span>
                                     </label>
                                 </div>
                                 <div class="col-auto">
                                     <label class="form-colorinput">
-                                        <input name="color" type="radio" value="bg-lime" class="form-colorinput-input" id="editColor11">
+                                        <input name="color" type="radio" value="bg-lime" class="form-colorinput-input"
+                                            id="editColor11">
                                         <span class="form-colorinput-color bg-lime"></span>
                                     </label>
                                 </div>
@@ -392,11 +418,13 @@ include('src/common/header.php');
                     </div>
                     <div class="mb-3">
                         <label class="form-label">ពិពណ៌នា<span class="text-danger fw-bold mx-1">*</span></label>
-                        <textarea class="form-control" name="description" id="edit-description" placeholder="ពិពណ៌នា"></textarea>
+                        <textarea class="form-control" name="description" id="edit-description"
+                            placeholder="ពិពណ៌នា"></textarea>
                     </div>
                     <div class="mb-0">
                         <label class="form-check cursor-pointer">
-                            <input class="form-check-input" type="checkbox" name="attachment_required" id="edit-attachment_required">
+                            <input class="form-check-input" type="checkbox" name="attachment_required"
+                                id="edit-attachment_required">
                             <span class="form-check-label">ត្រូវការឯកសារភ្ជាប់</span>
                         </label>
                     </div>
@@ -408,7 +436,8 @@ include('src/common/header.php');
                                 <button type="button" class="btn me-auto w-100" data-bs-dismiss="modal">បិទ</button>
                             </div>
                             <div class="col">
-                                <button type="submit" name="update" class="btn btn-primary w-100">កែប្រែប្រភេទច្បាប់</button>
+                                <button type="submit" name="update"
+                                    class="btn btn-primary w-100">កែប្រែប្រភេទច្បាប់</button>
                             </div>
                         </div>
                     </div>
@@ -425,10 +454,14 @@ include('src/common/header.php');
             <form id="deleteForm" action="/elms/create_leavetype" method="POST">
                 <input type="hidden" id="deleteId" name="id">
                 <div class="modal-body text-center py-4 mb-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon mb-2 text-danger icon-lg">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                         <path d="M12 9v4"></path>
-                        <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"></path>
+                        <path
+                            d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
+                        </path>
                         <path d="M12 16h.01"></path>
                     </svg>
                     <h5 class="modal-title" id="deleteModalLabel">លុបប្រភេទច្បាប់</h5>
@@ -488,7 +521,7 @@ include('src/common/header.php');
     });
 
 
-    $(document).on("click", ".delete-btn", function() {
+    $(document).on("click", ".delete-btn", function () {
         var id = $(this).data('id');
         $("#deleteId").val(id);
     });
@@ -497,7 +530,7 @@ include('src/common/header.php');
 <?php include('src/common/footer.php'); ?>
 <!-- pagination  -->
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         var table = $('#leavetypeTable').DataTable({
             "paging": true,
             "searching": false,
@@ -510,7 +543,7 @@ include('src/common/header.php');
                     "next": "next <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='icon'><path stroke='none' d='M0 0h24v24H0z' fill='none'></path><path d='M9 6l6 6l-6 6'></path></svg>"
                 }
             },
-            "drawCallback": function(settings) {
+            "drawCallback": function (settings) {
                 var api = this.api();
                 var start = api.page.info().start + 1;
                 var end = api.page.info().end;
@@ -546,7 +579,7 @@ include('src/common/header.php');
                 $('#custom-pagination').html(paginationHtml);
 
                 // Add click event to custom pagination links
-                $('#custom-pagination .page-link').on('click', function(e) {
+                $('#custom-pagination .page-link').on('click', function (e) {
                     e.preventDefault();
                     var pageNum = $(this).data('page');
                     if (pageNum === 'prev') {
@@ -561,7 +594,7 @@ include('src/common/header.php');
         });
 
         // Custom search bar functionality
-        $('#customSearch').on('keyup', function() {
+        $('#customSearch').on('keyup', function () {
             table.search(this.value).draw();
         });
     });

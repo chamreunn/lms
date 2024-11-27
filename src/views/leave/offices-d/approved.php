@@ -1,50 +1,6 @@
 <?php
+$pretitle = "ទំព័រដើម";
 $title = "បានអនុម័ត";
-ob_start();
-?>
-<!-- Page header -->
-<div class="page-header d-print-none">
-    <div class="container-xl">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <!-- Page pre-title -->
-                <div class="page-pretitle">
-                    ទំព័រដើម
-                </div>
-                <h2 class="page-title">
-                    <?php echo $title ?? "" ?>
-                </h2>
-            </div>
-            <!-- Page title actions -->
-            <div class="col-auto ms-auto d-print-none">
-                <div class="btn-list">
-                    <a class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#do-apply">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-plus">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5" />
-                            <path d="M16 3v4" />
-                            <path d="M8 3v4" />
-                            <path d="M4 11h16" />
-                            <path d="M16 19h6" />
-                            <path d="M19 16v6" />
-                        </svg>
-                        <span>បង្កើតសំណើច្បាប់</span>
-                    </a>
-                    <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#do-apply">
-                        <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<?php
-$pageheader = ob_get_clean();
 include('src/common/header.php');
 // Assuming $requests is an array of all leave requests
 $requestsPerPage = 10; // Number of requests to display per page
@@ -96,6 +52,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     return $translatedDate;
 }
 ?>
+
 <div class="card rounded-3">
     <div class="card-header">
         <div class="d-flex align-items-center justify-content-between">
@@ -121,16 +78,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <tr>
                         <td colspan="7" class="text-center">
                             <img src="public/img/icons/svgs/empty.svg" alt="">
-                            <p>មិនទាន់មានប្រភេទច្បាប់ថ្មីនៅឡើយ។ សូមបង្កើតដោយចុចប៊ូតុងខាងក្រោយ ឬស្តាំដៃខាងលើ</p>
-                            <a href="/elms/apply-leave" class="btn btn-primary mb-3">
-                                <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <line x1="12" y1="5" x2="12" y2="19" />
-                                    <line x1="5" y1="12" x2="19" y2="12" />
-                                </svg>
-                                បង្កើតប្រភេទច្បាប់ថ្មី
-                            </a>
+                            <p>មិនទាន់មានសំណើច្បាប់ថ្មីនៅឡើយ។</p>
                         </td>
                     </tr>
                 <?php else : ?>
@@ -205,4 +153,5 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </ul>
     </div>
 </div>
+
 <?php include('src/common/footer.php'); ?>

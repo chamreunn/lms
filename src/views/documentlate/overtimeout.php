@@ -1,58 +1,35 @@
 <?php
+$pretitle = "ការចេញ ចូលយឺត";
 $title = "លិខិតចេញយឺត";
-ob_start();
-?>
-<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
-<!-- Page header -->
-<div class="page-header d-print-none">
-    <div class="container-xl">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <!-- Page pre-title -->
-                <div class="page-pretitle">
-                    ទំព័រដើម
-                </div>
-                <h2 class="page-title">
-                    <?php echo $title ?? "" ?>
-                </h2>
-            </div>
-            <!-- Page title actions -->
-            <div class="col-auto ms-auto d-print-none">
-                <div class="btn-list">
-                    <div class="d-flex">
-                        <!-- <input type="search" class="form-control d-inline-block w-9 me-3" placeholder="ស្វែងរកនាយកដ្ឋាន…" id="customSearch" /> -->
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#apply-late-out"
-                            class="btn btn-primary d-none d-sm-inline-block">
-                            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <line x1="12" y1="5" x2="12" y2="19" />
-                                <line x1="5" y1="12" x2="19" y2="12" />
-                            </svg>
-                            បន្ថែមថ្មី
-                        </a>
-                        <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal"
-                            data-bs-target="#apply-late-out" aria-expanded="false">
-                            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+// Define the button HTML
+$customButton = '
+    <div class="d-flex">
+        <a href="#" data-bs-toggle="modal" data-bs-target="#apply-late-out"
+            class="btn btn-primary d-none d-sm-inline-block">
+            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            បន្ថែមថ្មី
+        </a>
+        <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal"
+            data-bs-target="#apply-late-out" aria-expanded="false">
+            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </a>
     </div>
-</div>
-<?php
-$pageheader = ob_get_clean();
+';
 include('src/common/header.php');
 function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 {
@@ -129,7 +106,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 
     return $translatedDate;
 }
-
 function convertToKhmerNumerals($number)
 {
     $arabicNumerals = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -138,6 +114,8 @@ function convertToKhmerNumerals($number)
     return str_replace($arabicNumerals, $khmerNumerals, $number);
 }
 ?>
+<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
 <!-- display office  -->
 <div class="col-12">
     <div class="card rounded-3">
@@ -309,13 +287,14 @@ function convertToKhmerNumerals($number)
                                             <?php else: ?>
                                                 <a href="#" class="icon me-2 edit-btn text-info"
                                                     data-bs-target="#editlateouts<?= $getlate['id'] ?>" data-bs-toggle="modal">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                        stroke-linejoin="round"
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round"
                                                         class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                         <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                                        <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                                                        <path
+                                                            d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
                                                         <path d="M16 5l3 3" />
                                                     </svg>
                                                 </a>
@@ -335,8 +314,8 @@ function convertToKhmerNumerals($number)
                                                 </a>
 
                                                 <!-- edit late out responsive  -->
-                                                <div class="modal modal-blur fade" id="editlateouts<?= $getlate['id'] ?>" tabindex="-1"
-                                                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                <div class="modal modal-blur fade" id="editlateouts<?= $getlate['id'] ?>"
+                                                    tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                                     <div class="modal-dialog modal-dialog-centered modal-md">
                                                         <div class="modal-content">
                                                             <div class="modal-header">
@@ -344,27 +323,34 @@ function convertToKhmerNumerals($number)
                                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                                     aria-label="Close"></button>
                                                             </div>
-                                                            <form method="POST" action="/elms/edit_lateout" enctype="multipart/form-data">
+                                                            <form method="POST" action="/elms/edit_lateout"
+                                                                enctype="multipart/form-data">
                                                                 <input type="hidden" name="lateId" value="<?= $getlate['id'] ?>">
                                                                 <div class="modal-body">
                                                                     <div class="row">
                                                                         <div class="col-lg-12 mb-3">
-                                                                            <label for="lateindate" class="form-label">កាលបរិច្ឆេទ<span
+                                                                            <label for="lateindate"
+                                                                                class="form-label">កាលបរិច្ឆេទ<span
                                                                                     class="text-danger mx-1 fw-bold">*</span></label>
                                                                             <div class="input-icon">
                                                                                 <span class="input-icon-addon">
-                                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon"
-                                                                                        width="24" height="24" viewBox="0 0 24 24"
-                                                                                        stroke-width="2" stroke="currentColor" fill="none"
-                                                                                        stroke-linecap="round" stroke-linejoin="round">
-                                                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none">
+                                                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                        class="icon" width="24" height="24"
+                                                                                        viewBox="0 0 24 24" stroke-width="2"
+                                                                                        stroke="currentColor" fill="none"
+                                                                                        stroke-linecap="round"
+                                                                                        stroke-linejoin="round">
+                                                                                        <path stroke="none" d="M0 0h24v24H0z"
+                                                                                            fill="none">
                                                                                         </path>
-                                                                                        <rect x="4" y="5" width="16" height="16" rx="2">
+                                                                                        <rect x="4" y="5" width="16" height="16"
+                                                                                            rx="2">
                                                                                         </rect>
                                                                                         <line x1="16" y1="3" x2="16" y2="7"></line>
                                                                                         <line x1="8" y1="3" x2="8" y2="7"></line>
                                                                                         <line x1="4" y1="11" x2="20" y2="11"></line>
-                                                                                        <rect x="8" y="15" width="2" height="2"></rect>
+                                                                                        <rect x="8" y="15" width="2" height="2">
+                                                                                        </rect>
                                                                                     </svg>
                                                                                 </span>
                                                                                 <input type="text" autocomplete="off"
@@ -377,12 +363,14 @@ function convertToKhmerNumerals($number)
                                                                                     class="text-danger mx-1 fw-bold">*</span></label>
                                                                             <div class="input-icon">
                                                                                 <span class="input-icon-addon">
-                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                                                                        height="24" viewBox="0 0 24 24" fill="none"
-                                                                                        stroke="currentColor" stroke-width="2"
-                                                                                        stroke-linecap="round" stroke-linejoin="round"
+                                                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                        width="24" height="24" viewBox="0 0 24 24"
+                                                                                        fill="none" stroke="currentColor"
+                                                                                        stroke-width="2" stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
                                                                                         class="icon icon-tabler icons-tabler-outline icon-tabler-clock-12">
-                                                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                                        <path stroke="none" d="M0 0h24v24H0z"
+                                                                                            fill="none" />
                                                                                         <path
                                                                                             d="M3 12a9 9 0 0 0 9 9m9 -9a9 9 0 1 0 -18 0" />
                                                                                         <path d="M12 7v5l.5 .5" />
@@ -392,7 +380,8 @@ function convertToKhmerNumerals($number)
                                                                                     </svg>
                                                                                 </span>
                                                                                 <input type="text" autocomplete="off"
-                                                                                    value="<?= $getlate['late_out'] ?>" placeholder="ម៉ោង"
+                                                                                    value="<?= $getlate['late_out'] ?>"
+                                                                                    placeholder="ម៉ោង"
                                                                                     class="form-control time-picker" name="time">
                                                                             </div>
                                                                         </div>
@@ -405,9 +394,10 @@ function convertToKhmerNumerals($number)
                                                                         </div>
                                                                         <div class="col-lg-6">
                                                                             <label class="form-check cursor-pointer">
-                                                                                <input class="form-check-input" type="checkbox" name="agree"
-                                                                                    <?= isset($_POST['agree']) ? 'checked' : ''; ?>>
-                                                                                <span class="form-check-label">យល់ព្រមលើការបញ្ចូល<span
+                                                                                <input class="form-check-input" type="checkbox"
+                                                                                    name="agree" <?= isset($_POST['agree']) ? 'checked' : ''; ?>>
+                                                                                <span
+                                                                                    class="form-check-label">យល់ព្រមលើការបញ្ចូល<span
                                                                                         class="text-danger fw-bold mx-1">*</span></span>
                                                                             </label>
                                                                         </div>
@@ -421,7 +411,8 @@ function convertToKhmerNumerals($number)
                                                                                     data-bs-dismiss="modal">បោះបង់</button>
                                                                             </div>
                                                                             <div class="col">
-                                                                                <button type="submit" class="btn w-100 btn-primary ms-auto">
+                                                                                <button type="submit"
+                                                                                    class="btn w-100 btn-primary ms-auto">
                                                                                     បញ្ចូន
                                                                                 </button>
                                                                             </div>
@@ -785,29 +776,26 @@ function convertToKhmerNumerals($number)
                                                     </center>
                                                     <p
                                                         style="font-family: khmer mef1; font-size:18px; line-height: 35px; text-align:justify; text-indent: 50px;">
-                                                        ខ្ញុំបាទ / នាងខ្ញុំឈ្មោះ <span
-                                                ><?= $getlate['khmer_name'] ?></span> មានតួនាទីជា
-                                                        <sp><?= $_SESSION['position'] ?></sp> នៃ <span
-                                                ><?= $_SESSION['departmentName'] ?></span>
-                                                        បានមកបំពេញការងារយឺតពេលកំណត់នៅថ្ងៃទី <span
-                                                ><?= translateDateToKhmer($getlate['date'], 'd') ?> ខែ
-                                                            <span
-                                                    ><?= translateDateToKhmer($getlate['date'], 'F') ?>
-                                                                ឆ្នាំ <span
-                                                        ><?= translateDateToKhmer($getlate['date'], 'Y') ?>
-                                                                </span> វេលាម៉ោង <span
-                                                        ><?= convertToKhmerNumerals($getlate['late_out'] . "នាទី") ?></span>
+                                                        ខ្ញុំបាទ / នាងខ្ញុំឈ្មោះ <span><?= $getlate['khmer_name'] ?></span>
+                                                        មានតួនាទីជា
+                                                        <sp><?= $_SESSION['position'] ?></sp> នៃ
+                                                        <span><?= $_SESSION['departmentName'] ?></span>
+                                                        បានមកបំពេញការងារយឺតពេលកំណត់នៅថ្ងៃទី
+                                                        <span><?= translateDateToKhmer($getlate['date'], 'd') ?> ខែ
+                                                            <span><?= translateDateToKhmer($getlate['date'], 'F') ?>
+                                                                ឆ្នាំ <span><?= translateDateToKhmer($getlate['date'], 'Y') ?>
+                                                                </span> វេលាម៉ោង
+                                                                <span><?= convertToKhmerNumerals($getlate['late_out'] . "នាទី") ?></span>
                                                                 ហើយខ្ញុំសូមបញ្ជាក់ពីមូលហេតុដែលខ្ញុំបាទ/នាងខ្ញុំមកបំពេញការងារយឺតយ៉ាវដោយមូលហេតុ
                                                                 <span
                                                                     class="fw-bolder"><?= $getlate['reasons'] ?></span>។ដូចនេះសូមមន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមានខ្ញុំបាទ/នាងខ្ញុំក្នុងបញ្ជីវត្តមានរបស់មន្ត្រីនៃអង្គភាពសវនកម្មផ្ទៃក្នុងនៃ
-                                                                <span class="fw-bolder">អ.ស.ហ.</span>នៅថ្ងៃទី <span
-                                                ><?= translateDateToKhmer($getlate['date'], 'd') ?> ខែ
-                                                            <span
-                                                    ><?= translateDateToKhmer($getlate['date'], 'F') ?>
-                                                                ឆ្នាំ <span
-                                                        ><?= translateDateToKhmer($getlate['date'], 'Y') ?>
-                                                                </span>
-                                                                            គឺតាមមូលហេតុខាងលើនេះ។
+                                                                <span class="fw-bolder">អ.ស.ហ.</span>នៅថ្ងៃទី
+                                                                <span><?= translateDateToKhmer($getlate['date'], 'd') ?> ខែ
+                                                                    <span><?= translateDateToKhmer($getlate['date'], 'F') ?>
+                                                                        ឆ្នាំ
+                                                                        <span><?= translateDateToKhmer($getlate['date'], 'Y') ?>
+                                                                        </span>
+                                                                        គឺតាមមូលហេតុខាងលើនេះ។
                                                     </p>
                                                     <p
                                                         style="font-family: khmer mef1; font-size:18px; text-align:justify; text-indent: 50px;">
@@ -818,59 +806,64 @@ function convertToKhmerNumerals($number)
                                                         សូម <b>មន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមាន</b> ទទួលនូវការរាប់អានពីខ្ញុំ។
                                                     </p>
                                                     <div class="row">
-                                            <!-- Staff Information -->
-                                            <div class="col-6 mb-2 mt-3"
-                                                style="font-family: 'khmer mef1'; font-size: 18px; line-height: 20px; text-align: justify;">
-                                                <div style="text-align: center;">
-                                                    <p>បានឃើញ និងឯកភាពថា</p>
-                                                </div>
-                                                <p style="white-space: nowrap; text-align: center;">
-                                                    ឈ្មោះ <?= $getlate['khmer_name'] ?> តួនាទីជា <?= $_SESSION['position'] ?>
-                                                </p>
-                                                <p style="white-space: nowrap; text-align: center;">
-                                                    នៃ <?= $_SESSION['departmentName'] ?>
-                                                </p>
-                                                <p>បានចេញពីបំពេញការងារវេលាម៉ោង <?= convertToKhmerNumerals($getlate['late_out'] . "នាទី") ?></p>
-                                                <p style="text-align: center;">
-                                                    រាជធានីភ្នំពេញ ថ្ងៃទី
-                                                    <?= translateDateToKhmer($getlate['updated_at'], 'd') ?>
-                                                    ខែ <?= translateDateToKhmer($getlate['updated_at'], 'F') ?>
-                                                    ឆ្នាំ <?= translateDateToKhmer($getlate['updated_at'], 'Y') ?>
-                                                </p>
-                                                <h3 style="text-align: center;">មន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមាន</h3>
-                                                <p style="text-align: center;
-                                                    class="mb-2 <?= ($getlate['approval_status'] ?? '') === 'Approved' ? 'text-success' : 'text-danger' ?>">
-                                                    <?php
-                                                    switch ($getlate['approval_status'] ?? '') {
-                                                        case 'Approved':
-                                                            echo 'បានអនុម័ត'; // Khmer for 'Approved'
-                                                            break;
-                                                        case 'Rejected':
-                                                            echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
-                                                            break;
-                                                        default:
-                                                            echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
-                                                            break;
-                                                    }
-                                                    ?>
-                                                </p>
-                                                <h3 style="text-align: center;"><?= $getlate['approver_name'] ?></h3>
-                                            </div>
+                                                        <!-- Staff Information -->
+                                                        <div class="col-6 mb-2 mt-3"
+                                                            style="font-family: 'khmer mef1'; font-size: 18px; line-height: 20px; text-align: justify;">
+                                                            <div style="text-align: center;">
+                                                                <p>បានឃើញ និងឯកភាពថា</p>
+                                                            </div>
+                                                            <p style="white-space: nowrap; text-align: center;">
+                                                                ឈ្មោះ <?= $getlate['khmer_name'] ?> តួនាទីជា
+                                                                <?= $_SESSION['position'] ?>
+                                                            </p>
+                                                            <p style="white-space: nowrap; text-align: center;">
+                                                                នៃ <?= $_SESSION['departmentName'] ?>
+                                                            </p>
+                                                            <p>បានចេញពីបំពេញការងារវេលាម៉ោង
+                                                                <?= convertToKhmerNumerals($getlate['late_out'] . "នាទី") ?>
+                                                            </p>
+                                                            <p style="text-align: center;">
+                                                                រាជធានីភ្នំពេញ ថ្ងៃទី
+                                                                <?= translateDateToKhmer($getlate['updated_at'], 'd') ?>
+                                                                ខែ <?= translateDateToKhmer($getlate['updated_at'], 'F') ?>
+                                                                ឆ្នាំ <?= translateDateToKhmer($getlate['updated_at'], 'Y') ?>
+                                                            </p>
+                                                            <h3 style="text-align: center;">មន្ត្រីទទួលបន្ទុកគ្រប់គ្រងវត្តមាន
+                                                            </h3>
+                                                            <p style="text-align: center;
+                                                    class=" mb-2 <?= ($getlate['approval_status'] ?? '') === 'Approved' ? 'text-success' : 'text-danger' ?>">
+                                                                <?php
+                                                                switch ($getlate['approval_status'] ?? '') {
+                                                                    case 'Approved':
+                                                                        echo 'បានអនុម័ត'; // Khmer for 'Approved'
+                                                                        break;
+                                                                    case 'Rejected':
+                                                                        echo 'មិនអនុម័ត'; // Khmer for 'Rejected'
+                                                                        break;
+                                                                    default:
+                                                                        echo 'ស្ថានភាពមិនស្គាល់'; // Khmer for 'Unknown Status'
+                                                                        break;
+                                                                }
+                                                                ?>
+                                                            </p>
+                                                            <h3 style="text-align: center;"><?= $getlate['approver_name'] ?>
+                                                            </h3>
+                                                        </div>
 
-                                            <div class="col-6 mb-2"
-                                                style="font-family: khmer mef1; font-size: 18px; line-height: 30px; text-align: justify; text-align: center;">
-                                                <p style="margin-bottom: 0;">
-                                                    រាជធានីភ្នំពេញ ថ្ងៃទី
-                                                    <?= translateDateToKhmer($getlate['created_at'], 'd') ?>
-                                                    ខែ <?= translateDateToKhmer($getlate['created_at'], 'F') ?>
-                                                    ឆ្នាំ <?= translateDateToKhmer($getlate['created_at'], 'Y') ?>
-                                                </p>
-                                                <h3 class="mb-3">អ្នកស្នើសុំ</h3>
-                                                <h3 class="mb-0">
-                                                    <?= htmlspecialchars($getlate['khmer_name'] ?? 'Unknown Name', ENT_QUOTES, 'UTF-8') ?>
-                                                </h3>
-                                            </div>
-                                        </div>
+                                                        <div class="col-6 mb-2"
+                                                            style="font-family: khmer mef1; font-size: 18px; line-height: 30px; text-align: justify; text-align: center;">
+                                                            <p style="margin-bottom: 0;">
+                                                                រាជធានីភ្នំពេញ ថ្ងៃទី
+                                                                <?= translateDateToKhmer($getlate['created_at'], 'd') ?>
+                                                                ខែ <?= translateDateToKhmer($getlate['created_at'], 'F') ?>
+                                                                ឆ្នាំ <?= translateDateToKhmer($getlate['created_at'], 'Y') ?>
+                                                            </p>
+                                                            <h3 class="mb-3">អ្នកស្នើសុំ</h3>
+                                                            <h3 class="mb-0">
+                                                                <?= htmlspecialchars($getlate['khmer_name'] ?? 'Unknown Name', ENT_QUOTES, 'UTF-8') ?>
+                                                            </h3>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

@@ -1,5 +1,15 @@
 <?php
+$pretitle = "លិខិតផ្សេងៗ";
 $title = "ពិនិត្យលិខិតលាឈប់";
+$customButton = '
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/elms/dashboard">ទំព័រដើម</a></li>
+            <li class="breadcrumb-item"><a href="/elms/resign">លិខិតលាឈប់</a></li>
+            <li class="breadcrumb-item active" aria-current="page">' . $title . '</li>
+        </ol>
+    </nav>
+';
 require_once 'src/common/header.php';
 ?>
 

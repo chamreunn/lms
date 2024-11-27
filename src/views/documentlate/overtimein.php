@@ -1,56 +1,34 @@
 <?php
+$pretitle = "ការចេញ ចូលយឺត";
 $title = "សំណើចូលយឺត";
-ob_start();
-?>
-<!-- Page header -->
-<div class="page-header d-print-none">
-    <div class="container-xl">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <!-- Page pre-title -->
-                <div class="page-pretitle">
-                    ការចេញ ចូលយឺត
-                </div>
-                <h2 class="page-title">
-                    <?php echo $title ?? "" ?>
-                </h2>
-            </div>
-            <!-- Page title actions -->
-            <div class="col-auto ms-auto d-print-none">
-                <div class="btn-list">
-                    <div class="d-flex">
-                        <!-- <input type="search" class="form-control d-inline-block w-9 me-3" placeholder="ស្វែងរកនាយកដ្ឋាន…" id="customSearch" /> -->
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#apply-late-in"
-                            class="btn btn-primary d-none d-sm-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <line x1="12" y1="5" x2="12" y2="19" />
-                                <line x1="5" y1="12" x2="19" y2="12" />
-                            </svg>
-                            បន្ថែមថ្មី
-                        </a>
-                        <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal"
-                            data-bs-target="#apply-late-in" aria-expanded="false">
-                            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<?php
-$pageheader = ob_get_clean();
+// Define the button HTML
+$customButton = '
+    <div class="d-flex">
+        <a href="#" data-bs-toggle="modal" data-bs-target="#apply-late-in"
+            class="btn btn-primary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            បន្ថែមថ្មី
+        </a>
+        <a href="#" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal"
+            data-bs-target="#apply-late-in" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </a>
+    </div>
+';
+
 include('src/common/header.php');
 function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 {
@@ -956,82 +934,4 @@ function convertToKhmerNumerals($number)
 
         document.body.removeChild(downloadLink);
     }
-</script>
-
-<style>
-    /* Hide the default pagination controls */
-    #officeTable_paginate {
-        display: none;
-    }
-</style>
-<!-- pagination footer  -->
-<script>
-    $(document).ready(function () {
-        var table = $('#officeTable').DataTable({
-            "paging": true,
-            "searching": false,
-            "info": false,
-            "lengthChange": false,
-            "pageLength": 8,
-            "language": {
-                "paginate": {
-                    "previous": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='icon'><path stroke='none' d='M0 0h24v24H0z' fill='none'></path><path d='M15 6l-6 6l6 6'></path></svg> prev",
-                    "next": "next <svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='icon'><path stroke='none' d='M0 0h24v24H0z' fill='none'></path><path d='M9 6l6 6l-6 6'></path></svg>"
-                }
-            },
-            "drawCallback": function (settings) {
-                var api = this.api();
-                var start = api.page.info().start + 1;
-                var end = api.page.info().end;
-                var total = api.page.info().recordsTotal;
-
-                $('#showing-start').text(start);
-                $('#showing-end').text(end);
-                $('#total-entries').text(total);
-
-                // Create custom pagination
-                var paginationHtml = '';
-                var currentPage = api.page.info().page;
-                var totalPages = api.page.info().pages;
-
-                paginationHtml += '<li class="page-item ' + (currentPage === 0 ? 'disabled' : '') + '">';
-                paginationHtml += '<a class="page-link" href="#" tabindex="-1" aria-disabled="' + (currentPage === 0 ? 'true' : 'false') + '" data-page="prev">';
-                paginationHtml += '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">';
-                paginationHtml += '<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>';
-                paginationHtml += '<path d="M15 6l-6 6l6 6"></path>';
-                paginationHtml += '</svg> </a></li>';
-
-                for (var i = 0; i < totalPages; i++) {
-                    paginationHtml += '<li class="page-item ' + (currentPage === i ? 'active' : '') + '">';
-                    paginationHtml += '<a class="page-link" href="#" data-page="' + i + '">' + (i + 1) + '</a></li>';
-                }
-
-                paginationHtml += '<li class="page-item ' + (currentPage === totalPages - 1 ? 'disabled' : '') + '">';
-                paginationHtml += '<a class="page-link" href="#" data-page="next"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">';
-                paginationHtml += '<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>';
-                paginationHtml += '<path d="M9 6l6 6l-6 6"></path>';
-                paginationHtml += '</svg></a></li>';
-
-                $('#custom-pagination').html(paginationHtml);
-
-                // Add click event to custom pagination links
-                $('#custom-pagination .page-link').on('click', function (e) {
-                    e.preventDefault();
-                    var pageNum = $(this).data('page');
-                    if (pageNum === 'prev') {
-                        table.page('previous').draw('page');
-                    } else if (pageNum === 'next') {
-                        table.page('next').draw('page');
-                    } else {
-                        table.page(parseInt(pageNum)).draw('page');
-                    }
-                });
-            }
-        });
-
-        // Custom search bar functionality
-        $('#customSearch').on('keyup', function () {
-            table.search(this.value).draw();
-        });
-    });
 </script>
