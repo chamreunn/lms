@@ -1581,6 +1581,10 @@ asyncHandler(function () {
             header("HTTP/1.0 404 Not Found");
             require 'src/views/errors/block_page.php';
             break;
+        case $base_url . '/usage':
+            // Redirect to custom blocked page
+            require 'src/views/errors/usage.php';
+            break;
 
         case $base_url . '/404':
             // Redirect to the 404 page for non-existent routes

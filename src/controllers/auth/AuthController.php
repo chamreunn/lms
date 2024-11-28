@@ -112,8 +112,8 @@ class AuthController
                     }
                 } else {
                     $_SESSION['error'] = [
-                        'title' => "Authentication Error",
-                        'message' => "Invalid email or password"
+                        'title' => "បរាជ័យ",
+                        'message' => "អាសយដ្ឋានអ៊ីមែល ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។"
                     ];
                 }
             } else {

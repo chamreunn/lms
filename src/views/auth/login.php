@@ -46,8 +46,9 @@ require_once 'src/common/alert.php'; ?>
                     <div class="card card-md rounded shadow-lg">
                         <div class="card-body">
                             <div class="text-center mb-1">
-                                <a href="." class="navbar-brand navbar-brand-autodark"><img
-                                        src="public/img/icons/brands/logo2.png" height="80" alt=""></a>
+                                <a href="." class="navbar-brand">
+                                    <img src="public/img/icons/brands/logo2.png" height="80" alt="">
+                                </a>
                             </div>
                             <h2 class="h2 text-center mb-3">ចូលប្រើប្រាស់ប្រព័ន្ធ</h2>
                             <form action="/elms/login" method="POST" autocomplete="off" novalidate>
@@ -115,7 +116,11 @@ require_once 'src/common/alert.php'; ?>
             </div>
         </div>
     </div>
+    <div class="page-footer text-center sticky-bottom">
+        <a href="/elms/usage" class="text-light">របៀបប្រើប្រាស់ប្រព័ន្ធ | ជំនាន់ទី 1.0</a>
+    </div>
 </div>
+
 <?php require_once 'src/common/footer.php' ?>
 
 <script>
