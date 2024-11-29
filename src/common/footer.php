@@ -6,7 +6,18 @@
 <?php if (isset($_SESSION['user_id'])): ?>
     <?php if ($_SERVER['REQUEST_URI'] !== '/elms/usage'): ?>
         <footer class="sticky-bottom">
-            <a href="/elms/usage" class="btn btn-primary mb-3 mx-3">របៀបប្រើប្រាស់ប្រព័ន្ធសុំច្បាប់ឌីជីថល | ជំនាន់ ១.០</a>
+            <a href="/elms/usage" class="btn btn-primary mb-3 mx-3"
+                data-bs-toggle="tooltip" data-bs-placement="top"
+                data-bs-title="របៀបប្រើប្រាស់ប្រព័ន្ធសុំច្បាប់ឌីជីថល | ជំនាន់ ១.០">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-info-circle me-0 mx-0">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+                <span class="d-none d-md-inline ms-2">របៀបប្រើប្រាស់ប្រព័ន្ធសុំច្បាប់ឌីជីថល | ជំនាន់ ១.០</span>
+            </a>
         </footer>
     <?php endif; ?>
 <?php endif; ?>
