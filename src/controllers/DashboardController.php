@@ -158,6 +158,7 @@ class DashboardController
                     $missionCount = new MissionModel();
                     $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
                     $userModel = new User();
+                    $depdepart = $userModel->getEmailLeaderDDApi($_SESSION['user_id'], $_SESSION['token']);
                     $currentDate = date('Y-m-d');
                     $todayAttendance = $userModel->todayAttendanceByUseridApi($_SESSION['user_id'], $currentDate, $_SESSION['token'], );
                     require 'src/views/dashboard/departments-h/dashboard.php';

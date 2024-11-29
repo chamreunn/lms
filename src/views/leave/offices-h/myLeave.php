@@ -10,7 +10,34 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+$pretitle = "ទំព័ដើម";
 $title = "ច្បាប់ឈប់សម្រាករបស់ខ្ញុំ";
+
+$customButton = '
+    <div class="d-flex">
+        <a href="#" data-bs-toggle="modal" data-bs-target="#head-office-apply-leave"
+            class="btn btn-primary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            បង្កើតសំណើច្បាប់
+        </a>
+        <a href="#" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal"
+            data-bs-target="#head-office-apply-leave" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </a>
+    </div>
+';
 function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 {
     // Define Khmer translations for days and months
@@ -75,64 +102,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 
     return $translatedDate;
 }
-ob_start();
-?>
-<!-- Page header -->
-<div class="page-header d-print-none">
-    <div class="container-xl">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <!-- Page pre-title -->
-                <div class="page-pretitle mx-1">
-                    ទំព័រដើម
-                </div>
-                <h2 class="page-title">
-                    <?php echo $title ?? "" ?>
-                </h2>
-            </div>
-            <!-- Page title actions -->
-            <div class="col-auto ms-auto d-print-none">
-                <div class="btn-list">
-                    <div class="d-flex">
-                        <a class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal"
-                            data-bs-target="#head-office-apply-leave">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-plus">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5" />
-                                <path d="M16 3v4" />
-                                <path d="M8 3v4" />
-                                <path d="M4 11h16" />
-                                <path d="M16 19h6" />
-                                <path d="M19 16v6" />
-                            </svg>
-                            <span>បង្កើតសំណើច្បាប់</span>
-                        </a>
-                        <a href="#" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal"
-                            data-bs-target="#head-office-apply-leave">
-                            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<?php
-$pageheader = ob_get_clean();
 include('src/common/header.php');
-?>
-<?php
 // Assuming $requests is an array of all leave requests
 $requestsPerPage = 10; // Number of requests to display per page
 $totalRequests = count($requests);
@@ -147,6 +117,7 @@ $startIndex = ($currentPage - 1) * $requestsPerPage;
 $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
 
 ?>
+
 <div class="card rounded-3">
     <div class="card-header mb-3">
         <div class="d-flex align-items-center justify-content-between">
@@ -260,7 +231,7 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                             <img src="public/img/icons/svgs/empty.svg" alt="No Image">
                             <p>មិនទាន់មានសំណើនៅឡើយ។ សូមបង្កើតដោយចុចប៊ូតុងខាងក្រោម ឬស្តាំដៃខាងលើ</p>
                             <a class="btn btn-primary d-none d-sm-inline-block mb-3" data-bs-toggle="modal"
-                                data-bs-target="#apply-leave">
+                                data-bs-target="#head-office-apply-leave">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round"
@@ -275,8 +246,8 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                 </svg>
                                 <span>បង្កើតសំណើច្បាប់</span>
                             </a>
-                            <a href="/elms/apply-leave" class="btn btn-primary d-sm-none btn-icon mb-3"
-                                data-bs-toggle="modal" data-bs-target="#apply-leave">
+                            <a href="#" class="btn btn-primary d-sm-none btn-icon mb-3"
+                                data-bs-toggle="modal" data-bs-target="#head-office-apply-leave">
                                 <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
@@ -497,166 +468,5 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
         </ul>
     </div>
 </div>
+
 <?php include('src/common/footer.php'); ?>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Initialize TomSelect
-        flatpickr("#date", {
-            dateFormat: "Y-m-d",
-            allowInput: true,
-            defaultDate: new Date(),
-            monthSelectorType: "static",
-            nextArrow: '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 6 15 12 9 18" /></svg>',
-            prevArrow: '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="15 6 9 12 15 18" /></svg>',
-            locale: 'km' // Set locale to Khmer
-        });
-
-        // Initialize Flatpickr for time input
-        flatpickr("#time", {
-            enableTime: true,
-            noCalendar: true,
-            dateFormat: "H:i", // Time in HH:MM format
-            time_24hr: false,
-            defaultHour: 12,
-            defaultMinute: 0,
-            locale: 'km' // Set locale to Khmer for time as well
-        });
-
-    });
-</script>
-
-<script>
-    // @formatter:off
-    document.addEventListener("DOMContentLoaded", function () {
-        var el;
-        window.TomSelect && (new TomSelect(el = document.getElementById('select-status'), {
-            copyClassesToDropdown: false,
-            dropdownClass: 'dropdown-menu ts-dropdown',
-            optionClass: 'dropdown-item',
-            controlInput: '<input>',
-            render: {
-                item: function (data, escape) {
-                    if (data.customProperties) {
-                        return '<div><span class="dropdown-item-indicator">' + data.customProperties + '</span>' + escape(data.text) + '</div>';
-                    }
-                    return '<div>' + escape(data.text) + '</div>';
-                },
-                option: function (data, escape) {
-                    if (data.customProperties) {
-                        return '<div><span class="dropdown-item-indicator">' + data.customProperties + '</span>' + escape(data.text) + '</div>';
-                    }
-                    return '<div>' + escape(data.text) + '</div>';
-                },
-            },
-        }));
-    });
-    // @formatter:on
-</script>
-
-<script>
-    function convertToKhmerNumerals(num) {
-        const khmerNumerals = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩'];
-        return num.toString().split('').map(digit => khmerNumerals[digit]).join('');
-    }
-
-    function updateDateTime() {
-        const clockElement = document.getElementById('real-time-clock');
-        const currentTime = new Date();
-
-        // Define Khmer arrays for days of the week and months.
-        const daysOfWeek = ['អាទិត្យ', 'ច័ន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍'];
-        const dayOfWeek = daysOfWeek[currentTime.getDay()];
-
-        const months = ['មករា', 'កុម្ភៈ', 'មិនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
-        const month = months[currentTime.getMonth()];
-
-        const day = convertToKhmerNumerals(currentTime.getDate());
-        const year = convertToKhmerNumerals(currentTime.getFullYear());
-
-        // Calculate and format hours, minutes, seconds, and time of day in Khmer.
-        let hours = currentTime.getHours();
-        let period;
-
-        if (hours >= 5 && hours < 12) {
-            period = 'ព្រឹក'; // Khmer for AM (morning)
-        } else if (hours >= 12 && hours < 17) {
-            period = 'រសៀល'; // Khmer for afternoon
-        } else if (hours >= 17 && hours < 20) {
-            period = 'ល្ងាច'; // Khmer for evening
-        } else {
-            period = 'យប់'; // Khmer for night
-        }
-
-        hours = hours % 12 || 12;
-        const khmerHours = convertToKhmerNumerals(hours);
-        const khmerMinutes = convertToKhmerNumerals(currentTime.getMinutes().toString().padStart(2, '0'));
-        const khmerSeconds = convertToKhmerNumerals(currentTime.getSeconds().toString().padStart(2, '0'));
-
-        // Construct the date and time string in the desired Khmer format.
-        const dateTimeString = `${dayOfWeek}, ${day} ${month} ${year} ${khmerHours}:${khmerMinutes}:${khmerSeconds} ${period}`;
-        clockElement.textContent = dateTimeString;
-    }
-
-    // Update the date and time every second (1000 milliseconds).
-    setInterval(updateDateTime, 1000);
-
-    // Initial update.
-    updateDateTime();
-</script>
-
-<script>
-    // Function to print the contents
-    function printContents(id) {
-        var printContent = document.getElementById('page-contents' + id).innerHTML;
-        var originalContent = document.body.innerHTML;
-
-        document.body.innerHTML = printContent;
-        window.print();
-        document.body.innerHTML = originalContent;
-    }
-
-    // Function to export the table data to a Word document
-    function Export2Word(elementId, filename = '') {
-        var preHtml = `
-        <html xmlns:o='urn:schemas-microsoft-com:office:office'
-              xmlns:w='urn:schemas-microsoft-com:office:word'
-              xmlns='http://www.w3.org/TR/REC-html40'>
-        <head>
-            <meta charset='utf-8'>
-            <title>Export HTML To Doc</title>
-            <style>
-                body { font-family: Arial, sans-serif; }
-            </style>
-        </head>
-        <body>`;
-        var postHtml = `</body></html>`;
-        var html = preHtml + document.getElementById(elementId).innerHTML + postHtml;
-
-        var blob = new Blob(['\ufeff', html], {
-            type: 'application/msword'
-        });
-
-        // Create a download link element
-        var downloadLink = document.createElement("a");
-        document.body.appendChild(downloadLink);
-
-        if (navigator.msSaveOrOpenBlob) {
-            navigator.msSaveOrOpenBlob(blob, filename);
-        } else {
-            // Create a link to the file
-            var url = URL.createObjectURL(blob);
-            downloadLink.href = url;
-
-            // Setting the file name
-            downloadLink.download = filename;
-
-            // Triggering the function
-            downloadLink.click();
-
-            // Clean up the URL object after download
-            URL.revokeObjectURL(url);
-        }
-
-        document.body.removeChild(downloadLink);
-    }
-</script>

@@ -54,28 +54,192 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     return $translatedDate;
 }
 ?>
-<div class="page-header d-print-none mt-0 mb-3">
-    <div class="col-12">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <!-- Page pre-title -->
-                <div class="page-pretitle mb-1">
-
+<!-- scan attendance  -->
+<?php if (!empty($todayAttendance)): ?>
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row g-3 align-items-center mb-3">
+                <div class="col-auto">
+                    <img src="<?= $_SESSION['user_profile'] ?? 'no image' ?>" alt="" style="object-fit: cover;"
+                        class="avatar avatar-lg">
                 </div>
-                <h2 class="page-title">
-                    <?php echo htmlspecialchars($title ?? ""); ?>
-                </h2>
+                <div class="col-auto px-3">
+                    <h2><?= $_SESSION['user_khmer_name'] ?? 'No Name' ?></h2>
+                    <div class="text-muted">
+                        <span class="badge <?= $_SESSION['position_color'] ?>"><?= $_SESSION['position'] ?></span>
+                    </div>
+                </div>
+                <div class="col-auto hour ms-auto">
+                    <h1 class="fw-bolder text-primary font-medium"><?= date('D,d-m-Y') ?>
+                    </h1>
+                </div>
             </div>
-
-            <!-- Page title actions -->
-            <div class="col-auto ms-auto d-print-none">
-                <div class="btn-list">
-                    <h3 class="text-primary mb-0" id="real-time-clock"></h3>
+            <div class="col-12">
+                <div class="row row-cards">
+                    <?php
+                    // Assuming $todayAttendance[0] is the record you're dealing with
+                    $attendance = $todayAttendance[0]; // Access the first attendance record
+                    if ($attendance['leave'] !== '1' && $attendance['mission'] !== '1'):
+                        ?>
+                        <!-- check in  -->
+                        <div class="col-sm-6 col-lg-6">
+                            <div class="card card-sm bg-light">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto">
+                                            <span class="bg-primary-lt text-white avatar">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-login">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path
+                                                        d="M15 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+                                                    <path d="M21 12h-13l3 -3" />
+                                                    <path d="M11 15l-3 -3" />
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <div class="col">
+                                            <div class="fw-bolder font-weight-medium 
+                                                    <?php
+                                                    if (isset($attendance['checkIn']) && $attendance['checkIn'] > '09:00:00') {
+                                                        echo 'text-danger'; // Red for late check-in
+                                                    }
+                                                    ?>">
+                                                <?= $attendance['checkIn'] ?? '--:--:--' ?>
+                                            </div>
+                                            <div class="text-secondary">
+                                                ម៉ោងចូល
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- check out  -->
+                        <div class="col-sm-6 col-lg-6">
+                            <div class="card card-sm bg-light">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto">
+                                            <span class="bg-red-lt text-white avatar">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-logout">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 -2v-2" />
+                                                    <path d="M9 12h12l-3 -3" />
+                                                    <path d="M18 15l3 -3" />
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <div class="col">
+                                            <div class="fw-bolder font-weight-medium 
+                                                    <?php
+                                                    if (isset($attendance['checkOut'])) {
+                                                        if ($attendance['checkOut'] > '17:30:00') {
+                                                            echo 'text-danger'; // Red for late check-out
+                                                        } elseif ($attendance['checkOut'] < '16:00:00') {
+                                                            echo 'text-info'; // Blue for early check-out
+                                                        }
+                                                    }
+                                                    ?>">
+                                                <?= $attendance['checkOut'] ?? '--:--:--' ?>
+                                            </div>
+                                            <div class="text-secondary">
+                                                ម៉ោងចេញ
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php elseif ($attendance['leave'] == '1'): ?>
+                        <div class="col-sm-12 col-lg-12">
+                            <div class="card card-sm bg-light">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col text-center">
+                                            <h1 class="text-danger fw-bolder">
+                                                ច្បាប់ឈប់សម្រាក
+                                            </h1>
+                                            <p class="text-muted mb-0">អ្នកបានដាក់ច្បាប់ឈប់សម្រាកសម្រាប់ថ្ងៃនេះ។</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php elseif ($attendance['mission'] == '1'): ?>
+                        <div class="col-sm-12 col-lg-12">
+                            <div class="card card-sm bg-light">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col text-center">
+                                            <h1 class="text-danger fw-bolder">
+                                                បេសកកម្ម
+                                            </h1>
+                                            <p class="text-muted mb-0">អ្នកមានបេសកកម្មថ្ងៃនេះ។</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
-</div>
+<?php else: ?>
+    <div class="card d-block d-sm-block d-md-block d-lg-block mb-3">
+        <div class="card-body">
+            <div class="col-12 text-center">
+                <div class="empty text-center mb-0">
+                    <div class="d-flex flex-column justify-content-center align-items-center text-center">
+                        <dotlottie-player src="https://lottie.host/9e679f3e-9b16-48a1-9830-33bcda19a9dd/IcjLvDCpRH.lottie"
+                            background="transparent" speed="1" style="width: 100px;" loop autoplay>
+                        </dotlottie-player>
+                        <h3 class="mb-0">សូមចុចប៊ូតុង <strong class="text-danger">ស្កេនវត្តមាន</strong>
+                            ខាងក្រោមដើម្បីកត់ត្រាវត្តមានប្រចាំថ្ងៃ។</h3>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <button class="btn btn-primary" id="scanQrButton">
+                        <span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="icon icon-tabler icons-tabler-outline icon-tabler-scan">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M4 7v-1a2 2 0 0 1 2 -2h2" />
+                                <path d="M4 17v1a2 2 0 0 0 2 2h2" />
+                                <path d="M16 4h2a2 2 0 0 1 2 2v1" />
+                                <path d="M16 20h2a2 2 0 0 0 2 -2v-1" />
+                                <path d="M5 12l14 0" />
+                            </svg>
+                        </span>
+                        ស្កេនវត្តមាន
+                    </button>
+                </div>
+
+                <!-- QR Reader -->
+                <div id="cameraWrapper" class="modal-blur camera-wrapper" style="display: none;">
+                    <div class="camera-container bg-primary-lt">
+                        <div id="reader" style="width: 100%; height: 100%;"></div>
+                        <!-- Stop Scanning Button -->
+                        <button class="btn btn-danger mt-3" id="stopScanButton" style="display: none;">បោះបង់ការស្កេន
+                        </button>
+                    </div>
+                </div>
+
+                <!-- QR Result -->
+                <p id="qrResult" class="text-success fw-bold" style="font-size: 1.2rem;"></p>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
 <!-- alert leave count  -->
 <?php if (!empty($requestscount)): ?>
     <div class="col">
@@ -394,7 +558,8 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 
     <?php if (count($getLateOut) > 0): ?>
         <div class="col-12 col-sm-12 col-md-6 col-lg-12 mb-3">
-            <h3 class="mb-3 text-start text-md-left text-primary">ស្ថានភាពចេញយឺតសម្រាប់ថ្ងៃនេះ<span class="mx-2 text-primary"><?= date('Y-m-d') ?></span></h3>
+            <h3 class="mb-3 text-start text-md-left text-primary">ស្ថានភាពចេញយឺតសម្រាប់ថ្ងៃនេះ<span
+                    class="mx-2 text-primary"><?= date('Y-m-d') ?></span></h3>
             <div class="card">
                 <div class="list-group list-group-flush overflow-auto" style="max-height: 35rem">
                     <?php foreach ($getLateOut as $request): ?>
@@ -419,7 +584,8 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 
     <?php if (count($getLeaveEarly) > 0): ?>
         <div class="col-12 col-sm-12 col-md-6 col-lg-12 mb-3">
-            <h3 class="mb-3 text-start text-md-left text-primary">ស្ថានភាពចេញមុនសម្រាប់ថ្ងៃនេះ<span class="mx-2 text-primary"><?= date('Y-m-d') ?></span></h3>
+            <h3 class="mb-3 text-start text-md-left text-primary">ស្ថានភាពចេញមុនសម្រាប់ថ្ងៃនេះ<span
+                    class="mx-2 text-primary"><?= date('Y-m-d') ?></span></h3>
             <div class="card">
                 <div class="list-group list-group-flush overflow-auto" style="max-height: 35rem">
                     <?php foreach ($getLeaveEarly as $request): ?>
@@ -444,7 +610,8 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 
     <?php if (count($getMissionToday) > 0): ?>
         <div class="col-12 col-sm-12 col-md-6 col-lg-12 mb-3">
-            <h3 class="mb-3 text-start text-md-left text-primary">ស្ថានភាពបេសកកម្មសម្រាប់ថ្ងៃនេះ<span class="mx-2 text-primary"><?= date('Y-m-d') ?></span>
+            <h3 class="mb-3 text-start text-md-left text-primary">ស្ថានភាពបេសកកម្មសម្រាប់ថ្ងៃនេះ<span
+                    class="mx-2 text-primary"><?= date('Y-m-d') ?></span>
             </h3>
             <div class="card">
                 <div class="list-group list-group-flush overflow-auto" style="max-height: 35rem">
