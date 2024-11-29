@@ -514,7 +514,7 @@ include('src/common/head.php');
                                 </div>
                                 <div class="col-lg-6 col-sm-12 d-flex justify-content-center" data-aos="fade-left"
                                     data-aos-delay="600">
-                                    <img src="public/img/elements/latein.png" class="img-fluid mb-3 h-100"
+                                    <img src="public/img/elements/lateIn.png" class="img-fluid mb-3 h-100"
                                         alt="Request Screenshot">
                                 </div>
                             </div>
@@ -529,7 +529,7 @@ include('src/common/head.php');
                             <div class="row g-3">
                                 <div class="col-lg-6 col-sm-12 d-flex justify-content-center" data-aos="fade-left"
                                     data-aos-delay="100">
-                                    <img src="public/img/elements/lateout.png" class="img-fluid mb-3 h-100"
+                                    <img src="public/img/elements/lateOut.png" class="img-fluid mb-3 h-100"
                                         alt="Request Screenshot">
                                 </div>
                                 <div class="col-lg-6 col-sm-12" data-aos="fade-up" data-aos-delay="200">
@@ -736,7 +736,7 @@ include('src/common/head.php');
                                 </div>
                                 <div class="col-lg-6 col-sm-12 d-flex justify-content-center" data-aos="fade-left"
                                     data-aos-delay="600">
-                                    <img src="public/img/elements/leaveearly.png" class="img-fluid mb-3 h-100"
+                                    <img src="public/img/elements/leaveEarly.png" class="img-fluid mb-3 h-100"
                                         alt="Request Screenshot">
                                 </div>
                             </div>
