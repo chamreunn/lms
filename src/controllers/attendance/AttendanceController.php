@@ -163,9 +163,9 @@ class AttendanceController
                 }
 
                 // Ensure the period is valid before proceeding
-                if (!$period) {
-                    throw new Exception("ម៉ោងមិនត្រឹមត្រូវសម្រាប់ការបញ្ចូលវត្តមាន។");
-                }
+                // if (!$period) {
+                //     throw new Exception("ម៉ោងមិនត្រឹមត្រូវសម្រាប់ការបញ្ចូលវត្តមាន។");
+                // }
 
                 // Call API to check for existing attendance records
                 $attendanceModel = new AttendanceModel();
