@@ -8,7 +8,7 @@ include('src/common/head.php');
     /* Modern Gradient Background */
     body {
         background: linear-gradient(135deg, #ece9e6 0%, #ffffff 50%, #e6f2ff 100%);
-        font-family: 'Inter', sans-serif;
+        font-family: 'Khmer-mef1', sans-serif;
         position: relative;
         z-index: 1;
     }
