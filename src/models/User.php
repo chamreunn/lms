@@ -420,63 +420,87 @@ class User
         ];
     }
 
-    public function getUserByIdApi($id, $token)
+    public function getUserByIdApi($id, $token, $maxRetries = 3, $cacheEnabled = false)
     {
         $url = "{$this->api}/api/v1/users/" . $id;
+        $retryCount = 0;
+        $timeout = 10; // Timeout in seconds
 
-        // Initialize cURL session
-        $ch = curl_init($url);
-
-        // Set cURL options
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Authorization: Bearer ' . $token
-        ));
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
-
-        // Execute cURL request
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
-
-        // Close the cURL session
-        curl_close($ch);
-
-        // Check for cURL errors
-        if ($response === false) {
-            error_log("CURL Error: $error");
-            return [
-                'http_code' => 500,
-                'error' => "CURL Error: $error"
-            ];
+        // Optional caching mechanism
+        $cacheKey = "user_$id";
+        if ($cacheEnabled && file_exists($cacheKey)) {
+            $cachedResponse = file_get_contents($cacheKey);
+            $responseData = json_decode($cachedResponse, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return [
+                    'http_code' => 200,
+                    'data' => $responseData
+                ];
+            }
         }
 
-        // Decode the JSON response
-        $responseData = json_decode($response, true);
+        do {
+            // Initialize cURL session
+            $ch = curl_init($url);
 
-        // Handle JSON decoding errors
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log("JSON Decode Error: " . json_last_error_msg());
-            return [
-                'http_code' => $httpCode,
-                'error' => "JSON Decode Error: " . json_last_error_msg()
-            ];
-        }
+            // Set cURL options
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'Authorization: Bearer ' . $token
+            ));
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout); // Connection timeout
+            curl_setopt($ch, CURLOPT_TIMEOUT, $timeout); // Response timeout
 
-        // Check if the response is successful and contains the expected data
-        if ($httpCode === 200 && isset($responseData['data'])) {
-            return [
-                'http_code' => $httpCode,
-                'data' => $responseData['data']
-            ];
-        } else {
-            error_log("Unexpected API Response: " . print_r($responseData, true));
-            return [
-                'http_code' => $httpCode,
-                'error' => "Unexpected API Response",
-                'response' => $responseData
-            ];
-        }
+            // Execute cURL request
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $error = curl_error($ch);
+
+            // Close the cURL session
+            curl_close($ch);
+
+            // Check for cURL errors
+            if ($response === false) {
+                error_log("CURL Error: $error (Retry: $retryCount)");
+            } else {
+                // Decode the JSON response
+                $responseData = json_decode($response, true);
+
+                // Handle JSON decoding errors
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    error_log("JSON Decode Error: " . json_last_error_msg());
+                    return [
+                        'http_code' => $httpCode,
+                        'error' => "JSON Decode Error: " . json_last_error_msg()
+                    ];
+                }
+
+                // Check if the response is successful and contains the expected data
+                if ($httpCode === 200 && isset($responseData['data'])) {
+                    // Cache the response if enabled
+                    if ($cacheEnabled) {
+                        file_put_contents($cacheKey, json_encode($responseData['data']));
+                    }
+                    return [
+                        'http_code' => $httpCode,
+                        'data' => $responseData['data']
+                    ];
+                } else {
+                    error_log("Unexpected API Response (Retry: $retryCount): " . print_r($responseData, true));
+                }
+            }
+
+            $retryCount++;
+            sleep(2); // Wait before retrying
+        } while ($retryCount < $maxRetries);
+
+        // If retries are exhausted, return an error
+        return [
+            'http_code' => $httpCode ?? 500,
+            'error' => "Request failed after $maxRetries retries",
+            'response' => $responseData ?? null
+        ];
     }
 
     public function getRoleApi($id, $token)
@@ -2359,11 +2383,12 @@ class User
         }
     }
 
-    public function sendCheckToTelegram($userId, $date, $check, $status = null)
+    public function sendCheckToTelegram($userId, $date, $check, $statusMessage)
     {
         // Retrieve Telegram ID of the user
         $userModel = new User();
         $telegramUser = $userModel->getTelegramIdByUserId($userId);
+
         if ($telegramUser && !empty($telegramUser['telegram_id'])) {
             // Create the notification message with Markdown styling
             $notifications = [
@@ -2372,21 +2397,11 @@ class User
                 "👤 *អ្នកប្រើប្រាស់:* `{$_SESSION['user_khmer_name']}`",
                 "📅 *កាលបរិច្ឆេទ:* `{$date}`",
                 "🕒 *ម៉ោង:* `{$check}`",
+                "✅ *ស្ថានភាព:* `{$statusMessage}`", // Added status message
             ];
 
-            // Add status with an emoji for emphasis if provided
-            if ($status) {
-                $statusEmojis = [
-                    "ចូលយឺត" => "⚠️",
-                    "ចេញមុន" => "🚪",
-                    "ចេញយឺត" => "🕒",
-                ];
-                $emoji = $statusEmojis[$status] ?? "⚠️";
-                $notifications[] = "{$emoji} *ស្ថានភាព:* `{$status}`";
-            }
-
             // Join the notifications into a single message
-            $telegramMessage = implode("\n\n", $notifications);
+            $telegramMessage = implode("\n", $notifications);
 
             // Send the Telegram notification
             $telegramModel = new TelegramModel($this->pdo);

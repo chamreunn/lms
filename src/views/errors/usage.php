@@ -1,5 +1,5 @@
 <?php
-$title = "Usage";
+$title = "របៀបប្រើប្រាស់ប្រព័ន្ធ";
 include('src/common/head.php');
 ?>
 <!-- Include AOS CSS -->
@@ -57,6 +57,12 @@ include('src/common/head.php');
         font-size: 1.25rem;
         font-weight: bold;
     }
+
+    .nav-link:hover {
+        background-color: #f8f9fa;
+        text-decoration: none;
+        color: #0056b3;
+    }
 </style>
 
 <div class="card">
@@ -67,10 +73,10 @@ include('src/common/head.php');
             class="vh-100 d-flex align-items-center justify-content-center text-center position-relative overflow-hidden"
             data-aos="fade-up">
             <div class="container position-relative z-2">
-                <h2 class="display-4 fw-bold mb-3 text-primary">របៀបប្រើប្រាស់ប្រព័ន្ធសុំច្បាប់ឌីជីថល | ជំនាន់ទី ១.០
+                <h2 class="display-4 mb-3 text-primary">របៀបប្រើប្រាស់ប្រព័ន្ធសុំច្បាប់ឌីជីថល | ជំនាន់ទី ១.០
                 </h2>
-                <p class="lead">
-                    ប្រព័ន្ធស្នើសុំច្បាប់ឌីជីថលបានដាក់អោយប្រើប្រាស់ចាប់តាំងពីថ្ងៃទី ០១ ខែតុលា ឆ្នាំ ២០២៤។
+                <p class="lead fw-bold">
+                    របស់អង្គភាពសវនកម្មផ្ទៃក្នុងនៃអាញ្ញាធរសេវាហិរញ្ញវត្ថុមិនមែនធនាគារ (អ.ស.ហ.)
                 </p>
             </div>
             <!-- Layered Wave Background -->
@@ -85,15 +91,76 @@ include('src/common/head.php');
 
         <!-- Navigation Menu -->
         <section class="py-5 bg-light">
-            <div class="container" data-aos="fade-right">
-                <div class="card">
+            <div class="container">
+                <div class="card border-0 shadow-sm" data-aos="fade-right">
                     <div class="card-body">
-                        <ul class="nav flex-column nav-pills text-primary">
-                            <li class="nav-item"><a href="#step1" class="nav-link">១. ការចូលប្រព័ន្ធ</a></li>
-                            <li class="nav-item"><a href="#step2" class="nav-link">២. ការដាក់សំណើផ្សេងៗ</a></li>
-                            <li class="nav-item"><a href="#step3" class="nav-link">៣. ការផ្លាស់ប្រូរពាក្យសម្ងាត់</a>
+                        <ul class="nav flex-column gap-3">
+                            <li class="nav-item">
+                                <a href="#step1"
+                                    class="nav-link d-flex align-items-center text-primary px-3 py-2 rounded">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        class="icon icon-tabler icon-tabler-login me-3" width="24" height="24"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <path d="M10 12h10"></path>
+                                        <path d="M15 16l5 -4l-5 -4"></path>
+                                        <path d="M4 4v16"></path>
+                                    </svg>
+                                    ១. ការចូលប្រព័ន្ធ
+                                </a>
                             </li>
-                            <li class="nav-item"><a href="#step4" class="nav-link">៤. ការបង្កើត QR Code</a></li>
+                            <li class="nav-item">
+                                <a href="#step2"
+                                    class="nav-link d-flex align-items-center text-primary px-3 py-2 rounded">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        class="icon icon-tabler icon-tabler-file-text me-3" width="24" height="24"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+                                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h4l4 4v12a2 2 0 0 1 -2 2">
+                                        </path>
+                                        <path d="M9 9h1"></path>
+                                        <path d="M9 13h6"></path>
+                                        <path d="M9 17h6"></path>
+                                    </svg>
+                                    ២. ការដាក់សំណើផ្សេងៗ
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#step3"
+                                    class="nav-link d-flex align-items-center text-primary px-3 py-2 rounded">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        class="icon icon-tabler icon-tabler-lock me-3" width="24" height="24"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <rect x="5" y="11" width="14" height="10" rx="2"></rect>
+                                        <circle cx="12" cy="16" r="1"></circle>
+                                        <path d="M8 11v-4a4 4 0 1 1 8 0v4"></path>
+                                    </svg>
+                                    ៣. ការផ្លាស់ប្រូរពាក្យសម្ងាត់
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#step4"
+                                    class="nav-link d-flex align-items-center text-primary px-3 py-2 rounded">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        class="icon icon-tabler icon-tabler-qrcode me-3" width="24" height="24"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <rect x="4" y="4" width="6" height="6" rx="1"></rect>
+                                        <rect x="4" y="14" width="6" height="6" rx="1"></rect>
+                                        <rect x="14" y="4" width="6" height="6" rx="1"></rect>
+                                        <path d="M16 16h2v2h-2z"></path>
+                                        <path d="M20 14v4"></path>
+                                        <path d="M14 20h4"></path>
+                                    </svg>
+                                    ៤. ការបង្កើត QR Code
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -104,7 +171,7 @@ include('src/common/head.php');
         <section id="step1" class="py-5" data-aos="fade-up">
             <div class="container">
                 <div class="row align-items-center">
-                    <div class="col-md-6">
+                    <div class="col-md-6" data-aos="fade-right" data-aos-delay="100">
                         <h1 class="section-title fw-bold text-primary mb-3">១. ការចូលប្រព័ន្ធ</h1>
                         <p style="line-height: 25px; text-indent: 28px;">
                             ការចូលទៅកាន់ <span class="text-primary fw-bold">ប្រព័ន្ធសុំច្បាប់ឌីជីថល</span>
@@ -154,7 +221,7 @@ include('src/common/head.php');
                             <small>ភ្លេចពាក្យសម្ងាត់? <a href="#" class="text-primary">សូមចុចទីនេះ</a>!</small>
                         </p>
                     </div>
-                    <div class="col-md-6 text-center">
+                    <div class="col-md-6 text-center" data-aos-delay="300">
                         <img src="public/img/elements/loginPage.png"
                             class="img-fluid shadow-lg rounded-3 w-75 rounded-shadow" alt="Login Screenshot">
                     </div>
@@ -166,7 +233,7 @@ include('src/common/head.php');
         <section id="step2" class="py-5 bg-light" data-aos="fade-up">
             <div class="container">
                 <h1 class="section-title  fw-bold text-primary mb-3">២. ការដាក់សំណើផ្សេងៗ</h1>
-                <p>បំពេញទម្រង់ស្នើសុំច្បាប់នៅផ្នែក "ស្នើសុំច្បាប់"។</p>
+                <p>ជ្រើសរើសអាយខនក្នុងការដាក់សំណើផ្សេងៗដូចជា៖</p>
             </div>
             <div class="container-fluid text-dark">
                 <!-- leave  -->
@@ -183,21 +250,21 @@ include('src/common/head.php');
                                 </div>
                                 <div class="col-lg-3 col-sm-12" data-aos="fade-up" data-aos-delay="200">
                                     <a href="#latein">
-                                        <img src="public/img/elements/lateIn.png"
+                                        <img src="public/img/elements/lateinRequest.png"
                                             class="img-fluid shadow-sm hover-shadow-lg rounded-3 mb-3 h-100"
                                             alt="Request Screenshot">
                                     </a>
                                 </div>
                                 <div class="col-lg-3 col-sm-12" data-aos="fade-up" data-aos-delay="300">
                                     <a href="#lateout">
-                                        <img src="public/img/elements/lateOut.png"
+                                        <img src="public/img/elements/lateoutRequest.png"
                                             class="img-fluid shadow-sm hover-shadow-lg rounded-3 mb-3 h-100"
                                             alt="Request Screenshot">
                                     </a>
                                 </div>
                                 <div class="col-lg-3 col-sm-12" data-aos="fade-up" data-aos-delay="400">
                                     <a href="#leaveearly">
-                                        <img src="public/img/elements/leaveEarly.png"
+                                        <img src="public/img/elements/leaveearlyRequest.png"
                                             class="img-fluid shadow-sm hover-shadow-lg rounded-3 mb-3 h-100"
                                             alt="Request Screenshot">
                                     </a>
@@ -208,10 +275,10 @@ include('src/common/head.php');
                     <div class="mt-5 p-lg-5 mb-3" id="leave">
                         <div class="card-body">
                             <div class="row g-3">
-                                <div class="col-lg-6 col-sm-12 d-flex justify-content-center" data-aos="fade-right"
+                                <div class="col-lg-6 col-sm-12 d-flex justify-content-center" data-aos="fade-left"
                                     data-aos-delay="100">
-                                    <img src="public/img/elements/leaveRequest.png"
-                                        class="img-fluid shadow-lg w-50 rounded-3 mb-3 h-100" alt="Request Screenshot">
+                                    <img src="public/img/elements/leave.png" class="img-fluid mb-3 me-3 h-100"
+                                        alt="Request Screenshot">
                                 </div>
                                 <div class="col-lg-6 col-sm-12">
                                     <div data-aos="fade-left" data-aos-delay="0" class="aos-init aos-animate">
@@ -353,7 +420,7 @@ include('src/common/head.php');
                                     <div data-aos="fade-up" data-aos-delay="0" class="aos-init aos-animate">
                                         <div class="row g-3 mb-3" data-aos="fade-up" data-aos-delay="200">
                                             <div class="col-auto">
-                                                <div class="bg-primary-lt avatar">
+                                                <div class="bg-green-lt avatar">
                                                     <!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -368,61 +435,15 @@ include('src/common/head.php');
                                                 </div>
                                             </div>
                                             <div class="col">
-                                                <h3>បង្កើតសំណើច្បាប់ឈប់សម្រាក</h3>
+                                                <h3>បង្កើតសំណើចូលយឺត</h3>
                                                 <p class="text-secondary m-0">ចុចលើ <span
-                                                        class="text-primary">សំណើច្បាប់ឈប់សម្រាក</span>
+                                                        class="text-green">សំណើចូលយឺត</span>
                                                     រួចបំពេញតាមទម្រង់ដែលបានបង្ហាញ។</p>
                                             </div>
                                         </div>
-                                        <div class="row g-3 mb-0" data-aos="fade-up" data-aos-delay="300">
+                                        <div class="row g-3 mb-3" data-aos="fade-up" data-aos-delay="300">
                                             <div class="col-auto">
-                                                <div class="bg-primary-lt avatar">
-                                                    <!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-pencil-bolt">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path
-                                                            d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
-                                                        <path d="M13.5 6.5l4 4" />
-                                                        <path d="M19 16l-2 3h4l-2 3" />
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                            <div class="col">
-                                                <h3>ជ្រើសរើសប្រភេទច្បាប់</h3>
-                                                <ul class="d-flex flex-column">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-blue badge-blink mb-3"></div>
-                                                        <p class="mx-2">ច្បាប់ឈប់សម្រាករយៈពេលខ្លី</p>
-                                                    </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-info badge-blink mb-3"></div>
-                                                        <p class="mx-2">ច្បាប់ឈប់សម្រាករយៈពេលវែង</p>
-                                                    </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-indigo badge-blink mb-3"></div>
-                                                        <p class="mx-2">ច្បាប់ឈប់សម្រាកព្យាបាលជម្ងឺ</p>
-                                                    </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-purple badge-blink mb-3"></div>
-                                                        <p class="mx-2">ច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំ</p>
-                                                    </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-danger badge-blink mb-3"></div>
-                                                        <p class="mx-2">ច្បាប់ឈប់សម្រាកដោយមានធុរៈផ្ទាល់ខ្លួន</p>
-                                                    </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-green badge-blink mb-3"></div>
-                                                        <p class="mx-2">ផ្សេងៗ</p>
-                                                    </div>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="row g-3 mb-3" data-aos="fade-up" data-aos-delay="400">
-                                            <div class="col-auto">
-                                                <div class="bg-primary-lt avatar">
+                                                <div class="bg-green-lt avatar">
                                                     <!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -446,15 +467,31 @@ include('src/common/head.php');
                                             </div>
                                             <div class="col">
                                                 <h3>ជ្រើសរើសកាលបរិចេ្ឆទ</h3>
-                                                <p>ដោយជ្រើសរើសកាលបរិច្ឆេទចាប់ផ្តើម និងបញ្ចប់ប្រព័ន្ធនិងធ្វើការគណនា <span
-                                                        class="text-danger">ថ្ងៃឈប់សម្រាក</span>
-                                                    និងដកចេញដោយស្វ័យប្រវត្តិ។
-                                                </p>
+                                                <p>ជ្រើសរើសកាលបរិចេ្ឆទដែលបានចូលយឺត</p>
+                                            </div>
+                                        </div>
+                                        <div class="row g-3 mb-3" data-aos="fade-up" data-aos-delay="400">
+                                            <div class="col-auto">
+                                                <div class="bg-green-lt avatar">
+                                                    <!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-clock">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                                                        <path d="M12 7v5l3 3" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <h3>បញ្ចូលម៉ោងចូលយឺត</h3>
+                                                <p>បញ្ចូលម៉ោងចូលយឺតដែលបានចូលយឺត</p>
                                             </div>
                                         </div>
                                         <div class="row g-3 mb-0" data-aos="fade-up" data-aos-delay="500">
                                             <div class="col-auto">
-                                                <div class="bg-primary-lt avatar">
+                                                <div class="bg-green-lt avatar">
                                                     <!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -469,16 +506,16 @@ include('src/common/head.php');
                                                 </div>
                                             </div>
                                             <div class="col">
-                                                <h3>មូលហេតុនៃការឈប់សម្រាក</h3>
+                                                <h3>បញ្ចូលមូលហេតុ</h3>
                                                 <p>ត្រូវបញ្ចូលនូវហេតុអោយបានត្រឹមត្រូវ។</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-sm-12 d-flex justify-content-center" data-aos="fade-left"
-                                    data-aos-delay="100">
-                                    <img src="public/img/elements/leaveRequest.png"
-                                        class="img-fluid shadow-lg w-50 rounded-3 mb-3 h-100" alt="Request Screenshot">
+                                    data-aos-delay="600">
+                                    <img src="public/img/elements/latein.png" class="img-fluid mb-3 h-100"
+                                        alt="Request Screenshot">
                                 </div>
                             </div>
                         </div>
@@ -490,16 +527,16 @@ include('src/common/head.php');
                     <div class="p-lg-5">
                         <div class="card-body">
                             <div class="row g-3">
-                                <div class="col-lg-6 col-sm-12 d-flex justify-content-center" data-aos="fade-up"
+                                <div class="col-lg-6 col-sm-12 d-flex justify-content-center" data-aos="fade-left"
                                     data-aos-delay="100">
-                                    <img src="public/img/elements/leaveRequest.png"
-                                        class="img-fluid shadow-lg w-50 rounded-3 mb-3 h-100" alt="Request Screenshot">
+                                    <img src="public/img/elements/lateout.png" class="img-fluid mb-3 h-100"
+                                        alt="Request Screenshot">
                                 </div>
-                                <div class="col-lg-6 col-sm-12">
+                                <div class="col-lg-6 col-sm-12" data-aos="fade-up" data-aos-delay="200">
                                     <div data-aos="fade-up" data-aos-delay="0" class="aos-init aos-animate">
-                                        <div class="row g-3 mb-3" data-aos="fade-up" data-aos-delay="200">
+                                        <div class="row g-3 mb-3" data-aos="fade-up" data-aos-delay="300">
                                             <div class="col-auto">
-                                                <div class="bg-primary-lt avatar">
+                                                <div class="bg-orange-lt avatar">
                                                     <!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -514,61 +551,15 @@ include('src/common/head.php');
                                                 </div>
                                             </div>
                                             <div class="col">
-                                                <h3>បង្កើតសំណើច្បាប់ឈប់សម្រាក</h3>
+                                                <h3>បង្កើតសំណើចេញយឺត</h3>
                                                 <p class="text-secondary m-0">ចុចលើ <span
-                                                        class="text-primary">សំណើច្បាប់ឈប់សម្រាក</span>
+                                                        class="text-orange">សំណើចេញយឺត</span>
                                                     រួចបំពេញតាមទម្រង់ដែលបានបង្ហាញ។</p>
-                                            </div>
-                                        </div>
-                                        <div class="row g-3 mb-0" data-aos="fade-up" data-aos-delay="300">
-                                            <div class="col-auto">
-                                                <div class="bg-primary-lt avatar">
-                                                    <!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-pencil-bolt">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path
-                                                            d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
-                                                        <path d="M13.5 6.5l4 4" />
-                                                        <path d="M19 16l-2 3h4l-2 3" />
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                            <div class="col">
-                                                <h3>ជ្រើសរើសប្រភេទច្បាប់</h3>
-                                                <ul class="d-flex flex-column">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-blue badge-blink mb-3"></div>
-                                                        <p class="mx-2">ច្បាប់ឈប់សម្រាករយៈពេលខ្លី</p>
-                                                    </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-info badge-blink mb-3"></div>
-                                                        <p class="mx-2">ច្បាប់ឈប់សម្រាករយៈពេលវែង</p>
-                                                    </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-indigo badge-blink mb-3"></div>
-                                                        <p class="mx-2">ច្បាប់ឈប់សម្រាកព្យាបាលជម្ងឺ</p>
-                                                    </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-purple badge-blink mb-3"></div>
-                                                        <p class="mx-2">ច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំ</p>
-                                                    </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-danger badge-blink mb-3"></div>
-                                                        <p class="mx-2">ច្បាប់ឈប់សម្រាកដោយមានធុរៈផ្ទាល់ខ្លួន</p>
-                                                    </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-green badge-blink mb-3"></div>
-                                                        <p class="mx-2">ផ្សេងៗ</p>
-                                                    </div>
-                                                </ul>
                                             </div>
                                         </div>
                                         <div class="row g-3 mb-3" data-aos="fade-up" data-aos-delay="400">
                                             <div class="col-auto">
-                                                <div class="bg-primary-lt avatar">
+                                                <div class="bg-orange-lt avatar">
                                                     <!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -592,15 +583,31 @@ include('src/common/head.php');
                                             </div>
                                             <div class="col">
                                                 <h3>ជ្រើសរើសកាលបរិចេ្ឆទ</h3>
-                                                <p>ដោយជ្រើសរើសកាលបរិច្ឆេទចាប់ផ្តើម និងបញ្ចប់ប្រព័ន្ធនិងធ្វើការគណនា <span
-                                                        class="text-danger">ថ្ងៃឈប់សម្រាក</span>
-                                                    និងដកចេញដោយស្វ័យប្រវត្តិ។
-                                                </p>
+                                                <p>ជ្រើសរើសកាលបរិចេ្ឆទដែលបានចេញយឺត</p>
                                             </div>
                                         </div>
-                                        <div class="row g-3 mb-0" data-aos="fade-up" data-aos-delay="500">
+                                        <div class="row g-3 mb-3" data-aos="fade-up" data-aos-delay="500">
                                             <div class="col-auto">
-                                                <div class="bg-primary-lt avatar">
+                                                <div class="bg-orange-lt avatar">
+                                                    <!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-clock">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                                                        <path d="M12 7v5l3 3" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <h3>បញ្ចូលម៉ោងចេញយឺត</h3>
+                                                <p>បញ្ចូលម៉ោងចូលយឺតដែលបានចេញយឺត</p>
+                                            </div>
+                                        </div>
+                                        <div class="row g-3 mb-0" data-aos="fade-up" data-aos-delay="600">
+                                            <div class="col-auto">
+                                                <div class="bg-orange-lt avatar">
                                                     <!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -615,7 +622,7 @@ include('src/common/head.php');
                                                 </div>
                                             </div>
                                             <div class="col">
-                                                <h3>មូលហេតុនៃការឈប់សម្រាក</h3>
+                                                <h3>បញ្ចូលមូលហេតុ</h3>
                                                 <p>ត្រូវបញ្ចូលនូវហេតុអោយបានត្រឹមត្រូវ។</p>
                                             </div>
                                         </div>
@@ -631,11 +638,11 @@ include('src/common/head.php');
                     <div class="p-lg-5">
                         <div class="card-body">
                             <div class="row g-3">
-                                <div class="col-lg-6 col-sm-12">
+                                <div class="col-lg-6 col-sm-12" data-aos="fade-right" data-aos-delay="100">
                                     <div data-aos="fade-up" data-aos-delay="0" class="aos-init aos-animate">
                                         <div class="row g-3 mb-3" data-aos="fade-up" data-aos-delay="200">
                                             <div class="col-auto">
-                                                <div class="bg-primary-lt avatar">
+                                                <div class="bg-danger-lt avatar">
                                                     <!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -650,61 +657,15 @@ include('src/common/head.php');
                                                 </div>
                                             </div>
                                             <div class="col">
-                                                <h3>បង្កើតសំណើច្បាប់ឈប់សម្រាក</h3>
+                                                <h3>បង្កើតសំណើចេញមុន</h3>
                                                 <p class="text-secondary m-0">ចុចលើ <span
-                                                        class="text-primary">សំណើច្បាប់ឈប់សម្រាក</span>
+                                                        class="text-danger">សំណើចេញមុន</span>
                                                     រួចបំពេញតាមទម្រង់ដែលបានបង្ហាញ។</p>
                                             </div>
                                         </div>
-                                        <div class="row g-3 mb-0" data-aos="fade-up" data-aos-delay="300">
+                                        <div class="row g-3 mb-3" data-aos="fade-up" data-aos-delay="300">
                                             <div class="col-auto">
-                                                <div class="bg-primary-lt avatar">
-                                                    <!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-pencil-bolt">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path
-                                                            d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
-                                                        <path d="M13.5 6.5l4 4" />
-                                                        <path d="M19 16l-2 3h4l-2 3" />
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                            <div class="col">
-                                                <h3>ជ្រើសរើសប្រភេទច្បាប់</h3>
-                                                <ul class="d-flex flex-column">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-blue badge-blink mb-3"></div>
-                                                        <p class="mx-2">ច្បាប់ឈប់សម្រាករយៈពេលខ្លី</p>
-                                                    </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-info badge-blink mb-3"></div>
-                                                        <p class="mx-2">ច្បាប់ឈប់សម្រាករយៈពេលវែង</p>
-                                                    </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-indigo badge-blink mb-3"></div>
-                                                        <p class="mx-2">ច្បាប់ឈប់សម្រាកព្យាបាលជម្ងឺ</p>
-                                                    </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-purple badge-blink mb-3"></div>
-                                                        <p class="mx-2">ច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំ</p>
-                                                    </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-danger badge-blink mb-3"></div>
-                                                        <p class="mx-2">ច្បាប់ឈប់សម្រាកដោយមានធុរៈផ្ទាល់ខ្លួន</p>
-                                                    </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="badge bg-green badge-blink mb-3"></div>
-                                                        <p class="mx-2">ផ្សេងៗ</p>
-                                                    </div>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="row g-3 mb-3" data-aos="fade-up" data-aos-delay="400">
-                                            <div class="col-auto">
-                                                <div class="bg-primary-lt avatar">
+                                                <div class="bg-danger-lt avatar">
                                                     <!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -728,15 +689,31 @@ include('src/common/head.php');
                                             </div>
                                             <div class="col">
                                                 <h3>ជ្រើសរើសកាលបរិចេ្ឆទ</h3>
-                                                <p>ដោយជ្រើសរើសកាលបរិច្ឆេទចាប់ផ្តើម និងបញ្ចប់ប្រព័ន្ធនិងធ្វើការគណនា <span
-                                                        class="text-danger">ថ្ងៃឈប់សម្រាក</span>
-                                                    និងដកចេញដោយស្វ័យប្រវត្តិ។
-                                                </p>
+                                                <p>ជ្រើសរើសកាលបរិចេ្ឆទដែលបានចេញមុន</p>
+                                            </div>
+                                        </div>
+                                        <div class="row g-3 mb-3" data-aos="fade-up" data-aos-delay="400">
+                                            <div class="col-auto">
+                                                <div class="bg-danger-lt avatar">
+                                                    <!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-clock">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                                                        <path d="M12 7v5l3 3" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <h3>បញ្ចូលម៉ោងចេញមុន</h3>
+                                                <p>បញ្ចូលម៉ោងចេញមុនដែលបានចេញមុន</p>
                                             </div>
                                         </div>
                                         <div class="row g-3 mb-0" data-aos="fade-up" data-aos-delay="500">
                                             <div class="col-auto">
-                                                <div class="bg-primary-lt avatar">
+                                                <div class="bg-danger-lt avatar">
                                                     <!-- Download SVG icon from http://tabler-icons.io/i/currency-dollar -->
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -751,16 +728,16 @@ include('src/common/head.php');
                                                 </div>
                                             </div>
                                             <div class="col">
-                                                <h3>មូលហេតុនៃការឈប់សម្រាក</h3>
+                                                <h3>បញ្ចូលមូលហេតុ</h3>
                                                 <p>ត្រូវបញ្ចូលនូវហេតុអោយបានត្រឹមត្រូវ។</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-6 col-sm-12 d-flex justify-content-center" data-aos="fade-up"
-                                    data-aos-delay="100">
-                                    <img src="public/img/elements/leaveRequest.png"
-                                        class="img-fluid shadow-lg w-50 rounded-3 mb-3 h-100" alt="Request Screenshot">
+                                <div class="col-lg-6 col-sm-12 d-flex justify-content-center" data-aos="fade-left"
+                                    data-aos-delay="600">
+                                    <img src="public/img/elements/leaveearly.png" class="img-fluid mb-3 h-100"
+                                        alt="Request Screenshot">
                                 </div>
                             </div>
                         </div>
@@ -792,8 +769,8 @@ include('src/common/head.php');
                         </div>
                     </div>
                     <div class="col-lg-12 d-flex justify-content-center" data-aos="fade-up" data-aos-delay="100">
-                        <img src="public/img/elements/changePassword.png"
-                            class="img-fluid shadow-lg rounded-3 mb-3 h-100" alt="Request Screenshot">
+                        <img src="public/img/elements/changePassword.png" class="img-fluid rounded-3 mb-3 h-100"
+                            alt="Request Screenshot">
                     </div>
                 </div>
             </div>
@@ -835,17 +812,6 @@ include('src/common/head.php');
                 <!-- Logo and About -->
                 <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
                     <img src="public/img/icons/brands/logo2.png" alt="Logo" class="mb-2" style="max-width: 70px;">
-                    <a href="#" class="btn btn-primary mx-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="icon icon-tabler icons-tabler-outline icon-tabler-download">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
-                            <path d="M7 11l5 5l5 -5" />
-                            <path d="M12 4l0 12" />
-                        </svg>
-                        <span class="mx-2">ទាញយកសេចក្តីណែនាំ</span>
-                    </a>
                 </div>
                 <!-- Quick Links -->
                 <div class="col-md-4 text-center mb-3 mb-md-0">
@@ -869,7 +835,9 @@ include('src/common/head.php');
             </div>
             <div class="row mt-3">
                 <div class="col text-center">
-                    <p class="small mb-0">© 2024 Your Company. All rights reserved.</p>
+                    <p class="small mb-0"
+                        style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">
+                        © 2024 Internal Audit Unit (IAU). All rights reserved.</p>
                 </div>
             </div>
         </div>

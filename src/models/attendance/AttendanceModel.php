@@ -14,27 +14,27 @@ class AttendanceModel
 
     public function recordAttendanceApi($userId, $date, $check, $token)
     {
-        $maxRetries = 3; // Number of retries for the API call
+        $maxRetries = 3; // Maximum number of retry attempts
         $retryDelay = 2; // Delay (in seconds) between retries
 
-        $messages = []; // Collect messages from retries
+        $messages = []; // Log messages for tracking retries and errors
+        $userModel = new User();
+        $url = "{$userModel->api}/api/v1/attendances";
 
-        try {
-            $userModel = new User();
-            $url = "{$userModel->api}/api/v1/attendances";
+        $data = [
+            'uid' => $userId,
+            'date' => $date,
+            'timestamp' => $check,
+        ];
 
-            $data = [
-                'uid' => $userId,
-                'date' => $date,
-                'timestamp' => $check,
-            ];
+        $jsonData = json_encode($data);
 
-            $jsonData = json_encode($data);
+        $attempt = 0;
 
-            $attempt = 0;
+        while ($attempt < $maxRetries) {
+            $attempt++;
 
-            do {
-                $attempt++;
+            try {
                 $ch = curl_init($url);
 
                 // Set cURL options
@@ -46,13 +46,13 @@ class AttendanceModel
                 ]);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
 
-                // Ignore SSL certificate verification (use only for debugging)
+                // Ignore SSL verification (for debugging purposes)
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
                 // Set timeout options
                 curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Connection timeout
-                curl_setopt($ch, CURLOPT_TIMEOUT, 30); // Overall request timeout
+                curl_setopt($ch, CURLOPT_TIMEOUT, 30); // Request timeout
 
                 // Execute cURL
                 $response = curl_exec($ch);
@@ -65,73 +65,215 @@ class AttendanceModel
 
                     $messages[] = "Attempt $attempt: cURL error - $error";
 
-                    // If maximum retries reached, return failure
                     if ($attempt >= $maxRetries) {
+                        // Return failure after reaching max retries
                         return [
                             'success' => false,
-                            'http_code' => $httpCode,
+                            'http_code' => null,
                             'messages' => $messages,
                             'response' => null,
                         ];
                     }
 
-                    // Wait before retrying
+                    // Retry after delay
                     sleep($retryDelay);
                     continue;
                 }
 
-                // Close cURL
+                // Close cURL after execution
                 curl_close($ch);
 
                 // Decode JSON response
                 $decodedResponse = json_decode($response, true);
 
-                // Check HTTP status code for success
+                // Handle HTTP success codes (200-299)
                 if ($httpCode >= 200 && $httpCode < 300) {
-                    $messages[] = "Attempt $attempt: Success - {$decodedResponse['message']}";
+                    $messages[] = "Attempt $attempt: Success - " . ($decodedResponse['message'] ?? 'Request successful.');
                     return [
                         'success' => true,
                         'http_code' => $httpCode,
                         'messages' => $messages,
                         'response' => $decodedResponse,
                     ];
-                } else {
-                    $errorMessage = $decodedResponse['message'] ?? 'An error occurred.';
-                    $messages[] = "Attempt $attempt: API Error - $errorMessage (HTTP Code: $httpCode)";
-
-                    // If maximum retries reached, return failure
-                    if ($attempt >= $maxRetries) {
-                        return [
-                            'success' => false,
-                            'http_code' => $httpCode,
-                            'messages' => $messages,
-                            'response' => $decodedResponse,
-                        ];
-                    }
-
-                    // Wait before retrying
-                    sleep($retryDelay);
                 }
-            } while ($attempt < $maxRetries);
 
-            // If the loop exits without a valid response, return failure
-            $messages[] = "Unknown error occurred after $maxRetries attempts.";
+                // Handle HTTP errors
+                $errorMessage = $decodedResponse['message'] ?? 'API Error occurred.';
+                $messages[] = "Attempt $attempt: API Error - $errorMessage (HTTP Code: $httpCode)";
+
+                if ($attempt >= $maxRetries) {
+                    // Return failure after reaching max retries
+                    return [
+                        'success' => false,
+                        'http_code' => $httpCode,
+                        'messages' => $messages,
+                        'response' => $decodedResponse,
+                    ];
+                }
+
+                // Retry after delay
+                sleep($retryDelay);
+            } catch (\Exception $e) {
+                // Catch and log exceptions
+                $messages[] = "Attempt $attempt: Exception - {$e->getMessage()}";
+
+                if ($attempt >= $maxRetries) {
+                    return [
+                        'success' => false,
+                        'http_code' => null,
+                        'messages' => $messages,
+                        'exception' => $e,
+                        'response' => null,
+                    ];
+                }
+
+                // Retry after delay
+                sleep($retryDelay);
+            }
+        }
+
+        // If no successful response after retries
+        $messages[] = "Failed after $maxRetries attempts.";
+        return [
+            'success' => false,
+            'http_code' => null,
+            'messages' => $messages,
+            'response' => null,
+        ];
+    }
+
+    public function checkAttendanceDuplicateApi($userId, $date, $period, $token)
+    {
+        $maxRetries = 3; // Maximum number of retry attempts
+        $retryDelay = 2; // Delay (in seconds) between retries
+
+        $messages = []; // Log messages for tracking retries and errors
+        $userModel = new User();
+        $url = "{$userModel->api}/api/v1/attendances/user/{$userId}?date={$date}&period={$period}";
+
+        // Determine which type of check to perform based on the period
+        if ($period === 'morning') {
+            $checkType = 'checkIn';
+        } elseif ($period === 'evening') {
+            $checkType = 'checkOut';
+        } else {
+            $messages[] = "Invalid period provided: {$period}. Must be 'morning' or 'evening'.";
             return [
                 'success' => false,
                 'http_code' => null,
                 'messages' => $messages,
-                'response' => null,
-            ];
-        } catch (\Exception $e) {
-            // Catch PHP exceptions
-            $messages[] = "Exception: {$e->getMessage()}";
-            return [
-                'success' => false,
-                'http_code' => null,
-                'messages' => $messages,
-                'exception' => $e,
                 'response' => null,
             ];
         }
+
+        $attempt = 0;
+
+        while ($attempt < $maxRetries) {
+            $attempt++;
+
+            try {
+                $ch = curl_init($url);
+
+                // Set cURL options
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Authorization: Bearer ' . $token,
+                ]);
+
+                // Ignore SSL verification (for debugging purposes)
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+                // Set timeout options
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Connection timeout
+                curl_setopt($ch, CURLOPT_TIMEOUT, 30); // Request timeout
+
+                // Execute cURL
+                $response = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+                // Check for cURL errors
+                if (curl_errno($ch)) {
+                    $error = curl_error($ch);
+                    curl_close($ch);
+
+                    $messages[] = "Attempt $attempt: cURL error - $error";
+
+                    if ($attempt >= $maxRetries) {
+                        // Return failure after reaching max retries
+                        return [
+                            'success' => false,
+                            'http_code' => null,
+                            'messages' => $messages,
+                            'response' => null,
+                        ];
+                    }
+
+                    // Retry after delay
+                    sleep($retryDelay);
+                    continue;
+                }
+
+                // Close cURL after execution
+                curl_close($ch);
+
+                // Decode JSON response
+                $decodedResponse = json_decode($response, true);
+
+                // Handle HTTP success codes (200-299)
+                if ($httpCode >= 200 && $httpCode < 300) {
+                    $messages[] = "Attempt $attempt: Success - " . ($decodedResponse['message'] ?? 'Request successful.');
+                    return [
+                        'success' => true,
+                        'http_code' => $httpCode,
+                        'messages' => $messages,
+                        'response' => $decodedResponse,
+                    ];
+                }
+
+                // Handle HTTP errors
+                $errorMessage = $decodedResponse['message'] ?? 'API Error occurred.';
+                $messages[] = "Attempt $attempt: API Error - $errorMessage (HTTP Code: $httpCode)";
+
+                if ($attempt >= $maxRetries) {
+                    // Return failure after reaching max retries
+                    return [
+                        'success' => false,
+                        'http_code' => $httpCode,
+                        'messages' => $messages,
+                        'response' => $decodedResponse,
+                    ];
+                }
+
+                // Retry after delay
+                sleep($retryDelay);
+            } catch (\Exception $e) {
+                // Catch and log exceptions
+                $messages[] = "Attempt $attempt: Exception - {$e->getMessage()}";
+
+                if ($attempt >= $maxRetries) {
+                    return [
+                        'success' => false,
+                        'http_code' => null,
+                        'messages' => $messages,
+                        'exception' => $e,
+                        'response' => null,
+                    ];
+                }
+
+                // Retry after delay
+                sleep($retryDelay);
+            }
+        }
+
+        // If no successful response after retries
+        $messages[] = "Failed after $maxRetries attempts.";
+        return [
+            'success' => false,
+            'http_code' => null,
+            'messages' => $messages,
+            'response' => null,
+        ];
     }
 }

@@ -15,10 +15,10 @@ date_default_timezone_set('Asia/Phnom_Penh');
         <div class="card animate__animated animate__slideInUpShort">
             <div class="empty">
                 <div class="empty-img">
-                    <img src="<?= $_SESSION['user_profile'] ?>" class="avatar avatar-md" style="object-fit: cover;"
+                    <img src="<?= 'https://hrms.iauoffsa.us/images/' . $users['data']['image']; ?>" class="avatar avatar-md" style="object-fit: cover;"
                         alt="">
                 </div>
-                <p class="empty-title h1"><?= $_SESSION['user_khmer_name'] ?></p>
+                <p class="empty-title h1"><?= $users['data']['lastNameKh'] ." ". $users['data']['firstNameKh']; ?></p>
                 <h1 class="empty-subtitle fw-bolder text-primary"
                     style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">
                     <?= date('Y-m-d | H:i A') ?>
@@ -35,7 +35,8 @@ date_default_timezone_set('Asia/Phnom_Penh');
                         <div hidden>
                             <input type="text" id="latitude" name="latitude" value="">
                             <input type="text" id="longitude" name="longitude" value="">
-                            <input type="text" name="userId" value="<?= $_SESSION['user_id'] ?? 'No User Id Found' ?>">
+                            <input type="text" name="uid" value="<?= $_SESSION['user_id'] ?>">
+                            <input type="text" name="userId" value="<?= $userId ?? 'No User Id Found' ?>">
                             <input type="text" name="date" value="<?= date('Y-m-d') ?>">
                             <input type="text" name="check" value="<?= date('H:i:s') ?>">
                             <input type="text" id="deviceId" name="device_id" value="">
