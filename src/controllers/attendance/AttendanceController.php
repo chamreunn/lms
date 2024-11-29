@@ -147,15 +147,15 @@ class AttendanceController
 
                 // Check for morning or evening period
                 if ($hour >= $morningStart && $hour <= $morningEnd) {
-                    $period = "ពេលព្រឹក";
+                    $period = "morning";
                     if ($hour >= "09:00:00") {
                         $statusMessage = "ចូលយឺត";
                     }
                 } elseif ($hour >= $eveningStart && $hour <= $eveningEnd) {
-                    $period = "ពេលថ្ងៃ";
+                    $period = "evening";
                     $statusMessage = "ចេញមុន";
                 } elseif ($hour >= $lateEveningStart) {
-                    $period = "ពេលល្ងាច";
+                    $period = "evening";
                     $statusMessage = "ចេញយឺត";
                 }
 
@@ -169,7 +169,7 @@ class AttendanceController
                 $checkDuplicateResponse = $attendanceModel->checkAttendanceDuplicateApi($userId, $date, $period, $_SESSION['token']);
 
                 if ($checkDuplicateResponse['success']) {
-                    throw new Exception("អ្នកបានធ្វើវត្តមានរួចហើយសម្រាប់ម៉ោង {$period}។");
+                    throw new Exception("អ្នកបានស្កេនវត្តមានរួចរាល់ហើយមិនអាចស្កេនម្តងទៀតបានទេ។");
                 }
 
                 // Proceed with recording attendance if no duplicate
