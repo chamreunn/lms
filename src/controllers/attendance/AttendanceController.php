@@ -146,14 +146,17 @@ class AttendanceController
                 $statusMessage = 'ទាន់ពេល';
 
                 // Check for morning or evening period
-                if ($hour >= $morningStart && $hour <= $morningEnd) {
+                if ($hour >= $morningStart && $hour < $morningEnd) {
                     $period = "morning";
                     if ($hour >= "09:00:00") {
                         $statusMessage = "ចូលយឺត";
                     }
-                } elseif ($hour >= $eveningStart && $hour <= $eveningEnd) {
+                } elseif ($hour >= $eveningStart && $hour < $eveningEnd) {
                     $period = "evening";
                     $statusMessage = "ចេញមុន";
+                } elseif ($hour === $eveningEnd) {
+                    $period = "evening";
+                    $statusMessage = "ទាន់ពេល"; // On-time at 16:00
                 } elseif ($hour >= $lateEveningStart) {
                     $period = "evening";
                     $statusMessage = "ចេញយឺត";

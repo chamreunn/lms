@@ -22,7 +22,6 @@
     <?php endif; ?>
 <?php endif; ?>
 
-
 <?php require_once 'modals.php'; ?>
 
 <!-- Tabler Core -->
