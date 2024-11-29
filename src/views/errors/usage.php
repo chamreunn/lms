@@ -63,25 +63,42 @@ include('src/common/head.php');
         text-decoration: none;
         color: #0056b3;
     }
+    
 </style>
 
 <div class="card">
+    <header class="sticky-top">
+        <a href="." class="btn btn-primary position-absolute mt-3 mx-3" data-bs-toggle="tooltip"
+            data-bs-placement="right" data-bs-custom-class="custom-tooltip" data-bs-title="ត្រឡប់ទៅកាន់ទំព័រដើម">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-left me-0">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M15 6l-6 6l6 6" />
+            </svg>
+        </a>
+    </header>
     <!-- Page Content -->
     <div class="container-fluid px-0">
         <!-- Hero Section -->
         <section
-            class="vh-100 d-flex align-items-center justify-content-center text-center position-relative overflow-hidden"
+            class="vh-100 d-flex flex-column align-items-center justify-content-center text-center position-relative overflow-hidden"
             data-aos="fade-up">
             <div class="container position-relative z-2">
-                <h2 class="display-4 mb-3 text-primary">របៀបប្រើប្រាស់ប្រព័ន្ធសុំច្បាប់ឌីជីថល | ជំនាន់ទី ១.០
+                <!-- Title -->
+                <h2 class="display-4 mb-3 text-primary text-wrap" style="line-height: 100px;" data-aos="fade-up" data-aos-delay="100">
+                    របៀបប្រើប្រាស់ប្រព័ន្ធសុំច្បាប់ឌីជីថល | ជំនាន់ទី ១.០
                 </h2>
-                <p class="lead fw-bold">
-                    របស់អង្គភាពសវនកម្មផ្ទៃក្នុងនៃអាញ្ញាធរសេវាហិរញ្ញវត្ថុមិនមែនធនាគារ (អ.ស.ហ.)
+
+                <!-- Subtitle -->
+                <p class="text-primary text-muted fs-5 fs-md-3" data-aos="fade-up" data-aos-delay="200">
+                    របស់អង្គភាពសវនកម្មផ្ទៃក្នុងនៃអាជ្ញាធរសេវាហិរញ្ញវត្ថុមិនមែនធនាគារ (អ.ស.ហ.)
                 </p>
             </div>
-            <!-- Layered Wave Background -->
+
+            <!-- Wave Background -->
             <div class="wave-background position-absolute bottom-0 start-0 w-100">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" style="margin-top: -20px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" class="w-100" style="margin-top: -20px;">
                     <path fill="#e6f2ff" fill-opacity="1"
                         d="M0,288L48,282.7C96,277,192,267,288,256C384,245,480,235,576,208C672,181,768,139,864,128C960,117,1056,139,1152,160C1248,181,1344,203,1392,213.3L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z">
                     </path>
