@@ -152,9 +152,11 @@ class AttendanceModel
         $url = "{$userModel->api}/api/v1/attendances/user/{$userId}?date={$date}&period={$period}";
 
         // Determine which type of check to perform based on the period
-        if ($period === 'morning') {
+        if ($period === 'ពេលព្រឹក') {
             $checkType = 'checkIn';
-        } elseif ($period === 'evening') {
+        } elseif ($period === 'ពេលថ្ងៃ') {
+            $checkType = 'checkOut';
+        }elseif ($period === 'ពេលល្ងាច') {
             $checkType = 'checkOut';
         } else {
             $messages[] = "Invalid period provided: {$period}. Must be 'morning' or 'evening'.";
