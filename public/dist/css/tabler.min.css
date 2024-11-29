@@ -116,7 +116,7 @@
     --tblr-black-rgb: 0, 0, 0;
     --tblr-body-color-rgb: 29, 39, 59;
     --tblr-body-bg-rgb: 241, 245, 249;
-    --tblr-font-sans-serif: -apple-system, Khmer-mef1, BlinkMacSystemFont, 'San Francisco', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    --tblr-font-sans-serif: Khmer-mef1, -apple-system,  BlinkMacSystemFont, 'San Francisco', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
     --tblr-font-monospace: Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
     --tblr-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
     --tblr-body-font-family: var(--tblr-font-sans-serif);
@@ -234,7 +234,8 @@ h6 {
 
 p {
     margin-top: 0;
-    margin-bottom: 1rem
+    margin-bottom: 1rem;
+    font-family: 'Khmer-Mef1';
 }
 
 abbr[title] {
@@ -253,7 +254,8 @@ address {
 
 ol,
 ul {
-    padding-left: 2rem
+    padding-left: 2rem;
+    font-family: khmer-mef1;
 }
 
 dl,
@@ -290,7 +292,8 @@ strong {
 
 .small,
 small {
-    font-size: 85.714285%
+    font-size: 85.714285%;
+    font-family: Khmer-mef1;
 }
 
 .mark,
