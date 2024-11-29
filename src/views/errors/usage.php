@@ -2,6 +2,7 @@
 $title = "របៀបប្រើប្រាស់ប្រព័ន្ធ";
 include('src/common/head.php');
 ?>
+
 <!-- Include AOS CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
 <style>
@@ -67,7 +68,7 @@ include('src/common/head.php');
 
 <div class="card">
     <header class="sticky-top">
-        <a href="." class="btn btn-primary position-absolute mt-3 mx-3" data-bs-toggle="tooltip"
+        <a href="javascript:history.back()" class="btn btn-primary position-absolute mt-3 mx-3" data-bs-toggle="tooltip"
             data-bs-placement="right" data-bs-custom-class="custom-tooltip" data-bs-title="ត្រឡប់ទៅកាន់ទំព័រដើម">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"

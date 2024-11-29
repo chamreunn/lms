@@ -4,10 +4,13 @@
 </div>
 
 <?php if (isset($_SESSION['user_id'])): ?>
-    <footer class="sticky-bottom">
-        <a href="/elms/usage" class="btn btn-primary mb-3 mx-3">របៀបប្រើប្រាស់ប្រព័ន្ធសុំច្បាប់ឌីជីថល | ជំនាន់ ១.០</a>
-    </footer>
+    <?php if ($_SERVER['REQUEST_URI'] !== '/elms/usage'): ?>
+        <footer class="sticky-bottom">
+            <a href="/elms/usage" class="btn btn-primary mb-3 mx-3">របៀបប្រើប្រាស់ប្រព័ន្ធសុំច្បាប់ឌីជីថល | ជំនាន់ ១.០</a>
+        </footer>
+    <?php endif; ?>
 <?php endif; ?>
+
 
 <?php require_once 'modals.php'; ?>
 
