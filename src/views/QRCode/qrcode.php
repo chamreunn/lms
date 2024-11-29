@@ -1,5 +1,5 @@
 <?php
-$pretitle="ទំព័រដើម";
+$pretitle = "ទំព័រដើម";
 $title = "QR Code";
 include('src/common/header.php');
 ?>
@@ -28,12 +28,13 @@ include('src/common/header.php');
 
 <?php if (empty($qrCodeFound)): ?>
     <div class="page page-center">
-        <div class="container-tight py-4">
-            <div class="card animate__animated animate__slideInUpShort">
+        <div class="container py-4">
+            <div class="card card-md animate__animated animate__slideInUpShort">
                 <div class="empty">
                     <div class="text-center">
-                        <img src="public/img/icons/svgs/qrcode.svg" class="w-100 mb-3" alt="">
-                        <h3 class="mb-0">មិនទាន់មាន QR Code នៅឡើយ។ សូមបង្កើតដោយចុចប៊ូតុងខាងក្រោម។</h3>
+                        <img src="public/img/icons/svgs/qrcode.svg" class="w-50 mb-3" alt="">
+                        <h3 class="mb-0">សូមចុចប៊ូតុង <span class="text-danger">បង្កើត QR Code</span> ខាងក្រោមដើម្បីទាញយក
+                            <span class="text-primary">QR Code</span> សម្រាប់ស្កេនវត្តមានប្រចាំថ្ងៃរបស់អ្នក។</h3>
                         <form action="/elms/generateQR" method="post" enctype="multipart/form-data">
                             <div class="modal-body">
                                 <div class="row g-3" hidden>
@@ -235,7 +236,9 @@ include('src/common/header.php');
                 <div class="card-body">
                     <div class="empty">
                         <div class="mb-3">
-                            <h1 class="">ស្កេន <span class="text-danger fw-bolder" style="font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">QR Code</span> ទីនេះ</h1>
+                            <h1 class="">ស្កេន <span class="text-danger fw-bolder"
+                                    style="font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">QR
+                                    Code</span> ទីនេះ</h1>
                         </div>
                         <div class="mb-3">
                             <p class="text-muted">សូមប្រើប្រាស់កាមេរ៉ាទូរស័ព្ទដើម្បីស្កេនវត្តមានប្រចាំថ្ងៃ</p>

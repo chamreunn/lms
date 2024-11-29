@@ -27,7 +27,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
         <div class="navbar-nav flex-row order-md-last">
             <div class="d-flex me-3">
                 <!-- qrcode  -->
-                <a href="/elms/qrcode" class="nav-link <?= ($current_page == 'qrcode') ? 'bg-primary-lt' : '' ?> px-0" title="QR Code សម្រាប់ស្កេនវត្តមាន"
+                <a href="/elms/qrcode" class="nav-link <?= ($current_page == 'qrcode') ? 'bg-primary-lt fw-bold' : '' ?> p-2" title="QR Code សម្រាប់ស្កេនវត្តមាន"
                     data-bs-toggle="tooltip" data-bs-placement="bottom">
                     <!-- Download SVG icon from http://tabler-icons.io/i/moon -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -47,6 +47,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                         <path d="M17 17l3 0" />
                         <path d="M20 17l0 3" />
                     </svg>
+                    <span class="mx-1">ស្កេនវត្តមាន</span>
                 </a>
                 <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="Enable dark mode"
                     data-bs-toggle="tooltip" data-bs-placement="bottom">

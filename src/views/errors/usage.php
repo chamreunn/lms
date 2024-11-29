@@ -63,7 +63,6 @@ include('src/common/head.php');
         text-decoration: none;
         color: #0056b3;
     }
-    
 </style>
 
 <div class="card">
@@ -84,9 +83,16 @@ include('src/common/head.php');
         <section
             class="vh-100 d-flex flex-column align-items-center justify-content-center text-center position-relative overflow-hidden"
             data-aos="fade-up">
+            <div class="card-stamp card-stamp-lg me-3">
+                <div class="card-stamp-icon bg-primary">
+                    <!-- Download SVG icon from http://tabler-icons.io/i/ghost -->
+                    <img src="public/img/icons/brands/logo2.png" alt="" data-aos="zoom-in">
+                </div>
+            </div>
             <div class="container position-relative z-2">
                 <!-- Title -->
-                <h2 class="display-4 mb-3 text-primary text-wrap" style="line-height: 100px;" data-aos="fade-up" data-aos-delay="100">
+                <h2 class="display-4 mb-3 text-primary text-wrap" style="line-height: 100px;" data-aos="fade-up"
+                    data-aos-delay="100">
                     របៀបប្រើប្រាស់ប្រព័ន្ធសុំច្បាប់ឌីជីថល | ជំនាន់ទី ១.០
                 </h2>
 
@@ -829,6 +835,21 @@ include('src/common/head.php');
                 <!-- Logo and About -->
                 <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
                     <img src="public/img/icons/brands/logo2.png" alt="Logo" class="mb-2" style="max-width: 70px;">
+                    <a class="mx-3 btn btn-outline-danger" target="_blank"
+                        href="public/uploads/guideline/guideline.pdf">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="icon icon-tabler icons-tabler-outline icon-tabler-file-type-pdf">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                            <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />
+                            <path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" />
+                            <path d="M17 18h2" />
+                            <path d="M20 15h-3v6" />
+                            <path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z" />
+                        </svg>
+                        សេចក្តីណែនាំស្តីពីការប្រើប្រាស់ប្រព័ន្ធ
+                    </a>
                 </div>
                 <!-- Quick Links -->
                 <div class="col-md-4 text-center mb-3 mb-md-0">

@@ -89,10 +89,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                         <span class="badge <?= $_SESSION['position_color'] ?>"><?= $_SESSION['position'] ?></span>
                     </div>
                 </div>
-                <div class="col-auto hour ms-auto">
-                    <h1 class="fw-bolder text-primary font-medium"><?= date('D,d-m-Y') ?>
-                    </h1>
-                </div>
             </div>
             <div class="col-12">
                 <div class="row row-cards">
