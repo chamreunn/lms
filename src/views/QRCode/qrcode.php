@@ -3,6 +3,8 @@ $pretitle = "ទំព័រដើម";
 $title = "QR Code";
 include('src/common/header.php');
 ?>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <!-- <div class="container-xl mb-3">
     <a href="/elms/attendanceCheck" type="button" class="btn btn-primary d-none d-sm-inline-block">
         <span class="mx-2">check in</span>
@@ -34,10 +36,11 @@ include('src/common/header.php');
                     <div class="text-center">
                         <img src="public/img/icons/svgs/qrcode.svg" class="w-50 mb-3" alt="">
                         <h3 class="mb-0">សូមចុចប៊ូតុង <span class="text-danger">បង្កើត QR Code</span> ខាងក្រោមដើម្បីទាញយក
-                            <span class="text-primary">QR Code</span> សម្រាប់ស្កេនវត្តមានប្រចាំថ្ងៃរបស់អ្នក។</h3>
+                            <span class="text-primary">QR Code</span> សម្រាប់ស្កេនវត្តមានប្រចាំថ្ងៃរបស់អ្នក។
+                        </h3>
                         <form action="/elms/generateQR" method="post" enctype="multipart/form-data">
-                            <div class="modal-body">
-                                <div class="row g-3" hidden>
+                            <div class="modal-body" hidden>
+                                <div class="row g-3">
                                     <div class="col-12">
                                         <label class="form-label" for="name">ឈ្មោះ QR Code</label>
                                         <input type="text" class="form-control" id="name" name="name" autocomplete="off"
@@ -233,29 +236,53 @@ include('src/common/header.php');
     <div class="page page-center">
         <div class="container-tight py-3">
             <div class="card animate__animated animate__slideInUpShort p-0">
-                <div class="card-body">
-                    <div class="empty">
-                        <div class="mb-3">
-                            <h1 class="">ស្កេន <span class="text-danger fw-bolder"
-                                    style="font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">QR
-                                    Code</span> ទីនេះ</h1>
+                <div id="poster" class="card">
+                    <div class="card-status-top bg-primary h-10"></div>
+                    <div class="card-body">
+                        <div class="card-stamp">
+                            <div class="card-stamp-icon bg-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-qrcode">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path
+                                        d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+                                    <path d="M7 17l0 .01" />
+                                    <path
+                                        d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+                                    <path d="M7 7l0 .01" />
+                                    <path
+                                        d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+                                    <path d="M17 7l0 .01" />
+                                    <path d="M14 14l3 0" />
+                                    <path d="M20 14l0 .01" />
+                                    <path d="M14 14l0 3" />
+                                    <path d="M14 20l3 0" />
+                                    <path d="M17 17l3 0" />
+                                    <path d="M20 17l0 3" />
+                                </svg>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <p class="text-muted">សូមប្រើប្រាស់កាមេរ៉ាទូរស័ព្ទដើម្បីស្កេនវត្តមានប្រចាំថ្ងៃ</p>
+                        <div class="text-center">
+                            <img src="public/img/icons/brands/logo3.png" width="200" alt="">
                         </div>
-                        <div class="mb-0">
-                            <img src="<?= $qrCodeBase64s; ?>" class="rounded w-75 shadow-sm" alt="...">
+                        <div class="empty">
+                            <div class="mb-3">
+                                <p class="text-primary fw-bolder">សម្រាប់ស្កេនវត្តមានប្រចាំថ្ងៃរបស់អ្នក</p>
+                            </div>
+                            <div class="mb-3 container">
+                                <img src="<?= $qrCodeBase64s; ?>" alt="QR Code" class="rounded shadow-sm mb-3">
+                            </div>
+                            <h3 class="text-primary"><?= $_SESSION['user_khmer_name'] ?></h3>
                         </div>
                     </div>
                 </div>
-                <div class="hr-text mt-0">ឬទាញយក QR Code</div>
-                <div class="card-body">
-                    <div class="w-100 p-3">
+                <div class="card-footer">
+                    <div class="w-100 text-center">
                         <div class="row g-3">
                             <div class="col">
-                                <a href="<?= $qrCodeBase64s ?>" download="QR_<?= $name ?? '' ?>.png"
-                                    class="btn btn-primary mb-0 w-100">
-                                    <span class="mx-2">ទាញយក</span>
+                                <button id="downloadPoster" class="btn btn-outline-primary">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round"
@@ -265,66 +292,8 @@ include('src/common/header.php');
                                         <path d="M7 11l5 5l5 -5" />
                                         <path d="M12 4l0 12" />
                                     </svg>
-                                </a>
-                            </div>
-                            <div class="col" hidden>
-                                <a href="#" data-bs-target="#deleteQr<?= $ids ?>" data-bs-toggle="modal"
-                                    class="btn btn-outline-danger w-100">
-                                    <span class="mx-2">លុប</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M4 7l16 0" />
-                                        <path d="M10 11l0 6" />
-                                        <path d="M14 11l0 6" />
-                                        <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                        <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                    </svg>
-                                </a>
-
-                                <div class="modal modal-blur fade" id="deleteQr<?= $ids ?>" tabindex="-1" role="dialog"
-                                    aria-modal="true">
-                                    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-status bg-danger"></div>
-                                            <form action="/elms/deleteQR" method="POST">
-                                                <div class="modal-body text-center py-4 mb-0">
-                                                    <input type="hidden" name="id" value="<?= $ids ?>">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                        class="icon mb-2 text-danger icon-lg">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                        <path d="M12 9v4"></path>
-                                                        <path
-                                                            d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
-                                                        </path>
-                                                        <path d="M12 16h.01"></path>
-                                                    </svg>
-                                                    <h5 class="modal-title fw-bold text-danger">លុប <?= $title ?></h5>
-                                                    <p class="mb-0">តើអ្នកប្រាកដទេថានិងលុប <strong
-                                                            class="text-danger"><?= $title ?></strong> នេះ?</p>
-                                                </div>
-                                                <div class="modal-footer bg-light border-top">
-                                                    <div class="w-100">
-                                                        <div class="row">
-                                                            <div class="col">
-                                                                <button type="button" class="btn w-100"
-                                                                    data-bs-dismiss="modal">បោះបង់</button>
-                                                            </div>
-                                                            <div class="col">
-                                                                <button type="submit"
-                                                                    class="btn btn-danger ms-auto w-100">យល់ព្រម</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
+                                    <span>ទាញយក</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -333,5 +302,27 @@ include('src/common/header.php');
         </div>
     </div>
 <?php endif; ?>
+
+<script>
+    document.getElementById('downloadPoster').addEventListener('click', async function () {
+        const { jsPDF } = window.jspdf;
+        const posterElement = document.getElementById('poster');
+
+        html2canvas(posterElement, {
+            scale: 3, // Increase the scale for HD quality
+            useCORS: true // Enables cross-origin resource sharing if needed
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a5'
+            });
+
+            pdf.addImage(imgData, 'PNG', 0, 0, 148, 210); // Add image to fit A5
+            pdf.save('QR_Code_Poster_HD.pdf');
+        });
+    });
+</script>
 
 <?php include('src/common/footer.php'); ?>
