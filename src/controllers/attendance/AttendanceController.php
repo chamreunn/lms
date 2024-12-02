@@ -153,16 +153,42 @@ class AttendanceController
                     throw new Exception("ម៉ោងមិនត្រឹមត្រូវសម្រាប់ការបញ្ចូលវត្តមាន។");
                 }
 
-                // Check for duplicate attendance based on checkIn/checkOut
+                // Check for duplicate attendance based on checkIn/checkOut or status
                 $attendanceModel = new AttendanceModel();
                 $attendanceData = $attendanceModel->checkAttendanceByDateApi($userId, $date, $_SESSION['token']);
 
                 if ($attendanceData) {
                     if ($period === "morning" && $attendanceData['checkIn']) {
-                        throw new Exception("អ្នកបានស្កេនចូលនៅពេលព្រឹករួចរាល់ហើយ។");
+                        $_SESSION['error'] = [
+                            'title' => "វត្តមានប្រចាំថ្ងៃ",
+                            'message' => "អ្នកបានស្កេនចូលនៅពេលព្រឹករួចរាល់ហើយ។",
+                        ];
+                        header("Location: /elms/qrcode");
+                        exit();
                     }
                     if ($period === "evening" && $attendanceData['checkOut']) {
-                        throw new Exception("អ្នកបានស្កេនចូលនៅពេលល្ងាចរួចរាល់ហើយ។");
+                        $_SESSION['error'] = [
+                            'title' => "វត្តមានប្រចាំថ្ងៃ",
+                            'message' => "អ្នកបានស្កេនចូលនៅពេលល្ងាចរួចរាល់ហើយ។",
+                        ];
+                        header("Location: /elms/qrcode");
+                        exit();
+                    }
+                    if ($statusMessage === "ចូលយឺត" && $attendanceData['checkIn']) {
+                        $_SESSION['error'] = [
+                            'title' => "វត្តមានប្រចាំថ្ងៃ",
+                            'message' => "អ្នកបានស្កេនចូលយឺតរួចរាល់ហើយ។",
+                        ];
+                        header("Location: /elms/qrcode");
+                        exit();
+                    }
+                    if ($statusMessage === "ចេញយឺត" && $attendanceData['checkOut']) {
+                        $_SESSION['error'] = [
+                            'title' => "វត្តមានប្រចាំថ្ងៃ",
+                            'message' => "អ្នកបានស្កេនចេញយឺតរួចរាល់ហើយ។",
+                        ];
+                        header("Location: /elms/qrcode");
+                        exit();
                     }
                 }
 
@@ -173,7 +199,7 @@ class AttendanceController
                     throw new Exception("មានកំហុសកើតឡើងសូមធ្វើការស្កេនម្តងទៀត។");
                 }
 
-                // Notify via Telegram with the status message (only if no duplicate)
+                // Notify via Telegram only if no duplicate
                 $userModel = new User();
                 $userModel->sendCheckToTelegram($userId, $date, $check, $statusMessage);
 
