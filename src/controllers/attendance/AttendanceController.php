@@ -68,7 +68,9 @@ class AttendanceController
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
-                $userId = $_POST['userId'] ?? '';
+                // Retrieve POST data
+                $userId = $_POST['userId'] ?? '';  // From QR code
+                $uId = $_POST['uid'];
                 $date = $_POST['date'];
                 $check = $_POST['check'];
                 $latitude = $_POST['latitude'];
@@ -78,7 +80,7 @@ class AttendanceController
                 $roleLeave = $_SESSION['role'];
 
                 // Ensure the userId matches the session's user_id
-                if ($userId !== $_SESSION['user_id']) {
+                if ($userId !== $uId) {
                     throw new Exception("អ្នកមិនមានសិទ្ធិស្កេនសម្រាប់អ្នកប្រើប្រាស់ផ្សេងទេ។");
                 }
 
