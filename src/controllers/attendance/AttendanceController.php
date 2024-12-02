@@ -164,18 +164,17 @@ class AttendanceController
                 if (!$period) {
                     throw new Exception("ម៉ោងមិនត្រឹមត្រូវសម្រាប់ការបញ្ចូលវត្តមាន។");
                 }
+
                 // Call API to check for existing attendance records
                 $attendanceModel = new AttendanceModel();
-
-                // Proceed with recording attendance if no duplicate
-                $response = $attendanceModel->recordAttendanceApi($userId, $date, $check, $_SESSION['token']);
-
-
                 $checkDuplicateResponse = $attendanceModel->checkAttendanceDuplicateApi($userId, $date, $period, $_SESSION['token']);
 
                 if ($checkDuplicateResponse['success']) {
                     throw new Exception("អ្នកបានធ្វើវត្តមានរួចហើយសម្រាប់ម៉ោង {$period}។");
                 }
+
+                // Proceed with recording attendance if no duplicate
+                $response = $attendanceModel->recordAttendanceApi($userId, $date, $check, $_SESSION['token']);
 
                 if (!$response['success']) {
                     // Use the message from the API response if available
@@ -184,10 +183,8 @@ class AttendanceController
                 }
 
                 // Notify via Telegram with status message only if no duplicate
-                if (!$checkDuplicateResponse['success']) {
-                    $userModel = new User();
-                    $userModel->sendCheckToTelegram($userId, $date, $check, $statusMessage);
-                }
+                $userModel = new User();
+                $userModel->sendCheckToTelegram($userId, $date, $check, $statusMessage);
 
                 // Redirect based on user role
                 $location = ($roleLeave === 'Admin') ? 'admin-attendances' : 'my-attendances';
