@@ -68,8 +68,9 @@ class AttendanceController
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
-                $userId = $_POST['userId'] ?? ''; // get user id from qr code
-                $uId = $_POST['uid'];  // id from user session id 
+                // Retrieve POST data
+                $userId = $_POST['userId'] ?? '';  // From QR code
+                $uId = $_POST['uid'];             // From session
                 $date = $_POST['date'];
                 $check = $_POST['check'];
                 $latitude = $_POST['latitude'];
@@ -78,64 +79,54 @@ class AttendanceController
                 $ipAddress = $_POST['ip_address'] ?? '';
                 $roleLeave = $_SESSION['role'];
 
-                // Ensure the userId matches the session's user_id
+                // Validate user ID matches session
                 if ($userId !== $uId) {
-                    throw new Exception("សូមប្រើប្រាស់ QR Code ឬគណនីរបស់អ្នកក្នុងការស្កេនវត្តមានប្រចាំថ្ងៃ ។ សូមអរគុណ ។");
+                    throw new Exception("សូមប្រើប្រាស់ QR Code ឬគណនីរបស់អ្នកក្នុងការស្កេនវត្តមានប្រចាំថ្ងៃ។ សូមអរគុណ។");
                 }
 
-                // Retrieve QR code and device details from the database
+                // Retrieve QR code data
                 $qrModel = new QrModel();
                 $qrCodeData = $qrModel->getQRCodeByName($userId);
-
-                // Ensure QR code data exists
                 if (!$qrCodeData) {
                     throw new Exception("ទិន្នន័យ QR Code មិនត្រឹមត្រូវ។");
                 }
 
-                // Validate UUID
+                // Validate device UUID
                 $storedUuid = $qrCodeData['device_id'] ?? null;
                 if ($uuid !== $storedUuid) {
-                    throw new Exception("ឧបករណ៍ស្កេនមិនត្រឹមត្រូវ។ សូមប្រើប្រាស់ឧបករណ៍ដែលបង្កើត QR Code ។");
+                    throw new Exception("ឧបករណ៍ស្កេនមិនត្រឹមត្រូវ។ សូមប្រើឧបករណ៍ដែលបានចុះឈ្មោះ។");
                 }
 
-                // Retrieve IP address status
+                // Validate IP address
                 $ipModel = new AdminModel();
                 $ipData = $ipModel->getIPByAddress($ipAddress);
-
-                // If IP status is "on," validate the IP address
                 if ($ipData && $ipData['status'] === 1) {
                     $storedIp = $qrCodeData['ip_address'] ?? null;
                     $clientIp = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
-
                     if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
                         $clientIp = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
                     }
-
                     if ($ipAddress !== $storedIp || $clientIp !== $storedIp) {
                         throw new Exception("ទីតាំងមិនត្រឹមត្រូវ។ សូមទៅកាន់ការិយាល័យដើម្បីស្កេន។");
                     }
                 }
 
-                // Validate latitude/longitude
+                // Validate geographic coordinates
                 $qrLatitude = $qrCodeData['latitude'] ?? null;
                 $qrLongitude = $qrCodeData['longitude'] ?? null;
-
                 if (!is_numeric($qrLatitude) || !is_numeric($qrLongitude)) {
-                    throw new Exception('QR Code location data is invalid.');
+                    throw new Exception("ទិន្នន័យទីតាំង QR Code មិនត្រឹមត្រូវ។");
                 }
-
                 $distance = $this->calculateDistance($latitude, $longitude, $qrLatitude, $qrLongitude);
                 $maxDistance = 0.1; // 100 meters
-
                 if ($distance > $maxDistance) {
-                    throw new Exception("ទីតាំងរបស់អ្នកនៅឆ្ងាយជាងកន្លែងធ្វើការ {$distance} គីឡូម៉ែត្រ");
+                    throw new Exception("ទីតាំងឆ្ងាយពីកន្លែងធ្វើការជាង {$distance} គីឡូម៉ែត្រ។");
                 }
 
-                // Determine the time period and status message
+                // Determine time period and status
                 $time = new DateTime($check);
                 $hour = $time->format('H:i:s');
 
-                // Define morning and evening periods
                 $morningStart = "07:30:00";
                 $morningEnd = "12:59:59";
                 $eveningStart = "13:00:00";
@@ -145,74 +136,62 @@ class AttendanceController
                 $period = null;
                 $statusMessage = 'ទាន់ពេល';
 
-                // Check for morning or evening period
                 if ($hour >= $morningStart && $hour <= $morningEnd) {
                     $period = "morning";
-
                     if ($hour > "09:00:00") {
                         $statusMessage = "ចូលយឺត"; // Late in
                     }
                 } elseif ($hour >= $eveningStart && $hour < $lateEveningStart) {
                     $period = "evening";
-
                     if ($hour < "16:00:00") {
                         $statusMessage = "ចេញមុន"; // Leave early
                     }
                 } elseif ($hour >= $lateEveningStart) {
                     $period = "evening";
                     $statusMessage = "ចេញយឺត"; // Late out
-                }
-
-                // Ensure the period is valid before proceeding
-                if (!$period) {
+                } else {
                     throw new Exception("ម៉ោងមិនត្រឹមត្រូវសម្រាប់ការបញ្ចូលវត្តមាន។");
                 }
 
-                // Call API to check for existing attendance records
+                // Check for duplicate attendance records
                 $attendanceModel = new AttendanceModel();
                 $checkDuplicateResponse = $attendanceModel->checkAttendanceDuplicateApi($userId, $date, $period, $_SESSION['token']);
 
-                // Check for duplicates and decide Telegram notification
                 if ($checkDuplicateResponse['success']) {
                     $existingCheckTime = new DateTime($checkDuplicateResponse['response']['checkTime']);
                     $existingHour = $existingCheckTime->format('H:i:s');
-
-                    // Avoid sending Telegram notification for duplicate scans
                     if (
                         ($period === "morning" && $existingHour >= $morningStart && $existingHour <= $morningEnd) ||
                         ($period === "evening" && $existingHour >= $eveningStart && $existingHour < $lateEveningStart)
                     ) {
-                        throw new Exception("អ្នកបានស្កេនវត្តមានរួចរាល់ហើយមិនអាចស្កេនម្តងទៀតបានទេ។");
+                        throw new Exception("អ្នកបានស្កេនវត្តមានរួចរាល់ហើយ។");
                     }
                 }
 
-                // Proceed with recording attendance if no duplicate
+                // Record attendance
                 $response = $attendanceModel->recordAttendanceApi($userId, $date, $check, $_SESSION['token']);
-
                 if (!$response['success']) {
-                    // Use the message from the API response if available
                     $apiErrorMessage = $response[0]['response']['message'] ?? "មានកំហុសកើតឡើងសូមធ្វើការស្កេនម្តងទៀត។";
                     throw new Exception($apiErrorMessage);
                 }
 
-                // Notify via Telegram with status message only if no duplicate
+                // Notify via Telegram
                 if (!$checkDuplicateResponse['success']) {
                     $userModel = new User();
                     $userModel->sendCheckToTelegram($userId, $date, $check, $statusMessage);
                 }
 
-                // Redirect based on user role
+                // Redirect to appropriate page
                 $location = ($roleLeave === 'Admin') ? 'admin-attendances' : 'my-attendances';
-
                 $_SESSION['success'] = [
                     'title' => "វត្តមានប្រចាំថ្ងៃ",
                     'message' => $response[0]['response']['message'] ?? "វត្តមានបានកត់ត្រាដោយជោគជ័យ។"
                 ];
-
                 header("Location: /elms/" . $location);
                 exit();
+
             } catch (Exception $e) {
-                // Handle any exceptions
+                // Handle exceptions
                 $_SESSION['error'] = [
                     'title' => "វត្តមានប្រចាំថ្ងៃ",
                     'message' => $e->getMessage(),
