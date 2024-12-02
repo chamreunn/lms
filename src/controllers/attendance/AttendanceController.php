@@ -136,14 +136,14 @@ class AttendanceController
                 // Proceed with recording attendance
                 $response = $attendanceModel->recordAttendanceApi($userId, $date, $check, $_SESSION['token']);
 
-                // Handle API response
-                if (!$response || !isset($response[0]['response']['success'])) {
+                // Check for response validity
+                if (!$response || !isset($response['success'])) {
                     throw new Exception("API response is invalid or unavailable.");
                 }
 
-                if (!$response[0]['response']['success']) {
+                if (!$response['success']) {
                     // Extract and display the API's error message if available
-                    $apiErrorMessage = $response[0]['response']['message'] ?? "មានកំហុសកើតឡើងសូមធ្វើការស្កេនម្តងទៀត។";
+                    $apiErrorMessage = $response['response']['message'] ?? "មានកំហុសកើតឡើងសូមធ្វើការស្កេនម្តងទៀត។";
                     throw new Exception($apiErrorMessage);
                 }
 
@@ -156,7 +156,7 @@ class AttendanceController
 
                 $_SESSION['success'] = [
                     'title' => "វត្តមានប្រចាំថ្ងៃ",
-                    'message' => $response[0]['response']['message'] ?? "វត្តមានបានកត់ត្រាដោយជោគជ័យ។"
+                    'message' => $response['response']['message'] ?? "វត្តមានបានកត់ត្រាដោយជោគជ័យ។"
                 ];
 
                 header("Location: /elms/" . $location);
