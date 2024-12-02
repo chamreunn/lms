@@ -132,48 +132,12 @@ class AttendanceController
                     throw new Exception("ទីតាំងរបស់អ្នកនៅឆ្ងាយជាងកន្លែងធ្វើការ {$distance} គីឡូម៉ែត្រ");
                 }
 
-                // Determine the time period and status message
-                $time = new DateTime($check);
-                $hour = $time->format('H:i:s');
-
-                // Define morning and evening periods
-                $morningStart = "07:30:00";
-                $morningEnd = "12:00:00";
-                $eveningStart = "13:00:00";
-                $eveningEnd = "16:00:00";
-                $lateEveningStart = "17:30:00";
-
-                $period = null;
-                $statusMessage = '';
-
-                // Check for morning or evening period
-                if ($hour >= $morningStart && $hour <= $morningEnd) {
-                    $period = "morning";
-                    if ($hour >= "09:00:00") {
-                        $statusMessage = "ចូលយឺត";
-                    }
-                } elseif ($hour >= $eveningStart && $hour <= $eveningEnd) {
-                    $period = "evening";
-                    $statusMessage = "ចេញមុន";
-                } elseif ($hour >= $lateEveningStart) {
-                    $period = "evening";
-                    $statusMessage = "ចេញយឺត";
-                }
-
-                // Ensure the period is valid before proceeding
-                if (!$period) {
-                    throw new Exception("ម៉ោងមិនត្រឹមត្រូវសម្រាប់ការបញ្ចូលវត្តមាន។");
-                }
-
-                // Call API to check for existing attendance records
                 $attendanceModel = new AttendanceModel();
-                $checkDuplicateResponse = $attendanceModel->checkAttendanceDuplicateApi($userId, $date, $period, $_SESSION['token']);
+                // Check for late-in, late-out, or leave-early
+                $statusMessage = $attendanceModel->determineAttendanceStatus($check);
 
-                if ($checkDuplicateResponse['success']) {
-                    throw new Exception("អ្នកបានធ្វើវត្តមានរួចហើយសម្រាប់ម៉ោង {$period}។");
-                }
 
-                // Proceed with recording attendance if no duplicate
+                // Proceed with recording attendance
                 $response = $attendanceModel->recordAttendanceApi($userId, $date, $check, $_SESSION['token']);
 
                 if (!$response['success']) {
@@ -182,7 +146,7 @@ class AttendanceController
                     throw new Exception($apiErrorMessage);
                 }
 
-                // Notify via Telegram with status message only if no duplicate
+                // Notify via Telegram with attendance status and additional details
                 $userModel = new User();
                 $userModel->sendCheckToTelegram($userId, $date, $check, $statusMessage);
 
