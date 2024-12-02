@@ -143,7 +143,7 @@ class AttendanceController
 
                 if (!$response['success']) {
                     // Extract and display the API's error message if available
-                    $apiErrorMessage = $response['response']['message'] ?? "មានកំហុសកើតឡើងសូមធ្វើការស្កេនម្តងទៀត។";
+                    $apiErrorMessage = $response[0]['response']['message'] ?? "មានកំហុសកើតឡើងសូមធ្វើការស្កេនម្តងទៀត។";
                     throw new Exception($apiErrorMessage);
                 }
 
@@ -156,7 +156,7 @@ class AttendanceController
 
                 $_SESSION['success'] = [
                     'title' => "វត្តមានប្រចាំថ្ងៃ",
-                    'message' => $response['response']['message'] ?? "វត្តមានបានកត់ត្រាដោយជោគជ័យ។"
+                    'message' => $response[0]['response']['message'] ?? "វត្តមានបានកត់ត្រាដោយជោគជ័យ។"
                 ];
 
                 header("Location: /elms/" . $location);
