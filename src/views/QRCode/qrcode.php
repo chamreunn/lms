@@ -236,10 +236,11 @@ include('src/common/header.php');
     <div class="page page-center">
         <div class="container-tight py-3">
             <div class="card animate__animated animate__slideInUpShort p-0">
-                <div id="poster" class="card">
-                    <div class="card-status-top bg-primary h-10"></div>
-                    <div class="card-body">
-                        <div class="card-stamp">
+                <!-- A5 Poster -->
+                <div id="poster" class="card" style="width: 148mm; height: 210mm;">
+                    <div class="card-status-top bg-primary" style="height: 10px;"></div>
+                    <div class="card-body d-flex flex-column align-items-center text-center justify-content-between h-100">
+                        <div class="card-stamp mt-2">
                             <div class="card-stamp-icon bg-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -264,39 +265,39 @@ include('src/common/header.php');
                                 </svg>
                             </div>
                         </div>
-                        <div class="text-center">
-                            <img src="public/img/icons/brands/logo3.png" width="200" alt="">
+                        <!-- Logo Section -->
+                        <div class="mb-2">
+                            <img src="public/img/icons/brands/Login_logo_350.png" alt="Logo" style="max-width: 150px;"
+                                class="img-fluid">
                         </div>
-                        <div class="empty">
-                            <div class="mb-3">
-                                <p class="text-primary fw-bolder">សម្រាប់ស្កេនវត្តមានប្រចាំថ្ងៃរបស់អ្នក</p>
-                            </div>
-                            <div class="mb-3 container">
-                                <img src="<?= $qrCodeBase64s; ?>" alt="QR Code" class="rounded shadow-sm mb-3">
-                            </div>
-                            <h3 class="text-primary"><?= $_SESSION['user_khmer_name'] ?></h3>
+                        <div class="mb-2">
+                            <p class="text-primary fw-bold">សម្រាប់ស្កេនវត្តមានប្រចាំថ្ងៃរបស់អ្នក</p>
+                        </div>
+                        <!-- QR Code Section -->
+                        <div class="mb-0">
+                            <img src="<?= $qrCodeBase64s; ?>" alt="QR Code" class="rounded shadow-sm">
+                        </div>
+
+                        <!-- User Name Section -->
+                        <div>
+                            <h1 class="text-primary mb-3"><?= $_SESSION['user_khmer_name'] ?></h1>
                         </div>
                     </div>
                 </div>
-                <div class="card-footer">
-                    <div class="w-100 text-center">
-                        <div class="row g-3">
-                            <div class="col">
-                                <button id="downloadPoster" class="btn btn-outline-primary">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        class="icon icon-tabler icons-tabler-outline icon-tabler-download">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
-                                        <path d="M7 11l5 5l5 -5" />
-                                        <path d="M12 4l0 12" />
-                                    </svg>
-                                    <span>ទាញយក</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+
+                <!-- Centered Download Button -->
+                <div class="text-center mt-3">
+                    <button id="downloadPoster" class="btn btn-outline-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="icon icon-tabler icons-tabler-outline icon-tabler-download">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
+                            <path d="M7 11l5 5l5 -5" />
+                            <path d="M12 4l0 12" />
+                        </svg>
+                        <span>ទាញយក</span>
+                    </button>
                 </div>
             </div>
         </div>
