@@ -141,37 +141,4 @@ class AttendanceModel
             'response' => null,
         ];
     }
-
-    /**
-     * Determine attendance status based on the check type and time.
-     * 
-     * @param string $check The type of attendance check (e.g., 'in', 'out').
-     * @return string Status message including lateness or early leave details.
-     */
-    public function determineAttendanceStatus($check)
-    {
-        $currentHour = (int) date('H');
-        $currentMinute = (int) date('i');
-        $workStartHour = 9;  // Start of the workday (e.g., 9 AM)
-        $workEndHour = 17;  // End of the workday (e.g., 5 PM)
-
-        switch ($check) {
-            case 'in':
-                if ($currentHour > $workStartHour || ($currentHour == $workStartHour && $currentMinute > 0)) {
-                    return "ចូលយឺត"; // Late Check-In
-                }
-                return "មកទាន់ម៉ោង"; // On Time
-
-            case 'out':
-                if ($currentHour > $workEndHour || ($currentHour == $workEndHour && $currentMinute > 0)) {
-                    return "ចេញយឺត"; // Late Check-Out
-                } elseif ($currentHour < $workEndHour || ($currentHour == $workEndHour && $currentMinute < 0)) {
-                    return "ចេញមុន"; // Leaving Early
-                }
-                return "ចេញត្រឹមម៉ោង"; // On Time Check-Out
-
-            default:
-                return "ស្ថានភាពវត្តមានមិនត្រូវបានកំណត់"; // Unknown Attendance Status
-        }
-    }
 }

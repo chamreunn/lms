@@ -133,10 +133,6 @@ class AttendanceController
                 }
 
                 $attendanceModel = new AttendanceModel();
-                // Check for late-in, late-out, or leave-early
-                $statusMessage = $attendanceModel->determineAttendanceStatus($check);
-
-
                 // Proceed with recording attendance
                 $response = $attendanceModel->recordAttendanceApi($userId, $date, $check, $_SESSION['token']);
 
@@ -148,7 +144,7 @@ class AttendanceController
 
                 // Notify via Telegram with attendance status and additional details
                 $userModel = new User();
-                $userModel->sendCheckToTelegram($userId, $date, $check, $statusMessage);
+                $userModel->sendCheckToTelegram($userId, $date, $check);
 
                 // Redirect based on user role
                 $location = ($roleLeave === 'Admin') ? 'admin-attendances' : 'my-attendances';

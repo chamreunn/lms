@@ -2383,7 +2383,7 @@ class User
         }
     }
 
-    public function sendCheckToTelegram($userId, $date, $check, $statusMessage)
+    public function sendCheckToTelegram($userId, $date, $check)
     {
         $userModel = new User();
         $telegramUser = $userModel->getTelegramIdByUserId($userId);
@@ -2395,7 +2395,6 @@ class User
                 "👤 *អ្នកប្រើប្រាស់:* `{$_SESSION['user_khmer_name']}`",
                 "📅 *កាលបរិច្ឆេទ:* `{$date}`",
                 "🕒 *ម៉ោង:* `{$check}`",
-                "✅ *ស្ថានភាព:* `{$statusMessage}`",
             ];
 
             $telegramMessage = implode("\n", $notifications);
