@@ -137,9 +137,9 @@ class AttendanceController
 
                 // Define morning and evening periods
                 $morningStart = "07:30:00";
-                $morningEnd = "12:00:00";
+                $morningEnd = "12:59:59";
                 $eveningStart = "13:00:00";
-                $eveningEnd = "16:00:00";
+                $eveningEnd = "17:29:59";
                 $lateEveningStart = "17:30:00";
 
                 $period = null;
@@ -148,17 +148,19 @@ class AttendanceController
                 // Check for morning or evening period
                 if ($hour >= $morningStart && $hour <= $morningEnd) {
                     $period = "morning";
+
                     if ($hour > "09:00:00") {
-                        $statusMessage = "ចូលយឺត";
+                        $statusMessage = "ចូលយឺត"; // Late in
                     }
-                } elseif ($hour >= $eveningStart && $hour <= $eveningEnd) {
+                } elseif ($hour >= $eveningStart && $hour < $lateEveningStart) {
                     $period = "evening";
-                    if ($hour < "14:00:00") {
-                        $statusMessage = "ចេញមុន";
+
+                    if ($hour < "16:00:00") {
+                        $statusMessage = "ចេញមុន"; // Leave early
                     }
                 } elseif ($hour >= $lateEveningStart) {
                     $period = "evening";
-                    $statusMessage = "ចេញយឺត";
+                    $statusMessage = "ចេញយឺត"; // Late out
                 }
 
                 // Ensure the period is valid before proceeding
@@ -170,8 +172,18 @@ class AttendanceController
                 $attendanceModel = new AttendanceModel();
                 $checkDuplicateResponse = $attendanceModel->checkAttendanceDuplicateApi($userId, $date, $period, $_SESSION['token']);
 
+                // Check for duplicates and decide Telegram notification
                 if ($checkDuplicateResponse['success']) {
-                    throw new Exception("អ្នកបានស្កេនវត្តមានរួចរាល់ហើយមិនអាចស្កេនម្តងទៀតបានទេ។");
+                    $existingCheckTime = new DateTime($checkDuplicateResponse['response']['checkTime']);
+                    $existingHour = $existingCheckTime->format('H:i:s');
+
+                    // Avoid sending Telegram notification for duplicate scans
+                    if (
+                        ($period === "morning" && $existingHour >= $morningStart && $existingHour <= $morningEnd) ||
+                        ($period === "evening" && $existingHour >= $eveningStart && $existingHour < $lateEveningStart)
+                    ) {
+                        throw new Exception("អ្នកបានស្កេនវត្តមានរួចរាល់ហើយមិនអាចស្កេនម្តងទៀតបានទេ។");
+                    }
                 }
 
                 // Proceed with recording attendance if no duplicate
