@@ -134,7 +134,7 @@ class AttendanceController
                 $lateEveningStart = "17:30:00";
 
                 $period = null;
-                $statusMessage = 'ទាន់ពេល';
+                $statusMessage = "ទាន់ពេល"; // Default status is "on time"
 
                 if ($hour >= $morningStart && $hour <= $morningEnd) {
                     $period = "morning";
@@ -158,28 +158,20 @@ class AttendanceController
                 $checkDuplicateResponse = $attendanceModel->checkAttendanceDuplicateApi($userId, $date, $period, $_SESSION['token']);
 
                 if ($checkDuplicateResponse['success']) {
-                    $existingCheckTime = new DateTime($checkDuplicateResponse['response']['checkTime']);
-                    $existingHour = $existingCheckTime->format('H:i:s');
-                    if (
-                        ($period === "morning" && $existingHour >= $morningStart && $existingHour <= $morningEnd) ||
-                        ($period === "evening" && $existingHour >= $eveningStart && $existingHour < $lateEveningStart)
-                    ) {
-                        throw new Exception("អ្នកបានស្កេនវត្តមានរួចរាល់ហើយ។");
-                    }
+                    $periodText = ($period === "morning") ? "ពេលព្រឹក" : "ពេលល្ងាច";
+                    throw new Exception("អ្នកបានស្កេនចូលនៅ $periodText រួចរាល់ហើយ។");
                 }
 
-                // Record attendance
+                // Record attendance via API
                 $response = $attendanceModel->recordAttendanceApi($userId, $date, $check, $_SESSION['token']);
+
                 if (!$response['success']) {
-                    $apiErrorMessage = $response[0]['response']['message'] ?? "មានកំហុសកើតឡើងសូមធ្វើការស្កេនម្តងទៀត។";
-                    throw new Exception($apiErrorMessage);
+                    throw new Exception("មានកំហុសកើតឡើងសូមធ្វើការស្កេនម្តងទៀត។");
                 }
 
-                // Notify via Telegram
-                if (!$checkDuplicateResponse['success']) {
-                    $userModel = new User();
-                    $userModel->sendCheckToTelegram($userId, $date, $check, $statusMessage);
-                }
+                // Notify via Telegram with the status message (only if no duplicate)
+                $userModel = new User();
+                $userModel->sendCheckToTelegram($userId, $date, $check, $statusMessage);
 
                 // Redirect to appropriate page
                 $location = ($roleLeave === 'Admin') ? 'admin-attendances' : 'my-attendances';
