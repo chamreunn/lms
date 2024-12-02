@@ -136,8 +136,13 @@ class AttendanceController
                 // Proceed with recording attendance
                 $response = $attendanceModel->recordAttendanceApi($userId, $date, $check, $_SESSION['token']);
 
-                if (!$response['success']) {
-                    // Use the message from the API response if available
+                // Handle API response
+                if (!$response || !isset($response[0]['response']['success'])) {
+                    throw new Exception("API response is invalid or unavailable.");
+                }
+
+                if (!$response[0]['response']['success']) {
+                    // Extract and display the API's error message if available
                     $apiErrorMessage = $response[0]['response']['message'] ?? "មានកំហុសកើតឡើងសូមធ្វើការស្កេនម្តងទៀត។";
                     throw new Exception($apiErrorMessage);
                 }
