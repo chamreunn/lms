@@ -142,14 +142,14 @@ class AttendanceModel
         ];
     }
 
-    public function checkAttendanceDuplicateApi($userId, $date, $period, $token)
+    public function checkAttendanceByDateApi($userId, $date, $token)
     {
         $maxRetries = 3; // Maximum retry attempts
         $retryDelay = 2; // Delay between retries (in seconds)
 
         $messages = []; // Track retry logs
         $userModel = new User();
-        $url = "{$userModel->api}/api/v1/attendances/user/{$userId}?date={$date}&period={$period}";
+        $url = "{$userModel->api}/api/v1/attendances/user/{$userId}?date={$date}";
 
         $attempt = 0;
         while ($attempt < $maxRetries) {
@@ -196,7 +196,7 @@ class AttendanceModel
 
                 // Handle successful response
                 if ($httpCode >= 200 && $httpCode < 300) {
-                    $messages[] = "Attempt $attempt: Success - " . ($decodedResponse['message'] ?? 'Duplicate check passed.');
+                    $messages[] = "Attempt $attempt: Success - " . ($decodedResponse['message'] ?? 'Attendance check passed.');
                     return [
                         'success' => true,
                         'messages' => $messages,

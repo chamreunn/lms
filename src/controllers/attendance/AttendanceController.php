@@ -153,13 +153,17 @@ class AttendanceController
                     throw new Exception("ម៉ោងមិនត្រឹមត្រូវសម្រាប់ការបញ្ចូលវត្តមាន។");
                 }
 
-                // Check for duplicate attendance records
+                // Check for duplicate attendance based on checkIn/checkOut
                 $attendanceModel = new AttendanceModel();
-                $checkDuplicateResponse = $attendanceModel->checkAttendanceDuplicateApi($userId, $date, $period, $_SESSION['token']);
+                $attendanceData = $attendanceModel->checkAttendanceByDateApi($userId, $date, $_SESSION['token']);
 
-                if ($checkDuplicateResponse['success']) {
-                    $periodText = ($period === "morning") ? "ពេលព្រឹក" : "ពេលល្ងាច";
-                    throw new Exception("អ្នកបានស្កេនចូលនៅ $periodText រួចរាល់ហើយ។");
+                if ($attendanceData) {
+                    if ($period === "morning" && $attendanceData['checkIn']) {
+                        throw new Exception("អ្នកបានស្កេនចូលនៅពេលព្រឹករួចរាល់ហើយ។");
+                    }
+                    if ($period === "evening" && $attendanceData['checkOut']) {
+                        throw new Exception("អ្នកបានស្កេនចូលនៅពេលល្ងាចរួចរាល់ហើយ។");
+                    }
                 }
 
                 // Record attendance via API
