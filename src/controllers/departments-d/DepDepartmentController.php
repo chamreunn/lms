@@ -417,6 +417,9 @@ class DepDepartmentController
             $backworkModel = new BackworkModel();
             $backworks = $backworkModel->getBackworkByUserId($_SESSION['user_id']);
 
+            $resignsModel = new ResignModel();
+            $resigns = $resignsModel->getResignByuserId($_SESSION['user_id']);
+
             $leavetypeModel = new Leavetype();
             $leavetypes = $leavetypeModel->getAllLeavetypes();
 
@@ -627,20 +630,32 @@ class DepDepartmentController
             $approverId = $_POST['approverId'];
             $action = $_POST['status'];
             $comment = $_POST['comment'];
+            $department = $_SESSION['departmentName'];
 
             try {
                 // Start transaction
                 $this->pdo->beginTransaction();
 
                 // Create a DepOfficeModel instance and submit approval
-                $leaveApproval = new DepOfficeModel();
-                $leaveApproval->updateResignApproval($userId, $resignId, $approverId, $action, $comment);
+                $resignApproval = new DepDepartmentModel();
+                $userModel = new User();
 
-                if ($leaveApproval) {
+                if (in_array($department, ['នាយកដ្ឋានកិច្ចការទូទៅ', 'នាយកដ្ឋានសវនកម្មទី២'])) {
+                    $managers = 'getEmailLeaderDHU1Api';
+                } else {
+                    $managers = 'getEmailLeaderDHU2Api';
+                }
+
+                $resignApproval->updateResignApproval($userId, $resignId, $action, $comment);
+
+                // Recursive manager delegation
+                $resignApproval->delegateResignManager($resignApproval, $userModel, $managers, $resignId, $userId);
+
+                if ($resignApproval) {
                     // Log the error and set error message
                     $_SESSION['success'] = [
                         'title' => "លិខិតលាឈប់",
-                        'message' => "អ្នកបាន " . $action . " លើលិខិតលាឈប់រួចរាល់។"
+                        'message' => "អ្នកបាន " . $action . " លើលិខិតលិខិតលាឈប់រួចរាល់។"
                     ];
                     header("Location: /elms/depdepartmentpending");
                     exit();

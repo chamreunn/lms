@@ -291,7 +291,7 @@ class ResignModel
             MAX(a.uploaded_at) AS latest_uploaded_at
             FROM $this->tblresign h
             LEFT JOIN $this->tblresigned_attachment a ON h.id = a.resign_id
-            WHERE h.approver_id = :user_id 
+            WHERE h.approver_id = :user_id AND h.status = 'pending'
             GROUP BY h.id
             ORDER BY h.id DESC"; // Changed to h.id for consistency
 

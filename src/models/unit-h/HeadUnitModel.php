@@ -14,6 +14,8 @@ class HeadUnitModel
     protected $tbltransferout_approval = "transferout_approval";
     protected $tblbackwork = "backwork";
     protected $tblbackwork_approval = "backwork_approval";
+    protected $tblresigned = "resigned";
+    protected $tblresigned_approval = "resigned_approval";
 
     public function __construct()
     {
@@ -1884,4 +1886,51 @@ class HeadUnitModel
         }
     }
     // end transferout 
+
+    // resign 
+    
+    public function updateTransResignApproval($userId, $resignId, $approverId, $action, $comment)
+    {
+        try {
+            // Start transaction if not already started
+            if (!$this->pdo->inTransaction()) {
+                $this->pdo->beginTransaction();
+            }
+
+            // Update `approver_id` in the `holds` table
+            $stmt = $this->pdo->prepare("UPDATE $this->tblresigned SET approver_id = ?, status = ? WHERE id = ?");
+            $stmt->execute([$approverId, $action, $resignId]);
+
+            // Debugging: Check if the update was successful
+            if ($stmt->rowCount() === 0) {
+                error_log("No rows updated in holds table. Either `hold_id` does not exist or `approver_id` is already set.");
+            } else {
+                error_log("Row successfully updated in holds table.");
+            }
+
+            // Update `status` and `comments` in `holds_approvals` if a record exists
+            $updateApprovalSql = "UPDATE $this->tblresigned_approval SET status = ?, comment = ? WHERE resign_id = ? AND approver_id = ?";
+            $updateApprovalStmt = $this->pdo->prepare($updateApprovalSql);
+            $updateApprovalStmt->execute([$action, $comment, $resignId, $userId]);
+
+            // Debugging log for the update
+            if ($updateApprovalStmt->rowCount() === 0) {
+                error_log("No rows updated in holds_approvals. Either no matching record or `status` and `comments` are already set as requested.");
+            } else {
+                error_log("Row successfully updated in holds_approvals table.");
+            }
+
+            // Commit the transaction if it was started here
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->commit();
+            }
+        } catch (Exception $e) {
+            // Rollback if there's an error
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            error_log("Error: Approval update failed: " . $e->getMessage());
+            throw new Exception("Approval update failed: " . $e->getMessage());
+        }
+    }
 }

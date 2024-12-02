@@ -627,16 +627,28 @@ class HeadOfficeController
             $approverId = $_POST['approverId'];
             $action = $_POST['status'];
             $comment = $_POST['comment'];
+            $department = $_SESSION['departmentName'];
 
             try {
                 // Start transaction
                 $this->pdo->beginTransaction();
 
                 // Create a DepOfficeModel instance and submit approval
-                $leaveApproval = new DepOfficeModel();
-                $leaveApproval->updateResignApproval($userId, $resignId, $approverId, $action, $comment);
+                $resignApproval = new HeadOfficeModel();
+                $userModel = new User();
 
-                if ($leaveApproval) {
+                if (in_array($department, ['នាយកដ្ឋានកិច្ចការទូទៅ', 'នាយកដ្ឋានសវនកម្មទី២'])) {
+                    $managers = 'getEmailLeaderDHU1Api';
+                } else {
+                    $managers = 'getEmailLeaderDHU2Api';
+                }
+                
+                $resignApproval->updateResignApproval($userId, $resignId, $action, $comment);
+
+                // Recursive manager delegation
+                $resignApproval->delegateResignManager($resignApproval, $userModel, $managers, $resignId, $userId);
+
+                if ($resignApproval) {
                     // Log the error and set error message
                     $_SESSION['success'] = [
                         'title' => "លិខិតលាឈប់",

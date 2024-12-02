@@ -394,6 +394,12 @@ asyncHandler(function () {
                 $controller->actionback();
             });
             break;
+        case $base_url . '/hoactionresign':
+            checkSessionAndExecute(function () {
+                $controller = new HeadOfficeController();
+                $controller->actionResign();
+            });
+            break;
         case $base_url . '/ddactionhold':
             checkSessionAndExecute(function () {
                 $controller = new DepDepartmentController();
@@ -410,6 +416,12 @@ asyncHandler(function () {
             checkSessionAndExecute(function () {
                 $controller = new DepDepartmentController();
                 $controller->actionback();
+            });
+            break;
+        case $base_url . '/ddactionresign':
+            checkSessionAndExecute(function () {
+                $controller = new DepDepartmentController();
+                $controller->actionresign();
             });
             break;
         case $base_url . '/hdactionhold':
@@ -430,6 +442,12 @@ asyncHandler(function () {
                 $controller->actionback();
             });
             break;
+        case $base_url . '/hdactionresign':
+            checkSessionAndExecute(function () {
+                $controller = new HeadDepartmentController();
+                $controller->actionresign();
+            });
+            break;
         case $base_url . '/du1actionhold':
             checkSessionAndExecute(function () {
                 $controller = new DepUnit1Controller();
@@ -446,6 +464,12 @@ asyncHandler(function () {
             checkSessionAndExecute(function () {
                 $controller = new DepUnit1Controller();
                 $controller->actionback();
+            });
+            break;
+        case $base_url . '/du1actionresign':
+            checkSessionAndExecute(function () {
+                $controller = new DepUnit1Controller();
+                $controller->actionresign();
             });
             break;
         case $base_url . '/du2actionhold':
@@ -473,6 +497,12 @@ asyncHandler(function () {
                 $controller->actionback();
             });
             break;
+        case $base_url . '/huactionresign':
+            checkSessionAndExecute(function () {
+                $controller = new HeadUnitController();
+                $controller->actionresign();
+            });
+            break;
         case $base_url . '/actionresign':
             checkSessionAndExecute(function () {
                 $controller = new DepOfficeController();
@@ -482,12 +512,6 @@ asyncHandler(function () {
         case $base_url . '/hoactionresign':
             checkSessionAndExecute(function () {
                 $controller = new HeadOfficeController();
-                $controller->actionResign();
-            });
-            break;
-        case $base_url . '/ddactionresign':
-            checkSessionAndExecute(function () {
-                $controller = new DepDepartmentController();
                 $controller->actionResign();
             });
             break;

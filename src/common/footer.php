@@ -4,7 +4,7 @@
 </div>
 
 <?php if (isset($_SESSION['user_id'])): ?>
-    <?php if ($_SERVER['REQUEST_URI'] !== '/elms/usage'): ?>
+    <?php if ($_SERVER['REQUEST_URI'] == '/elms/dashboard'): ?>
         <footer class="sticky-bottom">
             <a href="/elms/usage" class="btn btn-primary mb-3 mx-3"
                 data-bs-toggle="tooltip" data-bs-placement="top"

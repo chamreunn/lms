@@ -112,7 +112,7 @@ class ResignController
             try {
 
                 $userModel = new User();
-                $resignRequestModel = new ResignModel($this->pdo);
+                $resignRequestModel = new ResignModel();
                 $resign_id = $resignRequestModel->createResignRequest($data);
 
                 // Process attachments
@@ -184,7 +184,7 @@ class ResignController
 
     public function view($id)
     {
-        $resignModel = new ResignModel($this->pdo);
+        $resignModel = new ResignModel();
         $getResignById = $resignModel->getResignById($id);
         require 'src/views/resign/view&edit.php';
     }

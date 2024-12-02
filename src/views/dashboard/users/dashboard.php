@@ -181,7 +181,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                             <h1 class="text-danger fw-bolder">
                                                 ច្បាប់ឈប់សម្រាក
                                             </h1>
-                                            <p class="text-muted mb-0">អ្នកបានដាក់ច្បាប់ឈប់សម្រាកសម្រាប់ថ្ងៃនេះ។</p>
+                                            <p class="text-muted mb-0">អ្នកបានដាក់ច្បាប់ឈប់សម្រាកសម្រាប់ថ្ងៃនេះរបស់លោកអ្នក។</p>
                                         </div>
                                     </div>
                                 </div>
@@ -216,7 +216,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                         <dotlottie-player src="https://lottie.host/9e679f3e-9b16-48a1-9830-33bcda19a9dd/IcjLvDCpRH.lottie"
                             background="transparent" speed="1" style="width: 100px;" loop autoplay>
                         </dotlottie-player>
-                        <h3 class="mb-0">សូមចុចប៊ូតុង <strong class="text-danger">ស្កេនវត្តមាន</strong> ខាងក្រោមដើម្បីកត់ត្រាវត្តមានប្រចាំថ្ងៃ។</h3>
+                        <h3 class="mb-0">សូមចុចប៊ូតុង <span class="text-danger">ស្កេនវត្តមាន</span> ខាងក្រោមដើម្បីកត់ត្រាវត្តមានប្រចាំថ្ងៃរបស់លោកអ្នក</h3>
                     </div>
                 </div>
 

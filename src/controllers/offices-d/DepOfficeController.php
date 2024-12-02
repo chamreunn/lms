@@ -395,7 +395,7 @@ class DepOfficeController
 
             // Initialize the HoldModel to retrieve any holds for the current user
             $holdsModel = new HoldModel();
-            $hold = $holdsModel->getHoldByuserId($_SESSION['user_id']);
+            $holds = $holdsModel->getHoldByuserId($_SESSION['user_id']);
 
             // Initialize the TransferoutModel to retrieve transfer-out details for the current user
             $transferoutModel = new TransferoutModel();
@@ -403,7 +403,7 @@ class DepOfficeController
 
             // Initialize the HoldModel to retrieve any holds for the current user
             $resignsModel = new ResignModel();
-            $resign = $resignsModel->getResignByuserId($_SESSION['user_id']);
+            $resigns = $resignsModel->getResignByuserId($_SESSION['user_id']);
 
             // Initialize the backWork to retrieve transfer-out details for the current user
             $backworkModel = new BackworkModel();
@@ -542,16 +542,28 @@ class DepOfficeController
             $approverId = $_POST['approverId'];
             $action = $_POST['status'];
             $comment = $_POST['comment'];
+            $department = $_SESSION['departmentName'];
 
             try {
                 // Start transaction
                 $this->pdo->beginTransaction();
 
                 // Create a DepOfficeModel instance and submit approval
-                $leaveApproval = new DepOfficeModel();
-                $leaveApproval->updateResignApproval($userId, $resignId, $approverId, $action, $comment);
+                $resignApproval = new DepOfficeModel();
+                $userModel = new User();
 
-                if ($leaveApproval) {
+                if (in_array($department, ['នាយកដ្ឋានកិច្ចការទូទៅ', 'នាយកដ្ឋានសវនកម្មទី២'])) {
+                    $managers = 'getEmailLeaderDHU1Api';
+                } else {
+                    $managers = 'getEmailLeaderDHU2Api';
+                }
+
+                $resignApproval->updateResignApproval($userId, $resignId, $action, $comment);
+
+                // Recursive manager delegation
+                $resignApproval->delegateResignManager($resignApproval, $userModel, $managers, $resignId, $userId);
+
+                if ($resignApproval) {
                     // Log the error and set error message
                     $_SESSION['success'] = [
                         'title' => "លិខិតលាឈប់",

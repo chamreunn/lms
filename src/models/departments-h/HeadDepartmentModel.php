@@ -13,6 +13,8 @@ class HeadDepartmentModel
     protected $tbltransferout_approval = "transferout_approval";
     protected $tblbackwork = "backwork";
     protected $tblbackwork_approval = "backwork_approval";
+    protected $tblresigned = "resigned";
+    protected $tblresigned_approval = "resigned_approval";
 
     public function __construct()
     {
@@ -1761,4 +1763,98 @@ class HeadDepartmentModel
         }
     }
     // end backwork 
+    // resign 
+
+    public function updateResignApproval($userId, $resignId, $action, $comment)
+    {
+        try {
+            // Start transaction if not already started
+            if (!$this->pdo->inTransaction()) {
+                $this->pdo->beginTransaction();
+            }
+
+            // Update `status` and `comments` in `holds_approvals` if a record exists
+            $updateApprovalSql = "UPDATE $this->tblresigned_approval SET status = ?, comment = ? WHERE resign_id = ? AND approver_id = ?";
+            $updateApprovalStmt = $this->pdo->prepare($updateApprovalSql);
+            $updateApprovalStmt->execute([$action, $comment, $resignId, $userId]);
+
+            // Debugging log for the update
+            if ($updateApprovalStmt->rowCount() === 0) {
+                error_log("No rows updated in resign_approval. Either no matching record or `status` and `comments` are already set as requested.");
+            } else {
+                error_log("Row successfully updated in resign_approval table.");
+            }
+
+            // Commit the transaction if it was started here
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->commit();
+            }
+        } catch (Exception $e) {
+            // Rollback if there's an error
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            error_log("Error: Approval update failed: " . $e->getMessage());
+            throw new Exception("Approval update failed: " . $e->getMessage());
+        }
+    }
+
+    public function delegateResignManager($holdRequestModel, $userModel, $managers, $resignId, $user_id)
+    {
+        $levels = [$managers, 'getEmailLeaderHUApi'];
+        $statuses = ['leave' => 'leave', 'mission' => 'mission'];
+
+        foreach ($levels as $apiMethod) {
+            $approver = $userModel->$apiMethod($user_id, $_SESSION['token']);
+            if ($approver && !$userModel->isManagerOnLeaveToday($approver['ids']) && !$userModel->isManagerOnMission($approver['ids'])) {
+                $holdRequestModel->insertResignManager($resignId, $approver['ids'], 'pending');
+                return; // Stop when a valid approver is found
+            }
+
+            // Insert status if the manager is on leave or mission
+            $status = $userModel->isManagerOnLeaveToday($approver['ids']) ? $statuses['leave'] : $statuses['mission'];
+            $holdRequestModel->insertResignManager($resignId, $approver['ids'], $status);
+        }
+    }
+
+    public function insertResignManager($resignId, $approver_id, $status)
+    {
+        // Debugging checks
+        if (is_array($resignId)) {
+            error_log('Error: $resignId is an array, using the first element');
+            $resignId = $resignId[0];
+        }
+        if (is_array($approver_id)) {
+            error_log('Error: $approver_id is an array, using the first element');
+            $approver_id = $approver_id[0];
+        }
+        if (is_array($status)) {
+            error_log('Error: $status is an array, using the first element');
+            $status = $status[0];
+        }
+
+        try {
+            // Insert into holds_approvals
+            $insertSql = "INSERT INTO $this->tblresigned_approval (resign_id, approver_id, status)
+                      VALUES (:resign_id, :approver_id, :status)";
+            $insertStmt = $this->pdo->prepare($insertSql);
+            $insertStmt->execute([
+                ':resign_id' => $resignId,
+                ':approver_id' => $approver_id,
+                ':status' => $status,
+            ]);
+
+            // Update approver_id in holds table
+            $updateSql = "UPDATE $this->tblresigned SET approver_id = :approver_id WHERE id = :resign_id";
+            $updateStmt = $this->pdo->prepare($updateSql);
+            $updateStmt->execute([
+                ':approver_id' => $approver_id,
+                ':resign_id' => $resignId,
+            ]);
+        } catch (Exception $e) {
+            // Log the error and rethrow it for handling upstream
+            error_log("Error in insertManagerStatusAndUpdateApprover: " . $e->getMessage());
+            throw $e;
+        }
+    }
 }

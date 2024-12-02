@@ -2385,29 +2385,24 @@ class User
 
     public function sendCheckToTelegram($userId, $date, $check, $statusMessage)
     {
-        // Retrieve Telegram ID of the user
         $userModel = new User();
         $telegramUser = $userModel->getTelegramIdByUserId($userId);
 
         if ($telegramUser && !empty($telegramUser['telegram_id'])) {
-            // Create the notification message with Markdown styling
             $notifications = [
                 "🔔 *វត្តមានប្រចាំថ្ងៃ*",
                 "---------------------------------------------",
                 "👤 *អ្នកប្រើប្រាស់:* `{$_SESSION['user_khmer_name']}`",
                 "📅 *កាលបរិច្ឆេទ:* `{$date}`",
                 "🕒 *ម៉ោង:* `{$check}`",
-                "✅ *ស្ថានភាព:* `{$statusMessage}`", // Added status message
+                "✅ *ស្ថានភាព:* `{$statusMessage}`",
             ];
 
-            // Join the notifications into a single message
             $telegramMessage = implode("\n", $notifications);
-
-            // Send the Telegram notification
             $telegramModel = new TelegramModel($this->pdo);
+
             $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage);
 
-            // Log success or failure of the Telegram notification
             if ($success) {
                 error_log("Telegram attendance notification sent to user ID: {$userId}");
             } else {
