@@ -43,13 +43,8 @@ include('src/common/header.php');
                             <div class="col-lg-5 border-end mb-0">
                                 <div class="d-flex align-items-center justify-contenter-center">
                                     <div class="d-flex flex-column">
-                                        <?php if (isset($_SESSION['profile_picture'])): ?>
-                                            <img class="avatar avatar-xl rounded mb-2"
-                                                src="<?= $_SESSION['user_profile'] ?>" alt="">
-                                        <?php else: ?>
-                                            <img class="avatar avatar-xl rounded mb-2"
-                                                src="<?= $_SESSION['user_profile'] ?>" alt="">
-                                        <?php endif; ?>
+                                        <img class="avatar avatar-xl rounded mb-2"
+                                            src="<?= $userDetails['profile_picture'] ?>" alt="">
                                         <button class="btn btn-sm btn-primary mb-0" data-bs-toggle="modal"
                                             data-bs-target="#editModel">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
