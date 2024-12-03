@@ -29,69 +29,71 @@ include('src/common/header.php');
 
         <?php if (!empty($todayAttendance)): ?>
             <div class="col-12">
-                <div class="row row-cards">
+                <div class="row-cards">
                     <?php
                     // Assuming $todayAttendance[0] is the record you're dealing with
                     $attendance = $todayAttendance[0]; // Access the first attendance record
                     if ($attendance['leave'] !== '1' && $attendance['mission'] !== '1'):
                         ?>
-                        <!-- late in  -->
-                        <div class="col">
-                            <div class="card card-sm bg-light">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-primary-lt text-white avatar">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-login">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path
-                                                        d="M15 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
-                                                    <path d="M21 12h-13l3 -3" />
-                                                    <path d="M11 15l-3 -3" />
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="fw-bolder font-weight-medium 
+                        <div class="row g-3">
+                            <!-- late in  -->
+                            <div class="col-lg-4 col-sm-12 col-md-4">
+                                <div class="card card-sm bg-light">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <span class="bg-primary-lt text-white avatar">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round"
+                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-login">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path
+                                                            d="M15 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+                                                        <path d="M21 12h-13l3 -3" />
+                                                        <path d="M11 15l-3 -3" />
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <div class="col">
+                                                <div class="fw-bolder font-weight-medium 
                                                     <?php
                                                     if (isset($attendance['checkIn']) && $attendance['checkIn'] > '09:00:00') {
                                                         echo 'text-danger'; // Red for late check-in
                                                     }
                                                     ?>">
-                                                <?= $attendance['checkIn'] ?? '--:--:--' ?>
-                                            </div>
-                                            <div class="text-secondary">
-                                                ម៉ោងចូល
+                                                    <?= $attendance['checkIn'] ?? '--:--:--' ?>
+                                                </div>
+                                                <div class="text-secondary">
+                                                    ម៉ោងចូល
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- late out  -->
-                        <div class="col">
-                            <div class="card card-sm bg-light">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-red-lt text-white avatar">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-logout">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 -2v-2" />
-                                                    <path d="M9 12h12l-3 -3" />
-                                                    <path d="M18 15l3 -3" />
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="fw-bolder font-weight-medium 
+                            <!-- late out  -->
+                            <div class="col-lg-4 col-sm-12 col-md-4">
+                                <div class="card card-sm bg-light">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <span class="bg-red-lt text-white avatar">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round"
+                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-logout">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path
+                                                            d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 -2v-2" />
+                                                        <path d="M9 12h12l-3 -3" />
+                                                        <path d="M18 15l3 -3" />
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <div class="col">
+                                                <div class="fw-bolder font-weight-medium 
                                         <?php
                                         if (isset($attendance['checkOut'])) {
                                             if ($attendance['checkOut'] > '17:30:00') {
@@ -101,37 +103,38 @@ include('src/common/header.php');
                                             }
                                         }
                                         ?>">
-                                                <?= $attendance['checkOut'] ?? '--:--:--' ?>
-                                            </div>
-                                            <div class="text-secondary">
-                                                ម៉ោងចេញ
+                                                    <?= $attendance['checkOut'] ?? '--:--:--' ?>
+                                                </div>
+                                                <div class="text-secondary">
+                                                    ម៉ោងចេញ
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- total  -->
-                        <div class="col">
-                            <div class="card card-sm bg-light">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-red-lt text-white avatar">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-logout">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 -2v-2" />
-                                                    <path d="M9 12h12l-3 -3" />
-                                                    <path d="M18 15l3 -3" />
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="fw-bolder font-weight-medium 
+                            <!-- total  -->
+                            <div class="col-lg-4 col-sm-12 col-md-4">
+                                <div class="card card-sm bg-light">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <span class="bg-red-lt text-white avatar">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round"
+                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-logout">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path
+                                                            d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 -2v-2" />
+                                                        <path d="M9 12h12l-3 -3" />
+                                                        <path d="M18 15l3 -3" />
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <div class="col">
+                                                <div class="fw-bolder font-weight-medium 
                                         <?php
                                         if (isset($attendance['total'])) {
                                             // Convert 'total' to DateTime for comparison
@@ -147,10 +150,11 @@ include('src/common/header.php');
                                             }
                                         }
                                         ?>">
-                                                <?= $attendance['total'] ?? '--:--:--' ?>
-                                            </div>
-                                            <div class="text-secondary">
-                                                ម៉ោងសរុបថ្ងៃនេះ
+                                                    <?= $attendance['total'] ?? '--:--:--' ?>
+                                                </div>
+                                                <div class="text-secondary">
+                                                    ម៉ោងសរុបថ្ងៃនេះ
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
