@@ -47,7 +47,7 @@ include('src/common/header.php');
 
                                     <div class="col-12">
                                         <label class="form-label" for="size">ទំហំ</label>
-                                        <input type="number" class="form-control" id="size" name="size" value="400"
+                                        <input type="number" class="form-control" id="size" name="size" value="300"
                                             required>
                                     </div>
 
