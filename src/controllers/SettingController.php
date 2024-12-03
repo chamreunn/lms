@@ -384,6 +384,9 @@ class SettingController
                         'title' => "ជោគជ័យ",
                         'message' => "អ្នកបានផ្លាស់ប្តូររូបភាពដោយជោគជ័យ។",
                     ];
+                    // Redirect after process is complete
+                    header('Location: /elms/edit_user_detail?user_id=' . $_SESSION['user_id']);
+                    exit();
                 } else {
                     error_log("API response: " . print_r($apiResponse, true));
                     $_SESSION['error'] = [
