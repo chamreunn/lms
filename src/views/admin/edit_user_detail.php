@@ -405,120 +405,57 @@ include('src/common/header.php');
     <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">...</div>
     <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">...</div>
 </div>
-
-<div class="card" hidden>
-    <div class="card-body">
-        <!-- Tabs Navigation with Single Link -->
-        <ul class="nav nav-tabs mb-3" id="accountTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <a class="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#profile-info" role="tab"
-                    aria-controls="profile-info" aria-selected="true">
-                    ពត៌មានគណនី
-                </a>
-            </li>
-        </ul>
-
-        <!-- Tab Content (Everything Combined) -->
-        <div class="tab-content mb-3" id="accountTabContent">
-            <!-- Profile Information (All Combined) -->
-            <div class="tab-pane fade show active" id="profile-info" role="tabpanel" aria-labelledby="profile-tab">
-                <div class="row align-items-center mb-3">
-                    <div class="col-auto">
-                        <div class="avatar avatar-xl"
-                            style="background-image: url('<?= $userDetails['profile_picture'] ?>');"></div>
-                    </div>
-                    <div class="col">
-                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModel">
-                            ផ្លាស់ប្តូររូបភាព
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Profile Details -->
-                <div class="row g-3 mb-3">
-                    <div class="col-md">
-                        <label class="form-label fw-bold">ឈ្មោះមន្ត្រី</label>
-                        <input type="text" class="form-control" value="<?= $userDetails['user_name'] ?>" disabled>
-                    </div>
-                    <div class="col-md">
-                        <label class="form-label fw-bold">USERNAME</label>
-                        <input type="text" class="form-control" value="<?= $userDetails['user_eng_name'] ?>" disabled>
-                    </div>
-                    <div class="col-md">
-                        <label class="form-label fw-bold">ភេទ</label>
-                        <input type="text" class="form-control" value="<?= $userDetails['gender'] ?>" disabled>
-                    </div>
-                </div>
-
-                <!-- Role and Department Information -->
-                <div class="row g-3 mb-3">
-                    <div class="col-md">
-                        <label class="form-label fw-bold">តួនាទី</label>
-                        <input type="text" class="form-control" value="<?= $userDetails['rolename'] ?>" disabled>
-                    </div>
-                    <div class="col-md">
-                        <label class="form-label">នាយកដ្ឋាន</label>
-                        <input type="text" class="form-control" value="<?= $userDetails['department_name'] ?>" disabled>
-                    </div>
-                    <div class="col-md">
-                        <label class="form-label">ការិយាល័យ</label>
-                        <input type="text" class="form-control" value="<?= $userDetails['office_name'] ?>" disabled>
-                    </div>
-                </div>
-
-                <!-- Contact and Address Information -->
-                <div class="row g-3 mb-3">
-                    <div class="col-md">
-                        <label class="form-label fw-bold">ទំនាក់ទំនង</label>
-                        <input type="text" class="form-control" value="<?= $userDetails['phone_number'] ?>" disabled>
-                    </div>
-                    <div class="col-md">
-                        <label class="form-label fw-bold">ថ្ងៃខែឆ្នាំកំណើត</label>
-                        <input type="text" class="form-control date-picker" value="<?= $userDetails['date_of_birth'] ?>"
-                            disabled>
-                    </div>
-                </div>
-
-                <!-- Address Information -->
-                <div class="row g-3 mb-3">
-                    <div class="col-md">
-                        <label class="form-label fw-bold">ទីកន្លែងកំណើត</label>
-                        <textarea class="form-control" disabled><?= $userDetails['address'] ?></textarea>
-                    </div>
-                    <div class="col-md">
-                        <label class="form-label fw-bold">អាសយដ្ឋានបច្ចុប្បន្ន</label>
-                        <textarea class="form-control" disabled><?= $userDetails['curaddress'] ?></textarea>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Modal to change profile picture -->
-<div class="modal modal-blur fade" id="editModel" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="editModel" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title text-primary">ផ្លាស់ប្តូររូបភាព</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-center">
-                <div class="avatar avatar-xl mb-3"
-                    style="background-image: url('<?= $userDetails['profile_picture'] ?>');"></div>
-                <form action="/elms/change-profile-picture" method="POST" enctype="multipart/form-data">
-                    <label class="btn btn-outline-primary">
-                        ជ្រើសរើសរូបភាព
-                        <input type="file" name="profile_picture" accept="image/*" hidden onchange="this.form.submit()">
-                    </label>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn" data-bs-dismiss="modal">បោះបង់</button>
-            </div>
+            <form action="/elms/change-profile-picture" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <div class="avatar avatar-xl rounded-circle border border-primary" id="preview"
+                            style="background-image: url('<?= $userDetails['profile_picture'] ?>'); background-size: cover; background-position: center;">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-center">
+                        <label class="btn btn-outline-primary py-2 px-3 mb-3" style="cursor: pointer;">
+                            ជ្រើសរើសរូបភាព
+                            <input type="file" name="profile_picture" accept="image/*" hidden
+                                onchange="showPreview(event, 'preview')">
+                        </label>
+                    </div>
+                    <div id="previewContainer" class="d-none">
+                        <p class="text-muted">Preview:</p>
+                        <img id="imgPreview" class="img-fluid rounded" alt="Selected image preview"
+                            style="max-width: 100%;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">ផ្លាស់ប្តូរ</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
+<script>
+    function showPreview(event, previewId) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById(previewId).style.backgroundImage = `url(${e.target.result})`;
+                document.getElementById(previewId).style.backgroundSize = 'cover';
+                document.getElementById(previewId).style.backgroundPosition = 'center';
+                document.getElementById('previewContainer').classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
 
 <?php include('src/common/footer.php'); ?>
