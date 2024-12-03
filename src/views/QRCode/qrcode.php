@@ -3,8 +3,6 @@ $pretitle = "ទំព័រដើម";
 $title = "QR Code";
 include('src/common/header.php');
 ?>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <!-- <div class="container-xl mb-3">
     <a href="/elms/attendanceCheck" type="button" class="btn btn-primary d-none d-sm-inline-block">
         <span class="mx-2">check in</span>
@@ -234,60 +232,85 @@ include('src/common/header.php');
     </script>
 <?php else: ?>
     <div class="page page-center">
-        <div class="container-tight py-3">
+        <div class="container py-3 align-items-center justify-content-center d-flex">
             <div class="card animate__animated animate__slideInUpShort p-0">
-                <!-- A5 Poster -->
-                <div id="poster" class="card" style="width: 148mm; height: 210mm;">
-                    <div class="card-status-top bg-primary" style="height: 10px;"></div>
-                    <div class="card-body d-flex flex-column align-items-center text-center justify-content-between h-100">
-                        <div class="card-stamp mt-2">
-                            <div class="card-stamp-icon bg-primary">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="icon icon-tabler icons-tabler-outline icon-tabler-qrcode">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path
-                                        d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-                                    <path d="M7 17l0 .01" />
-                                    <path
-                                        d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-                                    <path d="M7 7l0 .01" />
-                                    <path
-                                        d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-                                    <path d="M17 7l0 .01" />
-                                    <path d="M14 14l3 0" />
-                                    <path d="M20 14l0 .01" />
-                                    <path d="M14 14l0 3" />
-                                    <path d="M14 20l3 0" />
-                                    <path d="M17 17l3 0" />
-                                    <path d="M20 17l0 3" />
-                                </svg>
+                <div class="card-body">
+                    <!-- A5 Poster -->
+                    <div class="poster card" style="width: 148mm; height: 210mm;">
+                        <div class="card-status-top bg-primary" style="height: 10px;"></div>
+                        <div
+                            class="card-body d-flex flex-column align-items-center text-center justify-content-between h-100">
+                            <div class="card-stamp mt-2">
+                                <div class="card-stamp-icon bg-primary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        class="icon icon-tabler icons-tabler-outline icon-tabler-qrcode">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path
+                                            d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+                                        <path d="M7 17l0 .01" />
+                                        <path
+                                            d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+                                        <path d="M7 7l0 .01" />
+                                        <path
+                                            d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+                                        <path d="M17 7l0 .01" />
+                                        <path d="M14 14l3 0" />
+                                        <path d="M20 14l0 .01" />
+                                        <path d="M14 14l0 3" />
+                                        <path d="M14 20l3 0" />
+                                        <path d="M17 17l3 0" />
+                                        <path d="M20 17l0 3" />
+                                    </svg>
+                                </div>
                             </div>
-                        </div>
-                        <!-- Logo Section -->
-                        <div class="mb-2">
-                            <img src="public/img/icons/brands/Login_logo_350.png" alt="Logo" style="max-width: 150px;"
-                                class="img-fluid">
-                        </div>
-                        <div class="mb-2">
-                            <p class="text-primary fw-bold">សម្រាប់ស្កេនវត្តមានប្រចាំថ្ងៃរបស់អ្នក</p>
-                        </div>
-                        <!-- QR Code Section -->
-                        <div class="mb-0">
-                            <img src="<?= $qrCodeBase64s; ?>" alt="QR Code" class="rounded shadow-sm">
-                        </div>
+                            <!-- Logo Section -->
+                            <div class="mb-2">
+                                <img src="public/img/icons/brands/Login_logo_350.png" alt="Logo" style="max-width: 150px;"
+                                    class="img-fluid">
+                            </div>
+                            <div class="mb-0 mt-0">
+                                <p class="text-primary fs-2 fw-bold">
+                                    សម្រាប់ស្កេនវត្តមានប្រចាំថ្ងៃរបស់អ្នក
+                                </p>
+                            </div>
+                            <!-- QR Code Section -->
+                            <div class="mb-0 position-relative d-flex flex-column align-items-center">
+                                <div class="qr-wrapper position-relative" style="border-radius: 12px;">
+                                    <!-- Angled Corners -->
+                                    <div class="position-absolute top-0 start-0"
+                                        style="border-left: 5px solid #000; border-top: 5px solid #000; width: 40px; height: 40px;">
+                                    </div>
+                                    <div class="position-absolute top-0 end-0"
+                                        style="border-right: 5px solid #000; border-top: 5px solid #000; width: 40px; height: 40px;">
+                                    </div>
+                                    <div class="position-absolute bottom-0 start-0"
+                                        style="border-left: 5px solid #000; border-bottom: 5px solid #000; width: 40px; height: 40px;">
+                                    </div>
+                                    <div class="position-absolute bottom-0 end-0"
+                                        style="border-right: 5px solid #000; border-bottom: 5px solid #000; width: 40px; height: 40px;">
+                                    </div>
+                                    <!-- QR Code -->
+                                    <div class="text-center">
+                                        <img src="<?= $qrCodeBase64s; ?>" alt="QR Code" class="img-fluid">
+                                    </div>
+                                </div>
+                                <!-- User Name -->
+                                <h1 class="text-primary mt-3"><?= $_SESSION['user_khmer_name'] ?></h1>
+                            </div>
 
-                        <!-- User Name Section -->
-                        <div>
-                            <h1 class="text-primary mb-3"><?= $_SESSION['user_khmer_name'] ?></h1>
+                            <!-- User Name Section -->
+                            <footer>
+                                <small class="text-danger"><em>*
+                                        សូមទំនាក់ទំនងមកការិ.ព័ត៌មានវិទ្យាប្រសិនបើលោកអ្នកមានបញ្ហាក្នុងការប្រើប្រាស់ប្រព័ន្ថ</em></small>
+                            </footer>
                         </div>
                     </div>
                 </div>
-
-                <!-- Centered Download Button -->
-                <div class="text-center mt-3">
-                    <button id="downloadPoster" class="btn btn-outline-primary">
+                <div class="card-footer text-center bg-light ">
+                    <!-- Centered Download Button -->
+                    <button class="downloadPoster btn btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                             class="icon icon-tabler icons-tabler-outline icon-tabler-download">
@@ -303,27 +326,5 @@ include('src/common/header.php');
         </div>
     </div>
 <?php endif; ?>
-
-<script>
-    document.getElementById('downloadPoster').addEventListener('click', async function () {
-        const { jsPDF } = window.jspdf;
-        const posterElement = document.getElementById('poster');
-
-        html2canvas(posterElement, {
-            scale: 3, // Increase the scale for HD quality
-            useCORS: true // Enables cross-origin resource sharing if needed
-        }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a5'
-            });
-
-            pdf.addImage(imgData, 'PNG', 0, 0, 148, 210); // Add image to fit A5
-            pdf.save('QR_Code_Poster_HD.pdf');
-        });
-    });
-</script>
 
 <?php include('src/common/footer.php'); ?>

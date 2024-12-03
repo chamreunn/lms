@@ -1,93 +1,418 @@
 <?php
+$pretitle = "ទំព័រដើម";
 $title = "ព័ត៌មានគណនី";
 include('src/common/header.php');
-function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
-{
-    // Define Khmer translations for days and months
-    $days = [
-        'Mon' => 'ច័ន្ទ',
-        'Tue' => 'អង្គារ',
-        'Wed' => 'ពុធ',
-        'Thu' => 'ព្រហស្បតិ៍',
-        'Fri' => 'សុក្រ',
-        'Sat' => 'សៅរ៍',
-        'Sun' => 'អាទិត្យ'
-    ];
-    $months = [
-        'January' => 'មករា',
-        'February' => 'កុម្ភៈ',
-        'March' => 'មីនា',
-        'April' => 'មេសា',
-        'May' => 'ឧសភា',
-        'June' => 'មិថុនា',
-        'July' => 'កក្កដា',
-        'August' => 'សីហា',
-        'September' => 'កញ្ញា',
-        'October' => 'តុលា',
-        'November' => 'វិច្ឆិកា',
-        'December' => 'ធ្នូ'
-    ];
-
-    // Define Khmer numerals
-    $numerals = [
-        '0' => '០',
-        '1' => '១',
-        '2' => '២',
-        '3' => '៣',
-        '4' => '៤',
-        '5' => '៥',
-        '6' => '៦',
-        '7' => '៧',
-        '8' => '៨',
-        '9' => '៩'
-    ];
-
-    // Get the English day and month names
-    $englishDay = date('D', strtotime($date));
-    $englishMonth = date('F', strtotime($date));
-
-    // Translate English day and month names to Khmer
-    $translatedDay = $days[$englishDay] ?? $englishDay;
-    $translatedMonth = $months[$englishMonth] ?? $englishMonth;
-
-    // Format the date in English
-    $formattedDate = date($format, strtotime($date));
-
-    // Replace day and month with Khmer
-    $translatedDate = str_replace(
-        [$englishDay, $englishMonth],
-        [$translatedDay, $translatedMonth],
-        $formattedDate
-    );
-
-    // Replace Arabic numerals with Khmer numerals
-    $translatedDate = strtr($translatedDate, $numerals);
-
-    return $translatedDate;
-}
 ?>
 
-<!-- header of page  -->
-<div class="page-header d-print-none mt-0 mb-3">
-    <div class="col-12">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <!-- Page pre-title -->
-                <div class="page-pretitle mb-1">
-                    <div>ទំព័រដើម</div>
+<div class="card mb-3 p-2">
+    <ul class="nav nav-pills" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home"
+                type="button" role="tab" aria-controls="pills-home" aria-selected="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-id">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" />
+                    <path d="M9 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                    <path d="M15 8l2 0" />
+                    <path d="M15 12l2 0" />
+                    <path d="M7 16l10 0" />
+                </svg>
+                <span class="mx-2">ព័ត៌មានផ្ទាល់ខ្លួន</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile"
+                type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Profile</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact"
+                type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Contact</button>
+        </li>
+    </ul>
+</div>
+
+<div class="tab-content mb-3" id="pills-tabContent">
+    <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+        <div class="row g-3">
+            <div class="row-cards">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-5 border-end mb-0">
+                                <div class="d-flex align-items-center justify-contenter-center">
+                                    <div class="d-flex flex-column">
+                                        <img class="avatar avatar-xl rounded mb-2"
+                                            src="<?= $_SESSION['user_profile'] ?>" alt="">
+                                        <button class="btn btn-sm btn-primary mb-0" data-bs-toggle="modal"
+                                            data-bs-target="#editModel">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-photo">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M15 8h.01" />
+                                                <path
+                                                    d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z" />
+                                                <path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" />
+                                                <path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" />
+                                            </svg>
+                                            ផ្លាស់ប្តូររូបភាព
+                                        </button>
+                                    </div>
+                                    <div class="d-flex flex-column mx-2">
+                                        <h1 class="mb-2"><?= $_SESSION['user_khmer_name'] ?></h1>
+                                        <p class="mb-2">
+                                            <span
+                                                class="badge <?= $_SESSION['position_color'] ?>"><?= $_SESSION['position'] ?>
+                                            </span>
+                                            | <?= $_SESSION['departmentName'] ?>
+                                        </p>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-7 d-flex align-items-center justify-content-center mb-0">
+                                <div class="row g-3">
+                                    <!-- Row 1 -->
+                                    <div class="row g-3">
+                                        <div class="col-lg-6 col-sm-12 col-md-12 d-flex justify-content-between">
+                                            <div class="col-auto text-start">
+                                                <dd class="text-muted">លេខកាត:</dd>
+                                            </div>
+                                            <div class="col-auto text-start">
+                                                <p class="fw-bold">
+                                                    <?= htmlspecialchars($_SESSION['idCard']) ?>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-sm-12 col-md-12 d-flex justify-content-between">
+                                            <div class="col-auto text-start">
+                                                <dd class="text-muted">ទំនាក់ទំនង:</dd>
+                                            </div>
+                                            <div class="col-auto text-start">
+                                                <p class="fw-bold">
+                                                    <?= htmlspecialchars($_SESSION['contact']) ?>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Row 2 -->
+                                    <div class="row g-3">
+                                        <div class="col-lg-6 col-sm-12 col-md-12 d-flex justify-content-between">
+                                            <div class="col-auto text-start">
+                                                <dd class="text-muted">អាសយដ្ឋានអ៊ីម៉ែល:</dd>
+                                            </div>
+                                            <div class="col-auto text-start">
+                                                <p class="fw-bold">
+                                                    <?= htmlspecialchars($_SESSION['email']) ?>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-sm-12 col-md-12 d-flex justify-content-between">
+                                            <div class="col-auto text-start">
+                                                <dd class="text-muted">ឈ្មោះជាអក្សរឡាតាំង:</dd>
+                                            </div>
+                                            <div class="col-auto text-start">
+                                                <p class="fw-bold">
+                                                    <?= htmlspecialchars($_SESSION['user_eng_name']) ?>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <h2 class="page-title text-primary mb-0"><?= $title ?></h2>
+            </div>
+
+            <!-- personal information  -->
+            <div class="col-lg-4 col-sm-12 col-md-12">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="card-tittle">
+                            <h3 class="mb-0">ព័ត៌មានផ្ទាល់ខ្លួន</h3>
+                        </div>
+
+                        <a href="">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="icon icon-tabler icons-tabler-outline icon-tabler-pencil">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+                                <path d="M13.5 6.5l4 4" />
+                            </svg>
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">ភេទ:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?php
+                                        // Display gender based on the value in $_SESSION['gender']
+                                        if ($_SESSION['gender'] === 'm') {
+                                            echo 'ប្រុស'; // Male
+                                        } else {
+                                            echo 'ស្រី'; // Female
+                                        }
+                                        ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">ថ្ងៃខែឆ្នាំកំណើត:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($_SESSION['dob']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">អត្តសញ្ញាណបណ្ណ:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($_SESSION['identifyCard']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">កាលបរិច្ឆេទផុតកំណត់:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($_SESSION['exprireDateIdenCard']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">លិខិតឆ្លងដែន:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($_SESSION['passport']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">កាលបរិច្ឆេទផុតកំណត់:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($_SESSION['exprirePassport']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">សញ្ជាតិ:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($_SESSION['nationality']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">ស្ថានភាពគ្រួសារ:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?php
+                                        if ($_SESSION['status'] === '1') {
+                                            echo 'នៅលីវ'; // sigle
+                                        } elseif ($_SESSION['status'] === '2') {
+                                            echo 'រៀបការ'; // maried
+                                        } else {
+                                            echo 'មានគ្រួសារ';
+                                        }
+                                        ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-12 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">ទីកន្លែងកំណើត:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($_SESSION['pobAddress']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-12 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">អាសយដ្ឋានបច្ចុប្បន្ន:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($_SESSION['currentAddress']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8 col-sm-12 col-md-8">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="card-tittle">
+                            <h3 class="mb-0">ព័ត៌មានផ្ទាល់ខ្លួន</h3>
+                        </div>
+
+                        <a href="">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="icon icon-tabler icons-tabler-outline icon-tabler-pencil">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+                                <path d="M13.5 6.5l4 4" />
+                            </svg>
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">ភេទ:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?php
+                                        // Display gender based on the value in $_SESSION['gender']
+                                        if ($_SESSION['gender'] === 'm') {
+                                            echo 'ប្រុស'; // Male
+                                        } else {
+                                            echo 'ស្រី'; // Female
+                                        }
+                                        ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">ថ្ងៃខែឆ្នាំកំណើត:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($_SESSION['dob']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">អត្តសញ្ញាណបណ្ណ:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($_SESSION['identifyCard']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">កាលបរិច្ឆេទផុតកំណត់:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($_SESSION['exprireDateIdenCard']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">លិខិតឆ្លងដែន:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($_SESSION['passport']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">កាលបរិច្ឆេទផុតកំណត់:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($_SESSION['exprirePassport']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">សញ្ជាតិ:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($_SESSION['nationality']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">ស្ថានភាពគ្រួសារ:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($_SESSION['dob']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-12 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">ទីកន្លែងកំណើត:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($_SESSION['pobAddress']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-12 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">អាសយដ្ឋានបច្ចុប្បន្ន:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($_SESSION['currentAddress']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">...</div>
+    <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">...</div>
 </div>
 
-<div class="card">
+<div class="card" hidden>
     <div class="card-body">
         <!-- Tabs Navigation with Single Link -->
         <ul class="nav nav-tabs mb-3" id="accountTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <a class="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#profile-info" role="tab" aria-controls="profile-info" aria-selected="true">
+                <a class="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#profile-info" role="tab"
+                    aria-controls="profile-info" aria-selected="true">
                     ពត៌មានគណនី
                 </a>
             </li>
@@ -99,7 +424,8 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
             <div class="tab-pane fade show active" id="profile-info" role="tabpanel" aria-labelledby="profile-tab">
                 <div class="row align-items-center mb-3">
                     <div class="col-auto">
-                        <div class="avatar avatar-xl" style="background-image: url('<?= $userDetails['profile_picture'] ?>');"></div>
+                        <div class="avatar avatar-xl"
+                            style="background-image: url('<?= $userDetails['profile_picture'] ?>');"></div>
                     </div>
                     <div class="col">
                         <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModel">
@@ -148,7 +474,8 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     </div>
                     <div class="col-md">
                         <label class="form-label fw-bold">ថ្ងៃខែឆ្នាំកំណើត</label>
-                        <input type="text" class="form-control date-picker" value="<?= $userDetails['date_of_birth'] ?>" disabled>
+                        <input type="text" class="form-control date-picker" value="<?= $userDetails['date_of_birth'] ?>"
+                            disabled>
                     </div>
                 </div>
 
@@ -177,7 +504,8 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-                <div class="avatar avatar-xl mb-3" style="background-image: url('<?= $userDetails['profile_picture'] ?>');"></div>
+                <div class="avatar avatar-xl mb-3"
+                    style="background-image: url('<?= $userDetails['profile_picture'] ?>');"></div>
                 <form action="/elms/change-profile-picture" method="POST" enctype="multipart/form-data">
                     <label class="btn btn-outline-primary">
                         ជ្រើសរើសរូបភាព
@@ -194,90 +522,3 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 
 
 <?php include('src/common/footer.php'); ?>
-
-<!-- card&list view  -->
-<script>
-    // Function to handle switching views and saving the preference
-    function switchView(view) {
-        if (view === 'card') {
-            document.getElementById('cardView').classList.remove('d-none');
-            document.getElementById('listView').classList.add('d-none');
-            document.getElementById('cardViewBtn').classList.add('active');
-            document.getElementById('listViewBtn').classList.remove('active');
-            localStorage.setItem('preferredView', 'card');
-        } else if (view === 'list') {
-            document.getElementById('cardView').classList.add('d-none');
-            document.getElementById('listView').classList.remove('d-none');
-            document.getElementById('listViewBtn').classList.add('active');
-            document.getElementById('cardViewBtn').classList.remove('active');
-            localStorage.setItem('preferredView', 'list');
-        }
-    }
-
-    // Event listeners for buttons
-    document.getElementById('cardViewBtn').addEventListener('click', function() {
-        switchView('card');
-    });
-
-    document.getElementById('listViewBtn').addEventListener('click', function() {
-        switchView('list');
-    });
-
-    // On page load, set the view based on the user's previous choice
-    window.onload = function() {
-        const preferredView = localStorage.getItem('preferredView') || 'card';
-        switchView(preferredView);
-    };
-</script>
-
-<!-- khmer number  -->
-<script>
-    function convertToKhmerNumerals(num) {
-        const khmerNumerals = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩'];
-        return num.toString().split('').map(digit => khmerNumerals[digit]).join('');
-    }
-
-    function updateDateTime() {
-        const clockElement = document.getElementById('real-time-clock');
-        const currentTime = new Date();
-
-        // Define Khmer arrays for days of the week and months.
-        const daysOfWeek = ['អាទិត្យ', 'ច័ន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍'];
-        const dayOfWeek = daysOfWeek[currentTime.getDay()];
-
-        const months = ['មករា', 'កុម្ភៈ', 'មិនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
-        const month = months[currentTime.getMonth()];
-
-        const day = convertToKhmerNumerals(currentTime.getDate());
-        const year = convertToKhmerNumerals(currentTime.getFullYear());
-
-        // Calculate and format hours, minutes, seconds, and time of day in Khmer.
-        let hours = currentTime.getHours();
-        let period;
-
-        if (hours >= 5 && hours < 12) {
-            period = 'ព្រឹក'; // Khmer for AM (morning)
-        } else if (hours >= 12 && hours < 17) {
-            period = 'រសៀល'; // Khmer for afternoon
-        } else if (hours >= 17 && hours < 20) {
-            period = 'ល្ងាច'; // Khmer for evening
-        } else {
-            period = 'យប់'; // Khmer for night
-        }
-
-        hours = hours % 12 || 12;
-        const khmerHours = convertToKhmerNumerals(hours);
-        const khmerMinutes = convertToKhmerNumerals(currentTime.getMinutes().toString().padStart(2, '0'));
-        const khmerSeconds = convertToKhmerNumerals(currentTime.getSeconds().toString().padStart(2, '0'));
-
-        // Construct the date and time string in the desired Khmer format.
-        const dateTimeString = `${dayOfWeek}, ${day} ${month} ${year} ${khmerHours}:${khmerMinutes}:${khmerSeconds} ${period}`;
-        clockElement.textContent = dateTimeString;
-    }
-
-    // Update the date and time every second (1000 milliseconds).
-    setInterval(updateDateTime, 1000);
-
-    // Initial update.
-    updateDateTime();
-</script>

@@ -1497,8 +1497,8 @@ class AdminController
         list($logoWidth, $logoHeight, $imageType) = getimagesize($logoPath);
 
         // Set the desired width for the logo (adjust based on QR code size)
-        $logoMaxWidth = $qrCodeSize * 0.3; // Resize logo to 30% of QR code size
-        $logoMaxHeight = $qrCodeSize * 0.3; // Resize logo to 30% of QR code size
+        $logoMaxWidth = $qrCodeSize * 0.2; // Resize logo to 30% of QR code size
+        $logoMaxHeight = $qrCodeSize * 0.2; // Resize logo to 30% of QR code size
 
         // Calculate the new dimensions while maintaining the aspect ratio
         $ratio = min($logoMaxWidth / $logoWidth, $logoMaxHeight / $logoHeight);

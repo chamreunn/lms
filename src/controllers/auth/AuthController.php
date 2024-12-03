@@ -40,64 +40,90 @@ class AuthController
                             $user2FA = $userModel->getUser2FA($user['id']);
 
                             if ($user2FA && isset($user2FA['is_2fa_enabled']) && $user2FA['is_2fa_enabled'] == '1') {
-                                $_SESSION['2fa_attempts'] = $user2FA['is_2fa_enabled'];
-                                $_SESSION['temp_secret'] = $user2FA['secret_code'];
-                                $_SESSION['user_id'] = $user['id'];
-                                $_SESSION['idCard'] = $user['idCard'];
-                                $_SESSION['temp_token'] = $token;
-                                $_SESSION['temp_user_data'] = $user;
-                                $_SESSION['user_khmer_name'] = $user['lastNameKh'] . ' ' . $user['firstNameKh'];
-                                $_SESSION['dob'] = $user['dateOfBirth'];
-                                $_SESSION['user_profile'] = 'https://hrms.iauoffsa.us/images/' . $user['image'];
+                                $_SESSION['2fa_attempts'] = $user2FA['is_2fa_enabled'] ?? 'N/A';
+                                $_SESSION['temp_secret'] = $user2FA['secret_code'] ?? 'N/A';
+                                $_SESSION['user_id'] = $user['id'] ?? 'N/A';
+                                $_SESSION['idCard'] = $user['idCard'] ?? 'N/A';
+                                $_SESSION['contact'] = $user['phoneNumber'] ?? 'N/A';
+                                $_SESSION['gender'] = $user['gender'] ?? 'N/A';
+                                $_SESSION['nationality'] = $user['nationality'] ?? 'N/A';
+                                $_SESSION['identifyCard'] = $user['identifyCard'] ?? 'N/A';
+                                $_SESSION['exprireDateIdenCard'] = $user['exprireDateIdenCard'] ?? 'N/A';
+                                $_SESSION['passport'] = $user['passport'] ?? 'N/A';
+                                $_SESSION['exprirePassport'] = $user['exprirePassport'] ?? 'N/A';
+                                $_SESSION['pobAddress'] = $user['pobAddress'] ?? 'N/A';
+                                $_SESSION['currentAddress'] = $user['currentAddress'] ?? 'N/A';
+                                $_SESSION['status'] = $user['status'] ?? 'N/A';
+
+                                $_SESSION['temp_token'] = $token ?? 'N/A';
+                                $_SESSION['temp_user_data'] = $user ?? 'N/A';
+                                $_SESSION['user_khmer_name'] = ($user['lastNameKh'] ?? 'N/A') . ' ' . ($user['firstNameKh'] ?? 'N/A');
+                                $_SESSION['dob'] = $user['dateOfBirth'] ?? 'N/A';
+                                $_SESSION['user_profile'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default.jpg');
                                 $_SESSION['role'] = $user['roleLeave'] ?? 'NULL';
-                                $_SESSION['token'] = $token;
-                                $_SESSION['departmentId'] = $user['departmentId'];
-                                $_SESSION['email'] = $user['email'];
-                                $_SESSION['officeId'] = $user['officeId'];
-                                $_SESSION['roleId'] = $user['roleId'];
+                                $_SESSION['token'] = $token ?? 'N/A';
+                                $_SESSION['departmentId'] = $user['departmentId'] ?? 'N/A';
+                                $_SESSION['email'] = $user['email'] ?? 'N/A';
+                                $_SESSION['officeId'] = $user['officeId'] ?? 'N/A';
+                                $_SESSION['roleId'] = $user['roleId'] ?? 'N/A';
 
                                 $_SESSION['BotUsername'] = "myelmsbot";
                                 $_SESSION['LateInBot'] = "lateinoutbot";
 
                                 // Fetch additional details
-                                $position = $userModel->getRoleApi($user['roleId'], $token);
-                                $_SESSION['position'] = $position['data']['roleNameKh'];
-                                $_SESSION['position_color'] = $position['data']['color'];
-                                $department = $userModel->getDepartmentApi($user['departmentId'], $token);
-                                $_SESSION['departmentName'] = $department['data']['departmentNameKh'] ?? 'null';
-                                $office = $userModel->getOfficeApi($user['officeId'], $token);
-                                $_SESSION['officeName'] = $office['data']['officeNameKh'] ?? 'null';
+                                $position = $userModel->getRoleApi($user['roleId'] ?? '0', $token);
+                                $_SESSION['position'] = $position['data']['roleNameKh'] ?? 'N/A';
+                                $_SESSION['position_color'] = $position['data']['color'] ?? 'N/A';
+
+                                $department = $userModel->getDepartmentApi($user['departmentId'] ?? '0', $token);
+                                $_SESSION['departmentName'] = $department['data']['departmentNameKh'] ?? 'N/A';
+
+                                $office = $userModel->getOfficeApi($user['officeId'] ?? '0', $token);
+                                $_SESSION['officeName'] = $office['data']['officeNameKh'] ?? 'N/A';
 
                                 header('Location: /elms/v2faCode');
                                 exit;
                             }
 
                             // Store user data if 2FA is not enabled
-                            $_SESSION['user_id'] = $user['id'];
-                            $_SESSION['idCard'] = $user['idCard'];
-                            $_SESSION['email'] = $user['email'];
-                            $_SESSION['user_khmer_name'] = $user['lastNameKh'] . ' ' . $user['firstNameKh'];
-                            $_SESSION['dob'] = $user['dateOfBirth'];
-                            $_SESSION['user_eng_name'] = $user['engName'];
-                            $_SESSION['user_profile'] = 'https://hrms.iauoffsa.us/images/' . $user['image'];
-                            $_SESSION['role'] = $user['roleLeave'] ?? 'NULL';
-                            $_SESSION['officeId'] = $user['officeId'];
-                            $_SESSION['departmentId'] = $user['departmentId'];
-                            $_SESSION['isAdmin'] = $user['isAdmin'];
-                            $_SESSION['token'] = $token;
+                            $_SESSION['user_id'] = $user['id'] ?? 'N/A';
+                            $_SESSION['idCard'] = $user['idCard'] ?? 'N/A';
+                            $_SESSION['contact'] = $user['phoneNumber'] ?? 'N/A';
+                            $_SESSION['gender'] = $user['gender'] ?? 'N/A';
+                            $_SESSION['nationality'] = $user['nationality'] ?? 'N/A';
+                            $_SESSION['identifyCard'] = $user['identifyCard'] ?? 'N/A';
+                            $_SESSION['exprireDateIdenCard'] = $user['exprireDateIdenCard'] ?? 'N/A';
+                            $_SESSION['passport'] = $user['passport'] ?? 'N/A';
+                            $_SESSION['exprirePassport'] = $user['exprirePassport'] ?? 'N/A';
+                            $_SESSION['email'] = $user['email'] ?? 'N/A';
+                            $_SESSION['user_khmer_name'] = ($user['lastNameKh'] ?? 'N/A') . ' ' . ($user['firstNameKh'] ?? 'N/A');
+                            $_SESSION['dob'] = $user['dateOfBirth'] ?? 'N/A';
+                            $_SESSION['user_eng_name'] = $user['engName'] ?? 'N/A';
+                            $_SESSION['user_profile'] = 'https://hrms.iauoffsa.us/images/' . ($user['image'] ?? 'default.jpg');
+                            $_SESSION['pobAddress'] = $user['pobAddress'] ?? 'N/A';
+                            $_SESSION['currentAddress'] = $user['currentAddress'] ?? 'N/A';
+                            $_SESSION['status'] = $user['status'] ?? 'N/A';
 
-                            // telegram information 
+                            $_SESSION['role'] = $user['roleLeave'] ?? 'NULL';
+                            $_SESSION['officeId'] = $user['officeId'] ?? 'N/A';
+                            $_SESSION['departmentId'] = $user['departmentId'] ?? 'N/A';
+                            $_SESSION['isAdmin'] = $user['isAdmin'] ?? false;  // Assuming `isAdmin` should be a boolean
+                            $_SESSION['token'] = $token ?? 'N/A';
+
+                            // Telegram information 
                             $_SESSION['BotUsername'] = "myelmsbot";
                             $_SESSION['LateInBot'] = "lateinoutbot";
 
                             // Fetch additional details
-                            $position = $userModel->getRoleApi($user['roleId'], $token);
-                            $_SESSION['position'] = $position['data']['roleNameKh'];
-                            $_SESSION['position_color'] = $position['data']['color'];
-                            $department = $userModel->getDepartmentApi($user['departmentId'], $token);
-                            $_SESSION['departmentName'] = $department['data']['departmentNameKh'] ?? 'null';
-                            $office = $userModel->getOfficeApi($user['officeId'], $token);
-                            $_SESSION['officeName'] = $office['data']['officeNameKh'] ?? 'null';
+                            $position = $userModel->getRoleApi($user['roleId'] ?? '0', $token);
+                            $_SESSION['position'] = $position['data']['roleNameKh'] ?? 'N/A';
+                            $_SESSION['position_color'] = $position['data']['color'] ?? 'N/A';
+
+                            $department = $userModel->getDepartmentApi($user['departmentId'] ?? '0', $token);
+                            $_SESSION['departmentName'] = $department['data']['departmentNameKh'] ?? 'N/A';
+
+                            $office = $userModel->getOfficeApi($user['officeId'] ?? '0', $token);
+                            $_SESSION['officeName'] = $office['data']['officeNameKh'] ?? 'N/A';
 
                             // Log the login trace
                             $userModel->logLoginTrace($user['id'], $_SERVER['REMOTE_ADDR']);

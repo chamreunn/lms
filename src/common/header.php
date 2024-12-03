@@ -31,6 +31,11 @@ date_default_timezone_set('Asia/Bangkok');
     <link href="public/dist/libs/animate/animate.css?1668287865" rel="stylesheet" />
     <link href="public/dist/libs/litepicker/dist/css/plugins/multiselect.js.css?1668287865" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+
+    <!-- qr code style  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
         /* Default (Light Mode) Styles */
         .loader-wrapper {
@@ -373,4 +378,3 @@ date_default_timezone_set('Asia/Bangkok');
                             </div>
                         </div>
                     </div>
-                    

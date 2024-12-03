@@ -6,8 +6,7 @@
 <?php if (isset($_SESSION['user_id'])): ?>
     <?php if ($_SERVER['REQUEST_URI'] == '/elms/dashboard'): ?>
         <footer class="sticky-bottom">
-            <a href="/elms/usage" class="btn btn-primary mb-3 mx-3"
-                data-bs-toggle="tooltip" data-bs-placement="top"
+            <a href="/elms/usage" class="btn btn-primary mb-3 mx-3" data-bs-toggle="tooltip" data-bs-placement="top"
                 data-bs-title="របៀបប្រើប្រាស់ប្រព័ន្ធសុំច្បាប់ឌីជីថល | ជំនាន់ ១.០">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -522,6 +521,31 @@
     });
 </script>
 <!-- end display signature  -->
+
+<!-- download qr code  -->
+<script>
+    document.querySelectorAll('.downloadPoster').forEach(button => {
+        button.addEventListener('click', async function () {
+            const { jsPDF } = window.jspdf;
+            const posterElement = this.closest('.card').querySelector('.poster');
+
+            html2canvas(posterElement, {
+                scale: 3, // Increase the scale for HD quality
+                useCORS: true // Enables cross-origin resource sharing if needed
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a5'
+                });
+
+                pdf.addImage(imgData, 'PNG', 0, 0, 148, 210); // Add image to fit A5
+                pdf.save('QR-Code-Attendance-Scan.pdf');
+            });
+        });
+    });
+</script>
 
 </body>
 
