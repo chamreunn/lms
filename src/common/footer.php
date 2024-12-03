@@ -529,19 +529,34 @@
             const { jsPDF } = window.jspdf;
             const posterElement = this.closest('.card').querySelector('.poster');
 
+            // Temporarily set fixed dimensions for PDF generation
+            const originalStyles = {
+                width: posterElement.style.width,
+                height: posterElement.style.height
+            };
+            posterElement.style.width = '148mm';
+            posterElement.style.height = '210mm';
+
+            // Generate PDF from the element
             html2canvas(posterElement, {
-                scale: 3, // Increase the scale for HD quality
+                scale: 3, // Higher scale for HD quality
                 useCORS: true // Enables cross-origin resource sharing if needed
             }).then(canvas => {
+                // Revert to original styles after capturing the canvas
+                posterElement.style.width = originalStyles.width;
+                posterElement.style.height = originalStyles.height;
+
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF({
                     orientation: 'portrait',
                     unit: 'mm',
-                    format: 'a5'
+                    format: 'a5' // A5 size: 148mm x 210mm
                 });
 
-                pdf.addImage(imgData, 'PNG', 0, 0, 148, 210); // Add image to fit A5
+                pdf.addImage(imgData, 'PNG', 0, 0, 148, 210); // Fit image to A5 size
                 pdf.save('QR-Code-Attendance-Scan.pdf');
+            }).catch(error => {
+                console.error("Error generating PDF: ", error);
             });
         });
     });

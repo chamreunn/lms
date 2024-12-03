@@ -236,7 +236,7 @@ include('src/common/header.php');
             <div class="card animate__animated animate__slideInUpShort p-0">
                 <div class="card-body">
                     <!-- A5 Poster -->
-                    <div class="poster card" style="width: 148mm; height: 210mm;">
+                    <div class="poster card">
                         <div class="card-status-top bg-primary" style="height: 10px;"></div>
                         <div
                             class="card-body d-flex flex-column align-items-center text-center justify-content-between h-100">
