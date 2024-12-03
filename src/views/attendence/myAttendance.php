@@ -35,7 +35,8 @@ include('src/common/header.php');
                     $attendance = $todayAttendance[0]; // Access the first attendance record
                     if ($attendance['leave'] !== '1' && $attendance['mission'] !== '1'):
                         ?>
-                        <div class="col-sm-6 col-lg-6">
+                        <!-- late in  -->
+                        <div class="col">
                             <div class="card card-sm bg-light">
                                 <div class="card-body">
                                     <div class="row align-items-center">
@@ -70,7 +71,9 @@ include('src/common/header.php');
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-6 col-lg-6">
+
+                        <!-- late out  -->
+                        <div class="col">
                             <div class="card card-sm bg-light">
                                 <div class="card-body">
                                     <div class="row align-items-center">
@@ -102,6 +105,52 @@ include('src/common/header.php');
                                             </div>
                                             <div class="text-secondary">
                                                 ម៉ោងចេញ
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- total  -->
+                        <div class="col">
+                            <div class="card card-sm bg-light">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto">
+                                            <span class="bg-red-lt text-white avatar">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-logout">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 -2v-2" />
+                                                    <path d="M9 12h12l-3 -3" />
+                                                    <path d="M18 15l3 -3" />
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <div class="col">
+                                            <div class="fw-bolder font-weight-medium 
+                                        <?php
+                                        if (isset($attendance['total'])) {
+                                            // Convert 'total' to DateTime for comparison
+                                            $totalTime = new DateTime($attendance['total']);
+                                            $minimumTime = new DateTime('08:00:00'); // 8 hours
+                                
+                                            if ($totalTime < $minimumTime) {
+                                                echo 'text-danger'; // Red for less than 8 hours
+                                            } elseif ($totalTime < new DateTime('16:00:00')) {
+                                                echo 'text-info'; // Blue for early check-out
+                                            } else {
+                                                echo ''; // No class for valid times
+                                            }
+                                        }
+                                        ?>">
+                                                <?= $attendance['total'] ?? '--:--:--' ?>
+                                            </div>
+                                            <div class="text-secondary">
+                                                ម៉ោងសរុបថ្ងៃនេះ
                                             </div>
                                         </div>
                                     </div>
@@ -225,6 +274,23 @@ include('src/common/header.php');
                                             }
                                             ?>">
                                                 <?= $attendance['checkOut'] ?? '--:--:--' ?>
+                                            </strong>
+                                        </div>
+                                        <div class="col text-center">
+                                            <p class="text-muted">ម៉ោងសរុប</p>
+                                            <strong class="<?php
+                                            if (isset($attendance['total'])) {
+                                                $totalTime = new DateTime($attendance['total']);
+                                                $minimumTime = new DateTime('08:00:00'); // 8 hours
+                                    
+                                                if ($totalTime < $minimumTime) {
+                                                    echo 'text-danger'; // Red for less than 8 hours
+                                                } elseif ($totalTime < new DateTime('16:00:00')) {
+                                                    echo 'text-info'; // Blue for early check-out
+                                                }
+                                            }
+                                            ?>">
+                                                <?= $attendance['total'] ?? '--:--:--' ?>
                                             </strong>
                                         </div>
                                     </div>
