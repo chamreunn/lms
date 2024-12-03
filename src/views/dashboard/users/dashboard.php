@@ -80,7 +80,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         <div class="card-body">
             <div class="row g-3 align-items-center mb-3">
                 <div class="col-auto">
-                    <img src="<?= $_SESSION['user_profile'] ?? 'no image' ?>" alt="" style="object-fit: cover;"
+                    <img src="<?= $userDetails['profile_picture'] ?>" alt="" style="object-fit: cover;"
                         class="avatar avatar-lg">
                 </div>
                 <div class="col-auto px-3">
@@ -205,6 +205,36 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                     <?php endif; ?>
                 </div>
             </div>
+            <div class="mb-3">
+                    <button class="btn btn-primary" id="scanQrButton">
+                        <span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="icon icon-tabler icons-tabler-outline icon-tabler-scan">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M4 7v-1a2 2 0 0 1 2 -2h2" />
+                                <path d="M4 17v1a2 2 0 0 0 2 2h2" />
+                                <path d="M16 4h2a2 2 0 0 1 2 2v1" />
+                                <path d="M16 20h2a2 2 0 0 0 2 -2v-1" />
+                                <path d="M5 12l14 0" />
+                            </svg>
+                        </span>
+                        ស្កេនវត្តមាន
+                    </button>
+                </div>
+
+                <!-- QR Reader -->
+                <div id="cameraWrapper" class="modal-blur camera-wrapper" style="display: none;">
+                    <div class="camera-container bg-primary-lt">
+                        <div id="reader" style="width: 100%; height: 100%;"></div>
+                        <!-- Stop Scanning Button -->
+                        <button class="btn btn-danger mt-3" id="stopScanButton" style="display: none;">បោះបង់ការស្កេន
+                        </button>
+                    </div>
+                </div>
+
+                <!-- QR Result -->
+                <p id="qrResult" class="text-success fw-bold" style="font-size: 1.2rem;"></p>
         </div>
     </div>
 <?php else: ?>
