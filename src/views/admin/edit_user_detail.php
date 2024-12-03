@@ -406,7 +406,7 @@ include('src/common/header.php');
     <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">...</div>
 </div>
 <!-- Modal to change profile picture -->
-<div class="modal fade" id="editModel" tabindex="-1" aria-hidden="true">
+<div class="modal modal-blur fade" id="editModel" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -416,7 +416,7 @@ include('src/common/header.php');
             <form action="/elms/change-profile-picture" method="POST" enctype="multipart/form-data">
                 <div class="modal-body">
                     <div class="text-center mb-4">
-                        <div class="avatar avatar-xl rounded-circle border border-primary" id="preview"
+                        <div class="avatar avatar-xl rounded border border-primary" id="preview"
                             style="background-image: url('<?= $userDetails['profile_picture'] ?>'); background-size: cover; background-position: center;">
                         </div>
                     </div>
@@ -427,11 +427,6 @@ include('src/common/header.php');
                             <input type="file" name="profile_picture" accept="image/*" hidden
                                 onchange="showPreview(event, 'preview')">
                         </label>
-                    </div>
-                    <div id="previewContainer" class="d-none">
-                        <p class="text-muted">Preview:</p>
-                        <img id="imgPreview" class="img-fluid rounded" alt="Selected image preview"
-                            style="max-width: 100%;">
                     </div>
                 </div>
                 <div class="modal-footer">

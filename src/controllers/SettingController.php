@@ -361,7 +361,7 @@ class SettingController
         if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == UPLOAD_ERR_OK) {
             $userModel = new User();
             $userId = $_SESSION['user_id'];
-
+            $token = $_SESSION['token'];
             // Handle file upload
             $file = $_FILES['profile_picture'];
             $fileTmpPath = $file['tmp_name'];
@@ -374,15 +374,15 @@ class SettingController
             // Move uploaded file to the desired directory
             if (move_uploaded_file($fileTmpPath, $uploadFilePath)) {
                 // Send the file itself to the API, not just the path
-                $apiResponse = $userModel->updateUserProfileApi($userId, $uploadFilePath, $_SESSION['token']);
+                $apiResponse = $userModel->updateUserProfileApi($userId, $uploadFilePath, $token);
 
                 if ($apiResponse['success']) {
                     // Store the uploaded file path in session
                     $_SESSION['profile_picture'] = $uploadFilePath;
 
                     $_SESSION['success'] = [
-                        'title' => "Success",
-                        'message' => "Profile picture updated successfully.",
+                        'title' => "ជោគជ័យ",
+                        'message' => "អ្នកបានផ្លាស់ប្តូររូបភាពដោយជោគជ័យ។",
                     ];
                 } else {
                     error_log("API response: " . print_r($apiResponse, true));
