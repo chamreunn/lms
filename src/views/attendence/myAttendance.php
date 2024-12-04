@@ -12,8 +12,8 @@ include('src/common/header.php');
     <div class="card-body">
         <div class="row g-3 align-items-center mb-3">
             <div class="col-auto">
-                <img src="<?= $_SESSION['user_profile'] ?? 'no image' ?>" alt="" style="object-fit: cover;"
-                    class="avatar avatar-lg">
+                <img src="<?= $userDetails['profile_picture'] ?>" alt="" style="object-fit: cover;"
+                    class="avatar avatar-lg"> 
             </div>
             <div class="col-auto px-3">
                 <h2><?= $_SESSION['user_khmer_name'] ?? 'No Name' ?></h2>
