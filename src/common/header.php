@@ -86,70 +86,86 @@ date_default_timezone_set('Asia/Bangkok');
 
 <body class="loading">
 
-<style>
-    .loader-wrapper {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(10px);
-        z-index: 9999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .spinner-container {
-        position: relative;
-        width: 150px;
-        height: 150px;
-    }
-
-    .spinner {
-        width: 100%;
-        height: 100%;
-        border: 5px solid rgba(52, 152, 219, 0.3);
-        border-top-color: #3498db;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    .logo-loader {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 80px;
-        height: 80px;
-        background-image: url('public/img/icons/brands/logo2.png');
-        background-size: contain;
-        background-repeat: no-repeat;
-        transform: translate(-50%, -50%);
-    }
-
-    @keyframes spin {
-        from {
-            transform: rotate(0deg);
+    <style>
+        .loader-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        to {
-            transform: rotate(360deg);
+
+        .spinner-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
         }
-    }
 
-    body.dark-theme .loader-wrapper {
-        background-color: rgba(0, 0, 0, 0.9);
-    }
-</style>
+        .spinner {
+            width: 100%;
+            height: 100%;
+            border: 5px solid rgba(52, 152, 219, 0.3);
+            border-top-color: #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
 
-<div id="loader-wrapper" class="loader-wrapper">
-    <div class="spinner-container">
-        <div class="spinner"></div>
-        <div class="logo-loader"></div>
+        .logo-loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80px;
+            height: 80px;
+            background-image: url('public/img/icons/brands/logo2.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Adjust sizes for small screens */
+        @media (max-width: 768px) {
+            .spinner-container {
+                width: 100px;
+                height: 100px;
+            }
+
+            .spinner {
+                border-width: 3px;
+            }
+
+            .logo-loader {
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        body.dark-theme .loader-wrapper {
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+    </style>
+
+    <div id="loader-wrapper" class="loader-wrapper">
+        <div class="spinner-container">
+            <div class="spinner"></div>
+            <div class="logo-loader"></div>
+        </div>
     </div>
-</div>
-
-
 
     <script src="public/dist/js/demo-theme.min.js?1668287865"></script>
 
