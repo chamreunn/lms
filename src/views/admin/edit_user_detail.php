@@ -44,7 +44,8 @@ include('src/common/header.php');
                                 <div class="d-flex align-items-center justify-contenter-center">
                                     <div class="d-flex flex-column">
                                         <img class="avatar avatar-xl rounded mb-2"
-                                            src="<?= $userDetails['profile_picture'] ?>" style="object-fit: cover;" alt="">
+                                            src="<?= htmlspecialchars($userDetails['profile_picture']) ?>"
+                                            style="object-fit: cover;" alt="">
                                         <button class="btn btn-sm btn-primary mb-0" data-bs-toggle="modal"
                                             data-bs-target="#editModel">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -62,14 +63,12 @@ include('src/common/header.php');
                                         </button>
                                     </div>
                                     <div class="d-flex flex-column mx-2">
-                                        <h1 class="mb-2"><?= $_SESSION['user_khmer_name'] ?></h1>
+                                        <h1 class="mb-2"><?= htmlspecialchars($userDetails['user_name']) ?></h1>
                                         <p class="mb-2">
                                             <span
-                                                class="badge <?= $_SESSION['position_color'] ?>"><?= $_SESSION['position'] ?>
-                                            </span>
-                                            | <?= $_SESSION['departmentName'] ?>
+                                                class="badge <?= htmlspecialchars($userDetails['position_color']) ?>"><?= htmlspecialchars($userDetails['rolename']) ?></span>
+                                            | <?= htmlspecialchars($userDetails['department_name']) ?>
                                         </p>
-
                                     </div>
                                 </div>
                             </div>
@@ -83,7 +82,7 @@ include('src/common/header.php');
                                             </div>
                                             <div class="col-auto text-start">
                                                 <p class="fw-bold">
-                                                    <?= htmlspecialchars($_SESSION['idCard']) ?>
+                                                    <?= htmlspecialchars($userDetails['user_id']) ?>
                                                 </p>
                                             </div>
                                         </div>
@@ -93,7 +92,7 @@ include('src/common/header.php');
                                             </div>
                                             <div class="col-auto text-start">
                                                 <p class="fw-bold">
-                                                    <?= htmlspecialchars($_SESSION['contact']) ?>
+                                                    <?= htmlspecialchars($userDetails['phone_number']) ?>
                                                 </p>
                                             </div>
                                         </div>
@@ -106,7 +105,7 @@ include('src/common/header.php');
                                             </div>
                                             <div class="col-auto text-start">
                                                 <p class="fw-bold">
-                                                    <?= htmlspecialchars($_SESSION['email']) ?>
+                                                    <?= htmlspecialchars($userDetails['email']) ?>
                                                 </p>
                                             </div>
                                         </div>
@@ -116,7 +115,7 @@ include('src/common/header.php');
                                             </div>
                                             <div class="col-auto text-start">
                                                 <p class="fw-bold">
-                                                    <?= htmlspecialchars($_SESSION['user_eng_name']) ?>
+                                                    <?= htmlspecialchars($userDetails['user_eng_name']) ?>
                                                 </p>
                                             </div>
                                         </div>
@@ -128,12 +127,147 @@ include('src/common/header.php');
                 </div>
             </div>
 
-            <!-- personal information  -->
+            <!-- Personal Information -->
             <div class="col-lg-4 col-sm-12 col-md-12">
                 <div class="card">
                     <div class="card-header d-flex align-items-center justify-content-between">
                         <div class="card-tittle">
-                            <h3 class="mb-0">ព័ត៌មានផ្ទាល់ខ្លួន</h3>
+                            <h3 class="text-primary mb-0">ព័ត៌មានផ្ទាល់ខ្លួន</h3>
+                        </div>
+                        <a href="">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="icon icon-tabler icons-tabler-outline icon-tabler-pencil">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+                                <path d="M13.5 6.5l4 4" />
+                            </svg>
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Gender -->
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">ភេទ:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= $userDetails['gender'] ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Date of Birth -->
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">ថ្ងៃខែឆ្នាំកំណើត:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($userDetails['dob']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Identity Card -->
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">អត្តសញ្ញាណបណ្ណ:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($userDetails['identify_card']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Identity Card Expiry -->
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">កាលបរិច្ឆេទផុតកំណត់:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($userDetails['exprireDateIdenCard']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Passport -->
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">លិខិតឆ្លងដែន:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($userDetails['passport']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Passport Expiry -->
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">កាលបរិច្ឆេទផុតកំណត់:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($userDetails['exprirePassport']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Nationality -->
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">សញ្ជាតិ:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($userDetails['nationality']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Marital Status -->
+                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">ស្ថានភាពគ្រួសារ:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($userDetails['marital_status']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Place of Birth -->
+                            <div class="col-12 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">ទីកន្លែងកំណើត:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($userDetails['address']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Current Address -->
+                            <div class="col-12 d-flex flex-column justify-content-between">
+                                <div class="col-auto text-start">
+                                    <dd class="text-muted">អាសយដ្ឋានបច្ចុប្បន្ន:</dd>
+                                </div>
+                                <div class="col-auto text-start">
+                                    <p class="fw-bold">
+                                        <?= htmlspecialchars($userDetails['curaddress']) ?>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8 col-sm-12 col-md-8">
+                <!-- first of work  -->
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="card-tittle">
+                            <h3 class="mb-0 text-primary">ចូលបម្រើការងាររដ្ឋដំបូង</h3>
                         </div>
 
                         <a href="">
@@ -151,34 +285,27 @@ include('src/common/header.php');
                         <div class="row">
                             <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
                                 <div class="col-auto text-start">
-                                    <dd class="text-muted">ភេទ:</dd>
+                                    <dd class="text-muted">កាលបរិច្ឆេទចូលបម្រើការងាររដ្ឋដំបូង:</dd>
                                 </div>
                                 <div class="col-auto text-start">
                                     <p class="fw-bold">
-                                        <?php
-                                        // Display gender based on the value in $_SESSION['gender']
-                                        if ($_SESSION['gender'] === 'm') {
-                                            echo 'ប្រុស'; // Male
-                                        } else {
-                                            echo 'ស្រី'; // Female
-                                        }
-                                        ?>
+                                        <?= htmlspecialchars($userDetails['date_enteing_public_service']) ?>
                                     </p>
                                 </div>
                             </div>
                             <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
                                 <div class="col-auto text-start">
-                                    <dd class="text-muted">ថ្ងៃខែឆ្នាំកំណើត:</dd>
+                                    <dd class="text-muted">ក្របខណ្ឌ ឋានន្តរស័ក្ត​ និងថ្នាក់:</dd>
                                 </div>
                                 <div class="col-auto text-start">
                                     <p class="fw-bold">
-                                        <?= htmlspecialchars($_SESSION['dob']) ?>
+                                        <?= htmlspecialchars($userDetails['economy_enteing_public_service']) ?>
                                     </p>
                                 </div>
                             </div>
                             <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
                                 <div class="col-auto text-start">
-                                    <dd class="text-muted">អត្តសញ្ញាណបណ្ណ:</dd>
+                                    <dd class="text-muted">មុខតំណែង:</dd>
                                 </div>
                                 <div class="col-auto text-start">
                                     <p class="fw-bold">
@@ -188,7 +315,7 @@ include('src/common/header.php');
                             </div>
                             <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
                                 <div class="col-auto text-start">
-                                    <dd class="text-muted">កាលបរិច្ឆេទផុតកំណត់:</dd>
+                                    <dd class="text-muted">ក្រសួង/ស្ថាប័ន:</dd>
                                 </div>
                                 <div class="col-auto text-start">
                                     <p class="fw-bold">
@@ -198,7 +325,7 @@ include('src/common/header.php');
                             </div>
                             <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
                                 <div class="col-auto text-start">
-                                    <dd class="text-muted">លិខិតឆ្លងដែន:</dd>
+                                    <dd class="text-muted">អង្គភាព:</dd>
                                 </div>
                                 <div class="col-auto text-start">
                                     <p class="fw-bold">
@@ -208,7 +335,7 @@ include('src/common/header.php');
                             </div>
                             <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
                                 <div class="col-auto text-start">
-                                    <dd class="text-muted">កាលបរិច្ឆេទផុតកំណត់:</dd>
+                                    <dd class="text-muted">នាយកដ្ឋាន:</dd>
                                 </div>
                                 <div class="col-auto text-start">
                                     <p class="fw-bold">
@@ -218,7 +345,7 @@ include('src/common/header.php');
                             </div>
                             <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
                                 <div class="col-auto text-start">
-                                    <dd class="text-muted">សញ្ជាតិ:</dd>
+                                    <dd class="text-muted">ការិយាល័យ:</dd>
                                 </div>
                                 <div class="col-auto text-start">
                                     <p class="fw-bold">
@@ -226,54 +353,15 @@ include('src/common/header.php');
                                     </p>
                                 </div>
                             </div>
-                            <div class="col-lg-6 col-sm-12 col-md-6 d-flex flex-column justify-content-between">
-                                <div class="col-auto text-start">
-                                    <dd class="text-muted">ស្ថានភាពគ្រួសារ:</dd>
-                                </div>
-                                <div class="col-auto text-start">
-                                    <p class="fw-bold">
-                                        <?php
-                                        if ($_SESSION['status'] === '1') {
-                                            echo 'នៅលីវ'; // sigle
-                                        } elseif ($_SESSION['status'] === '2') {
-                                            echo 'រៀបការ'; // maried
-                                        } else {
-                                            echo 'មានគ្រួសារ';
-                                        }
-                                        ?>
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="col-12 d-flex flex-column justify-content-between">
-                                <div class="col-auto text-start">
-                                    <dd class="text-muted">ទីកន្លែងកំណើត:</dd>
-                                </div>
-                                <div class="col-auto text-start">
-                                    <p class="fw-bold">
-                                        <?= htmlspecialchars($_SESSION['pobAddress']) ?>
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="col-12 d-flex flex-column justify-content-between">
-                                <div class="col-auto text-start">
-                                    <dd class="text-muted">អាសយដ្ឋានបច្ចុប្បន្ន:</dd>
-                                </div>
-                                <div class="col-auto text-start">
-                                    <p class="fw-bold">
-                                        <?= htmlspecialchars($_SESSION['currentAddress']) ?>
-                                    </p>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-lg-8 col-sm-12 col-md-8">
+                <!-- current work  -->
                 <div class="card">
                     <div class="card-header d-flex align-items-center justify-content-between">
                         <div class="card-tittle">
-                            <h3 class="mb-0">ព័ត៌មានផ្ទាល់ខ្លួន</h3>
+                            <h3 class="text-primary mb-0">ស្ថានភាពមុខងារបច្ចុប្បន្ន</h3>
                         </div>
 
                         <a href="">
@@ -437,6 +525,8 @@ include('src/common/header.php');
     </div>
 </div>
 
+<?php include('src/common/footer.php'); ?>
+
 <script>
     function showPreview(event, previewId) {
         const file = event.target.files[0];
@@ -452,5 +542,3 @@ include('src/common/header.php');
         }
     }
 </script>
-
-<?php include('src/common/footer.php'); ?>

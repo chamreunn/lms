@@ -863,7 +863,7 @@ class AdminController
 
             if ($user_id) {
                 $userController = new AdminModel();
-                $userDetails = $userController->getUserById($user_id);
+                $userDetails = $userController->getUserByIdAPI($user_id);
                 $requests = $userController->getUserLeaveRequests($user_id);
                 $getlatein = $userController->getOvertimeIn($user_id);
                 $getleavecounts = $userController->countUserApprovedLeaveRequests($user_id);
@@ -898,20 +898,20 @@ class AdminController
 
     public function editUserDetail()
     {
-        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             // Get user_id from the query string
             $user_id = $_GET['user_id'] ?? null;
 
             if ($user_id) {
                 $userController = new AdminModel();
-                $userDetails = $userController->getUserById($user_id);
-                $requests = $userController->getUserLeaveRequests($user_id);
-                $getlatein = $userController->getOvertimeIn($user_id);
-                $getleavecounts = $userController->countUserApprovedLeaveRequests($user_id);
-                $getovertimeincount = $userController->getOvertimeInCount($user_id);
+                $userDetails = $userController->getUserByIdAPI($user_id);
 
-                require 'src/views/admin/edit_user_detail.php';
+                if ($userDetails) {
+                    // Load the view and pass the user details
+                    require 'src/views/admin/edit_user_detail.php';
+                } else {
+                    echo "Failed to fetch user details.";
+                }
             } else {
                 // Handle the case where user_id is not provided
                 echo "User ID not provided.";
@@ -1070,7 +1070,7 @@ class AdminController
                     $telegramModel = new TelegramModel($this->pdo);
 
                     // Fetch user details
-                    $userDetails = $userController->getUserById($user_id);
+                    $userDetails = $userController->getUserByIdAPI($user_id);
                     if (!$userDetails) {
                         throw new Exception("User not found.");
                     }

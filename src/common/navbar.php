@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 
 require_once 'src/models/admin/AdminModel.php';
 $userController = new AdminModel();
-$userDetails = $userController->getUserById($_SESSION['user_id']);
+$userDetails = $userController->getUserByIdAPI($_SESSION['user_id']);
 $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 ?>
 <header class="navbar navbar-expand-md navbar-light d-print-none">

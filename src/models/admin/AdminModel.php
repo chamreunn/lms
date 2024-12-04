@@ -596,104 +596,132 @@ class AdminModel
         return $this->pdo->lastInsertId();
     }
 
-    public function getUserById($user_id)
+    public function getUserByIdAPI($user_id)
     {
         $userModel = new User();
 
-        // Fetch user details from API
+        // Fetch user details from both APIs
         $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+        $userInformationApiResponse = $userModel->getUserInformationByIdApi($user_id, $_SESSION['token']);
 
-        // Debug: Log the API response
-        error_log("API Response for User ID " . $user_id . ": " . print_r($userApiResponse, true));
+        // Initialize default user details
+        $defaultDetails = [
+            'rolename' => 'N/A',
+            'user_name' => 'N/A',
+            'user_id' => 'N/A',
+            'email' => 'N/A',
+            'office_id' => 'N/A',
+            'office_name' => 'N/A',
+            'department_id' => 'N/A',
+            'department_name' => 'N/A',
+            'position_name' => 'N/A',
+            'profile_picture' => 'default-profile.png',
+            'date_of_birth' => 'N/A',
+            'gender' => 'N/A',
+            'user_eng_name' => 'N/A',
+            'active' => 'N/A',
+            'activeStatus' => 'N/A',
+            'address' => 'N/A',
+            'curaddress' => 'N/A',
+            'password' => 'N/A',
+            'marital_status' => 'N/A',
+            'dob' => 'N/A',
+            'identify_card' => 'N/A',
+            'exprireDateIdenCard' => 'N/A',
+            'passport' => 'N/A',
+            'exprirePassport' => 'N/A',
+            'nationality' => 'N/A',
+            'date_enteing_public_service' => 'N/A',
+            'user_information' => [],
+            'additional_position_current_job' => [],
+            'working_history_public' => [],
+            'working_history_private' => [],
+            'modal_certificate' => [],
+            'education_level' => [],
+            'ability_language' => [],
+            'family' => [],
+            'documents' => []
+        ];
 
-        // Check if the API response is successful
-        if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
-            $user = $userApiResponse['data'];
+        // Extract main user data
+        $user = $userApiResponse['data'] ?? [];
 
-            // Fetch position details from API
-            $roleApiResponse = $userModel->getRoleApi($user['roleId'], $_SESSION['token']);
-            $officeApiResponse = $userModel->getOfficeApi($user['officeId'], $_SESSION['token']);
-            $departmentApiResponse = $userModel->getDepartmentApi($user['departmentId'], $_SESSION['token']);
+        // Extract user information data
+        $userInformation = $userInformationApiResponse['response'] ?? [];
 
-            // Debug: Log the role API response
-            error_log("API Response for Role ID " . $user['roleId'] . ": " . print_r($roleApiResponse, true));
-            error_log("API Response for Office ID " . $user['officeId'] . ": " . print_r($officeApiResponse, true));
-            error_log("API Response for Department ID " . $user['departmentId'] . ": " . print_r($departmentApiResponse, true));
+        // Map and merge data into user details
+        $userDetails = array_merge($defaultDetails, [
+            'user_id' => $user['id'] ?? 'N/A',
+            'email' => $user['email'] ?? 'N/A',
+            'phone_number' => $user['phoneNumber'] ?? 'N/A',
+            'user_name' => ($user['lastNameKh'] ?? '') . " " . ($user['firstNameKh'] ?? 'N/A'),
+            'profile_picture' => isset($user['image']) ? 'https://hrms.iauoffsa.us/images/' . $user['image'] : 'default-profile.png',
+            'date_of_birth' => $user['dateOfBirth'] ?? 'N/A',
+            'gender' => $user['gender'] === 'f' ? 'ស្រី' : 'ប្រុស',
+            'user_eng_name' => $user['engName'] ?? 'N/A',
+            'active' => isset($user['active']) && $user['active'] === '1' ? 'Active' : 'Inactive',
+            'activeStatus' => $user['active'] ?? 'N/A',
+            'address' => $user['pobAddress'] ?? 'N/A',
+            'curaddress' => $user['currentAddress'] ?? 'N/A',
+            'password' => $user['password'] ?? 'N/A',
+            'marital_status' => $this->getMaritalStatus($user['status'] ?? '') ?? 'N/A',
+            'dob' => $user['dateOfBirth'] ?? 'N/A',
+            'identify_card' => $user['identifyCard'] ?? 'N/A',
+            'exprireDateIdenCard' => $user['exprireDateIdenCard'] ?? 'N/A',
+            'passport' => $user['passport'] ?? 'N/A',
+            'exprirePassport' => $user['exprirePassport'] ?? 'N/A',
+            'nationality' => $user['nationality'] ?? 'N/A',
 
-            $roleName = 'Unknown';
-            $officeName = 'Unknown';
-            $departmentName = 'Unknown';
+            // User information data
+            'date_enteing_public_service' => $userInformation['userInformation'][0]['date_enteing_public_service'] ?? 'N/A',
+            'economy_enteing_public_service' => $userInformation['userInformation'][0]['economy_enteing_public_service'] ?? 'N/A',
+            'user_information' => $userInformation['userInformation'] ?? [],
+            'additional_position_current_job' => !empty($userInformation['additionalPositionCurrentJob']) ? $userInformation['additionalPositionCurrentJob'] : [],
+            'working_history_public' => !empty($userInformation['userWoringHistoryPublicSetor']) ? $userInformation['userWoringHistoryPublicSetor'] : [],
+            'working_history_private' => !empty($userInformation['userWoringHistoryPrivateSetor']) ? $userInformation['userWoringHistoryPrivateSetor'] : [],
+            'modal_certificate' => !empty($userInformation['userModalCertificate']) ? $userInformation['userModalCertificate'] : [],
+            'education_level' => !empty($userInformation['userEducationLevel']) ? $userInformation['userEducationLevel'] : [],
+            'ability_language' => !empty($userInformation['userAbilityLanguage']) ? $userInformation['userAbilityLanguage'] : [],
+            'family' => $userInformation['userFamily'] ?? [],
+            'documents' => !empty($userInformation['userDocument']) ? $userInformation['userDocument'] : []
+        ]);
 
-            if ($roleApiResponse && $roleApiResponse['http_code'] === 200 && isset($roleApiResponse['data']) && is_array($roleApiResponse['data'])) {
-                $roleData = $roleApiResponse['data'];
-                $roleName = $roleData['roleNameKh'] ?? 'Unknown';
-            }
+        // Fetch role, office, and department details
+        $roleApiResponse = $userModel->getRoleApi($user['roleId'] ?? null, $_SESSION['token']);
+        if ($roleApiResponse && $roleApiResponse['http_code'] === 200 && isset($roleApiResponse['data'])) {
+            $userDetails['rolename'] = $roleApiResponse['data']['roleNameKh'] ?? 'N/A';
+            $userDetails['position_color'] = $roleApiResponse['data']['color'] ?? 'N/A';
+        }
 
-            if ($officeApiResponse && $officeApiResponse['http_code'] === 200 && isset($officeApiResponse['data']) && is_array($officeApiResponse['data'])) {
-                $officeData = $officeApiResponse['data'];
-                $officeName = $officeData['officeNameKh'] ?? 'Unknown';
-            }
+        $officeApiResponse = $userModel->getOfficeApi($user['officeId'] ?? null, $_SESSION['token']);
+        if ($officeApiResponse && $officeApiResponse['http_code'] === 200 && isset($officeApiResponse['data'])) {
+            $userDetails['office_name'] = $officeApiResponse['data']['officeNameKh'] ?? 'N/A';
+            $userDetails['office_id'] = $officeApiResponse['data']['id'] ?? 'N/A';
+        }
 
-            if ($departmentApiResponse && $departmentApiResponse['http_code'] === 200 && isset($departmentApiResponse['data']) && is_array($departmentApiResponse['data'])) {
-                $departmentData = $departmentApiResponse['data'];
-                $departmentName = $departmentData['departmentNameKh'] ?? 'Unknown';
-            }
+        $departmentApiResponse = $userModel->getDepartmentApi($user['departmentId'] ?? null, $_SESSION['token']);
+        if ($departmentApiResponse && $departmentApiResponse['http_code'] === 200 && isset($departmentApiResponse['data'])) {
+            $userDetails['department_name'] = $departmentApiResponse['data']['departmentNameKh'] ?? 'N/A';
+            $userDetails['department_id'] = $departmentApiResponse['data']['id'] ?? 'N/A';
+        }
 
-            // Determine gender based on the API response
-            $gender = 'Unknown';
-            if ($user['gender'] === 'f') {
-                $gender = 'ស្រី';
-            } elseif ($user['gender'] === 'm') {
-                $gender = 'ប្រុស';
-            }
+        return $userDetails;
+    }
 
-            $active = 'Unknow';
-            if ($user['active'] === '1') {
-                $active = 'Active';
-            } else {
-                $active = 'Inactive';
-            }
-
-            // Fetch additional user details from the API
-            $userDetails = [
-                'rolename' => $roleName,
-                'phone_number' => $user['phoneNumber'],
-                'user_name' => $user['lastNameKh'] . " " . $user['firstNameKh'],
-                'user_id' => $user['id'] ?? 'Unknown',
-                'email' => $user['email'] ?? 'Unknown',
-                'office_id' => $user['office']['id'] ?? 'Unknown',
-                'office_name' => $officeName,
-                'department_id' => $user['department']['id'] ?? 'Unknown',
-                'department_name' => $departmentName,
-                'position_name' => $user['position']['name'] ?? 'Unknown',
-                'profile_picture' => 'https://hrms.iauoffsa.us/images/' . $user['image'] ?? 'default-profile.png',
-                'date_of_birth' => $user['dateOfBirth'],
-                'gender' => $gender,
-                'user_eng_name' => $user['engName'],
-                'active' => $active,
-                'activeStatus' => $user['active'],
-                'address' => $user['pobAddress'],
-                'curaddress' => $user['currentAddress'],
-                'password' => $user['password']
-            ];
-
-            return $userDetails;
-        } else {
-            // Handle cases where the API call fails or returns no data
-            error_log("API call failed for User ID " . $user_id . ". Returning default values.");
-
-            return [
-                'rolename' => 'Unknown',
-                'user_name' => 'Unknown',
-                'user_id' => 'Unknown',
-                'email' => 'Unknown',
-                'office_id' => 'Unknown',
-                'office_name' => 'Unknown',
-                'department_id' => 'Unknown',
-                'department_name' => 'Unknown',
-                'position_name' => 'Unknown',
-                'profile_picture' => 'default-profile.png'
-            ];
+    /**
+     * Helper function to map marital status.
+     */
+    private function getMaritalStatus($status)
+    {
+        switch ($status) {
+            case '1':
+                return 'នៅលីវ'; // Single
+            case '2':
+                return 'ភ្ជាប់ពាក្យ'; // Engaged
+            case '3':
+                return 'រៀបអាពាហ៍ពិពាហ៍'; // Married
+            default:
+                return 'N/A';
         }
     }
 
