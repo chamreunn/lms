@@ -8,6 +8,7 @@ include('src/common/header.php');
         Delete All
     </button>
 </div>
+
 <?php if (!empty($getQRs)): ?>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         <?php foreach ($getQRs as $index => $qr): ?>
@@ -29,7 +30,8 @@ include('src/common/header.php');
                         <!-- QR Code -->
                         <div class="mb-3">
                             <img src="data:image/png;base64,<?= htmlspecialchars($qr['image']) ?>" alt="QR Code"
-                                class="img-fluid rounded" style="max-width: 150px;">
+                                class="img-fluid rounded" style="max-width: 150px;" data-bs-toggle="modal"
+                                data-bs-target="#qrModal<?= $qr['id'] ?>">
                         </div>
                     </div>
                     <div class="card-footer bg-light w-100">
@@ -42,16 +44,162 @@ include('src/common/header.php');
                                 </button>
                             </div>
                             <div class="col">
-                                <!-- Download Action -->
-                                <form action="/elms/downloadqr" method="get">
-                                    <input type="hidden" name="qr_id" value="<?= htmlspecialchars($qr['id']) ?>">
-                                    <input type="hidden" name="user_name" value="<?= htmlspecialchars($qr['user_name']) ?>">
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        Download QR
-                                    </button>
-                                </form>
+                                <!-- Open Modal for Download -->
+                                <button class="btn btn-primary w-100" data-bs-toggle="modal"
+                                    data-bs-target="#qrModal<?= $qr['id'] ?>">
+                                    View QR
+                                </button>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal for QR View & Download -->
+            <div class="modal fade" id="qrModal<?= $qr['id'] ?>" tabindex="-1" aria-labelledby="qrModalLabel<?= $qr['id'] ?>"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="qrModalLabel<?= $qr['id'] ?>">QR Code -
+                                <?= htmlspecialchars($qr['user_name']) ?>
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- A5 Poster -->
+                            <div class="poster card">
+                                <div class="card-status-top bg-primary" style="height: 10px;"></div>
+                                <div
+                                    class="card-body d-flex flex-column align-items-center text-center justify-content-between h-100">
+                                    <div class="card-stamp mt-2">
+                                        <div class="card-stamp-icon bg-primary">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-qrcode">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path
+                                                    d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+                                                <path d="M7 17l0 .01" />
+                                                <path
+                                                    d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+                                                <path d="M7 7l0 .01" />
+                                                <path
+                                                    d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+                                                <path d="M17 7l0 .01" />
+                                                <path d="M14 14l3 0" />
+                                                <path d="M20 14l0 .01" />
+                                                <path d="M14 14l0 3" />
+                                                <path d="M14 20l3 0" />
+                                                <path d="M17 17l3 0" />
+                                                <path d="M20 17l0 3" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <!-- Logo Section -->
+                                    <div class="mb-2">
+                                        <img src="public/img/icons/brands/Login_logo_350.png" alt="Logo"
+                                            style="max-width: 150px;" class="img-fluid">
+                                    </div>
+                                    <div class="mb-0 mt-0">
+                                        <p class="text-primary fs-3 fw-bold">
+                                            <span class="text-danger"
+                                                style="font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">QR
+                                                Code</span>សម្រាប់ស្កេនវត្តមានប្រចាំថ្ងៃរបស់អ្នក
+                                        </p>
+                                    </div>
+                                    <!-- QR Code Section -->
+                                    <div class="mb-0 position-relative d-flex flex-column align-items-center">
+                                        <div class="qr-wrapper position-relative" style="border-radius: 12px;">
+                                            <!-- Angled Corners -->
+                                            <div class="position-absolute top-0 start-0"
+                                                style="border-left: 5px solid #000; border-top: 5px solid #000; width: 40px; height: 40px;">
+                                            </div>
+                                            <div class="position-absolute top-0 end-0"
+                                                style="border-right: 5px solid #000; border-top: 5px solid #000; width: 40px; height: 40px;">
+                                            </div>
+                                            <div class="position-absolute bottom-0 start-0"
+                                                style="border-left: 5px solid #000; border-bottom: 5px solid #000; width: 40px; height: 40px;">
+                                            </div>
+                                            <div class="position-absolute bottom-0 end-0"
+                                                style="border-right: 5px solid #000; border-bottom: 5px solid #000; width: 40px; height: 40px;">
+                                            </div>
+                                            <!-- QR Code -->
+                                            <div class="text-center">
+                                                <img src="data:image/png;base64,<?= htmlspecialchars($qr['image']) ?>"
+                                                    alt="QR Code" class="img-fluid" style="max-width: 300px;">
+                                            </div>
+                                        </div>
+                                        <!-- User Name -->
+                                        <h1 class="text-primary mt-3"><?= htmlspecialchars($qr['user_name']) ?></h1>
+                                    </div>
+
+                                    <!-- User Name Section -->
+                                    <footer>
+                                        <small class="text-danger"><em>*
+                                                សូមទំនាក់ទំនងមកការិ.ព័ត៌មានវិទ្យាប្រសិនបើលោកអ្នកមានបញ្ហាក្នុងការប្រើប្រាស់ប្រព័ន្ធ</em></small>
+                                    </footer>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <!-- Modified Download Button to Trigger PDF Download -->
+                            <button type="button" class="btn btn-success downloadPosterQR">Download as PDF</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                        <script>
+                            // Attach the download functionality to each button
+                            document.querySelectorAll('.downloadPosterQR').forEach(button => {
+                                button.addEventListener('click', async function () {
+                                    const { jsPDF } = window.jspdf;
+
+                                    // Locate the closest modal's poster element
+                                    const modal = this.closest('.modal');
+                                    const posterElement = modal.querySelector('.poster');
+
+                                    if (!posterElement) {
+                                        console.error("Poster element not found for this modal");
+                                        return;
+                                    }
+
+                                    try {
+                                        // Save original styles and adjust dimensions for rendering
+                                        const originalStyles = {
+                                            width: posterElement.style.width,
+                                            height: posterElement.style.height
+                                        };
+
+                                        posterElement.style.width = '148mm'; // Set width to A5 dimensions
+                                        posterElement.style.height = '210mm'; // Set height to A5 dimensions
+
+                                        // Capture poster as a canvas using html2canvas
+                                        const canvas = await html2canvas(posterElement, {
+                                            scale: 3, // Enhance resolution
+                                            useCORS: true, // Ensure CORS compliance for external resources
+                                        });
+
+                                        // Restore original styles
+                                        posterElement.style.width = originalStyles.width;
+                                        posterElement.style.height = originalStyles.height;
+
+                                        // Convert canvas to image and generate a PDF
+                                        const imgData = canvas.toDataURL('image/png');
+                                        const pdf = new jsPDF({
+                                            orientation: 'portrait',
+                                            unit: 'mm',
+                                            format: 'a5', // A5 dimensions
+                                        });
+
+                                        pdf.addImage(imgData, 'PNG', 0, 0, 148, 210); // Add image to fit A5 size
+                                        const userName = posterElement.querySelector('h1.text-primary')?.textContent || 'QR-Code';
+                                        pdf.save(`${userName}-QR-Code.pdf`); // Save the file as user-specific QR code
+                                    } catch (error) {
+                                        console.error("Error generating PDF: ", error);
+                                    }
+                                });
+                            });
+                        </script>
                     </div>
                 </div>
             </div>
@@ -108,6 +256,5 @@ include('src/common/header.php');
         </div>
     </div>
 <?php endforeach; ?>
-
 
 <?php include('src/common/footer.php'); ?>
