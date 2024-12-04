@@ -697,6 +697,12 @@ asyncHandler(function () {
                 $controller->deleteQR();
             });
             break;
+        case $base_url . '/dlallqr':
+            checkSessionAndExecute(function () {
+                $controller = new AdminController();
+                $controller->deleteAllQR();
+            });
+            break;
         case $base_url . '/ipaddress':
             checkSessionAndExecute(function () {
                 $controller = new AdminController();

@@ -1609,4 +1609,33 @@ class AdminController
             }
         }
     }
+
+    public function deleteAllQR()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Call the QR Model
+            $qrcode = new QrModel();
+
+            // Attempt to delete all QR records
+            $success = $qrcode->deleteAllQRCodes();
+
+            if ($success) {
+                // Redirect or show success message
+                $_SESSION['success'] = [
+                    'title' => "ជោគជ័យ",
+                    'message' => "បានលុប QR Code ទាំងអស់ដោយជោគជ័យ។"
+                ];
+            } else {
+                // Handle failure case
+                $_SESSION['error'] = [
+                    'title' => "បរាជ័យ",
+                    'message' => "មិនអាចលុប QR Code ទាំងអស់បានទេ។"
+                ];
+            }
+
+            // Redirect to the QR list page
+            header("Location: /elms/allqr");
+            exit();
+        }
+    }
 }

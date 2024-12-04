@@ -172,5 +172,19 @@ class QrModel
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC); // Return the fetched result
     }
+
+    public function deleteAllQRCodes()
+    {
+        try {
+            // Execute the SQL query to delete all records in the QR codes table
+            $stmt = $this->pdo->prepare("DELETE FROM {$this->qrcode}");
+            return $stmt->execute(); // Returns true if successful
+        } catch (PDOException $e) {
+            // Log error for debugging
+            error_log("Error deleting all QR codes: " . $e->getMessage());
+            return false; // Return false if an error occurs
+        }
+    }
+
 }
 

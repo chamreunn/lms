@@ -5,19 +5,23 @@ function showAlert($sessionType, $alertType, $iconPath, $bgColor)
         <div id="customAlert"
             class="col-10 col-lg-3 col-md-10 col-sm-10 alert alert-<?php echo $alertType; ?> position-fixed top-0 start-50 translate-middle-x mt-3 shadow animate__animated"
             style="z-index: 999999;" role="alert">
-            <div class="d-flex align-items-center">
-                <div class="p-2 rounded-circle border border-<?php echo $alertType; ?>">
-                    <!-- SVG icon -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        class="icon icon-tabler icons-tabler-outline icon-tabler-<?php echo $iconPath; ?>">
-                        <?php echo $bgColor; ?>
-                    </svg>
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <div class="p-2 rounded-circle border border-<?php echo $alertType; ?>">
+                        <!-- SVG icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="icon icon-tabler icons-tabler-outline icon-tabler-<?php echo $iconPath; ?>">
+                            <?php echo $bgColor; ?>
+                        </svg>
+                    </div>
+                    <div class="ms-2 w-100">
+                        <h4 class="alert-title"><?php echo htmlentities($_SESSION[$sessionType]['title']); ?></h4>
+                        <div class="text-secondary"><?php echo htmlentities($_SESSION[$sessionType]['message']); ?></div>
+                    </div>
                 </div>
-                <div class="ms-2 w-100">
-                    <h4 class="alert-title"><?php echo htmlentities($_SESSION[$sessionType]['title']); ?></h4>
-                    <div class="text-secondary"><?php echo htmlentities($_SESSION[$sessionType]['message']); ?></div>
-                </div>
+                <!-- Dismiss Button -->
+                <button type="button" class="btn-close" aria-label="Close" onclick="dismissAlert()"></button>
             </div>
             <div class="progress mt-2" style="height: 2px; position: absolute; bottom: 0; left: 0; width: 100%;">
                 <div class="progress-bar bg-<?php echo $alertType; ?>" id="<?php echo $sessionType; ?>Progress"
@@ -35,13 +39,18 @@ function showAlert($sessionType, $alertType, $iconPath, $bgColor)
 
                 if (duration <= 0) {
                     clearInterval(interval);
-                    alert.classList.remove('animate__bounceInDown');
-                    alert.classList.add('animate__bounceOutUp');
-                    setTimeout(function () {
-                        alert.remove();
-                    }, 1000); // Allow animation to complete before removing element
+                    dismissAlert();
                 }
             }, 100);
+
+            // Dismiss Alert Function
+            function dismissAlert() {
+                alert.classList.remove('animate__bounceInDown');
+                alert.classList.add('animate__bounceOutUp');
+                setTimeout(function () {
+                    alert.remove();
+                }, 1000); // Allow animation to complete before removing element
+            }
         </script>
         <?php unset($_SESSION[$sessionType]);
     endif;

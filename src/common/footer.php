@@ -562,6 +562,60 @@
     });
 </script>
 
+<!-- admin download qr code for user  -->
+<script>
+    // Attach the download functionality to each button
+    document.querySelectorAll('.downloadPosterQR').forEach(button => {
+        button.addEventListener('click', async function () {
+            const { jsPDF } = window.jspdf;
+
+            // Locate the closest modal's poster element
+            const modal = this.closest('.modal');
+            const posterElement = modal.querySelector('.poster');
+
+            if (!posterElement) {
+                console.error("Poster element not found for this modal");
+                return;
+            }
+
+            try {
+                // Save original styles and adjust dimensions for rendering
+                const originalStyles = {
+                    width: posterElement.style.width,
+                    height: posterElement.style.height
+                };
+
+                posterElement.style.width = '148mm'; // Set width to A5 dimensions
+                posterElement.style.height = '210mm'; // Set height to A5 dimensions
+
+                // Capture poster as a canvas using html2canvas
+                const canvas = await html2canvas(posterElement, {
+                    scale: 3, // Enhance resolution
+                    useCORS: true, // Ensure CORS compliance for external resources
+                });
+
+                // Restore original styles
+                posterElement.style.width = originalStyles.width;
+                posterElement.style.height = originalStyles.height;
+
+                // Convert canvas to image and generate a PDF
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a5', // A5 dimensions
+                });
+
+                pdf.addImage(imgData, 'PNG', 0, 0, 148, 210); // Add image to fit A5 size
+                const userName = posterElement.querySelector('h1.text-primary')?.textContent || 'QR-Code';
+                pdf.save(`${userName}-QR-Code.pdf`); // Save the file as user-specific QR code
+            } catch (error) {
+                console.error("Error generating PDF: ", error);
+            }
+        });
+    });
+</script>
+
 </body>
 
 </html>

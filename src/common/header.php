@@ -36,81 +36,6 @@ date_default_timezone_set('Asia/Bangkok');
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    <style>
-        /* Default (Light Mode) Styles */
-        .loader-wrapper {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.7);
-            /* Light background */
-            backdrop-filter: blur(8px);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .bouncing-balls {
-            display: flex;
-            gap: 10px;
-        }
-
-        .ball {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background-color: #3498db;
-            /* Light blue balls */
-            animation: bounce 0.6s infinite alternate;
-        }
-
-        .ball:nth-child(1) {
-            animation-delay: 0s;
-        }
-
-        .ball:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .ball:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes bounce {
-            0% {
-                transform: translateY(0);
-            }
-
-            100% {
-                transform: translateY(-30px);
-            }
-        }
-
-        /* Dark Mode Styles */
-        body.dark-theme .loader-wrapper {
-            background-color: rgba(0, 0, 0, 0.8);
-            /* Dark background */
-            backdrop-filter: blur(8px);
-        }
-
-        body.dark-theme .ball {
-            background-color: #ffffff;
-            /* White balls for dark mode */
-        }
-
-        /* Dark theme loader text (optional) */
-        body.dark-theme .loader-wrapper::after {
-            content: "Loading...";
-            color: #ffffff;
-            font-size: 18px;
-            position: absolute;
-            bottom: 10px;
-        }
-    </style>
-
     <!-- FullCalendar CSS -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet">
 
@@ -160,14 +85,71 @@ date_default_timezone_set('Asia/Bangkok');
 </head>
 
 <body class="loading">
-    <!-- Loader HTML -->
-    <div id="loader-wrapper" class="loader-wrapper">
-        <div class="bouncing-balls">
-            <div class="ball"></div>
-            <div class="ball"></div>
-            <div class="ball"></div>
-        </div>
+
+<style>
+    .loader-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .spinner-container {
+        position: relative;
+        width: 150px;
+        height: 150px;
+    }
+
+    .spinner {
+        width: 100%;
+        height: 100%;
+        border: 5px solid rgba(52, 152, 219, 0.3);
+        border-top-color: #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    .logo-loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 80px;
+        height: 80px;
+        background-image: url('public/img/icons/brands/logo2.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        transform: translate(-50%, -50%);
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    body.dark-theme .loader-wrapper {
+        background-color: rgba(0, 0, 0, 0.9);
+    }
+</style>
+
+<div id="loader-wrapper" class="loader-wrapper">
+    <div class="spinner-container">
+        <div class="spinner"></div>
+        <div class="logo-loader"></div>
     </div>
+</div>
+
+
 
     <script src="public/dist/js/demo-theme.min.js?1668287865"></script>
 
