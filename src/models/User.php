@@ -1,9 +1,5 @@
 <?php
 require_once 'config/database.php';
-require_once 'vendor/autoload.php';
-
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 
 class User
 {
@@ -427,7 +423,6 @@ class User
     public function getUserByIdApi($id, $token, $maxRetries = 3, $cacheEnabled = false)
     {
         $url = "{$this->api}/api/v1/users/" . $id;
-        $client = new Client();
         $retryCount = 0;
         $timeout = 10; // Timeout in seconds
 
@@ -444,50 +439,73 @@ class User
             }
         }
 
-        // Retry logic with exponential backoff
         do {
-            try {
-                $response = $client->request('GET', $url, [
-                    'headers' => [
-                        'Authorization' => 'Bearer ' . $token
-                    ],
-                    'timeout' => $timeout,
-                ]);
+            // Initialize cURL session
+            $ch = curl_init($url);
 
-                $responseData = json_decode($response->getBody(), true);
+            // Set cURL options
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'Authorization: Bearer ' . $token
+            ));
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout); // Connection timeout
+            curl_setopt($ch, CURLOPT_TIMEOUT, $timeout); // Response timeout
 
-                if ($response->getStatusCode() === 200 && isset($responseData['data'])) {
+            // Execute cURL request
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $error = curl_error($ch);
+
+            // Close the cURL session
+            curl_close($ch);
+
+            // Check for cURL errors
+            if ($response === false) {
+                error_log("CURL Error: $error (Retry: $retryCount)");
+            } else {
+                // Decode the JSON response
+                $responseData = json_decode($response, true);
+
+                // Handle JSON decoding errors
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    error_log("JSON Decode Error: " . json_last_error_msg());
+                    return [
+                        'http_code' => $httpCode,
+                        'error' => "JSON Decode Error: " . json_last_error_msg()
+                    ];
+                }
+
+                // Check if the response is successful and contains the expected data
+                if ($httpCode === 200 && isset($responseData['data'])) {
                     // Cache the response if enabled
                     if ($cacheEnabled) {
                         file_put_contents($cacheKey, json_encode($responseData['data']));
                     }
-
                     return [
-                        'http_code' => $response->getStatusCode(),
+                        'http_code' => $httpCode,
                         'data' => $responseData['data']
                     ];
                 } else {
-                    error_log("Unexpected API Response (HTTP Code: " . $response->getStatusCode() . ", Retry: $retryCount): " . print_r($responseData, true));
+                    error_log("Unexpected API Response (Retry: $retryCount): " . print_r($responseData, true));
                 }
-            } catch (RequestException $e) {
-                error_log("Request failed: " . $e->getMessage() . " (Retry: $retryCount)");
             }
 
             $retryCount++;
-            sleep(pow(2, $retryCount)); // Exponential backoff
+            sleep(1); // Wait before retrying
         } while ($retryCount < $maxRetries);
 
+        // If retries are exhausted, return an error
         return [
-            'http_code' => 500,
+            'http_code' => $httpCode ?? 500,
             'error' => "Request failed after $maxRetries retries",
-            'response' => null
+            'response' => $responseData ?? null
         ];
     }
 
     public function getUserInformationByIdApi($id, $token, $maxRetries = 3, $cacheEnabled = false)
     {
         $url = "{$this->api}/api/v1/informations/user/" . $id;
-        $client = new Client();
         $retryCount = 0;
         $timeout = 10; // Timeout in seconds
 
@@ -504,45 +522,67 @@ class User
             }
         }
 
-        // Retry logic with exponential backoff
         do {
-            try {
-                $response = $client->request('GET', $url, [
-                    'headers' => [
-                        'Authorization' => 'Bearer ' . $token
-                    ],
-                    'timeout' => $timeout,
-                ]);
+            // Initialize cURL session
+            $ch = curl_init($url);
 
-                $responseData = json_decode($response->getBody(), true);
+            // Set cURL options
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER => [
+                    "Authorization: Bearer $token"
+                ],
+                CURLOPT_SSL_VERIFYPEER => false, // Disable SSL certificate verification
+                CURLOPT_CONNECTTIMEOUT => $timeout, // Connection timeout
+                CURLOPT_TIMEOUT => $timeout // Response timeout
+            ]);
 
-                if ($response->getStatusCode() === 200 && isset($responseData['data'])) {
-                    // Cache the response if enabled
-                    if ($cacheEnabled) {
-                        file_put_contents($cacheKey, json_encode($responseData['data']));
+            // Execute cURL request
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $error = curl_error($ch);
+
+            // Close the cURL session
+            curl_close($ch);
+
+            if ($response === false) {
+                error_log("CURL Error: $error (Retry: $retryCount)");
+            } else {
+                // Decode JSON response
+                $responseData = json_decode($response, true);
+
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    if ($httpCode === 200 && isset($responseData['data'])) {
+                        // Cache the response if caching is enabled
+                        if ($cacheEnabled) {
+                            file_put_contents($cacheKey, json_encode($responseData['data']));
+                        }
+
+                        // Return the full data array from the API response
+                        return [
+                            'http_code' => $httpCode,
+                            'data' => $responseData['data'] // Includes all keys like userInformation, additionalPositionCurrentJob, etc.
+                        ];
+                    } else {
+                        error_log("Unexpected API Response (HTTP Code: $httpCode, Retry: $retryCount): " . print_r($responseData, true));
                     }
-
-                    return [
-                        'http_code' => $response->getStatusCode(),
-                        'data' => $responseData['data'] // Includes all keys like userInformation, additionalPositionCurrentJob, etc.
-                    ];
                 } else {
-                    error_log("Unexpected API Response (HTTP Code: " . $response->getStatusCode() . ", Retry: $retryCount): " . print_r($responseData, true));
+                    error_log("JSON Decode Error: " . json_last_error_msg());
                 }
-            } catch (RequestException $e) {
-                error_log("Request failed: " . $e->getMessage() . " (Retry: $retryCount)");
             }
 
             $retryCount++;
-            sleep(pow(2, $retryCount)); // Exponential backoff
+            sleep(1); // Delay before retrying
         } while ($retryCount < $maxRetries);
 
+        // Return error after retries are exhausted
         return [
-            'http_code' => 500,
-            'error' => "Request failed after $maxRetries retries",
-            'response' => null
+            'http_code' => $httpCode ?? 500,
+            'error' => $error ?? "Request failed after $maxRetries retries",
+            'response' => $responseData ?? null
         ];
     }
+
 
     public function getRoleApi($id, $token)
     {
