@@ -38,10 +38,20 @@ include('src/common/header.php');
                         <div class="row g-3">
                             <div class="col">
                                 <!-- Delete Action -->
-                                <button class="btn btn-outline-danger w-100" data-bs-toggle="modal"
-                                    data-bs-target="#deleteQrModal<?= $qr['id'] ?>">
-                                    Delete
-                                </button>
+                                <a href="#" class="btn btn-outline-danger w-100" data-bs-target="#deleteQr<?= $qr['id'] ?>" data-bs-toggle="modal">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M4 7l16 0" />
+                                        <path d="M10 11l0 6" />
+                                        <path d="M14 11l0 6" />
+                                        <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                        <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                    </svg>
+                                    <span>លុប</span>
+                                </a>
                             </div>
                             <div class="col">
                                 <!-- Open Modal for Download -->
@@ -55,8 +65,48 @@ include('src/common/header.php');
                 </div>
             </div>
 
+
+            <!-- Delete Modal -->
+            <div class="modal modal-blur fade" id="deleteQr<?= $qr['id'] ?>" tabindex="-1" role="dialog" aria-modal="true">
+                <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-status bg-danger"></div>
+                        <form action="/elms/deleteQR" method="POST">
+                            <div class="modal-body text-center py-4 mb-0">
+                                <input type="hidden" name="id" value="<?= $qr['id'] ?>">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                    class="icon mb-2 text-danger icon-lg">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M12 9v4"></path>
+                                    <path
+                                        d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
+                                    </path>
+                                    <path d="M12 16h.01"></path>
+                                </svg>
+                                <h5 class="modal-title fw-bold text-danger">លុប <?= $title ?></h5>
+                                <p class="mb-0">តើអ្នកប្រាកដទេថានិងលុប <strong class="text-danger"><?= $title ?></strong> នេះ?
+                                </p>
+                            </div>
+                            <div class="modal-footer bg-light border-top">
+                                <div class="w-100">
+                                    <div class="row">
+                                        <div class="col">
+                                            <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
+                                        </div>
+                                        <div class="col">
+                                            <button type="submit" class="btn btn-danger ms-auto w-100">យល់ព្រម</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <!-- Modal for QR View & Download -->
-            <div class="modal fade" id="qrModal<?= $qr['id'] ?>" tabindex="-1" aria-labelledby="qrModalLabel<?= $qr['id'] ?>"
+            <div class="modal modal-blur fade" id="qrModal<?= $qr['id'] ?>" tabindex="-1" aria-labelledby="qrModalLabel<?= $qr['id'] ?>"
                 aria-hidden="true">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
@@ -231,30 +281,5 @@ include('src/common/header.php');
         </div>
     </div>
 </div>
-
-<!-- Individual Delete Modals -->
-<?php foreach ($getQRs as $qr): ?>
-    <div class="modal fade" id="deleteQrModal<?= $qr['id'] ?>" tabindex="-1"
-        aria-labelledby="deleteQrModalLabel<?= $qr['id'] ?>" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-danger" id="deleteQrModalLabel<?= $qr['id'] ?>">Confirm Delete</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to delete the QR code for <?= htmlspecialchars($qr['user_name'] ?? 'Unknown') ?>?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <form action="delete_qr.php" method="post">
-                        <input type="hidden" name="qr_id" value="<?= $qr['id'] ?>">
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-<?php endforeach; ?>
 
 <?php include('src/common/footer.php'); ?>
