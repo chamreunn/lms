@@ -30,66 +30,71 @@ include('src/common/header.php');
 
         <?php if (!empty($todayAttendance)): ?>
             <div class="col-12">
-                <div class="row row-cards">
+                <div class="row-cards">
                     <?php
                     // Assuming $todayAttendance[0] is the record you're dealing with
                     $attendance = $todayAttendance[0]; // Access the first attendance record
                     if ($attendance['leave'] !== '1' && $attendance['mission'] !== '1'):
                         ?>
-                        <div class="col-sm-6 col-lg-6">
-                            <div class="card card-sm bg-light">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-primary-lt text-white avatar">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-login">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path
-                                                        d="M15 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
-                                                    <path d="M21 12h-13l3 -3" />
-                                                    <path d="M11 15l-3 -3" />
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="fw-bolder font-weight-medium 
+                        <div class="row g-3">
+                            <!-- late in  -->
+                            <div class="col-lg-4 col-sm-12 col-md-4">
+                                <div class="card card-sm bg-light">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <span class="bg-primary-lt text-white avatar">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round"
+                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-login">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path
+                                                            d="M15 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+                                                        <path d="M21 12h-13l3 -3" />
+                                                        <path d="M11 15l-3 -3" />
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <div class="col">
+                                                <div class="fw-bolder font-weight-medium 
                                                     <?php
                                                     if (isset($attendance['checkIn']) && $attendance['checkIn'] > '09:00:00') {
                                                         echo 'text-danger'; // Red for late check-in
                                                     }
                                                     ?>">
-                                                <?= $attendance['checkIn'] ?? '--:--:--' ?>
-                                            </div>
-                                            <div class="text-secondary">
-                                                ម៉ោងចូល
+                                                    <?= $attendance['checkIn'] ?? '--:--:--' ?>
+                                                </div>
+                                                <div class="text-secondary">
+                                                    ម៉ោងចូល
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-sm-6 col-lg-6">
-                            <div class="card card-sm bg-light">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-red-lt text-white avatar">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-logout">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 -2v-2" />
-                                                    <path d="M9 12h12l-3 -3" />
-                                                    <path d="M18 15l3 -3" />
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="fw-bolder font-weight-medium 
+
+                            <!-- late out  -->
+                            <div class="col-lg-4 col-sm-12 col-md-4">
+                                <div class="card card-sm bg-light">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <span class="bg-red-lt text-white avatar">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round"
+                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-logout">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path
+                                                            d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 -2v-2" />
+                                                        <path d="M9 12h12l-3 -3" />
+                                                        <path d="M18 15l3 -3" />
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <div class="col">
+                                                <div class="fw-bolder font-weight-medium 
                                         <?php
                                         if (isset($attendance['checkOut'])) {
                                             if ($attendance['checkOut'] > '17:30:00') {
@@ -99,10 +104,55 @@ include('src/common/header.php');
                                             }
                                         }
                                         ?>">
-                                                <?= $attendance['checkOut'] ?? '--:--:--' ?>
+                                                    <?= $attendance['checkOut'] ?? '--:--:--' ?>
+                                                </div>
+                                                <div class="text-secondary">
+                                                    ម៉ោងចេញ
+                                                </div>
                                             </div>
-                                            <div class="text-secondary">
-                                                ម៉ោងចេញ
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- total  -->
+                            <div class="col-lg-4 col-sm-12 col-md-4">
+                                <div class="card card-sm bg-light">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <span class="bg-success-lt text-white avatar">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round"
+                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-clock-hour-1">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                                                        <path d="M12 7v5" />
+                                                        <path d="M12 12l2 -3" />
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <div class="col">
+                                                <div class="fw-bolder font-weight-medium 
+                                        <?php
+                                        if (isset($attendance['total'])) {
+                                            // Convert 'total' to DateTime for comparison
+                                            $totalTime = new DateTime($attendance['total']);
+                                            $minimumTime = new DateTime('08:00:00'); // 8 hours
+                                
+                                            if ($totalTime < $minimumTime) {
+                                                echo 'text-danger'; // Red for less than 8 hours
+                                            } else {
+                                                echo 'text-success'; // No class for valid times
+                                            }
+                                        }
+                                        ?>">
+                                                    <?= $attendance['total'] ?? '--:--:--' ?>
+                                                </div>
+                                                <div class="text-secondary">
+                                                    ម៉ោងសរុបថ្ងៃនេះ
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -148,7 +198,7 @@ include('src/common/header.php');
 
 <div class="card mb-3">
     <div class="card-header">
-        <h3 class="mb-0">វត្តមានទាំងរបស់ខ្ញុំ</h3>
+        <h3 class="mb-0">វត្តមានទាំងអស់</h3>
     </div>
     <div class="card-body">
         <div class="col-12">
@@ -226,6 +276,23 @@ include('src/common/header.php');
                                             }
                                             ?>">
                                                 <?= $attendance['checkOut'] ?? '--:--:--' ?>
+                                            </strong>
+                                        </div>
+                                        <div class="col text-center">
+                                            <p class="text-muted">ម៉ោងសរុប</p>
+                                            <strong class="<?php
+                                            if (isset($attendance['total'])) {
+                                                $totalTime = new DateTime($attendance['total']);
+                                                $minimumTime = new DateTime('08:00:00'); // 8 hours
+                                    
+                                                if ($totalTime < $minimumTime) {
+                                                    echo 'text-danger'; // Red for less than 8 hours
+                                                } else {
+                                                    echo 'text-success'; // Blue for early check-out
+                                                }
+                                            }
+                                            ?>">
+                                                <?= $attendance['total'] ?? '--:--:--' ?>
                                             </strong>
                                         </div>
                                     </div>
