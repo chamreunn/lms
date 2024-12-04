@@ -673,8 +673,8 @@ class AdminModel
             'nationality' => $user['nationality'] ?? 'N/A',
 
             // User information data
-            'date_enteing_public_service' => $userInformation['userInformation'][0]['date_enteing_public_service'] ?? 'N/A',
-            'economy_enteing_public_service' => $userInformation['userInformation'][0]['economy_enteing_public_service'] ?? 'N/A',
+            'date_enteing_public_service' => $userInformation['userInformation']['date_enteing_public_service'] ?? 'N/A',
+            'economy_enteing_public_service' => $userInformation['userInformation']['economy_enteing_public_service'] ?? 'N/A',
             'user_information' => $userInformation['userInformation'] ?? [],
             'additional_position_current_job' => !empty($userInformation['additionalPositionCurrentJob']) ? $userInformation['additionalPositionCurrentJob'] : [],
             'working_history_public' => !empty($userInformation['userWoringHistoryPublicSetor']) ? $userInformation['userWoringHistoryPublicSetor'] : [],
