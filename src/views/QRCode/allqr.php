@@ -3,155 +3,111 @@ $pretitle = "ទំព័រដើម";
 $title = "All QR Codes";
 include('src/common/header.php');
 ?>
-
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">QR Code Details</h3>
-    </div>
-    <?php if (!empty($getQRs)): ?>
-        <div class="table-responsive">
-            <table class="table table-vcenter card-table table-striped mb-0">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Account</th>
-                        <th>QR Code</th>
-                        <th>Name</th>
-                        <th>URL</th>
-                        <th>Created At</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($getQRs as $index => $qr): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($index + 1) ?></td>
-                            <td width="300">
-                                <div class="row align-items-center">
-                                    <div class="col-auto">
-                                        <img src="<?= $qr['profile'] ?>" class="avatar" alt="">
-                                    </div>
-                                    <div class="col-auto">
-                                        <h3 class="mb-0"><?= htmlspecialchars($qr['user_name'] ?? 'Unknown') ?></h3>
-                                        <p class="mb-0"><?= htmlspecialchars($qr['user_email'] ?? 'Unknown') ?></p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <img src="data:image/png;base64,<?= htmlspecialchars($qr['image']) ?>" alt="QR Code"
-                                    width="100">
-                            </td>
-                            <td width="100"><?= htmlspecialchars($qr['name'] ?? 'Unknown') ?></td>
-                            <td width="20"><a href="<?= htmlspecialchars($qr['url']) ?>"
-                                    target="_blank"><?= htmlspecialchars($qr['url']) ?></a></td>
-                            <td><?= htmlspecialchars($qr['created_at'] ?? 'Unknown') ?></td>
-                            <td>
-                                <div class="d-flex">
-                                    <a href="#" data-bs-target="#deleteQr<?= $qr['id'] ?>" data-bs-toggle="modal">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            class="icon icon-tabler icons-tabler-outline icon-tabler-trash text-danger fw-bolder">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M4 7l16 0" />
-                                            <path d="M10 11l0 6" />
-                                            <path d="M14 11l0 6" />
-                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                        </svg>
-                                    </a>
-                                    <a href="#" class="mx-2" data-bs-target="#downloadQr<?= $qr['id'] ?>"
-                                        data-bs-toggle="modal">
-                                        <button class="btn btn-primary btn-sm">ទាញយក QR</button>
-                                    </a>
-                                </div>
-                                <!-- Delete Modal -->
-                                <div class="modal modal-blur fade" id="deleteQr<?= $qr['id'] ?>" tabindex="-1" role="dialog"
-                                    aria-modal="true">
-                                    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-status bg-danger"></div>
-                                            <form action="/elms/deleteQR" method="POST">
-                                                <div class="modal-body text-center py-4 mb-0">
-                                                    <input type="hidden" name="id" value="<?= $qr['id'] ?>">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                        stroke-linecap="round" stroke-linejoin="round"
-                                                        class="icon mb-2 text-danger icon-lg">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                        <path d="M12 9v4"></path>
-                                                        <path
-                                                            d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
-                                                        </path>
-                                                        <path d="M12 16h.01"></path>
-                                                    </svg>
-                                                    <h5 class="modal-title fw-bold text-danger">លុប <?= $title ?></h5>
-                                                    <p class="mb-0">តើអ្នកប្រាកដទេថានិងលុប <strong
-                                                            class="text-danger"><?= $title ?></strong> នេះ?</p>
-                                                </div>
-                                                <div class="modal-footer bg-light border-top">
-                                                    <div class="w-100">
-                                                        <div class="row">
-                                                            <div class="col">
-                                                                <button type="button" class="btn w-100"
-                                                                    data-bs-dismiss="modal">បោះបង់</button>
-                                                            </div>
-                                                            <div class="col">
-                                                                <button type="submit"
-                                                                    class="btn btn-danger ms-auto w-100">យល់ព្រម</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Download Modal -->
-                                <div class="modal modal-blur fade" id="downloadQr<?= $qr['id'] ?>" tabindex="-1" role="dialog"
-                                    aria-modal="true">
-                                    <div class="modal-dialog modal-dialog-centered" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Download QR Code</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body text-center">
-                                                <img src="data:image/png;base64,<?= htmlspecialchars($qr['image']) ?>"
-                                                    alt="QR Code" class="img-fluid">
-                                            </div>
-                                            <div class="modal-footer bg-light justify-content-center">
-                                                <a href="data:image/png;base64,<?= htmlspecialchars($qr['image']) ?>"
-                                                    download="qr_code_<?= $qr['id'] ?>.png" class="btn btn-primary">
-                                                    <span>ទាញយក</span>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                        stroke-linecap="round" stroke-linejoin="round"
-                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-download mx-2 me-0">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
-                                                        <path d="M7 11l5 5l5 -5" />
-                                                        <path d="M12 4l0 12" />
-                                                    </svg>
-                                                </a>
-                                                <button type="button" class="btn" data-bs-dismiss="modal">បោះបង់</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    <?php else: ?>
-        <div class="card-body">
-            no data found.
-        </div>
-    <?php endif; ?>
+<div class="d-flex justify-content-end align-items-center mb-3">
+    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAllModal">
+        Delete All
+    </button>
 </div>
+<?php if (!empty($getQRs)): ?>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <?php foreach ($getQRs as $index => $qr): ?>
+            <div class="col">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h6 class="text-secondary mb-0">#<?= htmlspecialchars($index + 1) ?></h6>
+                        <small class="text-muted"><?= htmlspecialchars($qr['created_at'] ?? 'Unknown') ?></small>
+                    </div>
+                    <div class="card-body text-center">
+                        <!-- Profile Section -->
+                        <div class="mb-3">
+                            <img src="<?= $qr['profile'] ?>" class="rounded-circle border border-2" alt="Profile Picture"
+                                width="60" height="60">
+                        </div>
+                        <h5 class="card-title text-primary"><?= htmlspecialchars($qr['user_name'] ?? 'Unknown') ?></h5>
+                        <p class="text-muted"><?= htmlspecialchars($qr['user_email'] ?? 'Unknown') ?></p>
+
+                        <!-- QR Code -->
+                        <div class="mb-3">
+                            <img src="data:image/png;base64,<?= htmlspecialchars($qr['image']) ?>" alt="QR Code"
+                                class="img-fluid rounded" style="max-width: 150px;">
+                        </div>
+                    </div>
+                    <div class="card-footer bg-light w-100">
+                        <div class="row g-3">
+                            <div class="col">
+                                <!-- Delete Action -->
+                                <button class="btn btn-outline-danger w-100" data-bs-toggle="modal"
+                                    data-bs-target="#deleteQrModal<?= $qr['id'] ?>">
+                                    Delete
+                                </button>
+                            </div>
+                            <div class="col">
+                                <!-- Download Action -->
+                                <form action="/elms/downloadqr" method="get">
+                                    <input type="hidden" name="qr_id" value="<?= htmlspecialchars($qr['id']) ?>">
+                                    <input type="hidden" name="user_name" value="<?= htmlspecialchars($qr['user_name']) ?>">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        Download QR
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+<?php else: ?>
+    <div class="text-center py-5">
+        <p class="text-muted">No data found.</p>
+    </div>
+<?php endif; ?>
+
+<!-- Delete All Modal -->
+<div class="modal fade" id="deleteAllModal" tabindex="-1" aria-labelledby="deleteAllModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="deleteAllModalLabel">Confirm Delete All</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete all QR codes? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="delete_all_qr.php" method="post">
+                    <button type="submit" class="btn btn-danger">Delete All</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Individual Delete Modals -->
+<?php foreach ($getQRs as $qr): ?>
+    <div class="modal fade" id="deleteQrModal<?= $qr['id'] ?>" tabindex="-1"
+        aria-labelledby="deleteQrModalLabel<?= $qr['id'] ?>" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="deleteQrModalLabel<?= $qr['id'] ?>">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete the QR code for <?= htmlspecialchars($qr['user_name'] ?? 'Unknown') ?>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="delete_qr.php" method="post">
+                        <input type="hidden" name="qr_id" value="<?= $qr['id'] ?>">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endforeach; ?>
+
 
 <?php include('src/common/footer.php'); ?>

@@ -104,41 +104,41 @@ class QrModel
         $sql = "SELECT * FROM {$this->qrcode}"; // Fetch all QR codes
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
-    
+
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
         if (empty($results)) {
             return []; // Return an empty array if no QR codes are found
         }
-    
+
         // Instantiate the user model to interact with the API
         $userModel = new User();
         $userCache = []; // Cache for user data to avoid redundant API calls
-    
+
         foreach ($results as &$request) {
             $requestUserId = $request['user_id'];
-    
+
             // Check cache for user details
             if (!isset($userCache[$requestUserId])) {
                 $retryCount = 3; // Retry up to 3 times for API call
-    
+
                 while ($retryCount > 0) {
                     $userApiResponse = $userModel->getUserByIdApi($requestUserId, $_SESSION['token']);
-    
+
                     // Check if the API response is valid and contains data
                     if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
                         $userCache[$requestUserId] = $userApiResponse['data'];
                         break;
                     }
-    
+
                     $retryCount--;
                     usleep(200000); // Wait 200ms before retrying
                 }
             }
-    
+
             // Retrieve user details from cache or fallback to default values
             $user = $userCache[$requestUserId] ?? null;
-    
+
             if ($user) {
                 // Map API data to the request details
                 $request['user_name'] = trim(($user['lastNameKh'] ?? '') . " " . ($user['firstNameKh'] ?? 'Unknown'));
@@ -157,13 +157,20 @@ class QrModel
                 $request['profile'] = 'default-profile.png';
                 error_log("Failed to fetch user data for User ID $requestUserId after retries.");
             }
-    
+
             // Ensure 'attachments' is always set for consistency
             $request['attachments'] = $request['attachments'] ?? '';
         }
-    
+
         return $results;
     }
-    
+
+    public function getQRById($qr_id)
+    {
+        $stmt = $this->pdo->prepare("SELECT name, image FROM qr_codes WHERE id = :id");
+        $stmt->bindParam(':id', $qr_id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC); // Return the fetched result
+    }
 }
 

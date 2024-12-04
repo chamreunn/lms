@@ -271,8 +271,9 @@ include('src/common/header.php');
                                     class="img-fluid">
                             </div>
                             <div class="mb-0 mt-0">
-                                <p class="text-primary fs-2 fw-bold">
-                                    សម្រាប់ស្កេនវត្តមានប្រចាំថ្ងៃរបស់អ្នក
+                                <p class="text-primary fs-3 fw-bold">
+                                    <span class="text-danger"
+                                        style="font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">QR Code</span>សម្រាប់ស្កេនវត្តមានប្រចាំថ្ងៃរបស់អ្នក
                                 </p>
                             </div>
                             <!-- QR Code Section -->

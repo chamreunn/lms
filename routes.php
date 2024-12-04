@@ -1389,6 +1389,12 @@ asyncHandler(function () {
                 }
             });
             break;
+        case $base_url . '/downloadqr':
+            checkSessionAndExecute(function () {
+                $controller = new QrcodeController();
+                $controller->downloadQR();
+            });
+            break;
         case $base_url . '/exportFile':
             checkSessionAndExecute(function () {
                 $controller = new HoldController();
