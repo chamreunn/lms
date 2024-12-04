@@ -286,8 +286,8 @@ include('src/common/header.php');
                                     
                                                 if ($totalTime < $minimumTime) {
                                                     echo 'text-danger'; // Red for less than 8 hours
-                                                } elseif ($totalTime < new DateTime('16:00:00')) {
-                                                    echo 'text-info'; // Blue for early check-out
+                                                } else {
+                                                    echo 'text-success'; // Blue for early check-out
                                                 }
                                             }
                                             ?>">
