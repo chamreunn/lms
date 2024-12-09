@@ -768,7 +768,7 @@ class AdminModel
             $userDocument[] = [
                 'document_type' => $document['document_type'] ?? 'N/A',
                 'description' => $document['description'] ?? 'N/A',
-                'document_file' => "{$userModel->api}/user_documents/" . $document['document_file'] ?? 'N/A',
+                'document_file' => 'https://hrms.iauoffsa.us/user_documents/' . $document['document_file'] ?? 'N/A',
                 'date' => $document['date'] ?? 'N/A',
             ];
         }
