@@ -56,17 +56,11 @@ asyncHandler(function () {
             break;
 
         case $base_url . '/logout':
-            // Handle logout: clear session and redirect to login
-            session_unset();
-            session_destroy();
-
-            if (ini_get("session.use_cookies")) {
-                $params = session_get_cookie_params();
-                setcookie(session_name(), '', time() - 42000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
-            }
-
-            header("Location: $base_url/login");
-            exit();
+            checkSessionAndExecute(function () {
+                $controller = new AuthController();
+                $controller->logout($_SESSION['token']);
+            });
+            break;
 
         case $base_url . '/apply-leave':
             checkSessionAndExecute(function () {

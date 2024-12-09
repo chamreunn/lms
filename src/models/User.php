@@ -112,6 +112,55 @@ class User
         ];
     }
 
+    // Call API to log out
+    public function logoutFromApi($token)
+    {
+        $url = "{$this->api}/api/v1/logout";
+
+        // Initialize cURL session
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Authorization: Bearer $token",
+            "Content-Type: application/json"
+        ]);
+
+        $response = curl_exec($ch);
+
+        // Check for cURL errors
+        if (curl_errno($ch)) {
+            $error = curl_error($ch);
+            curl_close($ch);
+
+            return [
+                'success' => false,
+                'message' => "cURL error: $error",
+            ];
+        }
+
+        // Get HTTP status code
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        // Decode API response
+        $responseDecoded = json_decode($response, true);
+
+        // Check for success based on HTTP code
+        if ($httpCode === 200) {
+            return [
+                'success' => true,
+                'message' => $responseDecoded['message'] ?? 'Logged out successfully',
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => $responseDecoded['message'] ?? 'Logout failed',
+        ];
+    }
+
     public function logLoginTrace($userId, $ipAddress)
     {
         $stmt = $this->pdo->prepare('INSERT INTO login_traces (user_id, login_time, ip_address) VALUES (?, NOW(), ?)');
@@ -442,23 +491,30 @@ class User
         );
     }
 
-    private function fetchApiData($url, $token, $maxRetries, $cacheEnabled, $cacheKey)
+    private function fetchApiData($url, $token, $maxRetries, $cacheEnabled, $cacheKey, $cacheTTL = 3600)
     {
         $retryCount = 0;
-        $timeout = 10; // Timeout in seconds
+        $connectTimeout = 5; // Timeout for establishing connection
+        $requestTimeout = 10; // Timeout for overall request
+        $maxRetryDelay = 5; // Max delay between retries in seconds
         $retryDelay = 1; // Initial delay in seconds
 
         // Optional caching mechanism
         if ($cacheEnabled && file_exists($cacheKey)) {
-            $cachedResponse = file_get_contents($cacheKey);
-            $responseData = json_decode($cachedResponse, true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                return [
-                    'http_code' => 200,
-                    'data' => $responseData
-                ];
+            $fileModifiedTime = filemtime($cacheKey);
+            if (time() - $fileModifiedTime < $cacheTTL) {
+                $cachedResponse = file_get_contents($cacheKey);
+                $responseData = json_decode($cachedResponse, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    return [
+                        'http_code' => 200,
+                        'data' => $responseData
+                    ];
+                }
+                error_log("Cache read failed or invalid JSON for $cacheKey");
+            } else {
+                unlink($cacheKey); // Delete expired cache
             }
-            error_log("Cache read failed or invalid JSON for $cacheKey");
         }
 
         do {
@@ -472,8 +528,8 @@ class User
                     "Authorization: Bearer $token"
                 ],
                 CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_CONNECTTIMEOUT => $timeout,
-                CURLOPT_TIMEOUT => $timeout
+                CURLOPT_CONNECTTIMEOUT => $connectTimeout,
+                CURLOPT_TIMEOUT => $requestTimeout
             ]);
 
             // Execute cURL request
@@ -484,9 +540,7 @@ class User
             // Close the cURL session
             curl_close($ch);
 
-            if ($response === false) {
-                error_log("CURL Error: $error (Retry: $retryCount)");
-            } else {
+            if ($response !== false) {
                 // Decode JSON response
                 $responseData = json_decode($response, true);
 
@@ -507,11 +561,13 @@ class User
                 } else {
                     error_log("JSON Decode Error: " . json_last_error_msg());
                 }
+            } else {
+                error_log("CURL Error: $error (Retry: $retryCount)");
             }
 
             $retryCount++;
-            sleep($retryDelay);
-            $retryDelay *= 1; // Exponential backoff
+            sleep(min($retryDelay, $maxRetryDelay));
+            $retryDelay *= 2; // Exponential backoff
         } while ($retryCount < $maxRetries);
 
         // Return error after retries are exhausted
@@ -521,6 +577,7 @@ class User
             'response' => $responseData ?? null
         ];
     }
+
 
     public function getRoleApi($id, $token)
     {

@@ -3,6 +3,14 @@ require_once 'src/models/User.php';
 
 class AuthController
 {
+
+    private $authModel;
+
+    public function __construct()
+    {
+        $this->authModel = new User();
+    }
+
     public function login()
     {
         // Check if the user is already logged in
@@ -151,5 +159,22 @@ class AuthController
         }
 
         require 'src/views/auth/login.php';
+    }
+
+    public function logout($token)
+    {
+        $response = $this->authModel->logoutFromApi($token);
+
+        if ($response['success']) {
+            session_start();
+            session_unset();
+            session_destroy();
+
+            header("Location: /elms/login");
+            exit();
+        } else {
+            error_log("Logout Error: " . $response['message']);
+            echo "<p>Error: Unable to log out. Please try again later.</p>";
+        }
     }
 }

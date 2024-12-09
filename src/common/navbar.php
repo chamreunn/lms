@@ -83,7 +83,6 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                     </div>
                 </a>
 
-
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow" style="width: 300px;">
                     <div class="d-flex flex-column align-items-center justify-content-center text-center">
                         <!-- Profile Picture -->
@@ -132,7 +131,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                         <span class="mx-1">ការកំណត់</span>
                     </a>
 
-                    <a href="/elms/logout" class="dropdown-item">
+                    <a href="/elms/logout?token=<?= htmlspecialchars($_SESSION['token']) ?>" class="dropdown-item">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                             class="icon icon-tabler icons-tabler-outline icon-tabler-logout">
