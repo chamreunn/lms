@@ -2,6 +2,8 @@
 require_once 'src/vendor/autoload.php'; // Ensure PHPMailer is autoloaded
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Promise;
 
 class AdminModel
 {
@@ -649,6 +651,128 @@ class AdminModel
         // Extract user information data
         $userInformation = $userInformationApiResponse['response'] ?? [];
 
+        // current work 
+        $additionalPositions = $userInformation['additionalPositionCurrentJob'] ?? []; // Retrieve the entire array
+        $additionalWork = []; // Initialize the result array
+        // user family 
+        $userFamily = $userInformation['userFamily'] ?? [];
+
+        foreach ($additionalPositions as $position) {
+            // Fetch role, office, and department from user information
+            $roleApiResponse = $userModel->getRoleApi($position['position'] ?? null, $_SESSION['token']);
+            $roleName = 'N/A';  // Default value for role name
+
+            if ($roleApiResponse && $roleApiResponse['http_code'] === 200 && isset($roleApiResponse['data'])) {
+                $roleName = $roleApiResponse['data']['roleNameKh'] ?? 'N/A';
+                // You may also need to store or use other role data (like position color) elsewhere
+                $positionColor = $roleApiResponse['data']['color'] ?? 'N/A';
+            }
+
+            // Now add the position data to the additionalWork array
+            $additionalWork[] = [
+                'using_user_id' => $position['using_user_id'] ?? 'N/A',
+                'position' => $roleName,  // Corrected to use the fetched role name
+                'economy' => $position['economy'] ?? 'N/A',
+                'document' => $position['document'] ?? 'N/A',
+                'equivalent' => $position['equivalent'] ?? 'N/A',
+                'date' => $position['date'] ?? 'N/A',
+            ];
+        }
+
+        // public sector 
+        $userWorkPublicSectors = $userInformation['userWoringHistoryPublicSetor'] ?? []; // Retrieve the entire array
+        $userWorkPublicSector = []; // Initialize the result array
+
+        foreach ($userWorkPublicSectors as $publicSector) {
+            // Now add the position data to the additionalWork array
+            $userWorkPublicSector[] = [
+                'dateIn' => $publicSector['start_date'] ?? 'N/A',
+                'dateOut' => $publicSector['end_date'] ?? 'N/A',
+                'ministry' => $publicSector['ministry'] ?? 'N/A',
+                'economy' => $publicSector['economy'] ?? 'N/A',
+                'position' => $publicSector['position'] ?? 'N/A',
+                'other' => $publicSector['other'] ?? '',
+            ];
+        }
+
+        // private sector
+        $userWorkPrivateSectors = $userInformation['userWoringHistoryPrivateSetor'] ?? []; // Retrieve the entire array
+        $userWorkPrivateSector = []; // Initialize the result array
+
+        foreach ($userWorkPrivateSectors as $PrivateSector) {
+            // Now add the position data to the additionalWork array
+            $userWorkPrivateSector[] = [
+                'dateIn' => $PrivateSector['start_date'] ?? 'N/A',
+                'dateOut' => $PrivateSector['end_date'] ?? 'N/A',
+                'ministry' => $PrivateSector['ministry'] ?? 'N/A',
+                'economy' => $PrivateSector['economy'] ?? 'N/A',
+                'position' => $PrivateSector['position'] ?? 'N/A',
+                'tecnology' => $PrivateSector['tecnology'] ?? 'N/A',
+                'other' => $PrivateSector['other'] ?? '',
+            ];
+        }
+
+        // certificate
+        $certificates = $userInformation['userModalCertificate'] ?? []; // Retrieve the entire array
+        $userCertificate = []; // Initialize the result array
+
+        foreach ($certificates as $certificate) {
+            // Now add the position data to the additionalWork array
+            $userCertificate[] = [
+                'date' => $certificate['date'] ?? 'N/A',
+                'document' => $certificate['document'] ?? 'N/A',
+                'statusCert' => $certificate['status'] ?? 'N/A',
+                'economy' => $certificate['economy'] ?? 'N/A',
+                'type' => $certificate['type'] ?? 'N/A',
+                'decription' => $certificate['decription'] ?? 'N/A',
+            ];
+        }
+
+        // education
+        $educations = $userInformation['userEducationLevel'] ?? []; // Retrieve the entire array
+        $userEducations = []; // Initialize the result array
+
+        foreach ($educations as $education) {
+            // Now add the position data to the additionalWork array
+            $userEducations[] = [
+                'level' => $education['level'] ?? 'N/A',
+                'education_intitution' => $education['education_intitution'] ?? 'N/A',
+                'cetificate' => $education['cetificate'] ?? 'N/A',
+                'start_date' => $education['start_date'] ?? 'N/A',
+                'end_date' => $education['end_date'] ?? 'N/A',
+                'status' => $education['status'] ?? 'N/A',
+            ];
+        }
+
+        // langauge
+        $languages = $userInformation['userAbilityLanguage'] ?? []; // Retrieve the entire array
+        $userLanguage = []; // Initialize the result array
+
+        foreach ($languages as $certificate) {
+            // Now add the position data to the additionalWork array
+            $userLanguage[] = [
+                'language' => $certificate['language'] ?? '0',
+                'read' => $certificate['read'] ?? '0',
+                'write' => $certificate['write'] ?? '0',
+                'speak' => $certificate['speak'] ?? '0',
+                'listen' => $certificate['listen'] ?? '0',
+            ];
+        }
+
+        // langauge
+        $documents = $userInformation['userDocument'] ?? []; // Retrieve the entire array
+        $userDocument = []; // Initialize the result array
+
+        foreach ($documents as $document) {
+            // Now add the position data to the additionalWork array
+            $userDocument[] = [
+                'document_type' => $document['document_type'] ?? 'N/A',
+                'description' => $document['description'] ?? 'N/A',
+                'document_file' => 'http://172.25.26.6:8000/user_documents/' . $document['document_file'] ?? 'N/A',
+                'date' => $document['date'] ?? 'N/A',
+            ];
+        }
+
         // Map and merge data into user details
         $userDetails = array_merge($defaultDetails, [
             'user_id' => $user['id'] ?? 'N/A',
@@ -657,9 +781,9 @@ class AdminModel
             'user_name' => ($user['lastNameKh'] ?? '') . " " . ($user['firstNameKh'] ?? 'N/A'),
             'profile_picture' => isset($user['image']) ? 'https://hrms.iauoffsa.us/images/' . $user['image'] : 'default-profile.png',
             'date_of_birth' => $user['dateOfBirth'] ?? 'N/A',
-            'gender' => $user['gender'] === 'f' ? 'ស្រី' : 'ប្រុស',
+            'gender' => $user['gender'] === 'f' ? 'ស្រី' : 'ប្រុស' ?? 'N/A',
             'user_eng_name' => $user['engName'] ?? 'N/A',
-            'active' => isset($user['active']) && $user['active'] === '1' ? 'Active' : 'Inactive',
+            'active' => isset($user['active']) && $user['active'] === '1' ? 'Active' : 'Inactive' ?? 'N/A',
             'activeStatus' => $user['active'] ?? 'N/A',
             'address' => $user['pobAddress'] ?? 'N/A',
             'curaddress' => $user['currentAddress'] ?? 'N/A',
@@ -675,7 +799,102 @@ class AdminModel
             // User information data
             'date_enteing_public_service' => $userInformation['userInformation'][0]['date_enteing_public_service'] ?? 'N/A',
             'economy_enteing_public_service' => $userInformation['userInformation'][0]['economy_enteing_public_service'] ?? 'N/A',
+            'constitution' => $userInformation['userInformation'][0]['constitution'] ?? 'N/A',
+            'position_enteing_public_service' => $userInformation['userInformation'][0]['position_enteing_public_service'] ?? 'N/A',
+            'ministry_enteing_public_service' => $userInformation['userInformation'][0]['ministry_enteing_public_service'] ?? 'N/A',
+            'comfirm_date' => $userInformation['userInformation'][0]['comfirm_date'] ?? 'N/A',
+            'constitution_misitry_rank' => $userInformation['userInformation'][0]['constitution_misitry_rank'] ?? 'N/A',
+            'constitution_amendment_date' => $userInformation['userInformation'][0]['constitution_amendment_date'] ?? 'N/A',
+            'effective_date_of_last_promotion' => $userInformation['userInformation'][0]['effective_date_of_last_promotion'] ?? 'N/A',
+            'economy_current_job_situation' => $userInformation['userInformation'][0]['economy_current_job_situation'] ?? 'N/A',
+
+            // user family 
+            'father_name' => $userFamily['father_name'] ?? 'N/A',
+            'father_name_in_english' => $userFamily['father_name_in_english'] ?? 'N/A',
+            'father_status' => $userFamily['father_status'] ?? 'N/A',
+            'father_job' => $userFamily['father_job'] ?? 'N/A',
+            'father_national' => $userFamily['father_national'] ?? 'N/A',
+            'f_current_residence' => $userFamily['f_current_residence'] ?? 'N/A',
+            'f_institute' => $userFamily['f_institute'] ?? 'N/A',
+            'f_address' => $userFamily['f_address'] ?? 'N/A',
+            'father_date' => $userFamily['father_date'] ?? 'N/A',
+            'mother_name' => $userFamily['mother_name'] ?? 'N/A',
+            'mother_name_in_english' => $userFamily['mother_name_in_english'] ?? 'N/A',
+            'mother_status' => $userFamily['mother_status'] ?? 'N/A',
+            'mother_job' => $userFamily['mother_job'] ?? 'N/A',
+            'mother_national' => $userFamily['mother_national'] ?? 'N/A',
+            'm_current_residence' => $userFamily['m_current_residence'] ?? 'N/A',
+            'm_institute' => $userFamily['m_institute'] ?? 'N/A',
+            'm_address' => $userFamily['m_address'] ?? 'N/A',
+            'mother_date' => $userFamily['mother_date'] ?? 'N/A',
+            'federation_name' => $userFamily['federation_name'] ?? 'N/A',
+            'federation_name_in_english' => $userFamily['federation_name_in_english'] ?? 'N/A',
+            'federation_status' => $userFamily['federation_status'] ?? 'N/A',
+            'federation_job' => $userFamily['federation_job'] ?? 'N/A',
+            'federation_national' => $userFamily['federation_national'] ?? 'N/A',
+            'federation_current_residence' => $userFamily['federation_current_residence'] ?? 'N/A',
+            'federation_institute' => $userFamily['federation_institute'] ?? 'N/A',
+            'federation_allowance' => $userFamily['federation_allowance'] ?? 'N/A',
+            'federation_phone_number' => $userFamily['federation_phone_number'] ?? 'N/A',
+            'federation_date' => $userFamily['federation_date'] ?? 'N/A',
+            'relative_name' => $userFamily['relative_name'] ?? 'N/A',
+            'relative_name_in_english' => $userFamily['relative_name_in_english'] ?? 'N/A',
+            'relative_gender' => $userFamily['relative_gender'] ?? 'N/A',
+            'relative_job' => $userFamily['relative_job'] ?? 'N/A',
+            'relative_date' => $userFamily['relative_date'] ?? 'N/A',
+            'children_name' => $userFamily['children_name'] ?? 'N/A',
+            'children_name_in_english' => $userFamily['children_name_in_english'] ?? 'N/A',
+            'children_gender' => $userFamily['children_gender'] ?? 'N/A',
+            'children_job' => $userFamily['children_job'] ?? 'N/A',
+            'children_allowance' => $userFamily['children_allowance'] ?? 'N/A',
+            'children_date' => $userFamily['children_date'] ?? 'N/A',
+
+            'additional_work' => $additionalWork ?? 'N/A',
+            'user_public_sector' => $userWorkPublicSector ?? 'N/A',
+            'user_private_sector' => $userWorkPrivateSector ?? 'N/A',
+            'user_certificate' => $userCertificate ?? 'N/A',
+            'user_education' => $userEducations ?? 'N/A',
+            'user_abillity_language' => $userLanguage ?? 'N/A',
+            'user_document' => $userDocument ?? 'N/A',
         ]);
+
+        // Fetch role, office, and department  from user information
+        $roleApiResponse = $userModel->getRoleApi($userInformation['userInformation'][0]['position_enteing_public_service'] ?? null, $_SESSION['token']);
+        if ($roleApiResponse && $roleApiResponse['http_code'] === 200 && isset($roleApiResponse['data'])) {
+            $userDetails['roleName'] = $roleApiResponse['data']['roleNameKh'] ?? 'N/A';
+            $userDetails['position_color'] = $roleApiResponse['data']['color'] ?? 'N/A';
+        }
+
+        $departmentApiResponse = $userModel->getDepartmentApi($userInformation['userInformation'][0]['department_enteing_public_service'] ?? null, $_SESSION['token']);
+        if ($departmentApiResponse && $departmentApiResponse['http_code'] === 200 && isset($departmentApiResponse['data'])) {
+            $userDetails['departmentName'] = $departmentApiResponse['data']['departmentNameKh'] ?? 'N/A';
+            $userDetails['departmentId'] = $departmentApiResponse['data']['id'] ?? 'N/A';
+        }
+
+        $officeApiResponse = $userModel->getOfficeApi($userInformation['userInformation'][0]['office_enteing_public_service'] ?? null, $_SESSION['token']);
+        if ($officeApiResponse && $officeApiResponse['http_code'] === 200 && isset($officeApiResponse['data'])) {
+            $userDetails['officeName'] = $officeApiResponse['data']['officeNameKh'] ?? 'N/A';
+            $userDetails['officeId'] = $officeApiResponse['data']['id'] ?? 'N/A';
+        }
+
+        // Fetch role, office, and department  from user information for current 
+        $roleApiResponse = $userModel->getRoleApi($userInformation['userInformation'][0]['position_current_job_situation'] ?? null, $_SESSION['token']);
+        if ($roleApiResponse && $roleApiResponse['http_code'] === 200 && isset($roleApiResponse['data'])) {
+            $userDetails['roleNameCur'] = $roleApiResponse['data']['roleNameKh'] ?? 'N/A';
+            $userDetails['position_color'] = $roleApiResponse['data']['color'] ?? 'N/A';
+        }
+
+        $departmentApiResponse = $userModel->getDepartmentApi($userInformation['userInformation'][0]['department_current_job_situation'] ?? null, $_SESSION['token']);
+        if ($departmentApiResponse && $departmentApiResponse['http_code'] === 200 && isset($departmentApiResponse['data'])) {
+            $userDetails['departmentNameCur'] = $departmentApiResponse['data']['departmentNameKh'] ?? 'N/A';
+            $userDetails['departmentId'] = $departmentApiResponse['data']['id'] ?? 'N/A';
+        }
+
+        $officeApiResponse = $userModel->getOfficeApi($userInformation['userInformation'][0]['office_current_job_situation'] ?? null, $_SESSION['token']);
+        if ($officeApiResponse && $officeApiResponse['http_code'] === 200 && isset($officeApiResponse['data'])) {
+            $userDetails['officeNameCur'] = $officeApiResponse['data']['officeNameKh'] ?? 'N/A';
+            $userDetails['officeId'] = $officeApiResponse['data']['id'] ?? 'N/A';
+        }
 
         // Fetch role, office, and department details
         $roleApiResponse = $userModel->getRoleApi($user['roleId'] ?? null, $_SESSION['token']);
