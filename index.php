@@ -21,13 +21,6 @@ if (!isset($_COOKIE['PHPSESSID'])) {
     setcookie('PHPSESSID', session_id(), time() + 2592000, '/', '', isset($_SERVER['HTTPS']), true);
 }
 
-// Check if user_id exists in the session
-if (!isset($_SESSION['user_id'])) {
-    // Redirect to login page or handle the missing session as needed
-    header('Location: /elms/login'); // Adjust the login page URL as needed
-    exit();
-}
-
 // Include database and routing files
 require 'config/database.php';
 require 'routes.php';
