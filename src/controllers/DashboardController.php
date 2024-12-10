@@ -253,7 +253,7 @@ class DashboardController
                     $userModel = new User();
                     $currentDate = date('Y-m-d');
                     $todayAttendance = $userModel->todayAttendanceByUseridApi($_SESSION['user_id'], $currentDate, $_SESSION['token'], );
-                    require 'src/views/dashboard/admin/dashboard.php';
+                    require 'src/views/dashboard/superadmin/dashboard.php';
                     break;
                 default:
                     header("Location: /elms/login");
