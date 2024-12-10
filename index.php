@@ -24,7 +24,7 @@ if (!isset($_COOKIE['PHPSESSID'])) {
 // Check if user_id exists in the session
 if (!isset($_SESSION['user_id'])) {
     // Redirect to login page or handle the missing session as needed
-    header('Location: /login'); // Adjust the login page URL as needed
+    header('Location: /elms/login'); // Adjust the login page URL as needed
     exit();
 }
 
