@@ -38,7 +38,7 @@ class DashboardController
 
     private function renderDashboard($data = [])
     {
-        if (isset($_SESSION['role']) && isset($_SESSION['user_id'])) {
+        if (isset($_SESSION['role'])) {
             $role = $_SESSION['role'];
 
             // Get pagination parameters

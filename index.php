@@ -1,7 +1,7 @@
 <?php
-// Configure session cookie parameters for 1 month lifetime
+// Configure session cookie parameters for long lifetime
 session_set_cookie_params([
-    'lifetime' => 2592000, // 1 month in seconds (30 days)
+    'lifetime' => 31536000, // 1 year in seconds
     'path' => '/',
     'domain' => 'https://leavebeta.iauoffsa.us/', // Use your domain or leave blank for default
     'secure' => isset($_SERVER['HTTPS']), // Secure cookies for HTTPS
@@ -9,16 +9,16 @@ session_set_cookie_params([
     'samesite' => 'Lax', // Prevent cross-site cookie usage
 ]);
 
-// Configure PHP to keep session data for 1 month
-ini_set('session.gc_maxlifetime', 2592000); // 1 month (in seconds)
-ini_set('session.cookie_lifetime', 2592000); // 1 month for the cookie to persist
+// Configure PHP to keep session data indefinitely
+ini_set('session.gc_maxlifetime', 31536000); // 1 year (in seconds)
+ini_set('session.cookie_lifetime', 31536000); // 1 year for the cookie to persist
 
 // Start the session
 session_start();
 
 // Manually set a session cookie if not already present
 if (!isset($_COOKIE['PHPSESSID'])) {
-    setcookie('PHPSESSID', session_id(), time() + 2592000, '/', '', isset($_SERVER['HTTPS']), true);
+    setcookie('PHPSESSID', session_id(), time() + 31536000, '/', '', isset($_SERVER['HTTPS']), true);
 }
 
 // Include database and routing files
