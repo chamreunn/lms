@@ -480,6 +480,64 @@ class User
         );
     }
 
+    public function getAllUsersFromApi($token, $maxRetries = 3)
+    {
+        $url = "{$this->api}/api/v1/users";
+        $retryCount = 0;
+        $response = null;
+
+        while ($retryCount < $maxRetries) {
+            // Initialize cURL session
+            $ch = curl_init($url);
+
+            // Set cURL options
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $token
+            ]);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Ignore SSL certificate verification
+
+            // Execute cURL request
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $error = curl_error($ch);
+
+            // Close the cURL session
+            curl_close($ch);
+
+            // Check for cURL errors
+            if ($response === false) {
+                error_log("CURL Error (Attempt {$retryCount}): $error");
+            } else {
+                // Decode the JSON response
+                $responseData = json_decode($response, true);
+
+                if (json_last_error() === JSON_ERROR_NONE && $httpCode === 200) {
+                    if (isset($responseData['data'])) {
+                        return [
+                            'http_code' => $httpCode,
+                            'data' => $responseData['data']
+                        ];
+                    } else {
+                        error_log("Unexpected API Response: " . print_r($responseData, true));
+                    }
+                } else {
+                    error_log("HTTP Code: $httpCode, JSON Decode Error: " . json_last_error_msg());
+                }
+            }
+
+            $retryCount++;
+            sleep(1); // Add a delay between retries
+        }
+
+        // If all retries fail, return error
+        return [
+            'http_code' => $httpCode ?? 500,
+            'error' => $error ?? 'Unknown error occurred',
+            'response' => $responseData ?? []
+        ];
+    }
+
     public function getUserInformationByIdApi($id, $token, $maxRetries = 3, $cacheEnabled = false)
     {
         return $this->fetchApiData(
@@ -577,7 +635,6 @@ class User
             'response' => $responseData ?? null
         ];
     }
-
 
     public function getRoleApi($id, $token)
     {
@@ -2724,5 +2781,19 @@ class User
 
         // Return formatted Khmer date
         return $khmerDay . ' ' . $khmerMonths[$month] . ' ' . $khmerYear;
+    }
+
+    public function getUserPermission($userId)
+    {
+        try {
+            $query = "SELECT * FROM user_permissions WHERE user_id = :userId";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log('Database error: ' . $e->getMessage());
+            return null;
+        }
     }
 }

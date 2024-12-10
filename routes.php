@@ -56,10 +56,14 @@ asyncHandler(function () {
             break;
 
         case $base_url . '/logout':
-            checkSessionAndExecute(function () {
-                $controller = new AuthController();
-                $controller->logout($_SESSION['token']);
-            });
+            if (isset($_SESSION['token'])) {
+                $authController = new AuthController();
+                $authController->logout($_SESSION['token']);
+            } else {
+                // Fallback if token is not set
+                header("Location: /elms/login");
+                exit();
+            }
             break;
 
         case $base_url . '/apply-leave':
@@ -68,6 +72,14 @@ asyncHandler(function () {
                 $controller->apply();
             });
             break;
+
+        case $base_url . '/update-permissions':
+            checkSessionAndExecute(function () {
+                $controller = new AdminController();
+                $controller->updatePermissions();
+            });
+            break;
+
         case $base_url . '/telegramConnect':
             checkSessionAndExecute(function () {
                 $controller = new TelegramController();

@@ -46,8 +46,14 @@ class AuthController
                         } else {
                             // Check if 2FA is enabled
                             $user2FA = $userModel->getUser2FA($user['id']);
+                            $userPermission = $userModel->getUserPermission($user['id']);
 
                             if ($user2FA && isset($user2FA['is_2fa_enabled']) && $user2FA['is_2fa_enabled'] == '1') {
+
+                                // Store user Permission session 
+                                $_SESSION['manageUserRequest'] = $userPermission['manage_requests'];
+                                $_SESSION['generalManage'] = $userPermission['general_management'];
+
                                 $_SESSION['2fa_attempts'] = $user2FA['is_2fa_enabled'] ?? 'N/A';
                                 $_SESSION['temp_secret'] = $user2FA['secret_code'] ?? 'N/A';
                                 $_SESSION['user_id'] = $user['id'] ?? 'N/A';
@@ -92,6 +98,10 @@ class AuthController
                                 header('Location: /elms/v2faCode');
                                 exit;
                             }
+
+                            // Store user Permission session 
+                            $_SESSION['manageUserRequest'] = $userPermission['manage_requests'];
+                            $_SESSION['generalManage'] = $userPermission['general_management'];
 
                             // Store user data if 2FA is not enabled
                             $_SESSION['user_id'] = $user['id'] ?? 'N/A';

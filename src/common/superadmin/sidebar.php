@@ -164,102 +164,259 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </div>
                         </div>
                     </li>
-                    <li
-                        class="nav-item dropdown <?= ($current_page == 'hunitpending' || $current_page == 'hunitapproved' || $current_page == 'hunitrejected') ? 'active' : '' ?>">
-                        <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
-                            data-bs-auto-close="outside" role="button" aria-expanded="false">
-                            <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="icon icon-tabler icons-tabler-outline icon-tabler-mail-question">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M15 19h-10a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v4.5" />
-                                    <path d="M19 22v.01" />
-                                    <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
-                                    <path d="M3 7l9 6l9 -6" />
-                                </svg>
-                            </span>
-                            <span class="nav-link-title">
-                                គ្រប់គ្រងសំណើ
-                                <?php if (!empty($requestscount)): ?>
-                                    <span class="badge bg-red text-red-fg ms-auto"><?= $requestscount; ?></span>
-                                <?php endif; ?>
-                            </span>
-                        </a>
-                        <div class="dropdown-menu">
-                            <div class="dropdown-menu-columns">
-                                <div class="dropdown-menu-column">
-                                    <a class="dropdown-item <?= ($current_page == 'hunitpending') ? 'active' : '' ?>"
-                                        href="/elms/hunitpending">
-                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"
-                                                class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path
-                                                    d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
-                                                <path d="M16 3v4" />
-                                                <path d="M8 3v4" />
-                                                <path d="M4 11h16" />
-                                                <path d="M19 22v.01" />
-                                                <path
-                                                    d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
-                                            </svg>
-                                        </span>
-                                        កំពុងរង់ចាំ
-                                        <?php if (!empty($requestscount)): ?>
-                                            <span class="badge bg-red text-red-fg ms-auto"><?= $requestscount; ?></span>
-                                        <?php endif; ?>
-                                    </a>
-                                    <a class="dropdown-item <?= ($current_page == 'hunitapproved') ? 'active' : '' ?>"
-                                        href="/elms/hunitapproved">
-                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"
-                                                class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path
-                                                    d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
-                                                <path d="M16 3v4" />
-                                                <path d="M8 3v4" />
-                                                <path d="M4 11h16" />
-                                                <path d="M19 22v.01" />
-                                                <path
-                                                    d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
-                                            </svg>
-                                        </span>
-                                        បានអនុម័ត
-                                        <?php if ($approvedCount > 0): ?>
-                                            <span class="badge bg-red text-red-fg ms-auto"><?= $approvedCount; ?></span>
-                                        <?php endif; ?>
-                                    </a>
-                                    <a class="dropdown-item <?= ($current_page == 'hunitrejected') ? 'active' : '' ?>"
-                                        href="/elms/hunitrejected">
-                                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round"
-                                                class="icon icon-tabler icons-tabler-outline icon-tabler-clock-question">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M20.975 11.33a9 9 0 1 0 -5.717 9.06" />
-                                                <path d="M12 7v5l2 2" />
-                                                <path d="M19 22v.01" />
-                                                <path
-                                                    d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
-                                            </svg>
-                                        </span>
-                                        មិនអនុម័ត
-                                        <?php if ($rejectedCount > 0): ?>
-                                            <span class="badge bg-red text-red-fg ms-auto"><?= $rejectedCount; ?></span>
-                                        <?php endif; ?>
-                                    </a>
+
+                    <!-- late&mission request  -->
+                    <?php if (isset($_SESSION['manageUserRequest']) && $_SESSION['manageUserRequest'] == '1'): ?>
+                        <li
+                            class="nav-item dropdown <?= in_array($current_page, ['adminall', 'adminpending', 'adminapproved', 'adminrejected', 'admintodaylate', 'adminmissions', 'admintodaymissions', 'adminleaves', 'adminleavetoday']) ? 'active' : '' ?>">
+                            <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
+                                data-bs-auto-close="outside" role="button" aria-expanded="false">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        class="icon icon-tabler icons-tabler-outline icon-tabler-bell-question">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path
+                                            d="M13.5 17h-9.5a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6a2 2 0 1 1 4 0a7 7 0 0 1 4 6" />
+                                        <path d="M9 17v1a3 3 0 0 0 5.914 .716" />
+                                        <path d="M19 22v.01" />
+                                        <path d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title">
+                                    គ្រប់គ្រងសំណើ
+                                    <?php if (!empty($getPendingCount)): ?>
+                                        <span class="badge bg-red text-red-fg ms-2"><?= $getPendingCount; ?></span>
+                                    <?php endif; ?>
+                                </span>
+                            </a>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-menu-columns">
+                                    <div class="dropdown-menu-column">
+                                        <!-- all requests  -->
+                                        <a class="dropdown-item <?= in_array($current_page, ['adminpending', 'adminapproved', 'adminrejected', 'admintodaylate']) ? 'active' : '' ?>"
+                                            href="/elms/adminpending">
+                                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-question">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path
+                                                        d="M15 21h-9a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+                                                    <path d="M16 3v4" />
+                                                    <path d="M8 3v4" />
+                                                    <path d="M4 11h16" />
+                                                    <path d="M19 22v.01" />
+                                                    <path
+                                                        d="M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" />
+                                                </svg>
+                                            </span>
+                                            <span class="me-2">សំណើយឺតទាំងអស់</span>
+                                            <?php if ($getPendingCount > 0): ?>
+                                                <span class="badge bg-red text-red-fg ms-auto"><?= $getPendingCount; ?></span>
+                                            <?php endif; ?>
+                                        </a>
+                                        <div class="dropdown-divider m-0"></div>
+                                        <!-- missions  -->
+                                        <div class="dropend">
+                                            <a class="dropdown-item dropdown-toggle <?= in_array($current_page, ['adminmissions', 'admintodaymissions']) ? 'active' : '' ?>"
+                                                href="#sidebar-authentication" data-bs-toggle="dropdown"
+                                                data-bs-auto-close="outside" role="button" aria-expanded="false">
+                                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-share">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path
+                                                            d="M12 21h-6a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v6" />
+                                                        <path d="M16 3v4" />
+                                                        <path d="M8 3v4" />
+                                                        <path d="M4 11h16" />
+                                                        <path d="M16 22l5 -5" />
+                                                        <path d="M21 21.5v-4.5h-4.5" />
+                                                    </svg>
+                                                </span>
+                                                <span>បេសកកម្ម</span>
+                                            </a>
+                                            <div class="dropdown-menu">
+                                                <a href="/elms/adminmissions"
+                                                    class="dropdown-item <?= in_array($current_page, ['adminmissions']) ? 'active' : '' ?>">
+                                                    បេសកកម្មទាំងអស់
+                                                </a>
+                                                <a href="/elms/admintodaymissions"
+                                                    class="dropdown-item <?= in_array($current_page, ['admintodaymissions']) ? 'active' : '' ?>">
+                                                    បេសកកម្មថ្ងៃនេះ
+                                                    <?php if (!empty($getAllMissionCount)): ?>
+                                                        <span
+                                                            class="badge bg-red text-red-fg ms-auto"><?= $getAllMissionCount ?></span>
+                                                    <?php endif; ?>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <!-- leave  -->
+                                        <div class="dropend">
+                                            <a class="dropdown-item dropdown-toggle <?= in_array($current_page, ['adminleaves', 'adminleavetoday']) ? 'active' : '' ?>"
+                                                href="#sidebar-authentication" data-bs-toggle="dropdown"
+                                                data-bs-auto-close="outside" role="button" aria-expanded="false">
+                                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-event">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path
+                                                            d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
+                                                        <path d="M16 3l0 4" />
+                                                        <path d="M8 3l0 4" />
+                                                        <path d="M4 11l16 0" />
+                                                        <path d="M8 15h2v2h-2z" />
+                                                    </svg>
+                                                </span>
+                                                <span>ច្បាប់ឈប់សម្រាក</span>
+                                            </a>
+                                            <div class="dropdown-menu">
+                                                <a href="/elms/adminleaves"
+                                                    class="dropdown-item <?= in_array($current_page, ['adminleaves']) ? 'active' : '' ?>">
+                                                    ច្បាប់ឈប់សម្រាកទាំងអស់
+                                                </a>
+                                                <a href="/elms/adminleavetoday"
+                                                    class="dropdown-item <?= in_array($current_page, ['adminleavetoday']) ? 'active' : '' ?>">
+                                                    <span class="me-2">ច្បាប់ឈប់សម្រាកថ្ងៃនេះ</span>
+                                                    <?php if (!empty($getLeaveTodayCount)): ?>
+                                                        <span
+                                                            class="badge bg-red text-red-fg ms-auto"><?= $getLeaveTodayCount ?></span>
+                                                    <?php endif; ?>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </li>
+                        </li>
+                    <?php endif; ?>
+
+                    <!-- manage system  -->
+                    <?php if (isset($_SESSION['generalManage']) && $_SESSION['generalManage'] == '1'): ?>
+                        <li
+                            class="nav-item dropdown <?= in_array($current_page, ['user_index', 'department_index', 'office', 'leavetype', 'roles', 'positions', 'documents', 'holidays', 'ipaddress', 'allqr']) ? 'active' : '' ?>">
+                            <a class="nav-link dropdown-toggle" href="#navbar-extra" data-bs-toggle="dropdown"
+                                data-bs-auto-close="outside" role="button" aria-expanded="false">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        class="icon icon-tabler icons-tabler-outline icon-tabler-adjustments-horizontal">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M14 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                        <path d="M4 6l8 0" />
+                                        <path d="M16 6l4 0" />
+                                        <path d="M8 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                        <path d="M4 12l2 0" />
+                                        <path d="M10 12l10 0" />
+                                        <path d="M17 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                        <path d="M4 18l11 0" />
+                                        <path d="M19 18l1 0" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title">
+                                    គ្រប់គ្រង
+                                </span>
+                            </a>
+                            <!-- manage  -->
+                            <div class="dropdown-menu">
+                                <div class="dropdown-menu-columns">
+                                    <div class="dropdown-menu-column">
+                                        <!-- leavetype  -->
+                                        <a class="dropdown-item <?= ($current_page == 'leavetype') ? 'active' : '' ?>"
+                                            href="/elms/leavetype">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path
+                                                    d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
+                                                <path d="M16 3v4" />
+                                                <path d="M8 3v4" />
+                                                <path d="M4 11h16" />
+                                                <path d="M7 14h.013" />
+                                                <path d="M10.01 14h.005" />
+                                                <path d="M13.01 14h.005" />
+                                                <path d="M16.015 14h.005" />
+                                                <path d="M13.015 17h.005" />
+                                                <path d="M7.01 17h.005" />
+                                                <path d="M10.01 17h.005" />
+                                            </svg>
+                                            <span class="mx-2">ប្រភេទច្បាប់</span>
+                                        </a>
+                                        <!-- holiday  -->
+                                        <a class="dropdown-item <?= ($current_page == 'holidays') ? 'active' : '' ?>"
+                                            href="/elms/holidays">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-event">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path
+                                                    d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
+                                                <path d="M16 3l0 4" />
+                                                <path d="M8 3l0 4" />
+                                                <path d="M4 11l16 0" />
+                                                <path d="M8 15h2v2h-2z" />
+                                            </svg>
+                                            <span class="mx-2">ថ្ងៃឈប់សម្រាក</span>
+                                        </a>
+                                        <!-- ipaddress  -->
+                                        <a class="dropdown-item <?= ($current_page == 'ipaddress') ? 'active' : '' ?>"
+                                            href="/elms/ipaddress">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-currency-ripple">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M7 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                                                <path d="M17 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                                                <path d="M17 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                                                <path d="M10 12h3l2 -2.5" />
+                                                <path d="M15 14.5l-2 -2.5" />
+                                            </svg>
+                                            <span class="mx-2">IP Address</span>
+                                        </a>
+                                        <!-- qrcode  -->
+                                        <a class="dropdown-item <?= ($current_page == 'allqr') ? 'active' : '' ?>"
+                                            href="/elms/allqr">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-qrcode">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path
+                                                    d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+                                                <path d="M7 17l0 .01" />
+                                                <path
+                                                    d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+                                                <path d="M7 7l0 .01" />
+                                                <path
+                                                    d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+                                                <path d="M17 7l0 .01" />
+                                                <path d="M14 14l3 0" />
+                                                <path d="M20 14l0 .01" />
+                                                <path d="M14 14l0 3" />
+                                                <path d="M14 20l3 0" />
+                                                <path d="M17 17l3 0" />
+                                                <path d="M20 17l0 3" />
+                                            </svg>
+                                            <span class="mx-2">QR Code</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    <?php endif; ?>
+                    
                     <!-- <li class="nav-item <?= ($current_page == 'leave-calendar') ? 'active' : '' ?>">
                         <a class="nav-link" href="/elms/leave-calendar">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">

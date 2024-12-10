@@ -598,6 +598,7 @@ class AdminModel
         return $this->pdo->lastInsertId();
     }
 
+    // get all user information 
     public function getUserByIdAPI($user_id)
     {
         $userModel = new User();
@@ -781,7 +782,7 @@ class AdminModel
             'user_name' => ($user['lastNameKh'] ?? '') . " " . ($user['firstNameKh'] ?? 'N/A'),
             'profile_picture' => isset($user['image']) ? 'https://hrms.iauoffsa.us/images/' . $user['image'] : 'default-profile.png',
             'date_of_birth' => $user['dateOfBirth'] ?? 'N/A',
-            'gender' => $user['gender'] === 'f' ? 'ស្រី' : 'ប្រុស' ?? 'N/A',
+            'gender' => isset($user['gender']) ? ($user['gender'] === 'f' ? 'ស្រី' : 'ប្រុស') : 'N/A',
             'user_eng_name' => $user['engName'] ?? 'N/A',
             'active' => isset($user['active']) && $user['active'] === '1' ? 'Active' : 'Inactive' ?? 'N/A',
             'activeStatus' => $user['active'] ?? 'N/A',
@@ -916,6 +917,158 @@ class AdminModel
         }
 
         return $userDetails;
+    }
+
+    public function getAllUserByIdAPI($user_id)
+    {
+        $userModel = new User();
+
+        // Fetch user details from both APIs
+        $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
+
+        // Initialize default user details
+        $defaultDetails = [
+            'rolename' => 'N/A',
+            'user_name' => 'N/A',
+            'user_id' => 'N/A',
+            'email' => 'N/A',
+            'office_id' => 'N/A',
+            'office_name' => 'N/A',
+            'department_id' => 'N/A',
+            'department_name' => 'N/A',
+            'position_name' => 'N/A',
+            'profile_picture' => 'default-profile.png',
+            'date_of_birth' => 'N/A',
+            'gender' => 'N/A',
+            'user_eng_name' => 'N/A',
+            'active' => 'N/A',
+            'activeStatus' => 'N/A',
+            'address' => 'N/A',
+            'curaddress' => 'N/A',
+            'password' => 'N/A',
+            'marital_status' => 'N/A',
+            'dob' => 'N/A',
+            'identify_card' => 'N/A',
+            'exprireDateIdenCard' => 'N/A',
+            'passport' => 'N/A',
+            'exprirePassport' => 'N/A',
+            'nationality' => 'N/A',
+            'date_enteing_public_service' => 'N/A',
+            'user_information' => [],
+            'additional_position_current_job' => [],
+            'working_history_public' => [],
+            'working_history_private' => [],
+            'modal_certificate' => [],
+            'education_level' => [],
+            'ability_language' => [],
+            'family' => [],
+            'documents' => []
+        ];
+
+        // Extract main user data
+        $user = $userApiResponse['data'] ?? [];
+
+        // Map and merge data into user details
+        $userDetails = array_merge($defaultDetails, [
+            'user_id' => $user['id'] ?? 'N/A',
+            'email' => $user['email'] ?? 'N/A',
+            'phone_number' => $user['phoneNumber'] ?? 'N/A',
+            'user_name' => ($user['lastNameKh'] ?? '') . " " . ($user['firstNameKh'] ?? 'N/A'),
+            'profile_picture' => isset($user['image']) ? 'https://hrms.iauoffsa.us/images/' . $user['image'] : 'default-profile.png',
+            'date_of_birth' => $user['dateOfBirth'] ?? 'N/A',
+            'gender' => isset($user['gender']) ? ($user['gender'] === 'f' ? 'ស្រី' : 'ប្រុស') : 'N/A',
+            'user_eng_name' => $user['engName'] ?? 'N/A',
+            'active' => isset($user['active']) && $user['active'] === '1' ? 'Active' : 'Inactive' ?? 'N/A',
+            'activeStatus' => $user['active'] ?? 'N/A',
+            'address' => $user['pobAddress'] ?? 'N/A',
+            'curaddress' => $user['currentAddress'] ?? 'N/A',
+            'password' => $user['password'] ?? 'N/A',
+            'marital_status' => $this->getMaritalStatus($user['status'] ?? '') ?? 'N/A',
+            'dob' => $user['dateOfBirth'] ?? 'N/A',
+            'identify_card' => $user['identifyCard'] ?? 'N/A',
+            'exprireDateIdenCard' => $user['exprireDateIdenCard'] ?? 'N/A',
+            'passport' => $user['passport'] ?? 'N/A',
+            'exprirePassport' => $user['exprirePassport'] ?? 'N/A',
+            'nationality' => $user['nationality'] ?? 'N/A',
+        ]);
+
+        // Fetch role, office, and department details
+        $roleApiResponse = $userModel->getRoleApi($user['roleId'] ?? null, $_SESSION['token']);
+        if ($roleApiResponse && $roleApiResponse['http_code'] === 200 && isset($roleApiResponse['data'])) {
+            $userDetails['rolename'] = $roleApiResponse['data']['roleNameKh'] ?? 'N/A';
+            $userDetails['position_color'] = $roleApiResponse['data']['color'] ?? 'N/A';
+        }
+
+        $officeApiResponse = $userModel->getOfficeApi($user['officeId'] ?? null, $_SESSION['token']);
+        if ($officeApiResponse && $officeApiResponse['http_code'] === 200 && isset($officeApiResponse['data'])) {
+            $userDetails['office_name'] = $officeApiResponse['data']['officeNameKh'] ?? 'N/A';
+            $userDetails['office_id'] = $officeApiResponse['data']['id'] ?? 'N/A';
+        }
+
+        $departmentApiResponse = $userModel->getDepartmentApi($user['departmentId'] ?? null, $_SESSION['token']);
+        if ($departmentApiResponse && $departmentApiResponse['http_code'] === 200 && isset($departmentApiResponse['data'])) {
+            $userDetails['department_name'] = $departmentApiResponse['data']['departmentNameKh'] ?? 'N/A';
+            $userDetails['department_id'] = $departmentApiResponse['data']['id'] ?? 'N/A';
+        }
+
+        return $userDetails;
+    }
+
+    public function getAllUsersFromAPI()
+    {
+        $userModel = new User();
+
+        // Fetch all users from the API
+        $usersApiResponse = $userModel->getAllUsersFromApi($_SESSION['token']);
+
+        // Initialize an array to store user details
+        $allUserDetails = [];
+
+        // Check if the API response contains user data
+        if ($usersApiResponse && $usersApiResponse['http_code'] === 200 && isset($usersApiResponse['data'])) {
+            foreach ($usersApiResponse['data'] as $user) {
+                // Fetch permissions from the database
+                $userPermission = $userModel->getUserPermission($user['id'] ?? null);
+
+                // Initialize default user details
+                $defaultDetails = [
+                    'rolename' => 'N/A',
+                    'user_name' => 'N/A',
+                    'user_id' => 'N/A',
+                    'email' => 'N/A',
+                    'office_id' => 'N/A',
+                    'office_name' => 'N/A',
+                    'department_id' => 'N/A',
+                    'department_name' => 'N/A',
+                    'position_name' => 'N/A',
+                    'profile_picture' => 'default-profile.png',
+                    'date_of_birth' => 'N/A',
+                    'gender' => 'N/A',
+                    'user_eng_name' => 'N/A',
+                    'active' => 'N/A',
+                ];
+
+                // Map and merge user details
+                $userDetails = array_merge($defaultDetails, [
+                    'user_id' => $user['id'] ?? 'N/A',
+                    'email' => $user['email'] ?? 'N/A',
+                    'phone_number' => $user['phoneNumber'] ?? 'N/A',
+                    'user_name' => ($user['lastNameKh'] ?? '') . " " . ($user['firstNameKh'] ?? 'N/A'),
+                    'profile_picture' => isset($user['image']) ? 'https://hrms.iauoffsa.us/images/' . $user['image'] : 'default-profile.png',
+                    'date_of_birth' => $user['dateOfBirth'] ?? 'N/A',
+                    'gender' => isset($user['gender']) ? ($user['gender'] === 'f' ? 'ស្រី' : 'ប្រុស') : 'N/A',
+                    'manage_requests' => $userPermission['manage_requests'] ?? false,
+                    'general_management' => $userPermission['general_management'] ?? false,
+                ]);
+
+                // Add the user's details to the array
+                $allUserDetails[] = $userDetails;
+            }
+        } else {
+            error_log("Failed to fetch users: " . ($usersApiResponse['error'] ?? 'Unknown error'));
+        }
+
+        return $allUserDetails;
     }
 
     /**
@@ -3202,5 +3355,70 @@ class AdminModel
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function updateUserPermission($userId, $permissionType, $permissionStatus)
+    {
+        try {
+            // Validate permission type against allowed columns to prevent SQL injection
+            $allowedPermissions = ['manage_requests', 'general_management'];
+            if (!in_array($permissionType, $allowedPermissions)) {
+                throw new InvalidArgumentException("Invalid permission type: $permissionType");
+            }
 
+            // Check if the user already exists in the `user_permissions` table
+            $checkQuery = "SELECT COUNT(*) FROM user_permissions WHERE user_id = :userId";
+            $checkStmt = $this->pdo->prepare($checkQuery);
+            $checkStmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+            $checkStmt->execute();
+
+            $exists = $checkStmt->fetchColumn() > 0;
+
+            if ($exists) {
+                // Update the existing record
+                $updateQuery = "UPDATE user_permissions SET $permissionType = :permissionStatus WHERE user_id = :userId";
+                $updateStmt = $this->pdo->prepare($updateQuery);
+                $updateStmt->bindParam(':permissionStatus', $permissionStatus, PDO::PARAM_INT); // Use PARAM_INT for boolean values
+                $updateStmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+                $success = $updateStmt->execute();
+            } else {
+                // Insert a new record
+                $insertQuery = "INSERT INTO user_permissions (user_id, $permissionType) VALUES (:userId, :permissionStatus)";
+                $insertStmt = $this->pdo->prepare($insertQuery);
+                $insertStmt->bindParam(':userId', $userId, PDO::PARAM_INT);
+                $insertStmt->bindParam(':permissionStatus', $permissionStatus, PDO::PARAM_INT); // Use PARAM_INT for boolean values
+                $success = $insertStmt->execute();
+            }
+
+            if ($success) {
+                // Log out the user
+                $this->logoutUser($userId);
+            }
+
+            return $success;
+        } catch (PDOException $e) {
+            error_log('Database error: ' . $e->getMessage());
+            return false;
+        } catch (InvalidArgumentException $e) {
+            error_log('Invalid argument: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    // Method to log out the user by destroying their session
+    public function logoutUser($token)
+    {
+        $userModel = new User();
+        $response =$userModel->logoutFromApi($token);
+
+        if ($response['success']) {
+            session_start();
+            session_unset();
+            session_destroy();
+
+            header("Location: /elms/login");
+            exit();
+        } else {
+            error_log("Logout Error: " . $response['message']);
+            echo "<p>Error: Unable to log out. Please try again later.</p>";
+        }
+    }
 }

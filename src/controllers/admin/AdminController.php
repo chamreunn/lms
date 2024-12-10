@@ -1638,4 +1638,55 @@ class AdminController
             exit();
         }
     }
+
+    public function updatePermissions()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Sanitize and retrieve inputs
+            $userId = intval($_POST['userId']);
+            $permissions = [
+                'manage_requests' => isset($_POST['manage_requests']) ? 1 : 0,
+                'general_management' => isset($_POST['general_management']) ? 1 : 0,
+            ];
+
+            $model = new AdminModel();
+            $updateResults = [];
+            $success = true;
+
+            // Update each permission type individually
+            foreach ($permissions as $type => $status) {
+                $result = $model->updateUserPermission($userId, $type, $status);
+                $updateResults[$type] = $result;
+
+                if (!$result) {
+                    $success = false; // Mark as failed if any permission fails
+                }
+            }
+
+            // Set success or error message
+            if ($success) {
+                $_SESSION['success'] = [
+                    'title' => "ជោគជ័យ",
+                    'message' => "បានធ្វើបច្ចុប្បន្នភាពសិទ្ធិដោយជោគជ័យ។"
+                ];
+            } else {
+                $_SESSION['error'] = [
+                    'title' => "បរាជ័យ",
+                    'message' => "មិនអាចធ្វើបច្ចុប្បន្នភាពសិទ្ធិបានទេ។"
+                ];
+            }
+
+            // Redirect back to the dashboard or appropriate page
+            header("Location: /elms/dashboard");
+            exit();
+        } else {
+            // Handle invalid request method
+            $_SESSION['error'] = [
+                'title' => "បរាជ័យ",
+                'message' => "មុខងារនេះគឺមានសម្រាប់សំណើ POST។"
+            ];
+            header("Location: /elms/dashboard");
+            exit();
+        }
+    }
 }

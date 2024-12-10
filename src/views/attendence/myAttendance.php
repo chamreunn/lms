@@ -12,7 +12,7 @@ include('src/common/header.php');
     <div class="card-body">
         <div class="row g-3 align-items-center mb-3">
             <div class="col-auto">
-                <img src="<?= $userDetails['profile_picture'] ?>" alt="" style="object-fit: cover;"
+                <img src="<?= $_SESSION['user_profile'] ?>" alt="" style="object-fit: cover;"
                     class="avatar avatar-lg"> 
             </div>
             <div class="col-auto px-3">

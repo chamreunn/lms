@@ -38,7 +38,7 @@ class DashboardController
 
     private function renderDashboard($data = [])
     {
-        if (isset($_SESSION['role'])) {
+        if (isset($_SESSION['role']) && isset($_SESSION['user_id'])) {
             $role = $_SESSION['role'];
 
             // Get pagination parameters
@@ -237,6 +237,8 @@ class DashboardController
                     require 'src/views/dashboard/admin/dashboard.php';
                     break;
                 case 'superadmin':
+                    $superAdminModel = new AdminModel();
+                    $allUserDetails = $superAdminModel->getAllUsersFromAPI();
                     require 'src/views/dashboard/superadmin/dashboard.php';
                     break;
                 default:

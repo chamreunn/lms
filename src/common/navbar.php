@@ -1,15 +1,5 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start(); // Start or resume session
-}
-
-if (!isset($_SESSION['user_id'])) {
-    header('Location: elms/login');
-}
-
-require_once 'src/models/admin/AdminModel.php';
-$userController = new AdminModel();
-$userDetails = $userController->getUserByIdAPI($_SESSION['user_id']);
+// Extract the current page path without query parameters
 $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 ?>
 <header class="navbar navbar-expand-md navbar-light d-print-none">
@@ -27,8 +17,9 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
         <div class="navbar-nav flex-row order-md-last">
             <div class="d-flex me-3">
                 <!-- qrcode  -->
-                <a href="/elms/qrcode" class="nav-link <?= ($current_page == 'qrcode') ? 'bg-primary-lt fw-bold' : '' ?> p-2" title="QR Code សម្រាប់ស្កេនវត្តមាន"
-                    data-bs-toggle="tooltip" data-bs-placement="bottom">
+                <a href="/elms/qrcode"
+                    class="nav-link <?= ($current_page == 'qrcode') ? 'bg-primary-lt fw-bold' : '' ?> p-2"
+                    title="QR Code សម្រាប់ស្កេនវត្តមាន" data-bs-toggle="tooltip" data-bs-placement="bottom">
                     <!-- Download SVG icon from http://tabler-icons.io/i/moon -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -73,26 +64,27 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
             </div>
             <div class="nav-item dropdown">
                 <a href="#" class="nav-link d-flex lh-1 p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
-                    <img src="<?= $userDetails['profile_picture'] ?>" class="avatar" alt="User Avatar"
+                    <img src="<?= $_SESSION['user_profile'] ?>" class="avatar" alt="User Avatar"
                         style="object-fit: cover;">
                     <div class="d-none d-xl-block ps-2">
                         <h3 class="mb-0 text-primary">
-                            <?= $userDetails['user_name'] ?>
+                            <?= $_SESSION['user_khmer_name'] ?>
                         </h3>
-                        <span class="small text-muted"><?= $userDetails['email'] ?></span>
+                        <span class="small text-muted"><?= $_SESSION['email'] ?></span>
                     </div>
                 </a>
+
 
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow" style="width: 300px;">
                     <div class="d-flex flex-column align-items-center justify-content-center text-center">
                         <!-- Profile Picture -->
-                        <img src="<?= $userDetails['profile_picture'] ?>" class="avatar avatar-lg mb-3 mt-2 me-0"
+                        <img src="<?= $_SESSION['user_profile'] ?>" class="avatar avatar-lg mb-3 mt-2 me-0"
                             alt="Profile Picture" style="object-fit: cover;">
 
                         <!-- User Name and Position -->
                         <div class="d-none d-xl-block ps-2">
                             <h3 class="text-primary mb-0">
-                                <?= $userDetails['user_name'] ?>
+                                <?=$_SESSION['user_khmer_name'] ?>
                             </h3>
                             <span
                                 class="badge <?= isset($_SESSION['position_color']) ? htmlspecialchars($_SESSION['position_color'], ENT_QUOTES, 'UTF-8') : 'badge-default' ?>"
@@ -131,7 +123,20 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                         <span class="mx-1">ការកំណត់</span>
                     </a>
 
-                    <a href="/elms/logout?token=<?= htmlspecialchars($_SESSION['token']) ?>" class="dropdown-item">
+                    <a href="/elms/usage" class="dropdown-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="icon icon-tabler icons-tabler-outline icon-tabler-info-circle me-0 mx-0">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="16" x2="12" y2="12" />
+                            <line x1="12" y1="8" x2="12.01" y2="8" />
+                        </svg>
+                        <span class="mx-1">របៀបប្រើប្រាស់ប្រព័ន្ធ</span>
+                    </a>
+
+                    <div class="dropdown-divider"></div>
+
+                    <a href="/elms/logout" class="dropdown-item text-danger">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                             class="icon icon-tabler icons-tabler-outline icon-tabler-logout">
