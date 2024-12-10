@@ -239,7 +239,21 @@ class DashboardController
                 case 'superadmin':
                     $superAdminModel = new AdminModel();
                     $allUserDetails = $superAdminModel->getAllUsersFromAPI();
-                    require 'src/views/dashboard/superadmin/dashboard.php';
+
+                    $lateModel = new LateModel();
+                    $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
+                    $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
+                    $countRequestModel = new LeaveRequest();
+                    $getcountrequestbyid = $countRequestModel->countRequestsByUserId($_SESSION['user_id']);
+                    $gettoday = $countRequestModel->getTodayLeaveById($_SESSION['user_id']);
+                    $notification = new Notification();
+                    $getnotifications = $notification->getNotificationsByUserId($_SESSION['user_id']);
+                    $leavetypes = new Leavetype();
+                    $leavetype = $leavetypes->getLeaveTypeById($_SESSION['user_id']);
+                    $userModel = new User();
+                    $currentDate = date('Y-m-d');
+                    $todayAttendance = $userModel->todayAttendanceByUseridApi($_SESSION['user_id'], $currentDate, $_SESSION['token'], );
+                    require 'src/views/dashboard/admin/dashboard.php';
                     break;
                 default:
                     header("Location: /elms/login");
