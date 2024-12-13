@@ -25,6 +25,8 @@ class User
 
     protected $attendance = "attendances";
 
+    protected $qrcode = "qr_codes";
+
     public function getApi()
     {
         return $this->api;
@@ -549,13 +551,12 @@ class User
         );
     }
 
-    private function fetchApiData($url, $token, $maxRetries, $cacheEnabled, $cacheKey, $cacheTTL = 3600)
+    private function fetchApiData($url, $token, $maxRetries = 3, $cacheEnabled = true, $cacheKey = '', $cacheTTL = 3600)
     {
         $retryCount = 0;
-        $connectTimeout = 5; // Timeout for establishing connection
-        $requestTimeout = 10; // Timeout for overall request
-        $maxRetryDelay = 5; // Max delay between retries in seconds
-        $retryDelay = 1; // Initial delay in seconds
+        $connectTimeout = 3; // Reduced connection timeout
+        $requestTimeout = 8; // Reduced request timeout
+        $retryDelay = 1; // Fixed retry delay in seconds
 
         // Optional caching mechanism
         if ($cacheEnabled && file_exists($cacheKey)) {
@@ -569,9 +570,6 @@ class User
                         'data' => $responseData
                     ];
                 }
-                error_log("Cache read failed or invalid JSON for $cacheKey");
-            } else {
-                unlink($cacheKey); // Delete expired cache
             }
         }
 
@@ -582,10 +580,8 @@ class User
             // Set cURL options
             curl_setopt_array($ch, [
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_HTTPHEADER => [
-                    "Authorization: Bearer $token"
-                ],
-                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_HTTPHEADER => ["Authorization: Bearer $token"],
+                CURLOPT_SSL_VERIFYPEER => true, // Enforce SSL verification for security
                 CURLOPT_CONNECTTIMEOUT => $connectTimeout,
                 CURLOPT_TIMEOUT => $requestTimeout
             ]);
@@ -598,41 +594,28 @@ class User
             // Close the cURL session
             curl_close($ch);
 
-            if ($response !== false) {
-                // Decode JSON response
+            if ($response !== false && $httpCode === 200) {
                 $responseData = json_decode($response, true);
 
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    if ($httpCode === 200 && isset($responseData['data'])) {
-                        // Cache the response if enabled
-                        if ($cacheEnabled) {
-                            file_put_contents($cacheKey, json_encode($responseData['data']));
-                        }
-
-                        return [
-                            'http_code' => $httpCode,
-                            'data' => $responseData['data']
-                        ];
-                    } else {
-                        error_log("Unexpected API Response (HTTP Code: $httpCode): " . print_r($responseData, true));
+                if (json_last_error() === JSON_ERROR_NONE && isset($responseData['data'])) {
+                    if ($cacheEnabled) {
+                        file_put_contents($cacheKey, json_encode($responseData['data']));
                     }
-                } else {
-                    error_log("JSON Decode Error: " . json_last_error_msg());
+                    return [
+                        'http_code' => $httpCode,
+                        'data' => $responseData['data']
+                    ];
                 }
-            } else {
-                error_log("CURL Error: $error (Retry: $retryCount)");
             }
 
             $retryCount++;
-            sleep(min($retryDelay, $maxRetryDelay));
-            $retryDelay *= 2; // Exponential backoff
+            sleep($retryDelay);
         } while ($retryCount < $maxRetries);
 
-        // Return error after retries are exhausted
         return [
             'http_code' => $httpCode ?? 500,
             'error' => $error ?? "Request failed after $maxRetries retries",
-            'response' => $responseData ?? null
+            'response' => $response ?? null
         ];
     }
 
@@ -2202,63 +2185,25 @@ class User
         }
     }
 
-    public function getAttendanceByUserid($userId, $date, $token)
+    public function getQRcodeByUserId($userId)
     {
         try {
-            // Check if an attendance record exists for the user on the given date
-            $sql = "SELECT * FROM {$this->attendance} WHERE userId = :user_id AND date = :date";
+            // Prepare the SQL query to fetch QR code details by user_id
+            $sql = "SELECT * FROM {$this->qrcode} WHERE user_id = :user_id";
             $stmt = $this->pdo->prepare($sql);
-            $stmt->bindParam(':user_id', $userId);
-            $stmt->bindParam(':date', $date);
+
+            // Bind the parameter
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+
+            // Execute the query
             $stmt->execute();
 
-            $attendance = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$attendance) {
-                return [
-                    'error' => true,
-                    'message' => 'No attendance record found for the specified user and date.'
-                ];
-            }
-
-            // Fetch user details from the external API
-            $userApiResponse = $this->getUserByIdApi($attendance['userId'], $token);
-
-            $userInfo = [];
-            if ($userApiResponse['http_code'] === 200 && isset($userApiResponse['data'])) {
-                $userData = $userApiResponse['data'];
-                $userInfo = [
-                    'khmer_name' => isset($userData['lastNameKh'], $userData['firstNameKh'])
-                        ? $userData['lastNameKh'] . " " . $userData['firstNameKh']
-                        : 'N/A',
-                    'phone_number' => $userData['phoneNumber'] ?? 'N/A',
-                    'email' => $userData['email'] ?? 'N/A',
-                    'dob' => $userData['date_of_birth'] ?? 'N/A',
-                    'deputy_head_name' => $userData['deputy_head_name'] ?? 'N/A'
-                ];
-            } else {
-                error_log("Failed to fetch user data for user ID: $userId");
-                $userInfo = [
-                    'khmer_name' => 'N/A',
-                    'phone_number' => 'N/A',
-                    'email' => 'N/A',
-                    'dob' => 'N/A',
-                    'deputy_head_name' => 'N/A'
-                ];
-            }
-
-            // Combine attendance data with user information
-            return [
-                'error' => false,
-                'attendance' => $attendance,
-                'user_info' => $userInfo
-            ];
-        } catch (Exception $e) {
-            error_log("Error fetching attendance or user data: " . $e->getMessage());
-            return [
-                'error' => true,
-                'message' => 'An unexpected error occurred while processing the request.'
-            ];
+            // Fetch and return all matching rows
+            return $stmt->fetchAll(PDO::FETCH_ASSOC); // Use fetchAll to return multiple rows as an associative array
+        } catch (PDOException $e) {
+            // Log the error and throw an exception for the caller
+            error_log('Database Query Error: ' . $e->getMessage());
+            throw new Exception('Unable to fetch QR code records for the user.');
         }
     }
 

@@ -220,7 +220,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                     </datalist>
                                 </div>
                             </div>
-                            <div class="modal-footer">
+                            <div class="modal-footer bg-light">
                                 <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
                                 <input type="hidden" name="status" value="Approved">
                                 <input type="hidden" name="uname" value="<?= $request['user_name'] ?>">
@@ -317,7 +317,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                         accept="image/png" hidden onchange="displayFileName(<?= $request['id'] ?>)" />
                                 </div>
                             </div>
-                            <div class="modal-footer">
+                            <div class="modal-footer bg-light">
                                 <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
                                 <input type="hidden" name="status" value="Rejected">
                                 <input type="hidden" name="uname" value="<?= $request['user_name'] ?>">

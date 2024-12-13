@@ -118,7 +118,7 @@ $startIndex = ($currentPage - 1) * $requestsPerPage;
 $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
 ?>
 
-<div class="card rounded-3">
+<div class="card">
     <div class="card-header mb-3">
         <div class="d-flex align-items-center justify-content-between">
             <h4 class="header-title mb-0 text-muted"><?= $title ?></h4>
@@ -214,7 +214,6 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
         <table class="table card-table table-vcenter text-nowrap datatable">
             <thead>
                 <tr>
-                    <th>ឈ្មោះមន្ត្រី</th>
                     <th class="d-none d-sm-table-cell">ប្រភេទច្បាប់</th>
                     <th class="d-none d-sm-table-cell">ចាប់ពីកាលបរិច្ឆេទ</th>
                     <th class="d-none d-sm-table-cell">ដល់កាលបរិច្ឆេទ</th>
@@ -262,18 +261,6 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                 <?php else: ?>
                     <?php foreach ($requests as $request): ?>
                         <tr>
-                            <td>
-                                <div class="d-flex">
-                                    <img src="<?= $_SESSION['user_profile'] ?>" class="avatar" style="object-fit: cover;"
-                                        alt="">
-                                    <div class="d-flex flex-column mx-2">
-                                        <h4 class="mx-0 mb-1 text-primary">
-                                            <?= $_SESSION['user_khmer_name'] ?>
-                                        </h4>
-                                        <span class="text-muted"><?= $_SESSION['email'] ?></span>
-                                    </div>
-                                </div>
-                            </td>
                             <td class="d-none d-sm-table-cell">
                                 <div class="badge <?= htmlspecialchars($request['color']) ?>">
                                     <?= htmlspecialchars($request['leave_type_name']) ?>

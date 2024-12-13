@@ -9,7 +9,7 @@ use PHPMailer\PHPMailer\Exception;
 class HeadOfficeController
 {
     private $pdo;
-
+    protected $table_name = "leave_requests";
     public function __construct()
     {
         global $pdo;
@@ -39,11 +39,6 @@ class HeadOfficeController
             $message = $_SESSION['user_khmer_name'] . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
             $activity = "បានស្នើសុំច្បាប់ឈប់សម្រាក។";
             $transfer = $_POST['transferId'];
-
-            $leaveRemarks = "ច្បាប់";
-            $status = "On Leave";
-            $mission = "Mission";
-            $missionRemarks = "បេសកកម្ម";
 
             // Validate required fields
             $requiredFields = ['leave_type_id', 'start_date', 'end_date'];
@@ -107,39 +102,6 @@ class HeadOfficeController
                 exit();
             }
 
-            // Fetch the user's office details from API
-            $userDoffice = $userModel->getEmailLeaderDDApi($user_id, $_SESSION['token']);
-            if (!$userDoffice || $userDoffice['http_code'] !== 200 || empty($userDoffice['emails'])) {
-                error_log("API Response: " . print_r($userDoffice, true));
-                $_SESSION['error'] = [
-                    'title' => "Office Error",
-                    'message' => "Unable to find office details. Please contact support."
-                ];
-                header("Location: /elms/apply-leave");
-                exit();
-            }
-
-            // Use the first available manager's ID and email
-            $managerId = !empty($userDoffice['ids']) ? $userDoffice['ids'][0] : null;
-            $managerEmail = !empty($userDoffice['emails']) ? $userDoffice['emails'][0] : null;
-            $managerName = !empty($userDoffice['lastNameKh']) && !empty($userDoffice['firstNameKh'])
-                ? $userDoffice['lastNameKh'][0] . ' ' . $userDoffice['firstNameKh'][0]
-                : null;
-            $link = "https://leave.iauoffsa.us/elms/depdepartmentpending";
-
-            if (!$managerId || !$managerEmail) {
-                throw new Exception("No valid manager details found.");
-            }
-
-            // Check if the manager is on leave today using the leave_requests table
-            $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
-            $isManagerOnMission = $userModel->isManagerOnMission($managerId);
-
-            // Convert array to comma-separated string if necessary
-            if (is_array($managerEmail)) {
-                $managerEmail = implode(',', $managerEmail);
-            }
-
             // Create leave request
             $leaveRequestId = $headOfficeModel->create(
                 $user_id,
@@ -166,57 +128,99 @@ class HeadOfficeController
                 exit();
             }
 
-            if ($isManagerOnLeave || $isManagerOnMission) {
-                // Submit approval for manager on leave
-                $updatedAt = $headOfficeModel->updateApproval($leaveRequestId, $managerId, $isManagerOnLeave ? $status : $mission, $isManagerOnLeave ? $leaveRemarks : $missionRemarks);
+            // Determine approving managers with dynamic links
+            $managerApis = [
+                'getEmailLeaderDDApi' => ['column' => 'dhead_department', 'link' => 'https://leave.iauoffsa.us/elms/depdepartmentpending'],
+                'getEmailLeaderHDApi' => ['column' => 'head_department', 'link' => 'https://leave.iauoffsa.us/elms/headdepartmentpending'],
+                'getEmailLeaderDHU1Api' => ['column' => 'dhead_unit', 'link' => 'https://leave.iauoffsa.us/elms/dunit1pending'],
+                'getEmailLeaderDHU2Api' => ['column' => 'dhead_unit', 'link' => 'https://leave.iauoffsa.us/elms/dunit2pending'],
+                'getEmailLeaderHUApi' => ['column' => 'head_unit', 'link' => 'https://leave.iauoffsa.us/elms/hunitpending']
+            ];
 
-                // Fetch backup manager details
-                $backupManager = $userModel->getEmailLeaderHDApi($user_id, $_SESSION['token']);
-                if (!$backupManager || empty($backupManager['emails'])) {
-                    throw new Exception("Both the primary and backup managers are unavailable. Please contact support.");
+            $approvingManagerId = null;
+            $approvingManagerEmail = null;
+            $approvingManagerName = null;
+
+            foreach ($managerApis as $apiMethod => $details) {
+                $columnToUpdate = $details['column'];
+                $link = $details['link'];
+
+                $managerDetails = $userModel->$apiMethod($user_id, $_SESSION['token']);
+                if (!$managerDetails || empty($managerDetails['ids'])) {
+                    continue; // Skip if no managers found
                 }
 
-                // Update manager details to backup manager's info
-                $managerId = !empty($backupManager['ids']) ? $backupManager['ids'][0] : null;
-                $managerEmail = $backupManager['emails'][0];
-                $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
-                $link = "https://leave.iauoffsa.us/elms/headdepartmentpending";
+                foreach ($managerDetails['ids'] as $index => $managerId) {
+                    $managerEmail = $managerDetails['emails'][$index] ?? null;
+                    $managerName = $managerDetails['lastNameKh'][$index] . ' ' . $managerDetails['firstNameKh'][$index];
 
-                $userModel->sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link);
-                // Send email notification to the manager
-                if (!$headOfficeModel->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
-                    $_SESSION['error'] = [
-                        'title' => "Email Error",
-                        'message' => "Notification email could not be sent. Please try again."
-                    ];
-                    header("Location: /elms/apply-leave");
-                    exit();
-                }
-            } else {
-                $userModel->sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link);
+                    // Check if the manager is available
+                    $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
+                    $isManagerOnMission = $userModel->isManagerOnMission($managerId);
 
-                // Send email notification to the manager
-                if (!$headOfficeModel->sendEmailNotification($managerEmail, $message, $leaveRequestId, $start_date, $end_date, $duration_days, $remarks, $leaveType['name'])) {
-                    $_SESSION['error'] = [
-                        'title' => "Email Error",
-                        'message' => "Notification email could not be sent. Please try again."
-                    ];
-                    header("Location: /elms/apply-leave");
-                    exit();
+                    if ($isManagerOnLeave || $isManagerOnMission) {
+                        // Set appropriate status
+                        $approvalStatus = $isManagerOnLeave ? "On Leave" : "Mission";
+
+                        // Update table_approval with "On Leave" or "Mission"
+                        $leaveApproval = new DepOfficeModel();
+                        $leaveApproval->updateApproval($leaveRequestId, $managerId, $approvalStatus, $remarks);
+
+                        // Update table_name to "Approved" in the relevant column
+                        $stmt = $this->pdo->prepare(
+                            "UPDATE {$this->table_name} SET $columnToUpdate = 'Approved' WHERE id = ?"
+                        );
+                        $stmt->execute([$leaveRequestId]);
+
+                        // Notify manager via Telegram
+                        $userModel->sendTelegramNotification(
+                            $userModel,
+                            $managerId,
+                            $start_date,
+                            $end_date,
+                            $duration_days,
+                            $remarks,
+                            $leaveRequestId,
+                            $link
+                        );
+                    } else {
+                        // Assign the first available manager
+                        $approvingManagerId = $managerId;
+                        $approvingManagerEmail = $managerEmail;
+                        $approvingManagerName = $managerName;
+                        break 2; // Exit loops if a valid manager is found
+                    }
                 }
             }
 
-            // Create notification for the user
-            $notificationModel = new Notification();
-            $notificationModel->createNotification($userDoffice['ids'], $user_id, $leaveRequestId, $message);
+            if (!$approvingManagerId) {
+                throw new Exception("No available managers for approval. Please contact support.");
+            }
 
-            // Log user activity
+            if (
+                !
+                $headOfficeModel->sendEmailNotification(
+                    $approvingManagerEmail,
+                    $message,
+                    $leaveRequestId,
+                    $start_date,
+                    $end_date,
+                    $duration_days,
+                    $remarks,
+                    $leaveType['name']
+                )
+            ) {
+                throw new Exception("Notification email could not be sent. Please try again.");
+            }
+
+            // Create user activity log and notifications
+            $notificationModel = new Notification();
+            $notificationModel->createNotification($approvingManagerId, $user_id, $leaveRequestId, $message);
             $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
 
-            // Set success message and redirect to leave overview
             $_SESSION['success'] = [
                 'title' => "ជោគជ័យ",
-                'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
+                'message' => "កំពុងបញ្ជូនទៅកាន់ {$approvingManagerName}"
             ];
             header("Location: /elms/hofficeLeave");
             exit();
@@ -275,131 +279,104 @@ class HeadOfficeController
     public function pending()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Validate required POST fields
+            // Required POST fields
             $requiredFields = ['request_id', 'status', 'uremarks', 'uname', 'uemail', 'leaveType', 'user_id', 'start_date', 'end_date', 'duration'];
+
             foreach ($requiredFields as $field) {
                 if (empty($_POST[$field])) {
                     $_SESSION['error'] = [
                         'title' => "Invalid Input",
-                        'message' => "Missing required fields. Please try again."
+                        'message' => "Missing required field: $field. Please try again."
                     ];
                     header("Location: /elms/apply-leave");
                     exit();
                 }
             }
 
-            // Create approval record
-            $leaveApproval = new HeadOfficeModel();
-
             // Retrieve POST data
-            $request_id = $_POST['request_id'];
-            $status = $_POST['status'];
-            $remarks = $_POST['remarks'] ?? '';  // Use default empty string if not provided
-            $uremarks = $_POST['uremarks'] ?? ''; // Use default empty string if not provided
-            $uname = $_POST['uname'];
-            $uEmail = $_POST['uemail'];
-            $leaveType = $_POST['leaveType'];
-            $user_id = $_POST['user_id']; // ID of the user who applied for leave
-            $start_date = $_POST['start_date'];
-            $end_date = $_POST['end_date'];
-            $duration_days = $_POST['duration'];
-            $approver_id = $_SESSION['user_id'];
+            $data = [
+                'request_id' => $_POST['request_id'],
+                'status' => $_POST['status'],
+                'remarks' => $_POST['remarks'] ?? '',
+                'uremarks' => $_POST['uremarks'] ?? '',
+                'uname' => $_POST['uname'],
+                'uemail' => $_POST['uemail'],
+                'leaveType' => $_POST['leaveType'],
+                'user_id' => $_POST['user_id'],
+                'start_date' => $_POST['start_date'],
+                'end_date' => $_POST['end_date'],
+                'duration_days' => $_POST['duration'],
+                'approver_id' => $_SESSION['user_id'],
+                'department' => $_SESSION['departmentName'],
+            ];
 
-            // Prepare messages
-            $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
-            $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
+            // Prepare additional variables
+            $link = "https://leave.iauoffsa.us/elms/";
+            $message = $_SESSION['user_khmer_name'] . " បាន " . $data['status'] . " ច្បាប់ឈប់សម្រាក។";
 
-            // Define constants for leave remarks and actions
-            $leaveRemarks = "ច្បាប់";
-            $action = "On Leave";
-            $mission = "Mission";
-            $missionRemarks = "បេសកកម្ម";
-
-            // Start transaction
             try {
                 $this->pdo->beginTransaction();
 
                 // Submit approval
-                $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks);
+                $leaveApproval = new HeadOfficeModel();
+                $leaveApproval->submitApproval($data['request_id'], $data['approver_id'], $data['status'], $data['remarks']);
 
-                // Fetch office details using API
+                // Determine the appropriate manager API based on the department
+                $managerApis = $this->determineManagerApis($data['department']);
                 $userModel = new User();
-                $userHoffice = $userModel->getEmailLeaderDDApi($_SESSION['user_id'], $_SESSION['token']);
 
-                if (!$userHoffice || $userHoffice['http_code'] !== 200 || empty($userHoffice['emails'])) {
-                    throw new Exception("Unable to find office details. Please contact support.");
+                $approvingManager = $this->findAvailableManager($managerApis, $userModel, $data);
+
+                if (!$approvingManager) {
+                    throw new Exception("No available managers for approval. Please contact support.");
                 }
 
-                // Use the first available manager's ID and email
-                $managerId = $userHoffice['ids'][0] ?? null;
-                $managerEmail = $userHoffice['emails'][0] ?? null;
-                $managerName = isset($userHoffice['lastNameKh'][0]) && isset($userHoffice['firstNameKh'][0])
-                    ? $userHoffice['lastNameKh'][0] . ' ' . $userHoffice['firstNameKh'][0]
-                    : null;
+                // Notify next approver via Telegram
+                $userModel->sendTelegramNextManager(
+                    $approvingManager['id'],
+                    $data['uname'] . " បានស្នើសុំច្បាប់ឈប់សម្រាក។",
+                    $data['start_date'],
+                    $data['end_date'],
+                    $data['duration_days'],
+                    $data['uremarks'],
+                    $data['status'],
+                    $link
+                );
 
-                // Check if the manager is on leave today using the leave_requests table
-                $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
-                $isManagerOnMission = $userModel->isManagerOnMission($managerId);
+                // Notify the user about the submission
+                $userModel->sendBackToUser(
+                    $data['user_id'],
+                    $data['uname'],
+                    $data['start_date'],
+                    $data['end_date'],
+                    $data['duration_days'],
+                    $data['remarks'],
+                    $data['status']
+                );
 
-                // If the manager is unavailable, fetch backup manager details
-                if ($isManagerOnLeave || $isManagerOnMission) {
-                    $updatedAt = $leaveApproval->updatePendingApproval(
-                        $request_id,
-                        $managerId,
-                        $isManagerOnLeave ? $action : $mission,
-                        $isManagerOnLeave ? $leaveRemarks : $missionRemarks
-                    );
-
-                    $backupManager = $userModel->getEmailLeaderHDApi($user_id, $_SESSION['token']);
-                    if (!$backupManager || empty($backupManager['emails'])) {
-                        throw new Exception("Both primary and backup managers are unavailable.");
-                    }
-
-                    // Update to backup manager's details
-                    $managerId = $backupManager['ids'][0] ?? null;
-                    $managerEmail = $backupManager['emails'][0];
-                    $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
-                    $link = "https://leave.iauoffsa.us/elms/headdepartmentpending";
-                } else {
-                    $link = "https://leave.iauoffsa.us/elms/depdepartmentpending";
-                }
-
-                // Send notifications
-                $userModel->sendTelegramNextManager($managerId, $uname, $start_date, $end_date, $duration_days, $uremarks, $status, $link);
-                $userModel->sendBackToUser($user_id, $uname, $start_date, $end_date, $duration_days, $uremarks, $status);
-
-                // Send email notifications
-                if (!$leaveApproval->sendEmailNotificationToHOffice($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
-                    throw new Exception("Notification email could not be sent to the manager. Please try again.");
-                }
-
-                if (!$leaveApproval->sendEmailBackToUser($uEmail, $_SESSION['user_khmer_name'], $request_id, $status, $updatedAt, $remarks)) {
-                    throw new Exception("Notification email to user could not be sent. Please try again.");
-                }
-
-                // Create notification for the user
+                // Create notification
                 $notificationModel = new Notification();
-                $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
+                $notificationModel->createNotification(
+                    $data['user_id'],
+                    $data['approver_id'],
+                    $data['request_id'],
+                    $message
+                );
 
                 // Log the user's activity
-                $activity = "បាន " . $status . " ច្បាប់ឈប់សម្រាក " . $uname;
-                $userModel->logUserActivity($approver_id, $activity, $_SERVER['REMOTE_ADDR']);
+                $activity = "បាន " . $data['status'] . " ច្បាប់ឈប់សម្រាក " . $data['uname'];
+                $userModel->logUserActivity($data['approver_id'], $activity, $_SERVER['REMOTE_ADDR']);
 
-                // Commit transaction
                 $this->pdo->commit();
 
-                // Set success message and redirect to the pending page
                 $_SESSION['success'] = [
                     'title' => "សំណើច្បាប់",
-                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
+                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $approvingManager['name']
                 ];
                 header('location: /elms/headofficepending');
                 exit();
             } catch (Exception $e) {
-                // Rollback transaction in case of failure
                 $this->pdo->rollBack();
-
-                // Log error and set error message
                 error_log("Error: " . $e->getMessage());
                 $_SESSION['error'] = [
                     'title' => "កំហុស",
@@ -413,24 +390,25 @@ class HeadOfficeController
             $leaveApprovalModel = new HeadOfficeModel();
             $requests = $leaveApprovalModel->getAllLeaveRequests();
 
-            // Initialize the UserModel
+            // Fetch additional data
             $userModel = new User();
+            $approver = $userModel->getApproverByRole(
+                $userModel,
+                $_SESSION['user_id'],
+                $_SESSION['token'],
+                $_SESSION['role'],
+                $_SESSION['departmentName']
+            );
 
-            // Get approver based on role and department
-            $approver = $userModel->getApproverByRole($userModel, $_SESSION['user_id'], $_SESSION['token'], $_SESSION['role'], $_SESSION['departmentName']);
-
-            // Initialize the HoldModel to retrieve any holds for the current user
             $holdsModel = new HoldModel();
             $hold = $holdsModel->getHoldByuserId($_SESSION['user_id']);
 
-            // Initialize the TransferoutModel to retrieve transfer-out details for the current user
             $transferoutModel = new TransferoutModel();
             $transferouts = $transferoutModel->getTransferoutByUserId($_SESSION['user_id']);
 
             $resignsModel = new ResignModel();
             $resigns = $resignsModel->getResignByuserId($_SESSION['user_id']);
 
-            // Initialize the backWork to retrieve transfer-out details for the current user
             $backworkModel = new BackworkModel();
             $backworks = $backworkModel->getBackworkByUserId($_SESSION['user_id']);
 
@@ -440,6 +418,72 @@ class HeadOfficeController
             require 'src/views/leave/offices-h/pending.php';
         }
     }
+
+    private function determineManagerApis($department)
+    {
+        $managerApis = [
+            'getEmailLeaderDDApi' => 'dhead_department',
+            'getEmailLeaderHDApi' => 'head_department',
+            'getEmailLeaderDHU1Api' => 'dhead_unit',
+            'getEmailLeaderDHU2Api' => 'dhead_unit',
+            'getEmailLeaderHUApi' => 'head_unit'
+        ];
+
+        if (in_array($department, ['នាយកដ្ឋានកិច្ចការទូទៅ', 'នាយកដ្ឋានសវនកម្មទី២'])) {
+            unset($managerApis['getEmailLeaderDHU2Api']);
+        } else {
+            unset($managerApis['getEmailLeaderDHU1Api']);
+        }
+
+        return $managerApis;
+    }
+
+    private function findAvailableManager($managerApis, $userModel, $data)
+    {
+        foreach ($managerApis as $apiMethod => $columnToUpdate) {
+            $managerDetails = $userModel->$apiMethod($data['user_id'], $_SESSION['token']);
+            if (!$managerDetails || empty($managerDetails['ids'])) {
+                continue;
+            }
+
+            foreach ($managerDetails['ids'] as $index => $managerId) {
+                $managerEmail = $managerDetails['emails'][$index] ?? null;
+                $managerName = $managerDetails['lastNameKh'][$index] . ' ' . $managerDetails['firstNameKh'][$index];
+
+                if ($userModel->isManagerOnLeaveToday($managerId)) {
+                    // Update the status to "On Leave" in the database
+                    $leaveApproval = new HeadOfficeModel();
+                    $leaveApproval->updatePendingApproval($data['request_id'], $managerId, "On Leave", "ច្បាប់");
+
+                    // Update the specific column in the database
+                    $stmt = $this->pdo->prepare(
+                        "UPDATE {$this->table_name} SET $columnToUpdate = 'Approved' WHERE id = ?"
+                    );
+                    $stmt->execute([$data['request_id']]);
+                } elseif ($userModel->isManagerOnMission($managerId)) {
+                    // Update the status to "On Mission" in the database
+                    $leaveApproval = new HeadOfficeModel();
+                    $leaveApproval->updatePendingApproval($data['request_id'], $managerId, "On Mission", "បេសកកម្ម");
+
+                    // Update the specific column in the database
+                    $stmt = $this->pdo->prepare(
+                        "UPDATE {$this->table_name} SET $columnToUpdate = 'Approved' WHERE id = ?"
+                    );
+                    $stmt->execute([$data['request_id']]);
+                } else {
+                    // Return the first available manager
+                    return [
+                        'id' => $managerId,
+                        'email' => $managerEmail,
+                        'name' => $managerName
+                    ];
+                }
+            }
+        }
+
+        return null;
+    }
+
 
     public function approved()
     {
@@ -642,7 +686,7 @@ class HeadOfficeController
                 } else {
                     $managers = 'getEmailLeaderDHU2Api';
                 }
-                
+
                 $resignApproval->updateResignApproval($userId, $resignId, $action, $comment);
 
                 // Recursive manager delegation

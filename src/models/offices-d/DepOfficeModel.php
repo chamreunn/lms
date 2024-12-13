@@ -61,45 +61,6 @@ class DepOfficeModel
         // Fetch all results
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Initialize UserModel
-        $userModel = new User();
-
-        // Add user information and additional data to each result
-        foreach ($results as &$leaveRequest) {
-            // Fetch user data from API using the user_id
-            $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
-
-            // Check if the API response is successful
-            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
-                $user = $userApiResponse['data']; // Assuming the API returns a single user object
-
-                // Add user information to the leave request
-                $leaveRequest['user_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh']) ? $user['lastNameKh'] . " " . $user['firstNameKh'] : 'Unknown';
-                $leaveRequest['dob'] = $user['dateOfBirth'] ?? 'Unknown';
-                $leaveRequest['user_email'] = $user['email'] ?? 'Unknown';
-                $leaveRequest['department_name'] = $user['department']['name'] ?? 'Unknown';
-                $leaveRequest['position_name'] = $user['position']['name'] ?? 'Unknown';
-                $leaveRequest['user_profile'] = $user['image'] ?? 'default-profile.png'; // Use a default profile image if none exists
-            } else {
-                // Handle cases where the API call fails or returns no data
-                $leaveRequest['user_name'] = 'Unknown';
-                $leaveRequest['dob'] = 'Unknown';
-                $leaveRequest['user_email'] = 'Unknown';
-                $leaveRequest['department_name'] = 'Unknown';
-                $leaveRequest['position_name'] = 'Unknown';
-                $leaveRequest['user_profile'] = 'default-profile.png'; // Use a default profile image if API fails
-            }
-
-            // Optional: Add logic to fetch approvals, office positions, etc.
-            $leaveRequest['approvals'] = $this->getApprovalsByLeaveRequestId($leaveRequest['id'], $_SESSION['token']);
-            $leaveRequest['doffice'] = $this->getDOfficePositions($leaveRequest['id'], $_SESSION['token']);
-            $leaveRequest['hoffice'] = $this->getHOfficePositions($leaveRequest['id'], $_SESSION['token']);
-            $leaveRequest['ddepartment'] = $this->getDDepartmentPositions($leaveRequest['id'], $_SESSION['token']);
-            $leaveRequest['hdepartment'] = $this->getHDepartmentPositions($leaveRequest['id'], $_SESSION['token']);
-            $leaveRequest['dunit'] = $this->getDUnitPositions($leaveRequest['id'], $_SESSION['token']);
-            $leaveRequest['unit'] = $this->getUnitPositions($leaveRequest['id'], $_SESSION['token']);
-        }
-
         return $results;
     }
 
@@ -1087,7 +1048,7 @@ class DepOfficeModel
                 $leaveRequest['khmer_name'] = $userData['lastNameKh'] . " " . $userData['firstNameKh'] ?? null;
                 $leaveRequest['phone_number'] = $userData['phoneNumber'] ?? null;
                 $leaveRequest['email'] = $userData['email'] ?? null;
-                $leaveRequest['dob'] = $userData['date_of_birth'] ?? null;
+                $leaveRequest['dob'] = $userData['dateOfBirth'] ?? null;
                 $leaveRequest['deputy_head_name'] = $userData['deputy_head_name'] ?? null;
                 $leaveRequest['profile'] = 'https://hrms.iauoffsa.us/images/' . $userData['image'];
             } else {
@@ -1106,7 +1067,7 @@ class DepOfficeModel
             $leaveRequest['ddepartment'] = $this->getDDepartmentPositions($leaveRequest['id'], $_SESSION['token']);
             $leaveRequest['hdepartment'] = $this->getHDepartmentPositions($leaveRequest['id'], $_SESSION['token']);
             $leaveRequest['dunit'] = $this->getDUnitPositions($leaveRequest['id'], $_SESSION['token']);
-            $leaveRequest['unit'] = $this->getUnitPositions($leaveRequest['id'], $_SESSION['token']);
+            $leaveRequest['hunit'] = $this->getUnitPositions($leaveRequest['id'], $_SESSION['token']);
         }
 
         return $leaveRequest;
@@ -1281,11 +1242,10 @@ class DepOfficeModel
         return $stmt->fetchAll();
     }
 
-
     public function getDOfficePositions($leave_request_id, $token)
     {
         $stmt = $this->pdo->prepare(
-            'SELECT a.approver_id ,a.status AS approver_status
+            'SELECT a.approver_id ,a.status AS approver_status, a.updated_at AS doupdated_at
             FROM leave_approvals a
             WHERE a.leave_request_id = ?'
         );
@@ -1335,7 +1295,7 @@ class DepOfficeModel
     {
         // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.approver_id ,a.status AS approver_status
+            'SELECT a.approver_id ,a.status AS approver_status, a.updated_at AS doupdated_at
             FROM leave_approvals a
             WHERE a.leave_request_id = ?'
         );
@@ -1385,7 +1345,7 @@ class DepOfficeModel
     {
         // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.approver_id ,a.status AS approver_status
+            'SELECT a.approver_id ,a.status AS approver_status, a.updated_at AS doupdated_at
             FROM leave_approvals a
             WHERE a.leave_request_id = ?'
         );
@@ -1435,7 +1395,7 @@ class DepOfficeModel
     {
         // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.approver_id ,a.status AS approver_status
+            'SELECT a.approver_id ,a.status AS approver_status, a.updated_at AS doupdated_at
             FROM leave_approvals a
             WHERE a.leave_request_id = ?'
         );
@@ -1485,7 +1445,7 @@ class DepOfficeModel
     {
         // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.approver_id ,a.status AS approver_status
+            'SELECT a.approver_id ,a.status AS approver_status, a.updated_at AS doupdated_at
             FROM leave_approvals a
             WHERE a.leave_request_id = ?'
         );
@@ -1535,9 +1495,9 @@ class DepOfficeModel
     {
         // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.approver_id ,a.status AS approver_status
-        FROM leave_approvals a
-        WHERE a.leave_request_id = ?'
+            'SELECT a.approver_id ,a.status AS approver_status, a.updated_at AS doupdated_at
+            FROM leave_approvals a
+            WHERE a.leave_request_id = ?'
         );
         $stmt->execute([$leave_request_id]);
         $approvals = $stmt->fetchAll(PDO::FETCH_ASSOC);

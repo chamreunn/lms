@@ -213,7 +213,6 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
         <table class="table card-table table-vcenter text-nowrap datatable">
             <thead>
                 <tr>
-                    <th>ឈ្មោះមន្ត្រី</th>
                     <th class="d-none d-sm-table-cell">ប្រភេទច្បាប់</th>
                     <th class="d-none d-sm-table-cell">ចាប់ពីកាលបរិច្ឆេទ</th>
                     <th class="d-none d-sm-table-cell">ដល់កាលបរិច្ឆេទ</th>
@@ -261,21 +260,10 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                 <?php else: ?>
                     <?php foreach ($requests as $request): ?>
                         <tr>
-                            <td>
-                                <div class="d-flex">
-                                    <img src="<?= $_SESSION['user_profile'] ?>" class="avatar" style="object-fit: cover;"
-                                        alt="">
-                                    <div class="d-flex flex-column mx-2">
-                                        <h4 class="mx-0 mb-1 text-primary">
-                                            <?= $_SESSION['user_khmer_name'] ?>
-                                        </h4>
-                                        <span class="text-muted"><?= $_SESSION['email'] ?></span>
-                                    </div>
-                                </div>
-                            </td>
                             <td class="d-none d-sm-table-cell">
                                 <div class="badge <?= htmlspecialchars($request['color']) ?>">
-                                    <?= htmlspecialchars($request['leave_type_name']) ?></div>
+                                    <?= htmlspecialchars($request['leave_type_name']) ?>
+                                </div>
                             </td>
                             <td class="d-none d-sm-table-cell"><?= translateDateToKhmer($request['start_date'], 'D,j F Y') ?>
                             </td>
@@ -339,6 +327,49 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                         <path d="M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
                                     </svg>
                                 </a>
+
+                                <!-- delete  -->
+                                <div class="modal modal-blur fade" id="deleteModal<?= htmlspecialchars($request['id']) ?>"
+                                    tabindex="-1" role="dialog" aria-hidden="true">
+                                    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-status bg-danger"></div>
+                                            <form action="/elms/doffice-delete" method="POST">
+                                                <div class="modal-body text-center py-4 mb-0">
+                                                    <input type="hidden" name="id"
+                                                        value="<?= htmlspecialchars($request['id']) ?>">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round"
+                                                        class="icon mb-2 text-danger icon-lg">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                        <path d="M12 9v4"></path>
+                                                        <path
+                                                            d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
+                                                        </path>
+                                                        <path d="M12 16h.01"></path>
+                                                    </svg>
+                                                    <h5 class="modal-title fw-bold text-danger">លុបសំណើច្បាប់</h5>
+                                                    <p class="mb-0">តើអ្នកប្រាកដទេថានិងលុបសំណើច្បាប់នេះ?</p>
+                                                </div>
+                                                <div class="modal-footer bg-light">
+                                                    <div class="w-100">
+                                                        <div class="row">
+                                                            <div class="col">
+                                                                <button type="button" class="btn w-100"
+                                                                    data-bs-dismiss="modal">បោះបង់</button>
+                                                            </div>
+                                                            <div class="col">
+                                                                <button type="submit" class="btn btn-danger ms-auto w-100">បាទ /
+                                                                    ចា៎</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
 
@@ -351,7 +382,8 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                                                 <td>
                                                     <strong>ប្រភេទច្បាប់ : </strong>
                                                     <div class="badge <?= htmlspecialchars($request['color']) ?>">
-                                                        <?= htmlspecialchars($request['leave_type']) ?></div>
+                                                        <?= htmlspecialchars($request['leave_type']) ?>
+                                                    </div>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -385,46 +417,6 @@ $paginatedRequests = array_slice($requests, $startIndex, $requestsPerPage);
                             </td>
                         </tr>
 
-                        <!-- delete  -->
-                        <div class="modal modal-blur fade" id="deleteModal<?= htmlspecialchars($request['id']) ?>" tabindex="-1"
-                            role="dialog" aria-hidden="true">
-                            <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-status bg-danger"></div>
-                                    <form action="/elms/doffice-delete" method="POST">
-                                        <div class="modal-body text-center py-4 mb-0">
-                                            <input type="hidden" name="id" value="<?= htmlspecialchars($request['id']) ?>">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                <path d="M12 9v4"></path>
-                                                <path
-                                                    d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
-                                                </path>
-                                                <path d="M12 16h.01"></path>
-                                            </svg>
-                                            <h5 class="modal-title fw-bold text-danger">លុបសំណើច្បាប់</h5>
-                                            <p class="mb-0">តើអ្នកប្រាកដទេថានិងលុបសំណើច្បាប់នេះ?</p>
-                                        </div>
-                                        <div class="modal-footer bg-light">
-                                            <div class="w-100">
-                                                <div class="row">
-                                                    <div class="col">
-                                                        <button type="button" class="btn w-100"
-                                                            data-bs-dismiss="modal">បោះបង់</button>
-                                                    </div>
-                                                    <div class="col">
-                                                        <button type="submit" class="btn btn-danger ms-auto w-100">បាទ /
-                                                            ចា៎</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </tbody>

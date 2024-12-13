@@ -1,6 +1,6 @@
 <!-- User Apply Leave -->
 <div class="modal modal-blur fade" id="user-apply" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><strong>បង្កើតសំណើ</strong></h5>
@@ -82,7 +82,7 @@
                                                 <path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" />
                                             </svg>
                                         </span> -->
-                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" rows="5"
+                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ"
                                         class="form-control" id="remarks" name="remarks"
                                         required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
@@ -95,11 +95,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn" data-bs-dismiss="modal">បោះបង់</button>
-                    <button type="submit" class="btn btn-primary">
-                        <span>បង្កើតសំណើ</span>
-                    </button>
+                <div class="modal-footer bg-light">
+                    <div class="row w-100">
+                        <div class="col">
+                            <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
+                        </div>
+                        <div class="col">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <span>បង្កើតសំណើ</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -108,7 +114,7 @@
 
 <!-- deputy head of office Apply Leave -->
 <div class="modal modal-blur fade" id="do-apply" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><strong>បង្កើតសំណើ</strong></h5>
@@ -182,7 +188,7 @@
                                 <label for="reason" class="form-label fw-bold">មូលហេតុ<span
                                         class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
-                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" rows="5"
+                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ"
                                         class="form-control" id="remarks" name="remarks"
                                         required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
@@ -195,11 +201,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn" data-bs-dismiss="modal">បោះបង់</button>
-                    <button type="submit" class="btn btn-primary">
-                        <span>បង្កើតសំណើ</span>
-                    </button>
+                <div class="modal-footer bg-light">
+                    <div class="row w-100">
+                        <div class="col">
+                            <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
+                        </div>
+                        <div class="col">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <span>បង្កើតសំណើ</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -209,7 +221,7 @@
 <!-- Head Office Apply Leave -->
 <div class="modal modal-blur fade" id="head-office-apply-leave" tabindex="-1" aria-labelledby="headOfficeModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><strong>បង្កើតសំណើ</strong></h5>
@@ -298,7 +310,7 @@
                                 <label for="remarks_hof" class="form-label fw-bold">មូលហេតុ<span
                                         class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
-                                    <textarea rows="5" class="form-control" id="remarks_hof" name="remarks"
+                                    <textarea class="form-control" id="remarks_hof" name="remarks"
                                         placeholder="មូលហេតុ"
                                         required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
@@ -310,9 +322,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn" data-bs-dismiss="modal">បោះបង់</button>
-                    <button type="submit" class="btn btn-primary">បង្កើតសំណើ</button>
+                <div class="modal-footer bg-light">
+                    <div class="row w-100">
+                        <div class="col">
+                            <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
+                        </div>
+                        <div class="col">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <span>បង្កើតសំណើ</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -321,7 +341,7 @@
 
 <!-- deputy head of department apply leave -->
 <div class="modal modal-blur fade" id="dd-apply" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><strong>បង្កើតសំណើ</strong></h5>
@@ -395,7 +415,7 @@
                                 <label for="reason" class="form-label fw-bold">មូលហេតុ<span
                                         class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
-                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" rows="5"
+                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ"
                                         class="form-control" id="remarks" name="remarks"
                                         required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
@@ -408,11 +428,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn" data-bs-dismiss="modal">បោះបង់</button>
-                    <button type="submit" class="btn btn-primary">
-                        <span>បង្កើតសំណើ</span>
-                    </button>
+                <div class="modal-footer bg-light">
+                    <div class="row w-100">
+                        <div class="col">
+                            <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
+                        </div>
+                        <div class="col">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <span>បង្កើតសំណើ</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -511,7 +537,7 @@
                                 <label for="remarks_hod" class="form-label fw-bold">មូលហេតុ<span
                                         class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
-                                    <textarea rows="5" class="form-control" id="remarks_hod" name="remarks"
+                                    <textarea class="form-control" id="remarks_hod" name="remarks"
                                         placeholder="មូលហេតុ"
                                         required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
@@ -608,7 +634,7 @@
                                 <label for="reason" class="form-label fw-bold">មូលហេតុ<span
                                         class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
-                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" rows="5"
+                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ"
                                         class="form-control" id="remarks" name="remarks"
                                         required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
@@ -714,7 +740,7 @@
                                 <label for="reason" class="form-label fw-bold">មូលហេតុ<span
                                         class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
-                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" rows="5"
+                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ"
                                         class="form-control" id="remarks" name="remarks"
                                         required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
@@ -820,7 +846,7 @@
                                 <label for="reason" class="form-label fw-bold">មូលហេតុ<span
                                         class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
-                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" rows="5"
+                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ"
                                         class="form-control" id="remarks" name="remarks"
                                         required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
@@ -1314,8 +1340,8 @@
                             <input type="hidden" id="leave_type_name_hof" name="leave_type_name"
                                 value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
-                         <!-- Signature Field -->
-                         <div class="col-12">
+                        <!-- Signature Field -->
+                        <div class="col-12">
                             <label for="signature" class="form-label fw-bold">ហត្ថលេខា
                                 <span class="text-danger mx-1 fw-bold">*</span>
                             </label>
@@ -1323,7 +1349,7 @@
                                 <div class="col">
                                     <label class="custom-file-label btn btn-outline-primary w-100">
                                         ជ្រើសរើសហត្ថលេខា
-                                        <input type="file" class="form-control signature-input visually-hidden" 
+                                        <input type="file" class="form-control signature-input visually-hidden"
                                             name="signature" accept=".png,.jpg,.jpeg" required>
                                     </label>
                                 </div>
@@ -1338,7 +1364,7 @@
                             </label>
                             <div class="input-icon">
                                 <!-- Retain the value of the reason textarea -->
-                                <textarea type="text" rows="5" cols="5" autocomplete="off" placeholder="មូលហេតុ"
+                                <textarea type="text" cols="5" autocomplete="off" placeholder="មូលហេតុ"
                                     class="form-control"
                                     name="reason"><?= isset($_POST['reason']) ? htmlspecialchars($_POST['reason']) : '' ?></textarea>
                             </div>
@@ -1505,7 +1531,7 @@
                             </label>
                             <div class="input-icon">
                                 <!-- Retain the value of the reason textarea -->
-                                <textarea type="text" rows="5" cols="5" autocomplete="off" placeholder="មូលហេតុ"
+                                <textarea type="text" cols="5" autocomplete="off" placeholder="មូលហេតុ"
                                     class="form-control" name="reason" required></textarea>
                             </div>
                         </div>
@@ -1555,7 +1581,7 @@
                             </label>
                             <div class="input-icon">
                                 <!-- Retain the value of the reason textarea -->
-                                <textarea type="text" rows="5" cols="5" autocomplete="off" placeholder="បទពិសោធន៍..."
+                                <textarea type="text" cols="5" autocomplete="off" placeholder="បទពិសោធន៍..."
                                     class="form-control" name="workexperience" required></textarea>
                             </div>
                         </div>
@@ -1565,7 +1591,7 @@
                             </label>
                             <div class="input-icon">
                                 <!-- Retain the value of the reason textarea -->
-                                <textarea type="text" rows="5" cols="5" autocomplete="off" placeholder="មូលហេតុ..."
+                                <textarea type="text" cols="5" autocomplete="off" placeholder="មូលហេតុ..."
                                     class="form-control" name="reason"
                                     required><?= isset($_POST['reason']) ? htmlspecialchars($_POST['reason']) : '' ?></textarea>
                             </div>
@@ -1697,7 +1723,7 @@
                             </label>
                             <div class="input-icon">
                                 <!-- Retain the value of the reason textarea -->
-                                <textarea type="text" rows="5" cols="5" autocomplete="off" placeholder="មូលហេតុ"
+                                <textarea type="text" cols="5" autocomplete="off" placeholder="មូលហេតុ"
                                     class="form-control"
                                     name="reason"><?= isset($_POST['reason']) ? htmlspecialchars($_POST['reason']) : '' ?></textarea>
                             </div>

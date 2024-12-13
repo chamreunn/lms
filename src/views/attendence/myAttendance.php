@@ -5,7 +5,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 $pretitle = "ទំព័រដើម";
-$title = "បញ្ជីវត្តមាន";
+$title = "ព័ត៌មានអំពីវត្តមាន";
 include('src/common/header.php');
 ?>
 <div class="card mb-3">

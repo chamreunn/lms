@@ -27,70 +27,64 @@ include('src/common/header.php');
 </div> -->
 
 <?php if (empty($qrCodeFound)): ?>
-    <div class="page page-center">
-        <div class="container py-4">
-            <div class="card card-md animate__animated animate__slideInUpShort">
-                <div class="empty">
-                    <div class="text-center">
-                        <img src="public/img/icons/svgs/qrcode.svg" class="w-50 mb-3" alt="">
-                        <h3 class="mb-0">សូមចុចប៊ូតុង <span class="text-danger">បង្កើត QR Code</span> ខាងក្រោមដើម្បីទាញយក
-                            <span class="text-primary">QR Code</span> សម្រាប់ស្កេនវត្តមានប្រចាំថ្ងៃរបស់អ្នក។
-                        </h3>
-                        <form action="/elms/generateQR" method="post" enctype="multipart/form-data">
-                            <div class="modal-body" hidden>
-                                <div class="row g-3">
-                                    <div class="col-12">
-                                        <label class="form-label" for="name">ឈ្មោះ QR Code</label>
-                                        <input type="text" class="form-control" id="name" name="name" autocomplete="off"
-                                            value="ប្រព័ន្ធស្នើសុំច្បាប់ឌីជីថល" required>
-                                    </div>
+    <div class="card card-md animate__animated animate__slideInUpShort">
+        <div class="empty">
+            <div class="text-center">
+                <img src="public/img/icons/svgs/qrcode.svg" class="w-50 mb-3" alt="">
+                <h3 class="mb-0">សូមចុចប៊ូតុង <span class="text-danger">បង្កើត QR Code</span> ខាងក្រោមដើម្បីទាញយក
+                    <span class="text-primary">QR Code</span> សម្រាប់ស្កេនវត្តមានប្រចាំថ្ងៃរបស់អ្នក។
+                </h3>
+                <form action="/elms/generateQR" method="post" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="row g-3" hidden>
+                            <div class="col-12">
+                                <label class="form-label" for="name">ឈ្មោះ QR Code</label>
+                                <input type="text" class="form-control" id="name" name="name" autocomplete="off"
+                                    value="ប្រព័ន្ធស្នើសុំច្បាប់ឌីជីថល" required>
+                            </div>
 
-                                    <div class="col-12">
-                                        <label class="form-label" for="size">ទំហំ</label>
-                                        <input type="number" class="form-control" id="size" name="size" value="300"
-                                            required>
-                                    </div>
+                            <div class="col-12">
+                                <label class="form-label" for="size">ទំហំ</label>
+                                <input type="number" class="form-control" id="size" name="size" value="300" required>
+                            </div>
 
-                                    <div class="col-12">
-                                        <label class="form-label">Select Location on Map:</label>
-                                        <div class="map rounded" style="height: 400px; width: 100%;"></div>
+                            <div class="col-12">
+                                <label class="form-label">Select Location on Map:</label>
+                                <div class="map rounded" style="height: 400px; width: 100%;"></div>
 
-                                        <label class="form-label" for="name">QR Code URLs:</label>
-                                        <input type="text" class="form-control" id="name" name="url" autocomplete="off"
-                                            value="<?= $link ?? 'link not found' ?>" required>
+                                <label class="form-label" for="name">QR Code URLs:</label>
+                                <input type="text" class="form-control" id="name" name="url" autocomplete="off"
+                                    value="<?= $link ?? 'link not found' ?>" required>
 
-                                        <!-- Hidden fields to store selected latitude and longitude -->
-                                        <input type="text" id="latitude" class="latitude" name="latitude">
-                                        <input type="text" id="longitude" class="longitude" name="longitude">
-                                        <input type="hidden" name="userId" value="<?= $_SESSION['user_id'] ?>">
-                                    </div>
+                                <!-- Hidden fields to store selected latitude and longitude -->
+                                <input type="text" id="latitude" class="latitude" name="latitude">
+                                <input type="text" id="longitude" class="longitude" name="longitude">
+                                <input type="hidden" name="userId" value="<?= $_SESSION['user_id'] ?>">
+                            </div>
 
-                                    <div class="col-12">
-                                        <label for="logo" class="form-label">រូបភាពឡូហ្គោ</label>
-                                        <div class="text-center mb-3">
-                                            <img src="public/img/icons/brands/logo2.png" alt="Default Logo"
-                                                class="img-fluid rounded" style="max-width: 100px;">
-                                        </div>
-                                        <input type="file" class="form-control" id="logo" name="logo" accept="image/*"
-                                            onchange="this.nextElementSibling.src = window.URL.createObjectURL(this.files[0])">
-                                    </div>
-
-                                    <!-- Hidden field to store the device ID -->
-                                    <input type="text" id="device_id" name="device_id" value="">
+                            <div class="col-12">
+                                <label for="logo" class="form-label">រូបភាពឡូហ្គោ</label>
+                                <div class="text-center mb-3">
+                                    <img src="public/img/icons/brands/logo2.png" alt="Default Logo"
+                                        class="img-fluid rounded" style="max-width: 100px;">
                                 </div>
+                                <input type="file" class="form-control" id="logo" name="logo" accept="image/*"
+                                    onchange="this.nextElementSibling.src = window.URL.createObjectURL(this.files[0])">
                             </div>
-                            <div class="justify-content-center mt-3">
-                                <button class="btn btn-primary" type="submit">បង្កើត QR Code</button>
+
+                            <!-- Hidden field to store the device ID -->
+                            <div class="mb-3">
+                                <input type="text" class="form-control" id="device_id" name="device_id" value="">
                             </div>
-                        </form>
+                        </div>
                     </div>
-                </div>
+                    <div class="justify-content-center mt-3">
+                        <button class="btn btn-primary" type="submit">បង្កើត QR Code</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-
-    <!-- Include Leaflet.js -->
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <script>
         class LocationPicker {
@@ -209,21 +203,18 @@ include('src/common/header.php');
                 );
             }
 
-            function setCookie(name, value, days) {
-                const date = new Date();
-                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); // Days to expire
-                document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/;SameSite=Strict`;
+            function setLocalStorage(name, value) {
+                localStorage.setItem(name, value);
             }
 
-            function getCookie(name) {
-                const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
-                return match ? match[2] : null;
+            function getLocalStorage(name) {
+                return localStorage.getItem(name);
             }
 
-            let deviceId = getCookie("deviceId");
+            let deviceId = getLocalStorage("deviceId");
             if (!deviceId) {
                 deviceId = generateUUID();
-                setCookie("deviceId", deviceId, 365); // 1 year
+                setLocalStorage("deviceId", deviceId); // Store UUID indefinitely
             }
 
             const deviceIdField = document.getElementById("device_id");
@@ -273,7 +264,8 @@ include('src/common/header.php');
                             <div class="mb-0 mt-0">
                                 <p class="text-primary fs-3 fw-bold">
                                     <span class="text-danger"
-                                        style="font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">QR Code</span>សម្រាប់ស្កេនវត្តមានប្រចាំថ្ងៃរបស់អ្នក
+                                        style="font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">QR
+                                        Code</span>សម្រាប់ស្កេនវត្តមានប្រចាំថ្ងៃរបស់អ្នក
                                 </p>
                             </div>
                             <!-- QR Code Section -->

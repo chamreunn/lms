@@ -75,6 +75,7 @@ class DashboardController
                     $leavetypes = $leavetypes->getAllLeavetypes();
                     $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
                     $currentDate = date('Y-m-d');
+                    $getQRcode = $userModel->getQRcodeByUserId($_SESSION['user_id']);
                     $todayAttendance = $userModel->todayAttendanceByUseridApi($_SESSION['user_id'], $currentDate, $_SESSION['token'], );
                     require 'src/views/dashboard/users/dashboard.php';
                     break;
@@ -85,6 +86,8 @@ class DashboardController
                     $leavetypeModel = new Leavetype();
                     $getAllMission = new MissionModel();
                     $leaveRequestModel = new DepDepartmentModel();
+                    $userModel = new User();
+                    $getQRcode = $userModel->getQRcodeByUserId($_SESSION['user_id']);
                     $leaves = $leaveRequestModel->getTodayLeaveById($_SESSION['user_id']);
                     $getovertimeincounts = $lateModel->getOvertimeinCount($_SESSION['user_id']);
                     $getovertimeoutcounts = $lateModel->getOvertimeoutCount($_SESSION['user_id']);
@@ -120,6 +123,7 @@ class DashboardController
                     $getMissionCount = $missionCount->missionCount($_SESSION['user_id']);
                     $userModel = new User();
                     $currentDate = date('Y-m-d');
+                    $getQRcode = $userModel->getQRcodeByUserId($_SESSION['user_id']);
                     $todayAttendance = $userModel->todayAttendanceByUseridApi($_SESSION['user_id'], $currentDate, $_SESSION['token'], );
                     require 'src/views/dashboard/offices-h/dashboard.php';
                     break;

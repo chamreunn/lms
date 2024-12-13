@@ -192,7 +192,7 @@ date_default_timezone_set('Asia/Bangkok');
                             $getLeaveTodayCount = $adminModel->getLeaveTodayCount();
                             $getPendingCount = $adminModel->getLateCountByStatus('Pending');
                             // end sidebar count 
-                            $userDetails = $adminModel->getAllUserByIdAPI($_SESSION['user_id']);
+                            
                             require 'navbar.php';
                             require 'admin/sidebar.php';
                             break;
@@ -214,13 +214,14 @@ date_default_timezone_set('Asia/Bangkok');
                             $adminModel = new AdminModel();
                             $totalLateCount = $adminModel->getLateinCount();
                             $latesTodayCount = $adminModel->getLateCountToday();
-                            $userDetails = $adminModel->getAllUserByIdAPI($_SESSION['user_id']);
+                            
                             // Sidebar and navbar templates
                             require 'navbar.php';
                             require 'offices-d/sidebar.php';
                             break;
                         case 'Head Of Office':
                             $userModel = new User();
+                            $adminModel = new AdminModel();
                             $leaveRequestModel = new HeadOfficeModel();
                             $pendingCount = $leaveRequestModel->pendingCount();
                             $approvedCount = $leaveRequestModel->approvedCount();
@@ -231,11 +232,12 @@ date_default_timezone_set('Asia/Bangkok');
                             $pendingHoldsCount = $holdModel->countPendingHoldsByUserId($_SESSION['user_id']);
                             $totalPendingCount = $pendingCount + $pendingHoldsCount;
                             // sidebar and navbar 
-                            $userDetails = $adminModel->getAllUserByIdAPI($_SESSION['user_id']);
+                            
                             require 'navbar.php';
                             require 'offices-h/sidebar.php';
                             break;
                         case 'Deputy Head Of Department':
+                            $adminModel = new AdminModel();
                             $leaveRequestModel = new DepDepartmentModel();
                             $requestscount = $leaveRequestModel->pendingCount();
                             $approvedCount = $leaveRequestModel->approvedCount();
@@ -247,12 +249,13 @@ date_default_timezone_set('Asia/Bangkok');
                             // Total pending count combining leave requests and holds
                             $totalPendingCount = $requestscount + $pendingHoldsCount;
                             // sidebar and navbar 
-                            $userDetails = $adminModel->getAllUserByIdAPI($_SESSION['user_id']);
+                            
                             require 'navbar.php';
                             require 'departments-d/sidebar.php';
                             break;
                         case 'Head Of Department':
                             $userModel = new User();
+                            $adminModel = new AdminModel();
                             $leaveRequestModel = new HeadDepartmentModel();
                             $requestscount = $leaveRequestModel->pendingCount();
                             $approvedCount = $leaveRequestModel->approvedCount();
@@ -269,11 +272,12 @@ date_default_timezone_set('Asia/Bangkok');
                             $leavetypes = $leavetypeModel->getAllLeavetypes();
                             $depdepart = $userModel->getEmailLeaderDDApi($_SESSION['user_id'], $_SESSION['token']);
                             // sidebar and navbar 
-                            $userDetails = $adminModel->getAllUserByIdAPI($_SESSION['user_id']);
+                            
                             require 'navbar.php';
                             require 'departments-h/sidebar.php';
                             break;
                         case 'Deputy Head Of Unit 1':
+                            $adminModel = new AdminModel();
                             $leaveRequestModel = new DepUnit1Model();
                             $requestscount = $leaveRequestModel->pendingCount();
                             $approvedCount = $leaveRequestModel->approvedCount();
@@ -286,11 +290,12 @@ date_default_timezone_set('Asia/Bangkok');
                             // Total pending count combining leave requests and holds
                             $totalPendingCount = $requestscount + $pendingHoldsCount;
                             // sidebar and navbar 
-                            $userDetails = $adminModel->getAllUserByIdAPI($_SESSION['user_id']);
+                            
                             require 'navbar.php';
                             require 'unit1-d/sidebar.php';
                             break;
                         case 'Deputy Head Of Unit 2':
+                            $adminModel = new AdminModel();
                             $leaveRequestModel = new DepUnit2Model();
                             $requestscount = $leaveRequestModel->pendingCount();
                             $approvedCount = $leaveRequestModel->approvedCount();
@@ -303,7 +308,7 @@ date_default_timezone_set('Asia/Bangkok');
                             // Total pending count combining leave requests and holds
                             $totalPendingCount = $requestscount + $pendingHoldsCount;
                             // sidebar and navbar 
-                            $userDetails = $adminModel->getAllUserByIdAPI($_SESSION['user_id']);
+                            
                             require 'navbar.php';
                             require 'unit2-d/sidebar.php';
                             break;
@@ -322,7 +327,7 @@ date_default_timezone_set('Asia/Bangkok');
 
                             // sidebar and navbar 
                             $adminModel = new AdminModel();
-                            $userDetails = $adminModel->getAllUserByIdAPI($_SESSION['user_id']);
+                            
                             require 'navbar.php';
                             require 'unit-h/sidebar.php';
                             break;
@@ -357,6 +362,7 @@ date_default_timezone_set('Asia/Bangkok');
                             $getAllMissionCount = $adminModel->getMissionsTodayCount();
                             $getLeaveTodayCount = $adminModel->getLeaveTodayCount();
                             $getPendingCount = $adminModel->getLateCountByStatus('Pending');
+                            
                             require 'navbar.php';
                             include('users/sidebar.php');
                             break;
@@ -387,7 +393,7 @@ date_default_timezone_set('Asia/Bangkok');
                                         <?= $pretitle ?? "" ?>
                                     </a>
                                     <h2 class="page-title">
-                                        <?php echo htmlspecialchars($title ?? ""); ?>
+                                        <?= htmlspecialchars($title ?? ""); ?>
                                     </h2>
                                 </div>
 

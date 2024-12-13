@@ -25,6 +25,8 @@
 <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
 
+<!-- Include Leaflet.js -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <!-- Script to hide the loader with delay -->
 <script>
     window.addEventListener('load', function () {
@@ -596,6 +598,252 @@
             }
         });
     });
+</script>
+
+<script>
+    class LocationPicker {
+        constructor(mapClass, latFieldId, lngFieldId, maxDistance) {
+            this.mapClass = mapClass;
+            this.latFieldId = latFieldId;
+            this.lngFieldId = lngFieldId;
+            this.maxDistance = maxDistance;
+            this.map = null;
+            this.marker = null;
+            this.userLocation = null;
+            this.locationNameElement = document.getElementById('locationName'); // Element to display location name
+            this.locationNameLink = document.getElementById('locationName'); // The link element for location
+
+            // Initialize the map
+            this.initMap();
+        }
+
+        // Initialize map
+        initMap() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        this.userLocation = [
+                            position.coords.latitude,
+                            position.coords.longitude
+                        ];
+
+                        // Update the latitude and longitude in the hidden input fields
+                        document.getElementById(this.latFieldId).value = this.userLocation[0];
+                        document.getElementById(this.lngFieldId).value = this.userLocation[1];
+
+                        this.getLocationName(this.userLocation[0], this.userLocation[1]);
+                        this.createMap();
+                    },
+                    (error) => {
+                        console.error("Geolocation Error: ", error);
+                        alert("Unable to retrieve your location.");
+                    }
+                );
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // Update fields when the marker is dragged or map is clicked
+        updateLatLngFields(e) {
+            const position = e.target.getLatLng();
+            document.getElementById(this.latFieldId).value = position.lat;
+            document.getElementById(this.lngFieldId).value = position.lng;
+        }
+
+        // Get location name using reverse geocoding
+        getLocationName(lat, lng) {
+            const apiUrl = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.address) {
+                        const address = data.address;
+                        let locationName = '';
+
+                        if (address.city) {
+                            locationName = address.city;
+                        } else if (address.town) {
+                            locationName = address.town;
+                        } else if (address.village) {
+                            locationName = address.village;
+                        } else {
+                            locationName = 'Unknown Location';
+                        }
+
+                        // Update the location name display
+                        this.locationNameElement.textContent = `ទីតាំងបច្ចុប្បន្ន: ${locationName}`;
+
+                        // Create Google Maps URL dynamically
+                        const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+
+                        // Make the location name clickable to open Google Maps
+                        this.locationNameLink.href = googleMapsUrl;
+                    } else {
+                        this.locationNameElement.textContent = 'Unable to determine location name.';
+                        this.locationNameLink.href = '#'; // No valid location, prevent the link
+                    }
+                })
+                .catch(error => {
+                    console.error('Geocoding error:', error);
+                    this.locationNameElement.textContent = 'Error fetching location name.';
+                    this.locationNameLink.href = '#'; // No valid location, prevent the link
+                });
+        }
+
+        // Create and set up the map
+        createMap() {
+            const mapContainer = document.querySelector(`.${this.mapClass}`);
+            if (mapContainer) {
+                // Create the map centered on the user's location
+                this.map = L.map(mapContainer).setView(this.userLocation, 16);
+
+                // Add standard tile layer (OpenStreetMap)
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(this.map);
+
+                // Create a circle representing the 100 meter range
+                L.circle(this.userLocation, {
+                    color: 'blue',
+                    fillColor: '#30a7d7',
+                    fillOpacity: 0.3,
+                    radius: this.maxDistance
+                }).addTo(this.map);
+
+                // Add a draggable marker at the user's location
+                this.marker = L.marker(this.userLocation, { draggable: true }).addTo(this.map);
+
+                // Restrict the marker to stay within the 100m range
+                this.marker.on('drag', (e) => this.onMarkerDrag(e));
+
+                // Update hidden input fields when marker is dragged
+                this.marker.on('dragend', (e) => this.updateLatLngFields(e));
+
+                // Handle map clicks to place the marker within 100m range
+                this.map.on('click', (e) => this.onMapClick(e));
+            } else {
+                alert("Map container not found.");
+            }
+        }
+
+        // Handle dragging the marker
+        onMarkerDrag(e) {
+            const markerLatLng = e.target.getLatLng();
+            const distance = this.map.distance(markerLatLng, this.userLocation);
+
+            if (distance > this.maxDistance) {
+                const latLng = this.userLocation; // Reset to original position if out of range
+                this.marker.setLatLng(latLng);
+            }
+        }
+
+        // Handle map clicks to place the marker within 100m range
+        onMapClick(e) {
+            const { lat, lng } = e.latlng;
+            const distance = this.map.distance(e.latlng, this.userLocation);
+
+            if (distance <= this.maxDistance) {
+                this.marker.setLatLng([lat, lng]);
+                this.updateLatLngFields({ target: this.marker });
+            } else {
+                alert("Please select a point within 100 meters.");
+            }
+        }
+
+        // Update hidden fields with the new latitude and longitude
+        updateLatLngFields(e) {
+            const position = e.target.getLatLng();
+            document.getElementById(this.latFieldId).value = position.lat;
+            document.getElementById(this.lngFieldId).value = position.lng;
+        }
+    }
+
+    window.onload = async () => {
+        const defaultLocation = [11.632825042495787, 104.88334294171813];
+        const maxDistance = 100; // in meters
+        const checkInButton = document.getElementById('checkInButton');
+
+        // Function to calculate distance between two coordinates (Haversine formula)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; // Radius of the Earth in meters
+            const toRadians = (degrees) => degrees * (Math.PI / 180);
+            const dLat = toRadians(lat2 - lat1);
+            const dLon = toRadians(lon2 - lon1);
+
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(toRadians(lat1)) *
+                Math.cos(toRadians(lat2)) *
+                Math.sin(dLon / 2) *
+                Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c; // Distance in meters
+        }
+
+        const locationPicker = new LocationPicker('map', 'latitude', 'longitude', maxDistance);
+
+        // Generate a unique UUID for the device
+        function generateUUID() {
+            return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+                (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+            );
+        }
+
+        // Get public IP using an external API
+        async function getPublicIP() {
+            try {
+                const response = await fetch('https://api64.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                console.error('Unable to fetch IP address:', error);
+                return 'Unknown';
+            }
+        }
+
+        // UUID Management
+        let deviceId = localStorage.getItem('deviceId');
+        if (!deviceId) {
+            deviceId = generateUUID();
+            localStorage.setItem('deviceId', deviceId); // Store UUID indefinitely
+        }
+
+        // Set UUID and IP in hidden form fields
+        document.getElementById('deviceId').value = deviceId;
+
+        const ipAddress = await getPublicIP();
+        document.getElementById('ipAddress').value = ipAddress;
+
+        // Check location and update button behavior
+        setTimeout(() => {
+            const latitude = parseFloat(document.getElementById('latitude').value);
+            const longitude = parseFloat(document.getElementById('longitude').value);
+
+            if (!isNaN(latitude) && !isNaN(longitude)) {
+                const distance = calculateDistance(
+                    defaultLocation[0],
+                    defaultLocation[1],
+                    latitude,
+                    longitude
+                );
+
+                if (distance <= maxDistance) {
+                    checkInButton.textContent = "កត់ត្រាវត្តមាន";
+                    checkInButton.disabled = false;
+                } else {
+                    checkInButton.textContent =
+                        "សូមអភ័យទោសអ្នកមិនស្ថិតនៅទីតាំងដែលអាចកត់ត្រាវត្តមានបានទេ ។";
+                    checkInButton.disabled = true;
+                }
+            } else {
+                checkInButton.textContent = "Unable to get location. Please try again.";
+                checkInButton.disabled = true;
+            }
+        }, 3000); // Delay for 3 seconds to allow geolocation to fetch coordinates
+    };
 </script>
 
 </body>

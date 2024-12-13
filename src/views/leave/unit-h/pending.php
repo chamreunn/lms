@@ -169,145 +169,149 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- approved modal -->
-            <div class="modal modal-blur fade" id="approved<?= $request['id'] ?>" tabindex="-1" aria-modal="true" role="dialog">
-                <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        <div class="modal-status bg-success"></div>
-                        <form action="/elms/hunitpending" method="POST" enctype="multipart/form-data">
-                            <div class="modal-body text-center py-4">
-                                <!-- Download SVG icon from http://tabler-icons.io/i/circle-check -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                    class="icon mb-2 text-green icon-lg">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
-                                    <path d="M9 12l2 2l4 -4"></path>
-                                </svg>
-                                <h3 class="text-success fw-bolder">អនុម័ត</h3>
-                                <div class="text-secondary mb-3">សូមចុច <span class="text-success fw-bolder">បន្ត</span>
-                                    ដើម្បីអនុម័តច្បាប់ឈប់សម្រាកនេះ។</div>
-                                <a class="btn text-green w-100" data-bs-toggle="collapse" href="#approved" role="button"
-                                    aria-expanded="false" aria-controls="multiCollapseExample1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-message">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path
-                                            d="M18 3a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-4.724l-4.762 2.857a1 1 0 0 1 -1.508 -.743l-.006 -.114v-2h-1a4 4 0 0 1 -3.995 -3.8l-.005 -.2v-8a4 4 0 0 1 4 -4zm-4 9h-6a1 1 0 0 0 0 2h6a1 1 0 0 0 0 -2m2 -4h-8a1 1 0 1 0 0 2h8a1 1 0 0 0 0 -2" />
-                                    </svg>
-                                    <span>មតិយោបល់</span>
-                                </a>
-                                <div class="collapse collapse-multiple mt-3" id="approved">
-                                    <input name="remarks" class="form-control" list="datalistOptions"
-                                        placeholder="សូមបញ្ចូលមតិយោបល់...">
-                                    <datalist id="datalistOptions">
-                                        <option value="អាចឈប់សម្រាកបាន"></option>
-                                    </datalist>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
-                                <input type="hidden" name="status" value="Approved">
-                                <input type="hidden" name="uname" value="<?= $request['user_name'] ?>">
-                                <input type="hidden" name="leaveType" value="<?= $request['leave_type'] ?>">
-                                <input type="hidden" name="uemail" value="<?= $request['uemails'] ?>">
-                                <input type="hidden" name="user_id" value="<?= $request['user_id'] ?>">
-                                <input type="hidden" name="start_date" value="<?= $request['start_date'] ?>">
-                                <input type="hidden" name="end_date" value="<?= $request['end_date'] ?>">
-                                <input type="hidden" name="duration" value="<?= $request['num_date'] ?>">
-                                <input type="hidden" name="uremarks" value="<?= $request['remarks'] ?>">
-                                <div class="w-100">
-                                    <div class="row">
-                                        <div class="col">
-                                            <a href="#" class="btn w-100" data-bs-dismiss="modal">
-                                                បោះបង់
-                                            </a>
-                                        </div>
-                                        <div class="col">
-                                            <button type="submit" class="btn btn-success w-100">
-                                                បន្ត
-                                            </button>
+                    <!-- approved modal -->
+                    <div class="modal modal-blur fade" id="approved<?= $request['id'] ?>" tabindex="-1" aria-modal="true"
+                        role="dialog">
+                        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <div class="modal-status bg-success"></div>
+                                <form action="/elms/hunitpending" method="POST" enctype="multipart/form-data">
+                                    <div class="modal-body text-center py-4">
+                                        <!-- Download SVG icon from http://tabler-icons.io/i/circle-check -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" class="icon mb-2 text-green icon-lg">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
+                                            <path d="M9 12l2 2l4 -4"></path>
+                                        </svg>
+                                        <h3 class="text-success fw-bolder">អនុម័ត</h3>
+                                        <div class="text-secondary mb-3">សូមចុច <span class="text-success fw-bolder">បន្ត</span>
+                                            ដើម្បីអនុម័តច្បាប់ឈប់សម្រាកនេះ។</div>
+                                        <a class="btn text-green w-100" data-bs-toggle="collapse" href="#approved" role="button"
+                                            aria-expanded="false" aria-controls="multiCollapseExample1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                fill="currentColor"
+                                                class="icon icon-tabler icons-tabler-filled icon-tabler-message">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path
+                                                    d="M18 3a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-4.724l-4.762 2.857a1 1 0 0 1 -1.508 -.743l-.006 -.114v-2h-1a4 4 0 0 1 -3.995 -3.8l-.005 -.2v-8a4 4 0 0 1 4 -4zm-4 9h-6a1 1 0 0 0 0 2h6a1 1 0 0 0 0 -2m2 -4h-8a1 1 0 1 0 0 2h8a1 1 0 0 0 0 -2" />
+                                            </svg>
+                                            <span>មតិយោបល់</span>
+                                        </a>
+                                        <div class="collapse collapse-multiple mt-3" id="approved">
+                                            <input name="remarks" class="form-control" list="datalistOptions"
+                                                placeholder="សូមបញ្ចូលមតិយោបល់...">
+                                            <datalist id="datalistOptions">
+                                                <option value="អាចឈប់សម្រាកបាន"></option>
+                                            </datalist>
                                         </div>
                                     </div>
-                                </div>
+                                    <div class="modal-footer bg-light">
+                                        <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
+                                        <input type="hidden" name="status" value="Approved">
+                                        <input type="hidden" name="uname" value="<?= $request['user_name'] ?>">
+                                        <input type="hidden" name="leaveType" value="<?= $request['leave_type'] ?>">
+                                        <input type="hidden" name="uemail" value="<?= $request['uemails'] ?>">
+                                        <input type="hidden" name="user_id" value="<?= $request['user_id'] ?>">
+                                        <input type="hidden" name="start_date" value="<?= $request['start_date'] ?>">
+                                        <input type="hidden" name="end_date" value="<?= $request['end_date'] ?>">
+                                        <input type="hidden" name="duration" value="<?= $request['num_date'] ?>">
+                                        <input type="hidden" name="uremarks" value="<?= $request['remarks'] ?>">
+                                        <div class="w-100">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <a href="#" class="btn w-100" data-bs-dismiss="modal">
+                                                        បោះបង់
+                                                    </a>
+                                                </div>
+                                                <div class="col">
+                                                    <button type="submit" class="btn btn-success w-100">
+                                                        បន្ត
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
-                        </form>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- rejected modal  -->
-            <div class="modal modal-blur fade" id="rejected<?= $request['id'] ?>" tabindex="-1" aria-modal="true" role="dialog">
-                <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        <div class="modal-status bg-danger"></div>
-                        <form action="/elms/hunitpending" method="POST" enctype="multipart/form-data">
-                            <div class="modal-body text-center py-4">
-                                <!-- Download SVG icon from http://tabler-icons.io/i/circle-check -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                    class="icon mb-2 text-danger icon-lg">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M12 9v4"></path>
-                                    <path
-                                        d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
-                                    </path>
-                                    <path d="M12 16h.01"></path>
-                                </svg>
-                                <h3 class="text-danger fw-bolder">មិនអនុម័ត</h3>
-                                <div class="text-secondary mb-3">សូមចុច <span class="text-danger fw-bolder">បន្ត</span>
-                                    ដើម្បីមិនអនុម័តច្បាប់ឈប់សម្រាកនេះ។</div>
-                                <a class="btn text-red w-100" data-bs-toggle="collapse" href="#rejected" role="button"
-                                    aria-expanded="false" aria-controls="multiCollapseExample1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-message">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path
-                                            d="M18 3a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-4.724l-4.762 2.857a1 1 0 0 1 -1.508 -.743l-.006 -.114v-2h-1a4 4 0 0 1 -3.995 -3.8l-.005 -.2v-8a4 4 0 0 1 4 -4zm-4 9h-6a1 1 0 0 0 0 2h6a1 1 0 0 0 0 -2m2 -4h-8a1 1 0 1 0 0 2h8a1 1 0 0 0 0 -2" />
-                                    </svg>
-                                    <span>មតិយោបល់</span>
-                                </a>
-                                <div class="collapse collapse-multiple mt-3" id="rejected">
-                                    <input name="remarks" class="form-control" list="datalistOptions"
-                                        placeholder="សូមបញ្ចូលមតិយោបល់...">
-                                    <datalist id="datalistOptions">
-                                        <option value="Andorra">
-                                        </option>
-                                    </datalist>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
-                                <input type="hidden" name="status" value="Rejected">
-                                <input type="hidden" name="uname" value="<?= $request['user_name'] ?>">
-                                <input type="hidden" name="leaveType" value="<?= $request['leave_type'] ?>">
-                                <input type="hidden" name="uemail" value="<?= $request['uemails'] ?>">
-                                <input type="hidden" name="user_id" value="<?= $request['user_id'] ?>">
-                                <input type="hidden" name="start_date" value="<?= $request['start_date'] ?>">
-                                <input type="hidden" name="end_date" value="<?= $request['end_date'] ?>">
-                                <input type="hidden" name="duration" value="<?= $request['num_date'] ?>">
-                                <input type="hidden" name="uremarks" value="<?= $request['remarks'] ?>">
-                                <div class="w-100">
-                                    <div class="row">
-                                        <div class="col">
-                                            <a href="#" class="btn w-100" data-bs-dismiss="modal">
-                                                បោះបង់
-                                            </a>
-                                        </div>
-                                        <div class="col">
-                                            <button type="submit" class="btn btn-success w-100">
-                                                បន្ត
-                                            </button>
+                    <!-- rejected modal  -->
+                    <div class="modal modal-blur fade" id="rejected<?= $request['id'] ?>" tabindex="-1" aria-modal="true"
+                        role="dialog">
+                        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <div class="modal-status bg-danger"></div>
+                                <form action="/elms/hunitpending" method="POST" enctype="multipart/form-data">
+                                    <div class="modal-body text-center py-4">
+                                        <!-- Download SVG icon from http://tabler-icons.io/i/circle-check -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" class="icon mb-2 text-danger icon-lg">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <path d="M12 9v4"></path>
+                                            <path
+                                                d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
+                                            </path>
+                                            <path d="M12 16h.01"></path>
+                                        </svg>
+                                        <h3 class="text-danger fw-bolder">មិនអនុម័ត</h3>
+                                        <div class="text-secondary mb-3">សូមចុច <span class="text-danger fw-bolder">បន្ត</span>
+                                            ដើម្បីមិនអនុម័តច្បាប់ឈប់សម្រាកនេះ។</div>
+                                        <a class="btn text-red w-100" data-bs-toggle="collapse" href="#rejected" role="button"
+                                            aria-expanded="false" aria-controls="multiCollapseExample1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                fill="currentColor"
+                                                class="icon icon-tabler icons-tabler-filled icon-tabler-message">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path
+                                                    d="M18 3a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-4.724l-4.762 2.857a1 1 0 0 1 -1.508 -.743l-.006 -.114v-2h-1a4 4 0 0 1 -3.995 -3.8l-.005 -.2v-8a4 4 0 0 1 4 -4zm-4 9h-6a1 1 0 0 0 0 2h6a1 1 0 0 0 0 -2m2 -4h-8a1 1 0 1 0 0 2h8a1 1 0 0 0 0 -2" />
+                                            </svg>
+                                            <span>មតិយោបល់</span>
+                                        </a>
+                                        <div class="collapse collapse-multiple mt-3" id="rejected">
+                                            <input name="remarks" class="form-control" list="datalistOptions"
+                                                placeholder="សូមបញ្ចូលមតិយោបល់...">
+                                            <datalist id="datalistOptions">
+                                                <option value="Andorra">
+                                                </option>
+                                            </datalist>
                                         </div>
                                     </div>
-                                </div>
+                                    <div class="modal-footer bg-light">
+                                        <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
+                                        <input type="hidden" name="status" value="Rejected">
+                                        <input type="hidden" name="uname" value="<?= $request['user_name'] ?>">
+                                        <input type="hidden" name="leaveType" value="<?= $request['leave_type'] ?>">
+                                        <input type="hidden" name="uemail" value="<?= $request['uemails'] ?>">
+                                        <input type="hidden" name="user_id" value="<?= $request['user_id'] ?>">
+                                        <input type="hidden" name="start_date" value="<?= $request['start_date'] ?>">
+                                        <input type="hidden" name="end_date" value="<?= $request['end_date'] ?>">
+                                        <input type="hidden" name="duration" value="<?= $request['num_date'] ?>">
+                                        <input type="hidden" name="uremarks" value="<?= $request['remarks'] ?>">
+                                        <div class="w-100">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <a href="#" class="btn w-100" data-bs-dismiss="modal">
+                                                        បោះបង់
+                                                    </a>
+                                                </div>
+                                                <div class="col">
+                                                    <button type="submit" class="btn btn-success w-100">
+                                                        បន្ត
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>

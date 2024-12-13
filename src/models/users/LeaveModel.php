@@ -59,45 +59,6 @@ class LeaveModel
         // Fetch all results
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Initialize UserModel
-        $userModel = new User();
-
-        // Add user information and additional data to each result
-        foreach ($results as &$result) {
-            // Fetch user data from API using the user_id
-            $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
-
-            // Check if the API response is successful
-            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data']) && !empty($userApiResponse['data'])) {
-                $user = $userApiResponse['data']; // Assuming the API returns a single user object
-
-                // Add user information to the leave request
-                $result['user_name'] = $user['lastNameKh'] . " " . $user['firstNameKh'] ?? 'Unknown';
-                $result['dob'] = $user['dateOfBirth'] ?? 'Unknown';
-                $result['user_email'] = $user['email'] ?? 'Unknown';
-                $result['department_name'] = $user['department']['name'] ?? 'Unknown';
-                $result['position_name'] = $user['position']['name'] ?? 'Unknown';
-                $result['user_profile'] = $user['image'] ?? 'default-profile.png'; // Use a default profile image if none exists
-            } else {
-                // Handle cases where the API call fails or returns no data
-                $result['user_name'] = 'Unknown';
-                $result['dob'] = 'Unknown';
-                $result['user_email'] = 'Unknown';
-                $result['department_name'] = 'Unknown';
-                $result['position_name'] = 'Unknown';
-                $result['user_profile'] = 'default-profile.png'; // Use a default profile image if API fails
-            }
-
-            // Fetch additional data using existing methods
-            // Optional: Add logic to fetch approvals, office positions, etc.
-            $result['approvals'] = $this->getApprovalsByLeaveRequestId($result['id'], $_SESSION['token']);
-            $result['doffice'] = $this->getDOfficePositions($result['id'], $_SESSION['token']);
-            $result['hoffice'] = $this->getHOfficePositions($result['id'], $_SESSION['token']);
-            $result['ddepartment'] = $this->getDDepartmentPositions($result['id'], $_SESSION['token']);
-            $result['hdepartment'] = $this->getHDepartmentPositions($result['id'], $_SESSION['token']);
-            $result['dunit'] = $this->getDUnitPositions($result['id'], $_SESSION['token']);
-            $result['unit'] = $this->getUnitPositions($result['id'], $_SESSION['token']);
-        }
 
         return $results;
     }

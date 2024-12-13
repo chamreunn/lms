@@ -515,12 +515,12 @@ asyncHandler(function () {
                 $controller->actionResign();
             });
             break;
-        case $base_url . '/hoactionresign':
-            checkSessionAndExecute(function () {
-                $controller = new HeadOfficeController();
-                $controller->actionResign();
-            });
-            break;
+        // case $base_url . '/hoactionresign':
+        //     checkSessionAndExecute(function () {
+        //         $controller = new HeadOfficeController();
+        //         $controller->actionResign();
+        //     });
+        //     break;
         case $base_url . '/headofficepending':
             checkSessionAndExecute(function () {
                 $controller = new HeadOfficeController();
@@ -1646,10 +1646,15 @@ asyncHandler(function () {
 function checkSessionAndExecute($callback)
 {
     global $base_url;
-    if (isset($_SESSION['user_id'])) {
-        $callback();
-    } else {
+
+    // Check if user_id is not set or is null/empty
+    if (empty($_SESSION['user_id'])) {
+        // Redirect to login page
         header("Location: $base_url/login");
         exit();
     }
+
+    // Execute the provided callback function
+    $callback();
 }
+

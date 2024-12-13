@@ -60,8 +60,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         <div class="card-body">
             <div class="row g-3 align-items-center mb-3">
                 <div class="col-auto">
-                    <img src="<?= $_SESSION['user_profile'] ?? 'no image' ?>" alt="" style="object-fit: cover;"
-                        class="avatar avatar-lg">
+                    <img src="<?= $_SESSION['user_profile'] ?>" alt="" style="object-fit: cover;" class="avatar avatar-lg">
                 </div>
                 <div class="col-auto px-3">
                     <h2><?= $_SESSION['user_khmer_name'] ?? 'No Name' ?></h2>
@@ -69,129 +68,199 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                         <span class="badge <?= $_SESSION['position_color'] ?>"><?= $_SESSION['position'] ?></span>
                     </div>
                 </div>
-                <div class="col-auto hour ms-auto">
-                    <h1 class="fw-bolder text-primary font-medium"><?= date('D,d-m-Y') ?>
-                    </h1>
-                </div>
             </div>
             <div class="col-12">
                 <div class="row row-cards">
                     <?php
-                    // Assuming $todayAttendance[0] is the record you're dealing with
-                    $attendance = $todayAttendance[0]; // Access the first attendance record
-                    if ($attendance['leave'] !== '1' && $attendance['mission'] !== '1'):
+                    // Check if attendance record exists
+                    if (isset($todayAttendance[0])) {
+                        $attendance = $todayAttendance[0]; // Access the first attendance record
+                        if ($attendance['leave'] !== '1' && $attendance['mission'] !== '1') {
+                            ?>
+                            <!-- check in  -->
+                            <div class="col-sm-6 col-lg-6">
+                                <div class="card card-sm bg-light">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <span class="bg-primary-lt text-white avatar">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round"
+                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-login">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path
+                                                            d="M15 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+                                                        <path d="M21 12h-13l3 -3" />
+                                                        <path d="M11 15l-3 -3" />
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <div class="col">
+                                                <div class="fw-bolder font-weight-medium 
+                                        <?php
+                                        if (isset($attendance['checkIn']) && $attendance['checkIn'] > '09:00:00') {
+                                            echo 'text-danger'; // Red for late check-in
+                                        }
+                                        ?>">
+                                                    <?= $attendance['checkIn'] ?? '--:--:--' ?>
+                                                </div>
+                                                <div class="text-secondary">
+                                                    ម៉ោងចូល
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- check out  -->
+                            <div class="col-sm-6 col-lg-6">
+                                <div class="card card-sm bg-light">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <span class="bg-red-lt text-white avatar">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round"
+                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-logout">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 -2v-2" />
+                                                        <path d="M9 12h12l-3 -3" />
+                                                        <path d="M18 15l3 -3" />
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <div class="col">
+                                                <div class="fw-bolder font-weight-medium 
+                                        <?php
+                                        if (isset($attendance['checkOut'])) {
+                                            if ($attendance['checkOut'] > '17:30:00') {
+                                                echo 'text-danger'; // Red for late check-out
+                                            } elseif ($attendance['checkOut'] < '16:00:00') {
+                                                echo 'text-info'; // Blue for early check-out
+                                            }
+                                        }
+                                        ?>">
+                                                    <?= $attendance['checkOut'] ?? '--:--:--' ?>
+                                                </div>
+                                                <div class="text-secondary">
+                                                    ម៉ោងចេញ
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php
+                        } elseif ($attendance['leave'] == '1') {
+                            ?>
+                            <div class="col-sm-12 col-lg-12">
+                                <div class="card card-sm bg-light">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col text-center">
+                                                <h1 class="text-danger fw-bolder">
+                                                    ច្បាប់ឈប់សម្រាក
+                                                </h1>
+                                                <p class="text-muted mb-0">អ្នកបានដាក់ច្បាប់ឈប់សម្រាកសម្រាប់ថ្ងៃនេះរបស់លោកអ្នក។</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php
+                        } elseif ($attendance['mission'] == '1') {
+                            ?>
+                            <div class="col-sm-12 col-lg-12">
+                                <div class="card card-sm bg-light">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col text-center">
+                                                <h1 class="text-danger fw-bolder">
+                                                    បេសកកម្ម
+                                                </h1>
+                                                <p class="text-muted mb-0">អ្នកមានបេសកកម្មថ្ងៃនេះ។</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php
+                        }
+                    } else {
                         ?>
-                        <!-- check in  -->
-                        <div class="col-sm-6 col-lg-6">
-                            <div class="card card-sm bg-light">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-primary-lt text-white avatar">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-login">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path
-                                                        d="M15 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
-                                                    <path d="M21 12h-13l3 -3" />
-                                                    <path d="M11 15l-3 -3" />
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="fw-bolder font-weight-medium 
-                                                    <?php
-                                                    if (isset($attendance['checkIn']) && $attendance['checkIn'] > '09:00:00') {
-                                                        echo 'text-danger'; // Red for late check-in
-                                                    }
-                                                    ?>">
-                                                <?= $attendance['checkIn'] ?? '--:--:--' ?>
-                                            </div>
-                                            <div class="text-secondary">
-                                                ម៉ោងចូល
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- check out  -->
-                        <div class="col-sm-6 col-lg-6">
-                            <div class="card card-sm bg-light">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-red-lt text-white avatar">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-logout">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 -2v-2" />
-                                                    <path d="M9 12h12l-3 -3" />
-                                                    <path d="M18 15l3 -3" />
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="fw-bolder font-weight-medium 
-                                                    <?php
-                                                    if (isset($attendance['checkOut'])) {
-                                                        if ($attendance['checkOut'] > '17:30:00') {
-                                                            echo 'text-danger'; // Red for late check-out
-                                                        } elseif ($attendance['checkOut'] < '16:00:00') {
-                                                            echo 'text-info'; // Blue for early check-out
-                                                        }
-                                                    }
-                                                    ?>">
-                                                <?= $attendance['checkOut'] ?? '--:--:--' ?>
-                                            </div>
-                                            <div class="text-secondary">
-                                                ម៉ោងចេញ
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php elseif ($attendance['leave'] == '1'): ?>
                         <div class="col-sm-12 col-lg-12">
                             <div class="card card-sm bg-light">
                                 <div class="card-body">
                                     <div class="row align-items-center">
                                         <div class="col text-center">
-                                            <h1 class="text-danger fw-bolder">
-                                                ច្បាប់ឈប់សម្រាក
+                                            <h1 class="text-warning">
+                                                មិនទាន់មានការកត់ត្រាវត្តមានទេ។
                                             </h1>
-                                            <p class="text-muted mb-0">អ្នកបានដាក់ច្បាប់ឈប់សម្រាកសម្រាប់ថ្ងៃនេះ។</p>
+                                            <p class="text-muted mb-0">
+                                                សូមចុចប៊ូតុងខាងក្រោមដើម្បីកត់ត្រាវត្តមានប្រចាំថ្ងៃរបស់លោកអ្នក</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    <?php elseif ($attendance['mission'] == '1'): ?>
-                        <div class="col-sm-12 col-lg-12">
-                            <div class="card card-sm bg-light">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col text-center">
-                                            <h1 class="text-danger fw-bolder">
-                                                បេសកកម្ម
-                                            </h1>
-                                            <p class="text-muted mb-0">អ្នកមានបេសកកម្មថ្ងៃនេះ។</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endif; ?>
+                        <?php
+                    }
+                    ?>
                 </div>
             </div>
+            <div class="mt-3 d-flex gap-3 align-items-center justify-content-center">
+                <form action="/elms/actionCheck" method="POST">
+                    <div class="mb-3" hidden>
+                        <div class="map" style="height: 400px; width: 100%;"></div>
+                        <input type="text" class="form-control" id="latitude" name="latitude" value="">
+                        <input type="text" class="form-control" id="longitude" name="longitude" value="">
+                        <input type="text" class="form-control" name="uid" value="<?= $_SESSION['user_id'] ?>">
+                        <input type="text" class="form-control" name="userId"
+                            value="<?= $_SESSION['user_id'] ?? 'No User Id Found' ?>">
+                        <input type="text" class="form-control" name="date" value="<?= date('Y-m-d') ?>">
+                        <input type="text" class="form-control" name="check" value="<?= date('H:i:s') ?>">
+                        <input type="text" class="form-control" id="deviceId" name="device_id" value="">
+                        <input type="text" class="form-control" id="ipAddress" name="ip_address" value="">
+                    </div>
+                    <button type="submit" id="checkInButton" class="btn btn-primary" disabled>
+                        កំពុងពិនិត្យទីតាំង...
+                    </button>
+                </form>
+                <p class="mb-0">ឬ</p>
+                <button class="btn btn-primary" id="scanQrButton">
+                    <span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="icon icon-tabler icons-tabler-outline icon-tabler-scan">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M4 7v-1a2 2 0 0 1 2 -2h2" />
+                            <path d="M4 17v1a2 2 0 0 0 2 2h2" />
+                            <path d="M16 4h2a2 2 0 0 1 2 2v1" />
+                            <path d="M16 20h2a2 2 0 0 0 2 -2v-1" />
+                            <path d="M5 12l14 0" />
+                        </svg>
+                    </span>
+                    ស្កេនវត្តមាន
+                </button>
+            </div>
+
+            <!-- QR Reader -->
+            <div id="cameraWrapper" class="modal-blur camera-wrapper" style="display: none;">
+                <div class="camera-container bg-primary-lt">
+                    <div id="reader" style="width: 100%; height: 100%;"></div>
+                    <!-- Stop Scanning Button -->
+                    <button class="btn btn-danger mt-3" id="stopScanButton" style="display: none;">បោះបង់ការស្កេន
+                    </button>
+                </div>
+            </div>
+
+            <!-- QR Result -->
+            <p id="qrResult" class="text-success fw-bold" style="font-size: 1.2rem;"></p>
         </div>
     </div>
-<?php else: ?>
+    <?php elseif (!empty($getQRcode)): ?>
     <div class="card d-block d-sm-block d-md-block d-lg-block mb-3">
         <div class="card-body">
             <div class="col-12 text-center">
@@ -200,12 +269,31 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                         <dotlottie-player src="https://lottie.host/9e679f3e-9b16-48a1-9830-33bcda19a9dd/IcjLvDCpRH.lottie"
                             background="transparent" speed="1" style="width: 100px;" loop autoplay>
                         </dotlottie-player>
-                        <h3 class="mb-0">សូមចុចប៊ូតុង <strong class="text-danger">ស្កេនវត្តមាន</strong>
-                            ខាងក្រោមដើម្បីកត់ត្រាវត្តមានប្រចាំថ្ងៃ។</h3>
+                        <h3 class="mb-0">សូមចុចប៊ូតុង <span class="text-danger">កត់ត្រាវត្តមាន</span> ឬ <span
+                                class="text-danger">ស្កេនវត្តមាន</span>
+                            ខាងក្រោមដើម្បីកត់ត្រាវត្តមានប្រចាំថ្ងៃរបស់លោកអ្នក</h3>
                     </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-3 d-flex gap-3 align-items-center justify-content-center">
+                    <form action="/elms/actionCheck" method="POST">
+                        <div class="mb-3" hidden>
+                            <div class="map" style="height: 400px; width: 100%;"></div>
+                            <input type="text" class="form-control" id="latitude" name="latitude" value="">
+                            <input type="text" class="form-control" id="longitude" name="longitude" value="">
+                            <input type="text" class="form-control" name="uid" value="<?= $_SESSION['user_id'] ?>">
+                            <input type="text" class="form-control" name="userId"
+                                value="<?= $_SESSION['user_id'] ?? 'No User Id Found' ?>">
+                            <input type="text" class="form-control" name="date" value="<?= date('Y-m-d') ?>">
+                            <input type="text" class="form-control" name="check" value="<?= date('H:i:s') ?>">
+                            <input type="text" class="form-control" id="deviceId" name="device_id" value="">
+                            <input type="text" class="form-control" id="ipAddress" name="ip_address" value="">
+                        </div>
+                        <button type="submit" id="checkInButton" class="btn btn-primary" disabled>
+                            កំពុងពិនិត្យទីតាំង...
+                        </button>
+                    </form>
+                    <p class="mb-0">ឬ</p>
                     <button class="btn btn-primary" id="scanQrButton">
                         <span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"

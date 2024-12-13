@@ -59,45 +59,6 @@ class HeadOfficeModel
         // Fetch all results
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Initialize UserModel
-        $userModel = new User();
-
-        // Add user information and additional data to each result
-        foreach ($results as &$result) {
-            // Fetch user data from API using the user_id
-            $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
-
-            // Check if the API response is successful
-            if ($userApiResponse && $userApiResponse['http_code'] === 200 && isset($userApiResponse['data']) && is_array($userApiResponse['data'])) {
-                $user = $userApiResponse['data']; // Assuming the API returns a single user object
-
-                // Add user information to the leave request
-                $result['user_name'] = isset($user['lastNameKh']) && isset($user['firstNameKh']) ? $user['lastNameKh'] . " " . $user['firstNameKh'] : 'Unknown';
-                $result['dob'] = $user['dateOfBirth'] ?? 'Unknown';
-                $result['user_email'] = $user['email'] ?? 'Unknown';
-                $result['department_name'] = $user['department']['name'] ?? 'Unknown';
-                $result['position_name'] = $user['position']['name'] ?? 'Unknown';
-                $result['user_profile'] = $user['image'] ?? 'default-profile.png'; // Use a default profile image if none exists
-            } else {
-                // Handle cases where the API call fails or returns no data
-                $result['user_name'] = 'Unknown';
-                $result['dob'] = 'Unknown';
-                $result['user_email'] = 'Unknown';
-                $result['department_name'] = 'Unknown';
-                $result['position_name'] = 'Unknown';
-                $result['user_profile'] = 'default-profile.png'; // Use a default profile image if API fails
-            }
-
-            // Fetch additional data using existing methods
-            $result['approvals'] = $this->getApprovalsByLeaveRequestId($result['id'], $_SESSION['token']);
-            $result['doffice'] = $this->getDOfficePositions($result['id'], $_SESSION['token']);
-            $result['hoffice'] = $this->getHOfficePositions($result['id'], $_SESSION['token']);
-            $result['ddepartment'] = $this->getDDepartmentPositions($result['id'], $_SESSION['token']);
-            $result['hdepartment'] = $this->getHDepartmentPositions($result['id'], $_SESSION['token']);
-            $result['dunit'] = $this->getDUnitPositions($result['id'], $_SESSION['token']);
-            $result['unit'] = $this->getUnitPositions($result['id'], $_SESSION['token']);
-        }
-
         return $results;
     }
 
@@ -204,7 +165,7 @@ class HeadOfficeModel
     {
         // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.approver_id ,a.status AS approver_status
+            'SELECT a.approver_id ,a.status AS approver_status, a.updated_at AS doupdated_at
             FROM leave_approvals a
             WHERE a.leave_request_id = ?'
         );
@@ -254,7 +215,7 @@ class HeadOfficeModel
     {
         // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.approver_id ,a.status AS approver_status
+            'SELECT a.approver_id ,a.status AS approver_status, a.updated_at AS doupdated_at
             FROM leave_approvals a
             WHERE a.leave_request_id = ?'
         );
@@ -304,7 +265,7 @@ class HeadOfficeModel
     {
         // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.approver_id ,a.status AS approver_status
+            'SELECT a.approver_id ,a.status AS approver_status, a.updated_at AS doupdated_at
             FROM leave_approvals a
             WHERE a.leave_request_id = ?'
         );
@@ -354,7 +315,7 @@ class HeadOfficeModel
     {
         // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.approver_id ,a.status AS approver_status
+            'SELECT a.approver_id ,a.status AS approver_status, a.updated_at AS doupdated_at
         FROM leave_approvals a
         WHERE a.leave_request_id = ?'
         );
@@ -414,7 +375,7 @@ class HeadOfficeModel
             'SELECT a.*,   -- Include the signature column
                 (SELECT COUNT(*) FROM leave_approvals WHERE leave_request_id = ?) AS approval_count
          FROM leave_approvals a
-         WHERE a.leave_request_id = ?'
+         WHERE a.leave_request_id = ? ORDER BY a.id DESC'
         );
 
         // Execute the query with the leave request ID parameter
@@ -560,7 +521,8 @@ class HeadOfficeModel
                     lt.attachment_required AS attRequired, 
                     lr.department AS department_name, 
                     lr.office AS office_name, 
-                    lr.position AS position_name
+                    lr.position AS position_name,
+                    lr.transfer
              FROM leave_requests lr
              JOIN leave_types lt ON lr.leave_type_id = lt.id
              WHERE lr.id = ?'
@@ -596,14 +558,14 @@ class HeadOfficeModel
             }
 
             // Fetch other details such as approvals, office positions, department, and unit
-            $leaveRequest['depoffice'] = $userModel->getEmailLeaderDOApi($_SESSION['user_id'], $_SESSION['token']);
-            $leaveRequest['approvals'] = $this->getApprovalsByLeaveRequestId($leaveRequest['id'], $token);
-            $leaveRequest['doffice'] = $this->getDOfficePositions($leaveRequest['id'], $token);
-            $leaveRequest['hoffice'] = $this->getHOfficePositions($leaveRequest['id'], $token);
-            $leaveRequest['ddepartment'] = $this->getDDepartmentPositions($leaveRequest['id'], $token);
-            $leaveRequest['hdepartment'] = $this->getHDepartmentPositions($leaveRequest['id'], $token);
-            $leaveRequest['dunit'] = $this->getDUnitPositions($leaveRequest['id'], $token);
-            $leaveRequest['unit'] = $this->getUnitPositions($leaveRequest['id'], $token);
+            $leaveRequest['depoffice'] = $userModel->getEmailLeaderDOApi($leaveRequest['transfer'], $token);
+            $leaveRequest['approvals'] = $this->getApprovalsByLeaveRequestId($leave_id, $token);
+            $leaveRequest['doffice'] = $this->getDOfficePositions($leave_id, $token);
+            $leaveRequest['hoffice'] = $this->getHOfficePositions($leave_id, $token);
+            $leaveRequest['ddepartment'] = $this->getDDepartmentPositions($leave_id, $token);
+            $leaveRequest['hdepartment'] = $this->getHDepartmentPositions($leave_id, $token);
+            $leaveRequest['dunit'] = $this->getDUnitPositions($leave_id, $token);
+            $leaveRequest['unit'] = $this->getUnitPositions($leave_id, $token);
         }
 
         return $leaveRequest;

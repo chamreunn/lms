@@ -3378,47 +3378,21 @@ class AdminModel
                 $updateStmt = $this->pdo->prepare($updateQuery);
                 $updateStmt->bindParam(':permissionStatus', $permissionStatus, PDO::PARAM_INT); // Use PARAM_INT for boolean values
                 $updateStmt->bindParam(':userId', $userId, PDO::PARAM_INT);
-                $success = $updateStmt->execute();
+                return $updateStmt->execute();
             } else {
                 // Insert a new record
                 $insertQuery = "INSERT INTO user_permissions (user_id, $permissionType) VALUES (:userId, :permissionStatus)";
                 $insertStmt = $this->pdo->prepare($insertQuery);
                 $insertStmt->bindParam(':userId', $userId, PDO::PARAM_INT);
                 $insertStmt->bindParam(':permissionStatus', $permissionStatus, PDO::PARAM_INT); // Use PARAM_INT for boolean values
-                $success = $insertStmt->execute();
+                return $insertStmt->execute();
             }
-
-            if ($success) {
-                // Log out the user
-                $this->logoutUser($userId);
-            }
-
-            return $success;
         } catch (PDOException $e) {
             error_log('Database error: ' . $e->getMessage());
             return false;
         } catch (InvalidArgumentException $e) {
             error_log('Invalid argument: ' . $e->getMessage());
             return false;
-        }
-    }
-
-    // Method to log out the user by destroying their session
-    public function logoutUser($token)
-    {
-        $userModel = new User();
-        $response =$userModel->logoutFromApi($token);
-
-        if ($response['success']) {
-            session_start();
-            session_unset();
-            session_destroy();
-
-            header("Location: /elms/login");
-            exit();
-        } else {
-            error_log("Logout Error: " . $response['message']);
-            echo "<p>Error: Unable to log out. Please try again later.</p>";
         }
     }
 }

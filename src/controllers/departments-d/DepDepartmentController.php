@@ -6,7 +6,7 @@ class DepDepartmentController
 {
 
     private $pdo;
-
+    protected $table_name = "leave_requests";
     public function __construct()
     {
         global $pdo;
@@ -242,150 +242,116 @@ class DepDepartmentController
             'status' => $_POST['status'] ?? null,
         ];
 
-        $requests = $leaveRequestModel->getRequestsByFilters($user_id, $filters);
+        $requests = $leaveRequestModel->getRequestsByFilters($user_id, $filters, $_SESSION['token']);
 
         require 'src/views/leave/departments-d/myLeave.php';
     }
 
     public function pending()
     {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Validate required POST fields
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            // Required POST fields
             $requiredFields = ['request_id', 'status', 'uremarks', 'uname', 'uemail', 'leaveType', 'user_id', 'start_date', 'end_date', 'duration'];
+
             foreach ($requiredFields as $field) {
                 if (empty($_POST[$field])) {
                     $_SESSION['error'] = [
                         'title' => "Invalid Input",
-                        'message' => "Missing required fields. Please try again."
+                        'message' => "Missing required field: $field. Please try again."
                     ];
                     header("Location: /elms/apply-leave");
                     exit();
                 }
             }
 
-            // Initialize variables
-            $link = "";  // Ensure $link is defined early to avoid "undefined variable" warning
+            // Retrieve POST data
+            $data = [
+                'request_id' => $_POST['request_id'],
+                'status' => $_POST['status'],
+                'remarks' => $_POST['remarks'] ?? '',
+                'uremarks' => $_POST['uremarks'] ?? '',
+                'uname' => $_POST['uname'],
+                'uemail' => $_POST['uemail'],
+                'leaveType' => $_POST['leaveType'],
+                'user_id' => $_POST['user_id'],
+                'start_date' => $_POST['start_date'],
+                'end_date' => $_POST['end_date'],
+                'duration_days' => $_POST['duration'],
+                'approver_id' => $_SESSION['user_id'],
+                'department' => $_SESSION['departmentName'],
+            ];
 
-            // Assign POST data to variables
-            $Model = new DepDepartmentModel();
-            $request_id = $_POST['request_id'];
-            $status = $_POST['status'];
-            $remarks = $_POST['remarks'];
-            $uremarks = $_POST['uremarks'];
-            $uname = $_POST['uname'];
-            $uEmail = $_POST['uemail'];
-            $leaveType = $_POST['leaveType'];
-            $user_id = $_POST['user_id'];
-            $start_date = $_POST['start_date'];
-            $end_date = $_POST['end_date'];
-            $duration_days = $_POST['duration'];
-            $approver_id = $_SESSION['user_id'];
-            $message = $_SESSION['user_khmer_name'] . " បាន " . $status . " ច្បាប់ឈប់សម្រាក។";
-            $username = $uname . " បានស្នើសុំច្បាប់ឈប់សម្រាក។";
-
-            $leaveRemarks = "ច្បាប់";
-            $onLeave = "On Leave";
-            $onMission = "On Mission";  // New variable for mission check  
-            $department = $_SESSION['departmentName'];
+            // Prepare additional variables
+            $link = "https://leave.iauoffsa.us/elms/";
+            $message = $_SESSION['user_khmer_name'] . " បាន " . $data['status'] . " ច្បាប់ឈប់សម្រាក។";
 
             // Start transaction
             try {
                 $this->pdo->beginTransaction();
 
-                // Create approval record
+                // Update approval status
                 $leaveApproval = new DepDepartmentModel();
-                $updatedAt = $leaveApproval->submitApproval($request_id, $approver_id, $status, $remarks);
+                $leaveApproval->submitApproval($data['request_id'], $data['approver_id'], $data['status'], $data['remarks']);
 
-                // Fetch office details using API
+                // Determine the appropriate manager API based on the department
+                $managerApis = $this->determineManagerApis($data['department']);
                 $userModel = new User();
-                $userHoffice = $userModel->getEmailLeaderHDApi($_SESSION['user_id'], $_SESSION['token']);
 
-                if (!is_array($userHoffice) || !isset($userHoffice['ids'])) {
-                    throw new Exception("Unable to find Department details. Please contact support.");
+                $approvingManager = $this->findAvailableManager($managerApis, $userModel, $data);
+
+                if (!$approvingManager) {
+                    throw new Exception("No available managers for approval. Please contact support.");
                 }
 
-                // Use the first available manager's ID and email
-                $managerId = $userHoffice['ids'][0] ?? null;
-                $managerEmail = $userHoffice['emails'][0] ?? null;
-                $managerName = isset($userHoffice['lastNameKh'][0]) && isset($userHoffice['firstNameKh'][0])
-                    ? $userHoffice['lastNameKh'][0] . ' ' . $userHoffice['firstNameKh'][0]
-                    : null;
+                // Notify next approver via Telegram
+                $userModel->sendTelegramNextManager(
+                    $approvingManager['id'],
+                    $data['uname'] . " បានស្នើសុំច្បាប់ឈប់សម្រាក។",
+                    $data['start_date'],
+                    $data['end_date'],
+                    $data['duration_days'],
+                    $data['uremarks'],
+                    $data['status'],
+                    $link
+                );
 
-                if (!$managerId || !$managerEmail) {
-                    throw new Exception("No valid manager details found.");
-                }
+                // Notify the user about the submission
+                $userModel->sendBackToUser(
+                    $data['user_id'],
+                    $data['uname'],
+                    $data['start_date'],
+                    $data['end_date'],
+                    $data['duration_days'],
+                    $data['remarks'],
+                    $data['status']
+                );
 
-                // Check if the manager is on leave or mission today
-                $isManagerOnLeave = $userModel->isManagerOnLeaveToday($managerId);
-                $isManagerOnMission = $userModel->isManagerOnMission($managerId);
-
-                // If manager is on leave or mission, assign a backup manager
-                if ($isManagerOnLeave || $isManagerOnMission) {
-                    $updatedAt = $leaveApproval->updatePendingApproval($request_id, $managerId, $isManagerOnLeave ? $onLeave : $onMission, $isManagerOnLeave ? $leaveRemarks : $onMission);
-
-                    // Fetch backup manager
-                    $backupManager = null;
-                    if (in_array($department, ["នាយកដ្ឋានកិច្ចការទូទៅ", "នាយកដ្ឋានសវនកម្មទី២"])) {
-                        $backupManager = $userModel->getEmailLeaderDHU1Api($user_id, $_SESSION['token']);
-
-                        // Update to backup manager's details
-                        $managerEmail = $backupManager['emails'][0];
-                        $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
-                        $link = "https://leave.iauoffsa.us/elms/dunit1pending";
-                    } else {
-                        $backupManager = $userModel->getEmailLeaderDHU2Api($user_id, $_SESSION['token']);
-
-                        // Update to backup manager's details
-                        $managerEmail = $backupManager['emails'][0];
-                        $managerName = $backupManager['lastNameKh'][0] . ' ' . $backupManager['firstNameKh'][0];
-                        $link = "https://leave.iauoffsa.us/elms/dunit2pending";
-                    }
-
-                    if (!$backupManager || empty($backupManager['emails'])) {
-                        throw new Exception("Both the primary and backup managers are unavailable. Please contact support.");
-                    }
-                }
-
-                // Ensure that $link has a valid URL in all cases
-                if (empty($link)) {
-                    $link = "https://leave.iauoffsa.us/elms/depdepartmentpending";
-                }
-
-                // Send notifications via Telegram and email
-                $userModel->sendTelegramNextManager($managerId, $uname, $start_date, $end_date, $duration_days, $uremarks, $status, $link);
-                $userModel->sendBackToUser($user_id, $uname, $start_date, $end_date, $duration_days, $uremarks, $status);
-
-                if (!$Model->sendEmailNotification($managerEmail, $message, $request_id, $start_date, $end_date, $duration_days, $leaveType, $remarks, $uremarks, $username, $updatedAt)) {
-                    throw new Exception("Notification email could not be sent. Please try again.");
-                }
-
-                if (!$Model->sendEmailBackToUser($uEmail, $_SESSION['user_khmer_name'], $request_id, $status, $updatedAt, $remarks)) {
-                    throw new Exception("Notification email to user could not be sent. Please try again.");
-                }
-
-                // Create notification for the user
+                // Create notification
                 $notificationModel = new Notification();
-                $notificationModel->createNotification($user_id, $approver_id, $request_id, $message);
+                $notificationModel->createNotification(
+                    $data['user_id'],
+                    $data['approver_id'],
+                    $data['request_id'],
+                    $message
+                );
 
-                // Log user activity
-                $activity = "បាន " . $status . " ច្បាប់ឈប់សម្រាក " . $uname;
-                $userModel->logUserActivity($approver_id, $activity, $_SERVER['REMOTE_ADDR']);
+                // Log the user's activity
+                $activity = "បាន " . $data['status'] . " ច្បាប់ឈប់សម្រាក " . $data['uname'];
+                $userModel->logUserActivity($data['approver_id'], $activity, $_SERVER['REMOTE_ADDR']);
 
-                // Commit transaction
                 $this->pdo->commit();
 
-                // Set success message and redirect
                 $_SESSION['success'] = [
                     'title' => "សំណើច្បាប់",
-                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $managerName
+                    'message' => "កំពុងបញ្ជូនទៅកាន់ " . $approvingManager['name']
                 ];
                 header('location: /elms/depdepartmentpending');
                 exit();
+
             } catch (Exception $e) {
-                // Rollback transaction
                 $this->pdo->rollBack();
 
-                // Log and display error
                 error_log("Error: " . $e->getMessage());
                 $_SESSION['error'] = [
                     'title' => "កំហុស",
@@ -399,21 +365,15 @@ class DepDepartmentController
             $leaveRequestModel = new DepDepartmentModel();
             $requests = $leaveRequestModel->getAllLeaveRequests();
 
-            // Initialize the UserModel
             $userModel = new User();
-
-            // Get approver based on role and department
             $approver = $userModel->getApproverByRole($userModel, $_SESSION['user_id'], $_SESSION['token'], $_SESSION['role'], $_SESSION['departmentName']);
 
-            // Initialize the HoldModel to retrieve any holds for the current user
             $holdsModel = new HoldModel();
             $hold = $holdsModel->getHoldByuserId($_SESSION['user_id']);
 
-            // Initialize the TransferoutModel to retrieve transfer-out details for the current user
             $transferoutModel = new TransferoutModel();
             $transferouts = $transferoutModel->getTransferoutByUserId($_SESSION['user_id']);
 
-            // Initialize the backWork to retrieve transfer-out details for the current user
             $backworkModel = new BackworkModel();
             $backworks = $backworkModel->getBackworkByUserId($_SESSION['user_id']);
 
@@ -425,6 +385,70 @@ class DepDepartmentController
 
             require 'src/views/leave/departments-d/pending.php';
         }
+    }
+
+    private function determineManagerApis($department)
+    {
+        $managerApis = [
+            'getEmailLeaderHDApi' => 'head_department',
+            'getEmailLeaderDHU1Api' => 'dhead_unit',
+            'getEmailLeaderDHU2Api' => 'dhead_unit',
+            'getEmailLeaderHUApi' => 'head_unit'
+        ];
+
+        if (in_array($department, ['នាយកដ្ឋានកិច្ចការទូទៅ', 'នាយកដ្ឋានសវនកម្មទី២'])) {
+            unset($managerApis['getEmailLeaderDHU2Api']);
+        } else {
+            unset($managerApis['getEmailLeaderDHU1Api']);
+        }
+
+        return $managerApis;
+    }
+
+    private function findAvailableManager($managerApis, $userModel, $data)
+    {
+        foreach ($managerApis as $apiMethod => $columnToUpdate) {
+            $managerDetails = $userModel->$apiMethod($data['user_id'], $_SESSION['token']);
+            if (!$managerDetails || empty($managerDetails['ids'])) {
+                continue;
+            }
+
+            foreach ($managerDetails['ids'] as $index => $managerId) {
+                $managerEmail = $managerDetails['emails'][$index] ?? null;
+                $managerName = $managerDetails['lastNameKh'][$index] . ' ' . $managerDetails['firstNameKh'][$index];
+
+                if ($userModel->isManagerOnLeaveToday($managerId)) {
+                    // Update the status to "On Leave" in the database
+                    $leaveApproval = new DepDepartmentModel();
+                    $leaveApproval->updatePendingApproval($data['request_id'], $managerId, "On Leave", "ច្បាប់");
+
+                    // Update the specific column in the database
+                    $stmt = $this->pdo->prepare(
+                        "UPDATE {$this->table_name} SET $columnToUpdate = 'Approved' WHERE id = ?"
+                    );
+                    $stmt->execute([$data['request_id']]);
+                } elseif ($userModel->isManagerOnMission($managerId)) {
+                    // Update the status to "On Mission" in the database
+                    $leaveApproval = new DepDepartmentModel();
+                    $leaveApproval->updatePendingApproval($data['request_id'], $managerId, "On Mission", "បេសកកម្ម");
+
+                    // Update the specific column in the database
+                    $stmt = $this->pdo->prepare(
+                        "UPDATE {$this->table_name} SET $columnToUpdate = 'Approved' WHERE id = ?"
+                    );
+                    $stmt->execute([$data['request_id']]);
+                } else {
+                    // Return the first available manager
+                    return [
+                        'id' => $managerId,
+                        'email' => $managerEmail,
+                        'name' => $managerName
+                    ];
+                }
+            }
+        }
+
+        return null;
     }
 
     public function approved()

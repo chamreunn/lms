@@ -358,7 +358,6 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
             </div>
         </div>
     </div>
-
 </div>
 
 <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4" hidden>
@@ -620,4 +619,4 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 
         document.body.removeChild(downloadLink);
     }
-</script>
+</script> 

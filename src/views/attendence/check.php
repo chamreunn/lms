@@ -15,10 +15,10 @@ date_default_timezone_set('Asia/Phnom_Penh');
         <div class="card animate__animated animate__slideInUpShort">
             <div class="empty">
                 <div class="empty-img">
-                    <img src="<?= 'https://hrms.iauoffsa.us/images/' . $users['data']['image']; ?>" class="avatar avatar-md" style="object-fit: cover;"
-                        alt="">
+                    <img src="<?= 'https://hrms.iauoffsa.us/images/' . $users['data']['image']; ?>"
+                        class="avatar avatar-md" style="object-fit: cover;" alt="">
                 </div>
-                <p class="empty-title h1"><?= $users['data']['lastNameKh'] ." ". $users['data']['firstNameKh']; ?></p>
+                <p class="empty-title h1"><?= $users['data']['lastNameKh'] . " " . $users['data']['firstNameKh']; ?></p>
                 <h1 class="empty-subtitle fw-bolder text-primary"
                     style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">
                     <?= date('Y-m-d | H:i A') ?>
@@ -54,8 +54,7 @@ date_default_timezone_set('Asia/Phnom_Penh');
 
 <?php require_once 'src/common/footer.php'; ?>
 
-<!-- Include Leaflet.js -->
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 
 <script>
     class LocationPicker {
@@ -75,7 +74,6 @@ date_default_timezone_set('Asia/Phnom_Penh');
         }
 
         // Initialize map
-        // Inside the LocationPicker class
         initMap() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
@@ -250,19 +248,6 @@ date_default_timezone_set('Asia/Phnom_Penh');
             );
         }
 
-        // Set a cookie
-        function setCookie(name, value, days) {
-            const date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/;SameSite=Strict`;
-        }
-
-        // Get a cookie by name
-        function getCookie(name) {
-            const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
-            return match ? match[2] : null;
-        }
-
         // Get public IP using an external API
         async function getPublicIP() {
             try {
@@ -276,10 +261,10 @@ date_default_timezone_set('Asia/Phnom_Penh');
         }
 
         // UUID Management
-        let deviceId = getCookie('deviceId');
+        let deviceId = localStorage.getItem('deviceId');
         if (!deviceId) {
             deviceId = generateUUID();
-            setCookie('deviceId', deviceId, 365); // Store UUID for 1 year
+            localStorage.setItem('deviceId', deviceId); // Store UUID indefinitely
         }
 
         // Set UUID and IP in hidden form fields
@@ -306,7 +291,7 @@ date_default_timezone_set('Asia/Phnom_Penh');
                     checkInButton.disabled = false;
                 } else {
                     checkInButton.textContent =
-                        "សូមអភ័យទោសអ្នកមិនស្ថិតនៅទីតាំងដែលអាចស្កេនវត្តមានបានទេ ។";
+                        "សូមអភ័យទោសអ្នកមិនស្ថិតនៅទីតាំងដែលអាចកត់ត្រាវត្តមានបានទេ ។";
                     checkInButton.disabled = true;
                 }
             } else {

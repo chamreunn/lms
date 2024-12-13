@@ -1,55 +1,9 @@
 <?php
+$pretitle = "ទំព័រដើម";
 $title = "កំពុងរង់ចាំការអនុម័ត";
-ob_start();
-?>
-<!-- Page header -->
-<div class="page-header d-print-none">
-    <div class="container-xl">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <!-- Page pre-title -->
-                <div class="page-pretitle">
-                    ទំព័រដើម
-                </div>
-                <h2 class="page-title">
-                    <?php echo $title ?? "" ?>
-                </h2>
-            </div>
-            <!-- Page title actions -->
-            <div class="col-auto ms-auto d-print-none">
-                <div class="btn-list">
-                    <a href="#" data-bs-target="#head-office-apply-leave" data-bs-toggle="modal"
-                        class="btn btn-primary d-none d-sm-inline-block">
-                        <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                        បង្កើតសំណើច្បាប់
-                    </a>
-                    <a href="#" data-bs-target="#head-office-apply-leave" data-bs-toggle="modal"
-                        class="btn btn-primary d-sm-none btn-icon">
-                        <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<?php
-$pageheader = ob_get_clean();
 include('src/common/header.php');
+
+
 function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 {
     $days = [
@@ -256,7 +210,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                     </datalist>
                                 </div>
                             </div>
-                            <div class="modal-footer">
+                            <div class="modal-footer bg-light">
                                 <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
                                 <input type="hidden" name="status" value="Approved">
                                 <input type="hidden" name="uname" value="<?= $request['user_name'] ?>">
@@ -353,7 +307,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                         accept="image/png" hidden onchange="displayFileName(<?= $request['id'] ?>)" />
                                 </div>
                             </div>
-                            <div class="modal-footer">
+                            <div class="modal-footer bg-light">
                                 <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
                                 <input type="hidden" name="status" value="Rejected">
                                 <input type="hidden" name="uname" value="<?= $request['user_name'] ?>">
@@ -372,7 +326,7 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                             </a>
                                         </div>
                                         <div class="col">
-                                            <button type="submit" class="btn btn-success w-100">
+                                            <button type="submit" class="btn btn-danger w-100">
                                                 បន្ត
                                             </button>
                                         </div>
@@ -1409,31 +1363,3 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 <?php endif; ?>
 
 <?php include('src/common/footer.php'); ?>
-<script>
-    // @formatter:off
-    document.addEventListener("DOMContentLoaded", function () {
-        var el;
-        window.TomSelect &&
-            new TomSelect((el = document.getElementById("select-status")), {
-                copyClassesToDropdown: false,
-                dropdownClass: "dropdown-menu ts-dropdown",
-                optionClass: "dropdown-item",
-                controlInput: "<input>",
-                render: {
-                    item: function (data, escape) {
-                        if (data.customProperties) {
-                            return '<div><span class="dropdown-item-indicator">' + data.customProperties + "</span>" + escape(data.text) + "</div>";
-                        }
-                        return "<div>" + escape(data.text) + "</div>";
-                    },
-                    option: function (data, escape) {
-                        if (data.customProperties) {
-                            return '<div><span class="dropdown-item-indicator">' + data.customProperties + "</span>" + escape(data.text) + "</div>";
-                        }
-                        return "<div>" + escape(data.text) + "</div>";
-                    },
-                },
-            });
-    });
-    // @formatter:on
-</script>

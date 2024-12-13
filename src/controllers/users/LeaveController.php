@@ -12,7 +12,7 @@ use PHPMailer\PHPMailer\Exception;
 class LeaveController
 {
     private $pdo;
-
+    protected $table_name = "leave_requests";
     public function __construct()
     {
         global $pdo;
@@ -66,7 +66,7 @@ class LeaveController
                 }
 
                 // Handle file upload for attachment
-                $attachment_name = $this->handleFileUpload($_FILES['attachment'], ['docx', 'pdf'], 2097152, 'public/uploads/leave_attachments/');
+                $attachment_name = $this->handleFileUpload($_FILES['attachment'], ['docx', 'pdf'], 5097152, 'public/uploads/leave_attachments/');
                 if ($attachment_name === false) {
                     $_SESSION['error'] = [
                         'title' => "ឯកសារភ្ជាប់",
@@ -154,8 +154,8 @@ class LeaveController
                         $isManagerOnMission = $userModel->isManagerOnMission($managerId);
 
                         if ($isManagerOnLeave || $isManagerOnMission) {
-                            // Update approval for this manager
-                            $approvalStatus = $isManagerOnLeave ? $status : $mission;
+                            // Update approval in table_approval
+                            $approvalStatus = $isManagerOnLeave ? "On Leave" : "Mission";
                             $approvalRemarks = $isManagerOnLeave ? $leaveRemarks : $mission;
 
                             $leaveApproval = new LeaveModel();
@@ -172,6 +172,24 @@ class LeaveController
                                 $leaveRequestId,
                                 $link
                             );
+
+                            // Update table_name for the corresponding manager API
+                            $columnToUpdate = match ($apiMethod) {
+                                'getEmailLeaderDOApi' => 'dhead_office',
+                                'getEmailLeaderHOApi' => 'head_office',
+                                'getEmailLeaderDDApi' => 'dhead_department',
+                                'getEmailLeaderHDApi' => 'head_department',
+                                'getEmailLeaderDHU1Api', 'getEmailLeaderDHU2Api' => 'dhead_unit',
+                                'getEmailLeaderHUApi' => 'head_unit',
+                                default => null
+                            };
+
+                            if ($columnToUpdate) {
+                                $stmt = $this->pdo->prepare(
+                                    "UPDATE {$this->table_name} SET $columnToUpdate = 'Approved' WHERE id = ?"
+                                );
+                                $stmt->execute([$leaveRequestId]);
+                            }
                         } else {
                             // Assign the first available manager
                             $approvingManagerId = $managerId;
@@ -545,7 +563,7 @@ class LeaveController
         }
     }
 
-    public function displayAttendances() 
+    public function displayAttendances()
     {
         try {
             // Validate session
@@ -581,7 +599,6 @@ class LeaveController
             require 'src/views/attendence/myAttendance.php';
         }
     }
-
 
     public function filterAttendence()
     {

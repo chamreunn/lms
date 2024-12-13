@@ -587,7 +587,7 @@ class HeadDepartmentController
                 // Fetch user's role for leave processing
                 $roleLeave = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
 
-                if (empty($roleLeave['data']['roleLeave']) && $duration_days <= 3) {
+                if (empty($roleLeave['data']['roleLeave']) && $duration_days < 3) {
                     // Direct approval for Users with leave duration <= 3 days
                     $updateToApi = $HeadDepartmentModel->updateToApi($user_id, $start_date, $end_date, $leave, $_SESSION['token']);
 

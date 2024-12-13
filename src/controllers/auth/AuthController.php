@@ -184,7 +184,12 @@ class AuthController
             exit();
         } else {
             error_log("Logout Error: " . $response['message']);
-            echo "<p>Error: Unable to log out. Please try again later.</p>";
+            $_SESSION['error'] = [
+                'title' => "បរាជ័យ",
+                'message' => "Unable to log out. Please try again later."
+            ];
+            header("Location: /elms/login");
+            exit();
         }
     }
 }

@@ -1134,13 +1134,18 @@ class HeadDepartmentModel
 
         // Update both status and head_department if the leave duration is <= 3 days
         // and the position name is one of the specified values
-        if ($duration <= 3 && in_array($positionName, ['មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល'])) {
+        if ($duration >= 3 && in_array($positionName, ['មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល'])) {
+            // Otherwise, update only the head_department status
+            $stmt = $this->pdo->prepare(
+                'UPDATE leave_requests SET head_department = ? WHERE id = ?'
+            );
+            $stmt->execute([$newStatus, $leave_request_id]);
+        } elseif ($duration < 3 && in_array($positionName, ['មន្រ្តីលក្ខន្តិកៈ', 'ភ្នាក់ងាររដ្ឋបាល'])) {
             $stmt = $this->pdo->prepare(
                 'UPDATE leave_requests SET head_department = ?, status = ? WHERE id = ?'
             );
             $stmt->execute([$newStatus, $newStatus, $leave_request_id]);
         } else {
-            // Otherwise, update only the head_department status
             $stmt = $this->pdo->prepare(
                 'UPDATE leave_requests SET head_department = ? WHERE id = ?'
             );

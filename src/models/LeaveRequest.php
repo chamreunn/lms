@@ -592,7 +592,7 @@ class LeaveRequest
     public function getDOfficePositions($leave_request_id, $token)
     {
         $stmt = $this->pdo->prepare(
-            'SELECT a.approver_id ,a.status AS approver_status
+            'SELECT a.approver_id ,a.status AS approver_status, a.updated_at AS doupdated_at
             FROM leave_approvals a
             WHERE a.leave_request_id = ?'
         );
@@ -642,7 +642,7 @@ class LeaveRequest
     {
         // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.approver_id ,a.status AS approver_status
+            'SELECT a.approver_id ,a.status AS approver_status, a.updated_at AS doupdated_at
             FROM leave_approvals a
             WHERE a.leave_request_id = ?'
         );
@@ -692,7 +692,7 @@ class LeaveRequest
     {
         // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.approver_id ,a.status AS approver_status
+            'SELECT a.approver_id ,a.status AS approver_status, a.updated_at AS doupdated_at
             FROM leave_approvals a
             WHERE a.leave_request_id = ?'
         );
@@ -742,7 +742,7 @@ class LeaveRequest
     {
         // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.approver_id ,a.status AS approver_status
+            'SELECT a.approver_id ,a.status AS approver_status, a.updated_at AS doupdated_at
             FROM leave_approvals a
             WHERE a.leave_request_id = ?'
         );
@@ -792,7 +792,7 @@ class LeaveRequest
     {
         // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.approver_id ,a.status AS approver_status
+            'SELECT a.approver_id ,a.status AS approver_status, a.updated_at AS doupdated_at
             FROM leave_approvals a
             WHERE a.leave_request_id = ?'
         );
@@ -842,7 +842,7 @@ class LeaveRequest
     {
         // Query to get the approval details
         $stmt = $this->pdo->prepare(
-            'SELECT a.approver_id ,a.status AS approver_status
+            'SELECT a.approver_id ,a.status AS approver_status, a.updated_at AS doupdated_at
         FROM leave_approvals a
         WHERE a.leave_request_id = ?'
         );
