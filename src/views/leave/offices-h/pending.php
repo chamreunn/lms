@@ -398,18 +398,18 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                                     <!-- detail section  -->
                                     <form action="/elms/hoaction<?= $holds['type'] ?>" method="POST">
 
-                                        <div class="col-12">
+                                        <div class="col-12" hidden>
 
                                             <input type="text" name="holdId" value="<?= $holds['id'] ?>">
-                                            <input type="text" name="uName" value="<?= $hold['user_name'] ?>">
-                                            <input type="text" name="uId" value="<?= $hold['user_id'] ?>">
-                                            <input type="text" name="holdId" value="<?= $hold['id'] ?>">
+                                            <input type="text" name="uName" value="<?= $holds['user_name'] ?>">
+                                            <input type="text" name="uId" value="<?= $holds['user_id'] ?>">
+                                            <input type="text" name="holdId" value="<?= $holds['id'] ?>">
 
                                             <!-- form request  -->
-                                            <input type="text" name="start_date" value="<?= $hold['start_date'] ?>">
-                                            <input type="text" name="end_date" value="<?= $hold['end_date'] ?>">
-                                            <input type="text" name="duration" value="<?= $hold['duration'] ?>">
-                                            <input type="text" name="reason" value="<?= $hold['reason'] ?>">
+                                            <input type="text" name="start_date" value="<?= $holds['start_date'] ?>">
+                                            <input type="text" name="end_date" value="<?= $holds['end_date'] ?>">
+                                            <input type="text" name="duration" value="<?= $holds['duration'] ?>">
+                                            <input type="text" name="reason" value="<?= $holds['reason'] ?>">
 
                                             <label class="form-label fw-bold">អ្នកអនុម័ត
                                                 <span class="text-danger mx-1 fw-bold">*</span>
