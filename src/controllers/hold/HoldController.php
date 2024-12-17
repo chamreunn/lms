@@ -102,17 +102,6 @@ class HoldController
                 exit();
             }
 
-            // Handle file upload for attachment
-            $signature = $this->handleFileUpload($_FILES['signature'], ['png', 'jpg', 'jpeg'], 2097152, 'public/uploads/hold-signatures/');
-            if ($signature === false) {
-                $_SESSION['error'] = [
-                    'title' => "ឯកសារភ្ជាប់",
-                    'message' => "មិនអាចបញ្ចូលឯកសារភ្ជាប់បានទេ។​ សូមព្យាយាមម្តងទៀត"
-                ];
-                header("Location: /elms/hold");
-                exit();
-            }
-
             $type = 'hold';
             $color = 'bg-primary';
             $title = "លិខិតព្យួរការងារ";
@@ -160,8 +149,7 @@ class HoldController
                     'duration' => $duration,
                     'type' => $type,
                     'color' => $color,
-                    'approver_id' => $approver,
-                    'signature' => $signature
+                    'approver_id' => $approver
                 ];
 
                 // Save the hold request using the HoldModel
@@ -219,14 +207,34 @@ class HoldController
                 }
 
                 // Send notification after saving the request
-                // $userModel->sendTelegramNotification($userModel, $title, $approver, $start_date, $end_date, $duration, $reason, $link);
+                if ($hold_id) {
 
-                $_SESSION['success'] = [
-                    'title' => "ជោគជ័យ",
-                    'message' => "សំណើរបានបញ្ចូលដោយជោគជ័យ"
-                ];
-                header("Location: /elms/hold");
-                exit();
+                    // Define notification details
+                    $notificationMessage = $_SESSION['user_khmer_name'] . " បានស្នើលិខិតព្យួរការងារ";
+                    $notificationProfile = $_SESSION['user_profile'];
+                    $notificationLink = ($_SERVER['SERVER_NAME'] === '127.0.0.1') ? 'http://127.0.0.1/elms/pending' : 'https://leave.iauoffsa.us/elms/pending';
+
+                    // Create the in-app notification
+                    $notificationModel = new NotificationModel();
+                    $notificationModel->createNotification($approver, $title, $notificationMessage, $notificationLink, $notificationProfile);
+
+
+                    $userModel->sendHoldToTelegram($title, $approver, $start_date, $end_date, $duration, $reason);
+
+                    $_SESSION['success'] = [
+                        'title' => "ជោគជ័យ",
+                        'message' => "សំណើរបានបញ្ចូលដោយជោគជ័យ"
+                    ];
+                    header("Location: /elms/hold");
+                    exit();
+                } else {
+                    $_SESSION['error'] = [
+                        'title' => "បរាជ័យ",
+                        'message' => "មិនអាចបញ្ជូនសំណើបានទេ។ សូមទំនាក់ទំនងទៅកាន់មន្ត្រីទទួលបន្ទុក។"
+                    ];
+                    header("Location: /elms/hold");
+                    exit();
+                }
             } catch (Exception $e) {
                 $_SESSION['error'] = [
                     'title' => "កំហុស",

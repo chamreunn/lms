@@ -471,17 +471,6 @@ class User
         ];
     }
 
-    public function getUserByIdApi($id, $token, $maxRetries = 3, $cacheEnabled = false)
-    {
-        return $this->fetchApiData(
-            "{$this->api}/api/v1/users/$id",
-            $token,
-            $maxRetries,
-            $cacheEnabled,
-            "user_$id.json"
-        );
-    }
-
     public function getAllUsersFromApi($token, $maxRetries = 3)
     {
         $url = "{$this->api}/api/v1/users";
@@ -540,6 +529,17 @@ class User
         ];
     }
 
+    public function getUserByIdApi($id, $token, $maxRetries = 3, $cacheEnabled = false)
+    {
+        return $this->fetchApiData(
+            "{$this->api}/api/v1/users/$id",
+            $token,
+            $maxRetries,
+            $cacheEnabled,
+            "user_$id.json"
+        );
+    }
+
     public function getUserInformationByIdApi($id, $token, $maxRetries = 3, $cacheEnabled = false)
     {
         return $this->fetchApiData(
@@ -551,7 +551,7 @@ class User
         );
     }
 
-    private function fetchApiData($url, $token, $maxRetries = 3, $cacheEnabled = true, $cacheKey = '', $cacheTTL = 3600)
+    public function fetchApiData($url, $token, $maxRetries = 3, $cacheEnabled = true, $cacheKey = '', $cacheTTL = 3600)
     {
         $retryCount = 0;
         $connectTimeout = 3; // Reduced connection timeout
@@ -597,13 +597,40 @@ class User
             if ($response !== false && $httpCode === 200) {
                 $responseData = json_decode($response, true);
 
-                if (json_last_error() === JSON_ERROR_NONE && isset($responseData['data'])) {
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    // Check if the "data" key exists in the response
+                    $data = isset($responseData['data']) ? $responseData['data'] : [];
+
+                    // Extract relevant fields if "data" is present
+                    $userInformation = $responseData['userInformation'] ?? [];
+                    $additionalPosition = $responseData['additionalPositionCurrentJob'] ?? [];
+                    $workingHistoryPublic = $responseData['userWoringHistoryPublicSetor'] ?? [];
+                    $workingHistoryPrivate = $responseData['userWoringHistoryPrivateSetor'] ?? [];
+                    $modalCertificate = $responseData['userModalCertificate'] ?? [];
+                    $educationLevel = $responseData['userEducationLevel'] ?? [];
+                    $userAbilityLanguage = $responseData['userAbilityLanguage'] ?? [];
+                    $userFamily = $responseData['userFamily'] ?? [];
+                    $userDocument = $responseData['userDocument'] ?? [];
+
+                    // Store in cache if enabled
                     if ($cacheEnabled) {
-                        file_put_contents($cacheKey, json_encode($responseData['data']));
+                        file_put_contents($cacheKey, json_encode($responseData));
                     }
+
                     return [
                         'http_code' => $httpCode,
-                        'data' => $responseData['data']
+                        'data' => $data,
+                        'response' => [
+                            'userInformation' => $userInformation,
+                            'additionalPositionCurrentJob' => $additionalPosition,
+                            'userWoringHistoryPublicSetor' => $workingHistoryPublic,
+                            'userWoringHistoryPrivateSetor' => $workingHistoryPrivate,
+                            'userModalCertificate' => $modalCertificate,
+                            'userEducationLevel' => $educationLevel,
+                            'userAbilityLanguage' => $userAbilityLanguage,
+                            'userFamily' => $userFamily,
+                            'userDocument' => $userDocument
+                        ]
                     ];
                 }
             }
@@ -2382,7 +2409,7 @@ class User
         return $result ? $result : null;
     }
 
-    public function sendHolds($title, $managerId, $start_date, $end_date, $duration_days, $remarks, $link)
+    public function sendHoldToTelegram($title, $managerId, $start_date, $end_date, $duration_days, $remarks)
     {
         $telegramUser = $this->getTelegramIdByUserId($managerId);
         if ($telegramUser && !empty($telegramUser['telegram_id'])) {
@@ -2399,18 +2426,9 @@ class User
             // Joining notifications into a single message with new lines
             $telegramMessage = implode("\n", $notifications);
 
-            // Creating a keyboard for the notification
-            $keyboard = [
-                'inline_keyboard' => [
-                    [
-                        ['text' => 'ពិនិត្យមើលសំណើ', 'url' => $link]
-                    ]
-                ]
-            ];
-
             // Send the Telegram notification
             $telegramModel = new TelegramModel($this->pdo);
-            $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage, $keyboard);
+            $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage);
 
             // Log success or failure of the Telegram notification
             if ($success) {
@@ -2420,6 +2438,126 @@ class User
             }
         }
     }
+
+    public function sendDocBackToUser(
+        $title,
+        $uId,
+        $approverName,
+        $action,
+        $comment = 'មិនមានមតិយោបល់',
+        $actionAt
+    ) {
+        // Fetch the user's Telegram ID
+        $telegramUser = $this->getTelegramIdByUserId($uId);
+
+        // Check if the user has a valid Telegram ID
+        if ($telegramUser && !empty($telegramUser['telegram_id'])) {
+
+            // Map action statuses to cleaner, user-friendly statuses
+            $actionStatuses = [
+                'rejected' => 'បានបដិសេធ',
+                'approved' => 'បានអនុម័ត',
+                'returned' => 'បានបង្វិលត្រឡប់',
+                'pending' => 'កំពុងរង់ចាំ'
+            ];
+
+            // Get the Khmer equivalent for the action or fallback
+            $actionStatus = $actionStatuses[$action] ?? $action;
+
+            // Build the notification message
+            $notifications = [
+                "🔔 *$title*",
+                "---------------------------------------------",
+                "👤 *អ្នកអនុម័ត:* `{$approverName}`",
+                "📋 *សកម្មភាព:* `{$actionStatus}`",
+                "💬 *មតិយោបល់:* `{$comment}`",
+                "🗓️ *កាលបរិច្ឆេទអនុម័ត:* `{$actionAt}`",
+                "---------------------------------------------",
+                "✅ *សូមពិនិត្យព័ត៌មាននៅក្នុងប្រព័ន្ធ*"
+            ];
+
+            // Combine all lines into a single message
+            $telegramMessage = implode("\n", $notifications);
+
+            // Send the Telegram notification
+            $telegramModel = new TelegramModel($this->pdo);
+            $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage);
+
+            // Log success or failure with additional context
+            if ($success) {
+                error_log("✅ Telegram notification successfully sent to user ID: {$uId} ({$actionStatus})");
+            } else {
+                error_log("❌ Failed to send Telegram notification to user ID: {$uId} ({$actionStatus})");
+            }
+        } else {
+            error_log("⚠️ No valid Telegram ID found for user ID: {$uId}");
+        }
+    }
+
+
+    public function sendDocToNextApprover(
+        $title,
+        $comment,
+        $actionAt,
+        $nextApproverId,
+        $approverName,
+        $uName,
+        $action,
+        $start_date,
+        $end_date,
+        $duration,
+        $reason
+    ) {
+        // Retrieve the next approver's Telegram ID
+        $telegramUser = $this->getTelegramIdByUserId($nextApproverId);
+    
+        if ($telegramUser && !empty($telegramUser['telegram_id'])) {
+            // Map actions to Khmer descriptions
+            $actionStatuses = [
+                'submitted' => 'បានដាក់ស្នើ',
+                'forwarded' => 'បានបញ្ជូនបន្ត',
+                'approved'  => 'បានអនុម័ត',
+                'rejected'  => 'បានបដិសេធ'
+            ];
+    
+            // Map action to Khmer status, default to the original if undefined
+            $actionStatus = $actionStatuses[$action] ?? $action;
+    
+            // Prepare the notification content
+            $notifications = [
+                "🔔 *$title*",
+                "---------------------------------------------",
+                "👤 *អ្នកអនុម័តបច្ចុប្បន្ន:* `{$approverName}`",
+                "📋 *សកម្មភាព:* `{$actionStatus}`",
+                "💬 *មតិយោបល់:* `{$comment}`",
+                "🗓️ *កាលបរិច្ឆេទ:* `{$actionAt}`",
+                "---------------------------------------------",
+                "👤 *អ្នកស្នើ:* `{$uName}`",
+                "📅 *ចាប់ពី:* `{$start_date}`",
+                "📅 *ដល់កាលបរិច្ឆេទ:* `{$end_date}`",
+                "🗓️ *រយៈពេល:* `{$duration}` ថ្ងៃ",
+                "💬 *មូលហេតុ:* `{$reason}`",
+                "---------------------------------------------",
+                "✅ *សូមអនុវត្តការពិនិត្យនៅក្នុងប្រព័ន្ធ*"
+            ];
+    
+            // Combine the notifications into a single message
+            $telegramMessage = implode("\n", $notifications);
+    
+            // Send the message using the TelegramModel
+            $telegramModel = new TelegramModel($this->pdo);
+            $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage);
+    
+            // Log success or failure
+            if ($success) {
+                error_log("✅ Telegram notification sent to next approver ID: {$nextApproverId}");
+            } else {
+                error_log("❌ Failed to send Telegram notification to next approver ID: {$nextApproverId}");
+            }
+        } else {
+            error_log("⚠️ No valid Telegram ID found for next approver ID: {$nextApproverId}");
+        }
+    }    
 
     // user telegram apply leave 
     public function sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link)

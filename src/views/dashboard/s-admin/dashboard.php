@@ -2,7 +2,7 @@
 $title = "ALL User";
 include('src/common/header.php');
 ?>
-<?= $_SESSION['user_id'] ." ". $_SESSION['token']?>
+
 <div class="card">
     <div class="table-responsive">
         <table class="table table-vcenter">

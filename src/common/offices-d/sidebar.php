@@ -290,7 +290,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                 គ្រប់គ្រងសំណើ
                                 <?php if (!empty($totalPendingCount)): ?>
                                     <span class="badge bg-red text-red-fg ms-2"><?= $totalPendingCount; ?></span>
-                                <?php endif; ?>
+                                <?php endif; ?> 
                             </span>
                         </a>
                         <div class="dropdown-menu">

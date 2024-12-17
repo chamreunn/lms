@@ -41,7 +41,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                 </svg>
                             </span>
                             <span class="nav-link-title">
-                                ច្បាប់ឈប់សម្រាករបស់ខ្ញុំ
+                                ច្បាប់ឈប់សម្រាក
                             </span>
                         </a>
                     </li>
@@ -62,7 +62,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                 </svg>
                             </span>
                             <span class="nav-link-title">
-                                បញ្ជីវត្តមាន
+                                ព័ត៌មានអំពីវត្តមាន
                             </span>
                         </a>
                     </li>

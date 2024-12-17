@@ -19,8 +19,8 @@ class HoldModel
     public function createHoldRequest($data)
     {
         // Prepare the SQL query using PDO
-        $sql = "INSERT INTO $this->tblholds (user_id, approver_id, start_date, end_date, reason, signature, duration, type, color, created_at) 
-            VALUES (:user_id, :approver_id, :start_date, :end_date, :reason, :signature, :duration, :type, :color, NOW())";
+        $sql = "INSERT INTO $this->tblholds (user_id, approver_id, start_date, end_date, reason, duration, type, color, created_at) 
+            VALUES (:user_id, :approver_id, :start_date, :end_date, :reason, :duration, :type, :color, NOW())";
 
         // Prepare the statement
         $stmt = $this->pdo->prepare($sql);
@@ -31,7 +31,6 @@ class HoldModel
         $stmt->bindParam(':start_date', $data['start_date'], PDO::PARAM_STR);
         $stmt->bindParam(':end_date', $data['end_date'], PDO::PARAM_STR);
         $stmt->bindParam(':reason', $data['reason'], PDO::PARAM_STR);
-        $stmt->bindParam(':signature', $data['signature'], PDO::PARAM_STR);
         $stmt->bindParam(':duration', $data['duration'], PDO::PARAM_STR);
         $stmt->bindParam(':type', $data['type'], PDO::PARAM_STR);
         $stmt->bindParam(':color', $data['color'], PDO::PARAM_STR);

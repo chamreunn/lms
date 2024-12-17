@@ -599,13 +599,13 @@ class AdminModel
     }
 
     // get all user information 
-    public function getUserByIdAPI($user_id)
+    public function getUserByIdAPI($user_id, $token)
     {
         $userModel = new User();
 
         // Fetch user details from both APIs
-        $userApiResponse = $userModel->getUserByIdApi($user_id, $_SESSION['token']);
-        $userInformationApiResponse = $userModel->getUserInformationByIdApi($user_id, $_SESSION['token']);
+        $userApiResponse = $userModel->getUserByIdApi($user_id, $token);
+        $userInformationApiResponse = $userModel->getUserInformationByIdApi($user_id, $token);
 
         // Initialize default user details
         $defaultDetails = [
@@ -654,13 +654,14 @@ class AdminModel
 
         // current work 
         $additionalPositions = $userInformation['additionalPositionCurrentJob'] ?? []; // Retrieve the entire array
+        
         $additionalWork = []; // Initialize the result array
         // user family 
         $userFamily = $userInformation['userFamily'] ?? [];
 
         foreach ($additionalPositions as $position) {
             // Fetch role, office, and department from user information
-            $roleApiResponse = $userModel->getRoleApi($position['position'] ?? null, $_SESSION['token']);
+            $roleApiResponse = $userModel->getRoleApi($position['position'] ?? null, $token);
             $roleName = 'N/A';  // Default value for role name
 
             if ($roleApiResponse && $roleApiResponse['http_code'] === 200 && isset($roleApiResponse['data'])) {
@@ -860,57 +861,57 @@ class AdminModel
         ]);
 
         // Fetch role, office, and department  from user information
-        $roleApiResponse = $userModel->getRoleApi($userInformation['userInformation'][0]['position_enteing_public_service'] ?? null, $_SESSION['token']);
+        $roleApiResponse = $userModel->getRoleApi($userInformation['userInformation'][0]['position_enteing_public_service'] ?? null, $token);
         if ($roleApiResponse && $roleApiResponse['http_code'] === 200 && isset($roleApiResponse['data'])) {
             $userDetails['roleName'] = $roleApiResponse['data']['roleNameKh'] ?? 'N/A';
             $userDetails['position_color'] = $roleApiResponse['data']['color'] ?? 'N/A';
         }
 
-        $departmentApiResponse = $userModel->getDepartmentApi($userInformation['userInformation'][0]['department_enteing_public_service'] ?? null, $_SESSION['token']);
+        $departmentApiResponse = $userModel->getDepartmentApi($userInformation['userInformation'][0]['department_enteing_public_service'] ?? null, $token);
         if ($departmentApiResponse && $departmentApiResponse['http_code'] === 200 && isset($departmentApiResponse['data'])) {
             $userDetails['departmentName'] = $departmentApiResponse['data']['departmentNameKh'] ?? 'N/A';
             $userDetails['departmentId'] = $departmentApiResponse['data']['id'] ?? 'N/A';
         }
 
-        $officeApiResponse = $userModel->getOfficeApi($userInformation['userInformation'][0]['office_enteing_public_service'] ?? null, $_SESSION['token']);
+        $officeApiResponse = $userModel->getOfficeApi($userInformation['userInformation'][0]['office_enteing_public_service'] ?? null, $token);
         if ($officeApiResponse && $officeApiResponse['http_code'] === 200 && isset($officeApiResponse['data'])) {
             $userDetails['officeName'] = $officeApiResponse['data']['officeNameKh'] ?? 'N/A';
             $userDetails['officeId'] = $officeApiResponse['data']['id'] ?? 'N/A';
         }
 
         // Fetch role, office, and department  from user information for current 
-        $roleApiResponse = $userModel->getRoleApi($userInformation['userInformation'][0]['position_current_job_situation'] ?? null, $_SESSION['token']);
+        $roleApiResponse = $userModel->getRoleApi($userInformation['userInformation'][0]['position_current_job_situation'] ?? null, $token);
         if ($roleApiResponse && $roleApiResponse['http_code'] === 200 && isset($roleApiResponse['data'])) {
             $userDetails['roleNameCur'] = $roleApiResponse['data']['roleNameKh'] ?? 'N/A';
             $userDetails['position_color'] = $roleApiResponse['data']['color'] ?? 'N/A';
         }
 
-        $departmentApiResponse = $userModel->getDepartmentApi($userInformation['userInformation'][0]['department_current_job_situation'] ?? null, $_SESSION['token']);
+        $departmentApiResponse = $userModel->getDepartmentApi($userInformation['userInformation'][0]['department_current_job_situation'] ?? null, $token);
         if ($departmentApiResponse && $departmentApiResponse['http_code'] === 200 && isset($departmentApiResponse['data'])) {
             $userDetails['departmentNameCur'] = $departmentApiResponse['data']['departmentNameKh'] ?? 'N/A';
             $userDetails['departmentId'] = $departmentApiResponse['data']['id'] ?? 'N/A';
         }
 
-        $officeApiResponse = $userModel->getOfficeApi($userInformation['userInformation'][0]['office_current_job_situation'] ?? null, $_SESSION['token']);
+        $officeApiResponse = $userModel->getOfficeApi($userInformation['userInformation'][0]['office_current_job_situation'] ?? null, $token);
         if ($officeApiResponse && $officeApiResponse['http_code'] === 200 && isset($officeApiResponse['data'])) {
             $userDetails['officeNameCur'] = $officeApiResponse['data']['officeNameKh'] ?? 'N/A';
             $userDetails['officeId'] = $officeApiResponse['data']['id'] ?? 'N/A';
         }
 
         // Fetch role, office, and department details
-        $roleApiResponse = $userModel->getRoleApi($user['roleId'] ?? null, $_SESSION['token']);
+        $roleApiResponse = $userModel->getRoleApi($user['roleId'] ?? null, $token);
         if ($roleApiResponse && $roleApiResponse['http_code'] === 200 && isset($roleApiResponse['data'])) {
             $userDetails['rolename'] = $roleApiResponse['data']['roleNameKh'] ?? 'N/A';
             $userDetails['position_color'] = $roleApiResponse['data']['color'] ?? 'N/A';
         }
 
-        $officeApiResponse = $userModel->getOfficeApi($user['officeId'] ?? null, $_SESSION['token']);
+        $officeApiResponse = $userModel->getOfficeApi($user['officeId'] ?? null, $token);
         if ($officeApiResponse && $officeApiResponse['http_code'] === 200 && isset($officeApiResponse['data'])) {
             $userDetails['office_name'] = $officeApiResponse['data']['officeNameKh'] ?? 'N/A';
             $userDetails['office_id'] = $officeApiResponse['data']['id'] ?? 'N/A';
         }
 
-        $departmentApiResponse = $userModel->getDepartmentApi($user['departmentId'] ?? null, $_SESSION['token']);
+        $departmentApiResponse = $userModel->getDepartmentApi($user['departmentId'] ?? null, $token);
         if ($departmentApiResponse && $departmentApiResponse['http_code'] === 200 && isset($departmentApiResponse['data'])) {
             $userDetails['department_name'] = $departmentApiResponse['data']['departmentNameKh'] ?? 'N/A';
             $userDetails['department_id'] = $departmentApiResponse['data']['id'] ?? 'N/A';

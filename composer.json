@@ -10,6 +10,7 @@
         "endroid/qr-code": "^6.0",
         "intervention/image": "^3.9",
         "dompdf/dompdf": "^3.0",
-        "tecnickcom/tcpdf": "^6.7"
+        "tecnickcom/tcpdf": "^6.7",
+        "illuminate/support": "^11.35"
     }
 }

@@ -27,6 +27,17 @@
 
 <!-- Include Leaflet.js -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- AOS JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script>
+    // Initialize AOS
+    AOS.init({
+        duration: 800,
+        once: true,
+    });
+</script>
+
 <!-- Script to hide the loader with delay -->
 <script>
     window.addEventListener('load', function () {

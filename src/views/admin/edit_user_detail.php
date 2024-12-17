@@ -437,8 +437,13 @@ include('src/common/header.php');
                                 </div>
                                 <div class="col-auto text-start">
                                     <p class="fw-bold">
-                                        <?= htmlspecialchars($userDetails['date_enteing_public_service']) ?>
+                                        <?= htmlspecialchars(
+                                            isset($userDetails['date_entering_public_service'])
+                                            ? (new DateTime($userDetails['date_entering_public_service']))->format('F d, Y')
+                                            : 'N/A'
+                                        ) ?>
                                     </p>
+
                                 </div>
                             </div>
                             <?php if (!empty($userDetails['comfirm_date'])): ?>
@@ -1728,7 +1733,9 @@ include('src/common/header.php');
                                             <td><?= htmlspecialchars($document['document_type'] ?? 'N/A') ?></td> <!-- Level -->
                                             <td><?= htmlspecialchars($document['description'] ?? 'N/A') ?></td>
                                             <!-- Institution -->
-                                            <td><a target="_blank" href="<?= htmlspecialchars($document['document_file'] ?? 'N/A') ?>">view</a></td>
+                                            <td><a target="_blank"
+                                                    href="<?= htmlspecialchars($document['document_file'] ?? 'N/A') ?>">view</a>
+                                            </td>
                                             <!-- Certificate -->
                                             <td><?= htmlspecialchars($document['date'] ?? 'N/A') ?></td>
                                         </tr>

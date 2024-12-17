@@ -245,29 +245,29 @@ class DepOfficeController
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             // Validate required POST fields
-            $requiredFields = [
-                'request_id',
-                'status',
-                'uremarks',
-                'uname',
-                'uemail',
-                'leaveType',
-                'user_id',
-                'start_date',
-                'end_date',
-                'duration'
-            ];
+            // $requiredFields = [
+            //     'request_id',
+            //     'status',
+            //     'uremarks',
+            //     'uname',
+            //     'uemail',
+            //     'leaveType',
+            //     'user_id',
+            //     'start_date',
+            //     'end_date',
+            //     'duration'
+            // ];
 
-            foreach ($requiredFields as $field) {
-                if (empty($_POST[$field])) {
-                    $_SESSION['error'] = [
-                        'title' => "Invalid Input",
-                        'message' => "Missing required fields. Please try again."
-                    ];
-                    header("Location: /elms/pending");
-                    exit();
-                }
-            }
+            // foreach ($requiredFields as $field) {
+            //     if (empty($_POST[$field])) {
+            //         $_SESSION['error'] = [
+            //             'title' => "Invalid Input",
+            //             'message' => "Missing required fields. Please try again."
+            //         ];
+            //         header("Location: /elms/pending");
+            //         exit();
+            //     }
+            // }
 
             // Initialize variables from POST data
             $request_id = $_POST['request_id'];
@@ -392,6 +392,17 @@ class DepOfficeController
                 $activity = "បាន " . $status . " ច្បាប់ឈប់សម្រាក " . $uname;
                 $userModel->logUserActivity($approver_id, $activity, $_SERVER['REMOTE_ADDR']);
 
+                // Define notification details
+                $notificationTitle = "ច្បាប់ឈប់សម្រាក";
+                $notificationMessage = $_SESSION['user_khmer_name'] . " បានស្នើសុំច្បាប់ឈប់សម្រាកពី $start_date ដល់ $end_date ។";
+                $notificationProfile = $_SESSION['user_profile'];
+                $notificationLink = ($_SERVER['SERVER_NAME'] === '127.0.0.1') ? 'http://127.0.0.1/elms/pending' : 'https://leave.iauoffsa.us/elms/pending';
+
+                // Create the in-app notification
+                $notificationModel = new NotificationModel();
+                $notificationModel->createNotification($approvingManagerId, $notificationTitle, $notificationMessage, $notificationLink, $notificationProfile);
+
+
                 // Commit the transaction
                 $this->pdo->commit();
 
@@ -453,51 +464,120 @@ class DepOfficeController
 
     public function action()
     {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Validate required session and form values
+            if (!isset($_SESSION['user_id'], $_SESSION['user_khmer_name'], $_SESSION['departmentName'], $_POST['holdId'], $_POST['approverId'], $_POST['uId'], $_POST['status'])) {
+                $_SESSION['error'] = [
+                    'title' => "កំហុស",
+                    'message' => "ទិន្នន័យមិនគ្រប់គ្រាន់សម្រាប់បញ្ជូនសំណើ។"
+                ];
+                header("Location: /elms/pending");
+                exit();
+            }
 
-            // Get values from form and session
-            $userId = $_SESSION['user_id'];
-            $holdId = $_POST['holdId'];
-            $approverId = $_POST['approverId'];
-            $action = $_POST['status'];
-            $comment = $_POST['comment'];
+            // Extract session and form data
+            $approverId = $_SESSION['user_id'];
+            $approverName = $_SESSION['user_khmer_name'];
             $department = $_SESSION['departmentName'];
 
-            try {
-                // Start transaction
-                $this->pdo->beginTransaction();
+            $holdId = $_POST['holdId'];
+            $nextApproverId = $_POST['approverId'];
+            $uId = $_POST['uId'];
+            $action = $_POST['status'];
+            $comment = $_POST['comment'] ?? '';
 
-                // Create a DepOfficeModel instance and submit approval
+            // User request details
+            $uName = $_POST['uName'] ?? '';
+            $start_date = $_POST['start_date'] ?? '';
+            $end_date = $_POST['end_date'] ?? '';
+            $duration = $_POST['duration'] ?? '';
+            $reason = $_POST['reason'] ?? '';
+            $actionAt = date('Y-m-d h:i:s A');
+
+            $title = "លិខិតព្យួរការងារ";
+
+            try {
+                // Ensure a valid connection and start transaction
+                if (!$this->pdo->inTransaction()) {
+                    $this->pdo->beginTransaction();
+                }
+
+                // Models
                 $leaveApproval = new DepOfficeModel();
                 $userModel = new User();
 
-                if (in_array($department, ['នាយកដ្ឋានកិច្ចការទូទៅ', 'នាយកដ្ឋានសវនកម្មទី២'])) {
-                    $managers = 'getEmailLeaderDHU1Api';
-                } else {
-                    $managers = 'getEmailLeaderDHU2Api';
+                // Determine manager API based on department
+                $managersApi = in_array($department, ['នាយកដ្ឋានកិច្ចការទូទៅ', 'នាយកដ្ឋានសវនកម្មទី២'])
+                    ? 'getEmailLeaderDHU1Api'
+                    : 'getEmailLeaderDHU2Api';
+
+                // Update hold approval
+                $leaveApproval->updateHoldApproval($approverId, $holdId, $action, $comment);
+
+                // Delegate to next manager
+                $leaveApproval->delegateManager($leaveApproval, $userModel, $managersApi, $holdId, $approverId);
+
+                // Send notifications
+                $userModel->sendDocBackToUser($title, $uId, $approverName, $action, $comment, $actionAt);
+                $userModel->sendDocToNextApprover(
+                    $title,
+                    $comment,
+                    $actionAt,
+                    $nextApproverId,
+                    $approverName,
+                    $uName,
+                    $action,
+                    $start_date,
+                    $end_date,
+                    $duration,
+                    $reason
+                );
+
+                // Define notification details
+                $notificationMessageToUser = $approverName . " បាន " . $action . "ស្នើលិខិតព្យួរការងារ";
+                $notificationProfile = $_SESSION['user_profile'];
+                $notificationLink = ($_SERVER['SERVER_NAME'] === '127.0.0.1')
+                    ? 'http://127.0.0.1/elms/headofficepending'
+                    : 'https://leave.iauoffsa.us/elms/pending';
+
+                // Create the in-app notification
+                $notificationModel = new NotificationModel();
+                $notificationModel->createNotification(
+                    $uId,            // Target user ID (requestor)
+                    $title,
+                    $notificationMessageToUser,
+                    $notificationProfile
+                );
+
+                // Notify the next approver
+                $notificationModel->createNotification(
+                    $nextApproverId, // Target user ID (next approver)
+                    $title,
+                    $notificationMessageToUser,
+                    $notificationLink,
+                    $notificationProfile
+                );
+
+                // Commit transaction
+                if ($this->pdo->inTransaction()) {
+                    $this->pdo->commit();
                 }
 
-                $leaveApproval->updateHoldApproval($userId, $holdId, $action, $comment);
-                // Recursive manager delegation
-                $leaveApproval->delegateManager($leaveApproval, $userModel, $managers, $holdId, $userId);
-
-                if ($leaveApproval) {
-                    // Log the error and set error message
-                    $_SESSION['success'] = [
-                        'title' => "លិខិតព្យួរការងារ",
-                        'message' => "អ្នកបាន " . $action . " លើលិខិតព្យួរការងាររួចរាល់។"
-                    ];
-                    header("Location: /elms/pending");
-                    exit();
-                }
-                // Commit transaction after successful approval update
-                $this->pdo->commit();
+                // Success message
+                $_SESSION['success'] = [
+                    'title' => $title,
+                    'message' => "អ្នកបាន " . htmlspecialchars($action) . " លើលិខិតព្យួរការងាររួចរាល់។"
+                ];
+                header("Location: /elms/pending");
+                exit();
             } catch (Exception $e) {
-                // Rollback transaction in case of error
-                $this->pdo->rollBack();
+                // Rollback transaction if active
+                if ($this->pdo->inTransaction()) {
+                    $this->pdo->rollBack();
+                }
 
-                // Log the error and set error message
-                error_log("Error: " . $e->getMessage());
+                // Log and show error
+                error_log("Error in action: " . $e->getMessage());
                 $_SESSION['error'] = [
                     'title' => "កំហុស",
                     'message' => "បញ្ហាក្នុងការបញ្ជូនសំណើ: " . $e->getMessage()
@@ -505,6 +585,14 @@ class DepOfficeController
                 header("Location: /elms/pending");
                 exit();
             }
+        } else {
+            // Invalid request method
+            $_SESSION['error'] = [
+                'title' => "កំហុស",
+                'message' => "វិធីសំណើមិនត្រឹមត្រូវ។"
+            ];
+            header("Location: /elms/pending");
+            exit();
         }
     }
 

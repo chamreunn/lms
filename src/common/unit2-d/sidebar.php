@@ -39,7 +39,7 @@
                                 </svg>
                             </span>
                             <span class="nav-link-title">
-                                ច្បាប់ឈប់សម្រាករបស់ខ្ញុំ
+                                ច្បាប់ឈប់សម្រាក
                             </span>
                         </a>
                     </li>
@@ -61,7 +61,7 @@
                                 </svg>
                             </span>
                             <span class="nav-link-title">
-                                បញ្ជីវត្តមាន
+                                ព័ត៌មានអំពីវត្តមាន
                             </span>
                         </a>
                     </li>

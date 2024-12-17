@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: /elms/login");
     exit();
 }
-
+require_once 'src/models/Notification.php';
 date_default_timezone_set('Asia/Bangkok');
 ?>
 
@@ -49,6 +49,9 @@ date_default_timezone_set('Asia/Bangkok');
 
     <!-- lottie animation icon loop  -->
     <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+
+    <!-- Include AOS CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
     <!-- spinner button  -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -85,15 +88,14 @@ date_default_timezone_set('Asia/Bangkok');
 </head>
 
 <body class="loading">
-
     <style>
+        /* Loader Wrapper */
         .loader-wrapper {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
             z-index: 9999;
             display: flex;
@@ -101,12 +103,14 @@ date_default_timezone_set('Asia/Bangkok');
             align-items: center;
         }
 
+        /* Spinner Container */
         .spinner-container {
             position: relative;
             width: 150px;
             height: 150px;
         }
 
+        /* Spinner */
         .spinner {
             width: 100%;
             height: 100%;
@@ -116,6 +120,7 @@ date_default_timezone_set('Asia/Bangkok');
             animation: spin 1s linear infinite;
         }
 
+        /* Logo Loader */
         .logo-loader {
             position: absolute;
             top: 50%;
@@ -128,6 +133,7 @@ date_default_timezone_set('Asia/Bangkok');
             transform: translate(-50%, -50%);
         }
 
+        /* Spin Animation */
         @keyframes spin {
             from {
                 transform: rotate(0deg);
@@ -155,8 +161,23 @@ date_default_timezone_set('Asia/Bangkok');
             }
         }
 
-        body.dark-theme .loader-wrapper {
-            background-color: rgba(0, 0, 0, 0.9);
+        /* Light Theme Loader Background */
+        body:not(.theme-dark):not([data-theme="dark"]) .loader-wrapper {
+            background-color: rgba(255, 255, 255, 0.7);
+            /* Light theme background with opacity */
+            backdrop-filter: blur(10px);
+            /* Apply a blur effect */
+        }
+
+
+        /* Dark Mode for prefers-color-scheme */
+        @media (prefers-color-scheme: dark) {
+            .loader-wrapper {
+                background-color: rgba(26, 34, 52, 0.7);
+                /* Dark background for loader */
+                backdrop-filter: blur(10px);
+                /* Apply a blur effect */
+            }
         }
     </style>
 
@@ -192,7 +213,7 @@ date_default_timezone_set('Asia/Bangkok');
                             $getLeaveTodayCount = $adminModel->getLeaveTodayCount();
                             $getPendingCount = $adminModel->getLateCountByStatus('Pending');
                             // end sidebar count 
-                            
+            
                             require 'navbar.php';
                             require 'admin/sidebar.php';
                             break;
@@ -214,7 +235,9 @@ date_default_timezone_set('Asia/Bangkok');
                             $adminModel = new AdminModel();
                             $totalLateCount = $adminModel->getLateinCount();
                             $latesTodayCount = $adminModel->getLateCountToday();
-                            
+                            // notifications 
+                            $allnotifications = new NotificationModel();
+                            $notifications = $allnotifications->getUserNotifications($_SESSION['user_id']);
                             // Sidebar and navbar templates
                             require 'navbar.php';
                             require 'offices-d/sidebar.php';
@@ -232,7 +255,7 @@ date_default_timezone_set('Asia/Bangkok');
                             $pendingHoldsCount = $holdModel->countPendingHoldsByUserId($_SESSION['user_id']);
                             $totalPendingCount = $pendingCount + $pendingHoldsCount;
                             // sidebar and navbar 
-                            
+            
                             require 'navbar.php';
                             require 'offices-h/sidebar.php';
                             break;
@@ -249,7 +272,7 @@ date_default_timezone_set('Asia/Bangkok');
                             // Total pending count combining leave requests and holds
                             $totalPendingCount = $requestscount + $pendingHoldsCount;
                             // sidebar and navbar 
-                            
+            
                             require 'navbar.php';
                             require 'departments-d/sidebar.php';
                             break;
@@ -272,7 +295,7 @@ date_default_timezone_set('Asia/Bangkok');
                             $leavetypes = $leavetypeModel->getAllLeavetypes();
                             $depdepart = $userModel->getEmailLeaderDDApi($_SESSION['user_id'], $_SESSION['token']);
                             // sidebar and navbar 
-                            
+            
                             require 'navbar.php';
                             require 'departments-h/sidebar.php';
                             break;
@@ -290,7 +313,7 @@ date_default_timezone_set('Asia/Bangkok');
                             // Total pending count combining leave requests and holds
                             $totalPendingCount = $requestscount + $pendingHoldsCount;
                             // sidebar and navbar 
-                            
+            
                             require 'navbar.php';
                             require 'unit1-d/sidebar.php';
                             break;
@@ -308,7 +331,7 @@ date_default_timezone_set('Asia/Bangkok');
                             // Total pending count combining leave requests and holds
                             $totalPendingCount = $requestscount + $pendingHoldsCount;
                             // sidebar and navbar 
-                            
+            
                             require 'navbar.php';
                             require 'unit2-d/sidebar.php';
                             break;
@@ -327,7 +350,7 @@ date_default_timezone_set('Asia/Bangkok');
 
                             // sidebar and navbar 
                             $adminModel = new AdminModel();
-                            
+
                             require 'navbar.php';
                             require 'unit-h/sidebar.php';
                             break;
@@ -362,7 +385,9 @@ date_default_timezone_set('Asia/Bangkok');
                             $getAllMissionCount = $adminModel->getMissionsTodayCount();
                             $getLeaveTodayCount = $adminModel->getLeaveTodayCount();
                             $getPendingCount = $adminModel->getLateCountByStatus('Pending');
-                            
+                            // notifications 
+                            $allnotifications = new NotificationModel();
+                            $notifications = $allnotifications->getUserNotifications($_SESSION['user_id']);
                             require 'navbar.php';
                             include('users/sidebar.php');
                             break;
@@ -412,3 +437,4 @@ date_default_timezone_set('Asia/Bangkok');
                             </div>
                         </div>
                     </div>
+                    

@@ -860,10 +860,11 @@ class AdminController
 
             // Get user_id from the query string
             $user_id = $_GET['user_id'] ?? null;
+            $token = $_SESSION['token'];
 
             if ($user_id) {
                 $userController = new AdminModel();
-                $userDetails = $userController->getUserByIdAPI($user_id);
+                $userDetails = $userController->getUserByIdAPI($user_id, $token);
                 $requests = $userController->getUserLeaveRequests($user_id);
                 $getlatein = $userController->getOvertimeIn($user_id);
                 $getleavecounts = $userController->countUserApprovedLeaveRequests($user_id);
@@ -897,27 +898,49 @@ class AdminController
     }
 
     public function editUserDetail()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            // Get user_id from the query string
-            $user_id = $_GET['user_id'] ?? null;
-
-            if ($user_id) {
-                $userController = new AdminModel();
-                $userDetails = $userController->getUserByIdAPI($user_id);
-
-                if ($userDetails) {
-                    // Load the view and pass the user details
-                    require 'src/views/admin/edit_user_detail.php';
-                } else {
-                    echo "Failed to fetch user details.";
-                }
-            } else {
-                // Handle the case where user_id is not provided
-                echo "User ID not provided.";
-            }
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        // Ensure the user is logged in
+        if (!isset($_SESSION['user_id']) || !isset($_SESSION['token'])) {
+            // Redirect to login or show an error
+            header('Location: /elms/login');
+            exit;
         }
+
+        // Get the logged-in user's ID and session token
+        $session_user_id = $_SESSION['user_id'];
+        $token = $_SESSION['token'];
+
+        // Get the user_id from the URL (if provided)
+        $url_user_id = $_GET['user_id'] ?? null;
+
+        // Check if the URL user_id matches the logged-in user's ID
+        if ($url_user_id && $url_user_id != $session_user_id) {
+            // Redirect to 404 page if the IDs do not match
+            header('Location: /elms/404');
+            exit;
+        }
+
+        // Use the session user_id to fetch details securely
+        $userController = new AdminModel();
+        $userDetails = $userController->getUserByIdAPI($session_user_id, $token);
+
+        if ($userDetails) {
+            // Load the view and pass the user details
+            require 'src/views/admin/edit_user_detail.php';
+        } else {
+            // Redirect to 404 if user details cannot be fetched
+            header('Location: /elms/404');
+            exit;
+        }
+    } else {
+        // Handle invalid request methods
+        echo "Invalid request.";
+        exit;
     }
+}
+
+    
 
     public function viewRequestsWithFilters()
     {
@@ -1063,6 +1086,7 @@ class AdminController
 
             // Get user_id from the query string and sanitize it
             $user_id = isset($_GET['user_id']) ? (int) $_GET['user_id'] : null;
+            $token = $_SESSION['token'];
 
             if ($user_id) {
                 try {
@@ -1070,7 +1094,7 @@ class AdminController
                     $telegramModel = new TelegramModel($this->pdo);
 
                     // Fetch user details
-                    $userDetails = $userController->getUserByIdAPI($user_id);
+                    $userDetails = $userController->getUserByIdAPI($user_id, $token);
                     if (!$userDetails) {
                         throw new Exception("User not found.");
                     }

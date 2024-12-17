@@ -37,6 +37,7 @@ $controllers = [
     'src/controllers/backwork/BackworkController.php',
     'src/controllers/attendance/AttendanceController.php',
     'src/controllers/qrcode/QrcodeController.php',
+    'src/controllers/nofitications/NotificationController.php',
 ];
 
 // Require all controllers
@@ -73,10 +74,53 @@ asyncHandler(function () {
             });
             break;
 
+        case $base_url . '/notifications/':
+            $method = $_SERVER['REQUEST_METHOD'];
+            if ($method === 'GET') {
+                // Call the controller method to get notifications
+                checkSessionAndExecute(function () {
+                    // Validate if user_id is provided
+                    if (!isset($_GET['user_id'])) {
+                        echo json_encode(['success' => false, 'message' => 'User ID is required']);
+                        return;
+                    }
+
+                    $userId = $_GET['user_id'];
+
+                    // Instantiate the controller and fetch notifications
+                    $controller = new NotificationsController();
+                    $response = $controller->getUserNotifications($userId);
+
+                    // Output the response as JSON
+                    echo json_encode($response);
+                });
+            }
+            break;
+
         case $base_url . '/update-permissions':
             checkSessionAndExecute(function () {
                 $controller = new AdminController();
                 $controller->updatePermissions();
+            });
+            break;
+
+        case $base_url . '/allnotifications':
+            checkSessionAndExecute(function () {
+                $controller = new NotificationsController();
+                $controller->index();
+            });
+            break;
+
+        case $base_url . '/markNotification':
+            checkSessionAndExecute(function () {
+                $controller = new NotificationsController();
+                $controller->markNotification();
+            });
+            break;
+        case $base_url . '/deleteNotification':
+            checkSessionAndExecute(function () {
+                $controller = new NotificationsController();
+                $controller->deleteNotification();
             });
             break;
 

@@ -186,7 +186,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                                 </svg>
                             </span>
                             <span class="nav-link-title">
-                                លិខិតផ្សេងៗ
+                                លិខិតរដ្ឋបាល
                             </span>
                         </a>
                         <div class="dropdown-menu">

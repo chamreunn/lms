@@ -1,10 +1,8 @@
 <?php
 $title = "របៀបប្រើប្រាស់ប្រព័ន្ធ";
-include('src/common/head.php');
+require 'src/common/head.php';
 ?>
 
-<!-- Include AOS CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
 <style>
     /* Modern Gradient Background */
     body {
@@ -882,14 +880,4 @@ include('src/common/head.php');
         </div>
     </footer>
 </div>
-
-<!-- AOS JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-<script>
-    // Initialize AOS
-    AOS.init({
-        duration: 800,
-        once: false,
-    });
-</script>
-<?php include('src/common/footer.php'); ?>
+<?php require 'src/common/footer.php'; ?>

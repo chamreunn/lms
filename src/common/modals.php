@@ -82,8 +82,8 @@
                                                 <path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" />
                                             </svg>
                                         </span> -->
-                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ"
-                                        class="form-control" id="remarks" name="remarks"
+                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" class="form-control"
+                                        id="remarks" name="remarks"
                                         required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
                             </div>
@@ -188,8 +188,8 @@
                                 <label for="reason" class="form-label fw-bold">មូលហេតុ<span
                                         class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
-                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ"
-                                        class="form-control" id="remarks" name="remarks"
+                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" class="form-control"
+                                        id="remarks" name="remarks"
                                         required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
                             </div>
@@ -310,8 +310,7 @@
                                 <label for="remarks_hof" class="form-label fw-bold">មូលហេតុ<span
                                         class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
-                                    <textarea class="form-control" id="remarks_hof" name="remarks"
-                                        placeholder="មូលហេតុ"
+                                    <textarea class="form-control" id="remarks_hof" name="remarks" placeholder="មូលហេតុ"
                                         required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
                             </div>
@@ -415,8 +414,8 @@
                                 <label for="reason" class="form-label fw-bold">មូលហេតុ<span
                                         class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
-                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ"
-                                        class="form-control" id="remarks" name="remarks"
+                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" class="form-control"
+                                        id="remarks" name="remarks"
                                         required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
                             </div>
@@ -537,8 +536,7 @@
                                 <label for="remarks_hod" class="form-label fw-bold">មូលហេតុ<span
                                         class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
-                                    <textarea class="form-control" id="remarks_hod" name="remarks"
-                                        placeholder="មូលហេតុ"
+                                    <textarea class="form-control" id="remarks_hod" name="remarks" placeholder="មូលហេតុ"
                                         required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
                             </div>
@@ -634,8 +632,8 @@
                                 <label for="reason" class="form-label fw-bold">មូលហេតុ<span
                                         class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
-                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ"
-                                        class="form-control" id="remarks" name="remarks"
+                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" class="form-control"
+                                        id="remarks" name="remarks"
                                         required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
                             </div>
@@ -740,8 +738,8 @@
                                 <label for="reason" class="form-label fw-bold">មូលហេតុ<span
                                         class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
-                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ"
-                                        class="form-control" id="remarks" name="remarks"
+                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" class="form-control"
+                                        id="remarks" name="remarks"
                                         required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
                             </div>
@@ -846,8 +844,8 @@
                                 <label for="reason" class="form-label fw-bold">មូលហេតុ<span
                                         class="text-danger mx-1 fw-bold">*</span></label>
                                 <div class="input-icon">
-                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ"
-                                        class="form-control" id="remarks" name="remarks"
+                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" class="form-control"
+                                        id="remarks" name="remarks"
                                         required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                                 </div>
                             </div>
@@ -1263,6 +1261,12 @@
             </div>
             <form action="/elms/apply-hold" method="POST" enctype="multipart/form-data">
                 <div class="modal-body">
+                    <div
+                        class="note mb-3 rounded p-3 bg-warning-lt d-flex justify-content-center align-items-center text-center">
+                        <strong>*ចំណាំ : </strong>
+                        <p class="m-0">សម្រាប់ការបង្កើតលិខិតព្យួរលោកអ្នកអាចធ្វើការព្យួរចាប់ពី <strong>៦ខែ</strong>
+                            ឡើងទៅ។</p>
+                    </div>
                     <div class="row g-3">
                         <div class="col-12">
                             <label for="start_date" class="form-label fw-bold">កាលបរិច្ឆេទចាប់ពី
@@ -1319,7 +1323,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12">
+                        <div class="col-12" hidden>
                             <label class="form-label fw-bold">អ្នកអនុម័ត<span
                                     class="text-danger mx-1 fw-bold">*</span></label>
                             <select class="form-select select-people" id="transfer_id_hof" name="approverId" required>
@@ -1339,24 +1343,6 @@
                             </select>
                             <input type="hidden" id="leave_type_name_hof" name="leave_type_name"
                                 value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-                        </div>
-                        <!-- Signature Field -->
-                        <div class="col-12">
-                            <label for="signature" class="form-label fw-bold">ហត្ថលេខា
-                                <span class="text-danger mx-1 fw-bold">*</span>
-                            </label>
-                            <div class="row g-2">
-                                <div class="col">
-                                    <label class="custom-file-label btn btn-outline-primary w-100">
-                                        ជ្រើសរើសហត្ថលេខា
-                                        <input type="file" class="form-control signature-input visually-hidden"
-                                            name="signature" accept=".png,.jpg,.jpeg" required>
-                                    </label>
-                                </div>
-                                <div class="col-12 mt-3 mb-0">
-                                    <div class="signature-list-container row g-2"></div>
-                                </div>
-                            </div>
                         </div>
                         <div class="col-12">
                             <label for="reason" class="form-label fw-bold">មូលហេតុ
@@ -1398,7 +1384,7 @@
 
 <!-- Modal Apply transferout -->
 <div class="modal modal-blur fade" id="transferout" tabindex="-1" aria-modal="true" role="dialog">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
         <div class="modal-content">
             <div class="modal-header bg-primary text-light">
                 <h5 class="modal-title mb-0">លិខិតផ្ទេរចេញ</h5>
@@ -1411,7 +1397,7 @@
                 <div class="modal-body">
                     <div class="row g-3">
                         <!-- from department  -->
-                        <div class="col-lg-6 col-sm-12 col-md-12">
+                        <div class="col-lg-12 col-sm-12 col-md-12">
                             <label for="start_date" class="form-label fw-bold">ពីនាយកដ្ឋាន
                                 <span class="text-danger mx-1 fw-bold">*</span>
                             </label>
@@ -1432,7 +1418,7 @@
                             </div>
                         </div>
                         <!-- to department  -->
-                        <div class="col-lg-6 col-sm-12 col-md-12">
+                        <div class="col-lg-12 col-sm-12 col-md-12">
                             <label for="end_date" class="form-label fw-bold">ទៅនាយកដ្ឋាន
                                 <span class="text-danger mx-1 fw-bold">*</span>
                             </label>
@@ -1453,7 +1439,7 @@
                             </div>
                         </div>
                         <!-- from office  -->
-                        <div class="col-lg-6 col-sm-12 col-md-12">
+                        <div class="col-lg-12 col-sm-12 col-md-12">
                             <label for="start_date" class="form-label fw-bold">ពីការិយាល័យ
                                 <span class="text-danger mx-1 fw-bold">*</span>
                             </label>
@@ -1474,7 +1460,7 @@
                             </div>
                         </div>
                         <!-- to office  -->
-                        <div class="col-lg-6 col-sm-12 col-md-12">
+                        <div class="col-lg-12 col-sm-12 col-md-12">
                             <label for="end_date" class="form-label fw-bold">ទៅកាន់ការិយាល័យ
                                 <span class="text-danger mx-1 fw-bold">*</span>
                             </label>
@@ -1495,7 +1481,7 @@
                             </div>
                         </div>
                         <!-- approver ID -->
-                        <div class="col-12">
+                        <div class="col-12" hidden>
                             <label class="form-label fw-bold">អ្នកអនុម័ត<span
                                     class="text-danger mx-1 fw-bold">*</span></label>
                             <select class="form-select select-people" id="transfer_id_hof" name="approverId" required>
@@ -1596,7 +1582,7 @@
                                     required><?= isset($_POST['reason']) ? htmlspecialchars($_POST['reason']) : '' ?></textarea>
                             </div>
                         </div>
-                        <div class="col-12">
+                        <div class="col-12" hidden>
                             <label class="form-label fw-bold">អ្នកអនុម័ត<span
                                     class="text-danger mx-1 fw-bold">*</span></label>
                             <select class="form-select select-people" id="transfer_id_hof" name="approverId" required>
@@ -1696,7 +1682,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12">
+                        <div class="col-12" hidden>
                             <label class="form-label fw-bold">អ្នកអនុម័ត<span
                                     class="text-danger mx-1 fw-bold">*</span></label>
                             <select class="form-select select-people" id="transfer_id_hof" name="approverId" required>

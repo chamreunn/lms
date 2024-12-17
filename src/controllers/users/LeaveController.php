@@ -134,7 +134,7 @@ class LeaveController
                 // Add the final HU API
                 $managerApis[] = 'getEmailLeaderHUApi';
 
-                $link = "https://leave.iauoffsa.us/elms/pending";
+                $link = ($_SERVER['SERVER_NAME'] === '127.0.0.1') ? 'http://127.0.0.1/elms/' : 'https://leave.iauoffsa.us/elms/';
                 $approvingManagerId = null;
                 $approvingManagerEmail = null;
                 $approvingManagerName = null;
@@ -220,6 +220,17 @@ class LeaveController
                 ) {
                     throw new Exception("Notification email could not be sent. Please try again.");
                 }
+
+                // Define notification details
+                $notificationTitle = "ច្បាប់ឈប់សម្រាក";
+                $notificationMessage = $_SESSION['user_khmer_name'] . " បានស្នើសុំច្បាប់ឈប់សម្រាកពី $start_date ដល់ $end_date ។";
+                $notificationProfile = $_SESSION['user_profile'];
+                $notificationLink = ($_SERVER['SERVER_NAME'] === '127.0.0.1') ? 'http://127.0.0.1/elms/pending' : 'https://leave.iauoffsa.us/elms/pending';
+
+                // Create the in-app notification
+                $notificationModel = new NotificationModel();
+                $notificationModel->createNotification($approvingManagerId, $notificationTitle, $notificationMessage, $notificationLink, $notificationProfile);
+
 
                 // Log user activity
                 $userModel->logUserActivity($user_id, $activity, $_SERVER['REMOTE_ADDR']);
