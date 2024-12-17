@@ -592,7 +592,7 @@ class HeadOfficeController
                 // Recursive manager delegation
                 $leaveApproval->delegateManager($leaveApproval, $userModel, $managers, $holdId, $approverId);
                 // Send notifications
-                $userModel->sendDocBackToUser($title, $uId, $approverName, $action, $comment, $actionAt);
+                $userModel->sendDocBackToUser($title, $uId, $approverName, $action, $actionAt, $comment);
                 $userModel->sendDocToNextApprover(
                     $title,
                     $comment,

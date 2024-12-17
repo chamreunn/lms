@@ -518,7 +518,7 @@ class DepOfficeController
                 $leaveApproval->delegateManager($leaveApproval, $userModel, $managersApi, $holdId, $approverId);
 
                 // Send notifications
-                $userModel->sendDocBackToUser($title, $uId, $approverName, $action, $comment, $actionAt);
+                $userModel->sendDocBackToUser($title, $uId, $approverName, $action, $actionAt, $comment);
                 $userModel->sendDocToNextApprover(
                     $title,
                     $comment,

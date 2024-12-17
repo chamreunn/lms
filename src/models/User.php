@@ -2439,14 +2439,8 @@ class User
         }
     }
 
-    public function sendDocBackToUser(
-        $title,
-        $uId,
-        $approverName,
-        $action,
-        $comment = 'មិនមានមតិយោបល់',
-        $actionAt
-    ) {
+    public function sendDocBackToUser($title, $uId, $approverName, $action, $actionAt , $comment = 'មិនមានមតិយោបល់')
+    {
         // Fetch the user's Telegram ID
         $telegramUser = $this->getTelegramIdByUserId($uId);
 
@@ -2495,34 +2489,23 @@ class User
     }
 
 
-    public function sendDocToNextApprover(
-        $title,
-        $comment,
-        $actionAt,
-        $nextApproverId,
-        $approverName,
-        $uName,
-        $action,
-        $start_date,
-        $end_date,
-        $duration,
-        $reason
-    ) {
+    public function sendDocToNextApprover($title, $comment, $actionAt, $nextApproverId, $approverName, $uName, $action, $start_date, $end_date, $duration, $reason)
+    {
         // Retrieve the next approver's Telegram ID
         $telegramUser = $this->getTelegramIdByUserId($nextApproverId);
-    
+
         if ($telegramUser && !empty($telegramUser['telegram_id'])) {
             // Map actions to Khmer descriptions
             $actionStatuses = [
                 'submitted' => 'បានដាក់ស្នើ',
                 'forwarded' => 'បានបញ្ជូនបន្ត',
-                'approved'  => 'បានអនុម័ត',
-                'rejected'  => 'បានបដិសេធ'
+                'approved' => 'បានអនុម័ត',
+                'rejected' => 'បានបដិសេធ'
             ];
-    
+
             // Map action to Khmer status, default to the original if undefined
             $actionStatus = $actionStatuses[$action] ?? $action;
-    
+
             // Prepare the notification content
             $notifications = [
                 "🔔 *$title*",
@@ -2540,14 +2523,14 @@ class User
                 "---------------------------------------------",
                 "✅ *សូមអនុវត្តការពិនិត្យនៅក្នុងប្រព័ន្ធ*"
             ];
-    
+
             // Combine the notifications into a single message
             $telegramMessage = implode("\n", $notifications);
-    
+
             // Send the message using the TelegramModel
             $telegramModel = new TelegramModel($this->pdo);
             $success = $telegramModel->sendTelegramNotification($telegramUser['telegram_id'], $telegramMessage);
-    
+
             // Log success or failure
             if ($success) {
                 error_log("✅ Telegram notification sent to next approver ID: {$nextApproverId}");
@@ -2557,7 +2540,7 @@ class User
         } else {
             error_log("⚠️ No valid Telegram ID found for next approver ID: {$nextApproverId}");
         }
-    }    
+    }
 
     // user telegram apply leave 
     public function sendTelegramNotification($userModel, $managerId, $start_date, $end_date, $duration_days, $remarks, $leaveRequestId, $link)
