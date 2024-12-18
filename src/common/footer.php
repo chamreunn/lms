@@ -135,7 +135,7 @@
             new Litepicker({
                 element: input,
                 singleMode: true,
-                format: 'YYYY-MM-DD\T00:00:00',
+                format: "YYYY-MM-DD",
                 lang: 'kh',
                 maxDate : new Date(),
                 buttonText: {
