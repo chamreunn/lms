@@ -366,9 +366,18 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
                         <!-- detail section  -->
                         <form action="/elms/du1action<?= $holds['type'] ?>" method="POST">
 
-                            <input type="hidden" name="holdId" value="<?= $holds['id'] ?>">
-
                             <div class="col-12" hidden>
+
+                                <input type="text" class="form-control" name="holdId" value="<?= $holds['id'] ?>">
+                                <input type="text" class="form-control" name="uName" value="<?= $holds['user_name'] ?>">
+                                <input type="text" class="form-control" name="uId" value="<?= $holds['user_id'] ?>">
+
+                                <!-- form request  -->
+                                <input type="text" class="form-control" name="start_date" value="<?= $holds['start_date'] ?>">
+                                <input type="text" class="form-control" name="end_date" value="<?= $holds['end_date'] ?>">
+                                <input type="text" class="form-control" name="duration" value="<?= $holds['duration'] ?>">
+                                <input type="text" class="form-control" name="reason" value="<?= $holds['reason'] ?>">
+
                                 <label class="form-label fw-bold">អ្នកអនុម័ត
                                     <span class="text-danger mx-1 fw-bold">*</span>
                                 </label>

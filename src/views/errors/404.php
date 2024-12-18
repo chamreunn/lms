@@ -1,5 +1,5 @@
 <?php
-$title = "គណនីត្រូវបានបិទបណ្តោះអាសន្ន";
+$title = "404 | Not Found";
 require 'src/common/head.php';
 
 // Check if user clicked on the link to unset session variables
@@ -30,8 +30,7 @@ if (isset($_GET['unset_session'])) {
                 យើងសោកស្ដាយ ប៉ុន្តែទំព័រដែលអ្នកកំពុងស្វែងរក មិនមានទេ។
             </p>
             <div class="empty-action">
-                <a href="javascript:history.back()" class="btn btn-primary">
-                    <!-- Download SVG icon from http://tabler-icons.io/i/arrow-left -->
+                <button type="button" class="btn btn-primary" data-history-back="true">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                         class="icon">
@@ -41,7 +40,7 @@ if (isset($_GET['unset_session'])) {
                         <path d="M5 12l6 -6"></path>
                     </svg>
                     ត្រឡប់ទៅទំព័រមុន
-                </a>
+                </button>
             </div>
         </div>
     </div>

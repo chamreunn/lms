@@ -32,32 +32,46 @@
     <!-- spinner button  -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Select all forms
-            const forms = document.querySelectorAll('form');
+            // Attach event listener for all buttons
+            const buttons = document.querySelectorAll('button');
 
-            forms.forEach(function (form) {
-                // Attach event listener for form submission
-                form.addEventListener('submit', function (event) {
-                    const submitBtn = form.querySelector('button[type="submit"]');
+            buttons.forEach(function (button) {
+                button.addEventListener('click', function (event) {
+                    // Check if the button has a `history-back` attribute or similar action
+                    if (button.getAttribute('data-history-back') === 'true') {
+                        // Prevent immediate navigation
+                        event.preventDefault();
 
-                    // Check if the spinner already exists; if not, create and append it
-                    if (!submitBtn.querySelector('.spinner-border')) {
-                        const spinner = document.createElement('span');
-                        spinner.classList.add('spinner-border', 'spinner-border-sm', 'mx-2');
-                        spinner.setAttribute('role', 'status');
-                        spinner.setAttribute('aria-hidden', 'true');
-                        spinner.style.display = 'none';
-                        submitBtn.appendChild(spinner);
+                        // Check if the spinner already exists; if not, create and append it
+                        if (!button.querySelector('.spinner-border')) {
+                            // Remove any existing SVG icon
+                            const svgIcon = button.querySelector('svg');
+                            if (svgIcon) {
+                                svgIcon.remove();
+                            }
+
+                            // Create spinner element
+                            const spinner = document.createElement('span');
+                            spinner.classList.add('spinner-border', 'spinner-border-sm', 'mx-2');
+                            spinner.setAttribute('role', 'status');
+                            spinner.setAttribute('aria-hidden', 'true');
+
+                            // Append spinner to the button
+                            button.appendChild(spinner);
+                        }
+
+                        // Show the spinner
+                        const spinner = button.querySelector('.spinner-border');
+                        spinner.style.display = 'inline-block';
+
+                        // Disable the button to prevent multiple clicks
+                        button.setAttribute('disabled', 'true');
+
+                        // Perform the history back action after a short delay
+                        setTimeout(function () {
+                            history.back();
+                        }, 500); // Adjust the delay as needed
                     }
-
-                    // Show the spinner
-                    const spinner = submitBtn.querySelector('.spinner-border');
-                    spinner.style.display = 'inline-block';
-
-                    // Disable the button after a slight delay to allow form submission
-                    setTimeout(function () {
-                        submitBtn.setAttribute('disabled', 'true');
-                    }, 50); // Delay the button disable by 50ms, giving the form time to submit
                 });
             });
         });

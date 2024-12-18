@@ -1,9 +1,4 @@
 <?php
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start(); // Start or resume session
-}
-
 require_once 'src/models/unit1-d/DepUnit1Model.php';
 require_once 'src/models/Leavetype.php';
 
@@ -424,33 +419,58 @@ class HeadUnitController
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-            // Get values from form and session
-            $userId = $_SESSION['user_id'];
+            // Extract session and form data
+            $approverId = $_SESSION['user_id'];
+            $approverName = $_SESSION['user_khmer_name'];
+
             $holdId = $_POST['holdId'];
-            $approverId = $_POST['approverId'];
+            $uId = $_POST['uId'];
             $action = $_POST['status'];
-            $comment = $_POST['comment'];
+            $comment = $_POST['comment'] ?? '';
+
+            $actionAt = date('Y-m-d h:i:s A');
+
+            $title = "លិខិតព្យួរការងារ";
 
             try {
-                // Start transaction
-                $this->pdo->beginTransaction();
+                // Ensure a valid connection and start transaction
+                if (!$this->pdo->inTransaction()) {
+                    $this->pdo->beginTransaction();
+                }
 
                 // Create a DepOfficeModel instance and submit approval
                 $leaveApproval = new HeadUnitModel();
-                $leaveApproval->updateHoldApproval($userId, $holdId, $approverId, $action, $comment);
+                $userModel = new User();
+                $leaveApproval->updateHoldApproval($holdId, $approverId, $action, $comment);
 
-                if ($leaveApproval) {
-                    // Log the error and set error message
-                    $_SESSION['success'] = [
-                        'title' => "លិខិតព្យួរការងារ",
-                        'message' => "អ្នកបាន " . $action . " លើលិខិតព្យួរការងាររួចរាល់។"
-                    ];
-                    header("Location: /elms/hunitpending");
-                    exit();
+                // Send notifications
+                $userModel->sendDocBackToUser($title, $uId, $approverName, $action, $actionAt, $comment);
+
+                // Define notification details
+                $notificationMessageToUser = $approverName . " បាន " . $action . "លើលិខិតព្យួរការងារ";
+                $notificationProfile = $_SESSION['user_profile'];
+
+                // Create the in-app notification
+                $notificationModel = new NotificationModel();
+                $notificationModel->createNotification(
+                    $uId,            // Target user ID (requestor)
+                    $title,
+                    $notificationMessageToUser,
+                    $notificationProfile
+                );
+
+                // Commit transaction
+                if ($this->pdo->inTransaction()) {
+                    $this->pdo->commit();
                 }
-                // Commit transaction after successful approval update
-                $this->pdo->commit();
 
+                // Success message
+                $_SESSION['success'] = [
+                    'title' => $title,
+                    'message' => "អ្នកបាន " . htmlspecialchars($action) . " លើលិខិតព្យួរការងាររួចរាល់។"
+                ];
+                header("Location: /elms/hunitpending");
+                exit();
             } catch (Exception $e) {
                 // Rollback transaction in case of error
                 $this->pdo->rollBack();

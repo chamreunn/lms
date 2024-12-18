@@ -1,9 +1,4 @@
 <?php
-// Initialize session if not already started
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: /elms/login");
@@ -348,10 +343,10 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 </div>
 
 <div class="row row-card mb-3">
-    <div class="col-lg-3 mb-3">
-        <a href="" data-bs-toggle="modal" data-bs-target="#apply-leave"
+    <div class="col-lg-3 mb-3" data-aos="zoomin" data-aos-delay="100">
+        <a href="" data-bs-toggle="modal" data-bs-target="#do-apply"
             class="card card-link card-link-pop text-primary p-5 d-flex align-items-center justify-content-center">
-            <div class="avatar mb-3 bg-primary-lt">
+            <div class="avatar avatar-md mb-3 bg-primary-lt">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                     class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-month">
@@ -374,10 +369,10 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
 
     </div>
 
-    <div class="col-lg-3 mb-3">
+    <div class="col-lg-3 mb-3" data-aos="zoomin" data-aos-delay="200">
         <a href="" data-bs-toggle="modal" data-bs-target="#apply-late-in"
             class="card card-link card-link-pop text-success p-5 d-flex align-items-center justify-content-center">
-            <div class="avatar mb-3 bg-success-lt">
+            <div class="avatar avatar-md mb-3 bg-success-lt">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                     class="icon icon-tabler icons-tabler-outline icon-tabler-clock-up">
@@ -392,10 +387,10 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </a>
     </div>
 
-    <div class="col-lg-3 mb-3">
+    <div class="col-lg-3 mb-3" data-aos="zoomin" data-aos-delay="300">
         <a href="" data-bs-toggle="modal" data-bs-target="#apply-late-out"
             class="card card-link card-link-pop p-5 text-warning d-flex align-items-center justify-content-center">
-            <div class="avatar mb-3 bg-warning-lt">
+            <div class="avatar avatar-md mb-3 bg-warning-lt">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                     class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-repeat">
@@ -413,10 +408,10 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
         </a>
     </div>
 
-    <div class="col-lg-3 mb-3">
+    <div class="col-lg-3 mb-3" data-aos="zoomin" data-aos-delay="400">
         <a href="" data-bs-toggle="modal" data-bs-target="#apply-leaveearly"
             class="card card-link card-link-pop p-5 text-warning d-flex align-items-center justify-content-center">
-            <div class="avatar mb-3 bg-warning-lt">
+            <div class="avatar avatar-md mb-3 bg-warning-lt">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                     class="icon icon-tabler icons-tabler-outline icon-tabler-clock-plus">
@@ -432,183 +427,142 @@ function translateDateToKhmer($date, $format = 'D F j, Y h:i A')
     </div>
 </div>
 
-<?php include('src/common/footer.php'); ?>
-<!-- Modal Apply Leave -->
-<div class="modal modal-blur fade" id="apply-leave" tabindex="-1" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><strong>បង្កើតសំណើ</strong></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="POST" action="/elms/admin-apply-leave" enctype="multipart/form-data">
-                <div class="modal-body">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label for="leave_type" class="form-label fw-bold">ប្រភេទច្បាប់<span
-                                    class="text-danger mx-1 fw-bold">*</span></label>
-                            <select class="form-select" id="leave_type" name="leave_type_id" required>
-                                <option value="">ជ្រើសរើសប្រភេទច្បាប់</option>
-                                <?php foreach ($leavetypes as $leavetype): ?>
-                                    <option value="<?= $leavetype['id'] ?>" data-leave-name="<?= $leavetype['name'] ?>"
-                                        data-custom-properties='<span class="badge <?= $leavetype['color'] ?>"></span>'
-                                        <?= (isset($_POST['leave_type_id']) && $_POST['leave_type_id'] == $leavetype['id']) ? 'selected' : '' ?>>
-                                        <?= $leavetype['name'] ?>     <?= $leavetype['document_status'] ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                            <input type="hidden" id="leave_type_name" name="leave_type_name"
-                                value="<?= htmlspecialchars($_POST['leave_type_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-lg-6 mb-3">
-                                <label for="start_date" class="form-label fw-bold">កាលបរិច្ឆេទចាប់ពី<span
-                                        class="text-danger mx-1 fw-bold">*</span></label>
-                                <div class="input-icon">
-                                    <span class="input-icon-addon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                            <rect x="4" y="5" width="16" height="16" rx="2"></rect>
-                                            <line x1="16" y1="3" x2="16" y2="7"></line>
-                                            <line x1="8" y1="3" x2="8" y2="7"></line>
-                                            <line x1="4" y1="11" x2="20" y2="11"></line>
-                                            <rect x="8" y="15" width="2" height="2"></rect>
-                                        </svg>
-                                    </span>
-                                    <input type="text" autocomplete="off"
-                                        value="<?= htmlspecialchars($_POST['start_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                        placeholder="កាលបរិច្ឆេទចាប់ពី" class="form-control date-picker"
-                                        id="lstart_date" name="start_date" required>
-                                </div>
-                            </div>
-                            <div class="col-lg-6 mb-3">
-                                <label for="end_date" class="form-label fw-bold">ដល់កាលបរិច្ឆេទ<span
-                                        class="text-danger mx-1 fw-bold">*</span></label>
-                                <div class="input-icon">
-                                    <span class="input-icon-addon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                            <rect x="4" y="5" width="16" height="16" rx="2"></rect>
-                                            <line x1="16" y1="3" x2="16" y2="7"></line>
-                                            <line x1="8" y1="3" x2="8" y2="7"></line>
-                                            <line x1="4" y1="11" x2="20" y2="11"></line>
-                                            <rect x="8" y="15" width="2" height="2"></rect>
-                                        </svg>
-                                    </span>
-                                    <input type="text" autocomplete="off"
-                                        value="<?= htmlspecialchars($_POST['end_date'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                        placeholder="ដល់កាលបរិច្ឆេទ" class="form-control date-picker" id="lend_date"
-                                        name="end_date" required>
-                                </div>
-                            </div>
-                            <div class="col-lg-12 mb-3">
-                                <label for="reason" class="form-label fw-bold">មូលហេតុ<span
-                                        class="text-danger mx-1 fw-bold">*</span></label>
-                                <div class="input-icon">
-                                    <!-- <span class="input-icon-addon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-message">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M8 9h8" />
-                                                <path d="M8 13h6" />
-                                                <path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" />
-                                            </svg>
-                                        </span> -->
-                                    <textarea type="text" autocomplete="off" placeholder="មូលហេតុ" rows="5"
-                                        class="form-control" id="remarks" name="remarks"
-                                        required><?= htmlspecialchars($_POST['remarks'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
-                                </div>
-                            </div>
+<div class="hr-text text-primary fs-large">លិខិតរដ្ឋបាលផ្សេងៗ</div>
 
-                            <div class="col-12 mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="attachment"
-                                        onchange="toggleFileInput(this, 'attachmentFile')">
-                                    <label class="form-check-label cursor-pointer" for="attachment">
-                                        ឯកសារភ្ជាប់
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-12 mb-3" id="attachmentFile" style="display: none;">
-                                <label id="attachmentDisplayName" for="attachment_file"
-                                    class="btn w-100 text-start p-3 bg-light">
-                                    ឯកសារភ្ជាប់
-                                </label>
-                                <input type="file" name="attachment" id="attachment_file" class="form-control" hidden
-                                    onchange="displayFileName('attachment_file', 'attachmentDisplayName')" />
-                            </div>
-                        </div>
-                    </div>
+<div class="row g-3 row-card">
+    <!-- Card 1 -->
+    <div class="col-lg-3" data-aos="zoom-in" data-aos-delay="500">
+        <a href="" data-bs-toggle="modal" data-bs-target="#hold"
+            class="card card-link card-link-pop text-primary p-5 d-flex align-items-center justify-content-center hover-shadow">
+            <div class="card-stamp">
+                <div class="card-stamp-icon bg-vk">
+                    <!-- Download SVG icon from http://tabler-icons.io/i/bell -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-user-pause">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                        <path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" />
+                        <path d="M17 17v5" />
+                        <path d="M21 17v5" />
+                    </svg>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn" data-bs-dismiss="modal">បោះបង់</button>
-                    <button type="submit" class="btn btn-primary">
-                        <span>បង្កើតសំណើ</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="icon icon-tabler icons-tabler-outline icon-tabler-send mx-1">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M10 14l11 -11" />
-                            <path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" />
-                        </svg>
-                    </button>
+            </div>
+            <div class="avatar avatar-md mb-3 bg-primary-lt">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-user-pause">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                    <path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" />
+                    <path d="M17 17v5" />
+                    <path d="M21 17v5" />
+                </svg>
+            </div>
+            <strong class="mt-2">លិខិតព្យួរ</strong>
+        </a>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="col-lg-3" data-aos="zoom-in" data-aos-delay="600">
+        <a href="" data-bs-toggle="modal" data-bs-target="#transferout"
+            class="card card-link card-link-pop text-info p-5 d-flex align-items-center justify-content-center hover-shadow">
+            <div class="card-stamp">
+                <div class="card-stamp-icon bg-info">
+                    <!-- Download SVG icon from http://tabler-icons.io/i/bell -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-user-share">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                        <path d="M6 21v-2a4 4 0 0 1 4 -4h3" />
+                        <path d="M16 22l5 -5" />
+                        <path d="M21 21.5v-4.5h-4.5" />
+                    </svg>
                 </div>
-            </form>
-        </div>
+            </div>
+            <div class="avatar avatar-md mb-3 bg-info-lt">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-user-share">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                    <path d="M6 21v-2a4 4 0 0 1 4 -4h3" />
+                    <path d="M16 22l5 -5" />
+                    <path d="M21 21.5v-4.5h-4.5" />
+                </svg>
+            </div>
+            <strong class="mt-2">លិខិតផ្ទេរចេញ</strong>
+        </a>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="col-lg-3" data-aos="zoom-in" data-aos-delay="700">
+        <a href="" data-bs-toggle="modal" data-bs-target="#resign"
+            class="card card-link card-link-pop text-danger p-5 d-flex align-items-center justify-content-center hover-shadow">
+            <div class="card-stamp">
+                <div class="card-stamp-icon bg-danger">
+                    <!-- Download SVG icon from http://tabler-icons.io/i/bell -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-user-cancel">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                        <path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" />
+                        <path d="M19 19m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                        <path d="M17 21l4 -4" />
+                    </svg>
+                </div>
+            </div>
+            <div class="avatar avatar-md mb-3 bg-danger-lt">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-user-cancel">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                    <path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" />
+                    <path d="M19 19m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                    <path d="M17 21l4 -4" />
+                </svg>
+            </div>
+            <strong class="mt-2">លិខិតលារឈប់</strong>
+        </a>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="col-lg-3" data-aos="zoom-in" data-aos-delay="800">
+        <a href="" data-bs-toggle="modal" data-bs-target="#backwork"
+            class="card card-link card-link-pop text-success p-5 d-flex align-items-center justify-content-center hover-shadow">
+            <div class="card-stamp">
+                <div class="card-stamp-icon bg-success">
+                    <!-- Download SVG icon from http://tabler-icons.io/i/bell -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon icon-tabler icons-tabler-outline icon-tabler-users-plus">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M5 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                        <path d="M3 21v-2a4 4 0 0 1 4 -4h4c.96 0 1.84 .338 2.53 .901" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        <path d="M16 19h6" />
+                        <path d="M19 16v6" />
+                    </svg>
+                </div>
+            </div>
+            <div class="avatar avatar-md mb-3 bg-success-lt">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="icon icon-tabler icons-tabler-outline icon-tabler-users-plus">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M5 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                    <path d="M3 21v-2a4 4 0 0 1 4 -4h4c.96 0 1.84 .338 2.53 .901" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    <path d="M16 19h6" />
+                    <path d="M19 16v6" />
+                </svg>
+            </div>
+            <strong class="mt-2">លិខិតបន្តការងារ</strong>
+        </a>
     </div>
 </div>
 
-<script>
-    function convertToKhmerNumerals(num) {
-        const khmerNumerals = ['០', '១', '២', '៣', '៤', '៥', '៦', '៧', '៨', '៩'];
-        return num.toString().split('').map(digit => khmerNumerals[digit]).join('');
-    }
-
-    function updateDateTime() {
-        const clockElement = document.getElementById('real-time-clock');
-        const currentTime = new Date();
-
-        // Define Khmer arrays for days of the week and months.
-        const daysOfWeek = ['អាទិត្យ', 'ច័ន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍'];
-        const dayOfWeek = daysOfWeek[currentTime.getDay()];
-
-        const months = ['មករា', 'កុម្ភៈ', 'មិនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
-        const month = months[currentTime.getMonth()];
-
-        const day = convertToKhmerNumerals(currentTime.getDate());
-        const year = convertToKhmerNumerals(currentTime.getFullYear());
-
-        // Calculate and format hours, minutes, seconds, and time of day in Khmer.
-        let hours = currentTime.getHours();
-        let period;
-
-        if (hours >= 5 && hours < 12) {
-            period = 'ព្រឹក'; // Khmer for AM (morning)
-        } else if (hours >= 12 && hours < 17) {
-            period = 'រសៀល'; // Khmer for afternoon
-        } else if (hours >= 17 && hours < 20) {
-            period = 'ល្ងាច'; // Khmer for evening
-        } else {
-            period = 'យប់'; // Khmer for night
-        }
-
-        hours = hours % 12 || 12;
-        const khmerHours = convertToKhmerNumerals(hours);
-        const khmerMinutes = convertToKhmerNumerals(currentTime.getMinutes().toString().padStart(2, '0'));
-        const khmerSeconds = convertToKhmerNumerals(currentTime.getSeconds().toString().padStart(2, '0'));
-
-        // Construct the date and time string in the desired Khmer format.
-        const dateTimeString = `${dayOfWeek}, ${day} ${month} ${year} ${khmerHours}:${khmerMinutes}:${khmerSeconds} ${period}`;
-        clockElement.textContent = dateTimeString;
-    }
-
-    // Update the date and time every second (1000 milliseconds).
-    setInterval(updateDateTime, 1000);
-
-    // Initial update.
-    updateDateTime();
-</script>
+<?php include('src/common/footer.php'); ?>

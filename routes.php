@@ -38,6 +38,7 @@ $controllers = [
     'src/controllers/attendance/AttendanceController.php',
     'src/controllers/qrcode/QrcodeController.php',
     'src/controllers/nofitications/NotificationController.php',
+    'src/controllers/routindoc/RoutinDocController.php'
 ];
 
 // Require all controllers
@@ -1659,6 +1660,18 @@ asyncHandler(function () {
                 $settingController->verifyAuth2Fa();
             });
             break;
+        case $base_url . '/routinDocs':
+            checkSessionAndExecute(function () {
+                $controller = new RoutinDocController();
+                $controller->index();
+            });
+            break;
+        case $base_url . '/adduserreport':
+            checkSessionAndExecute(function () {
+                $controller = new RoutinDocController();
+                $controller->addUserReport();
+            });
+            break;
         case $base_url . '/v2faCode':
             require 'src/views/errors/2fa.php';
             break;
@@ -1691,14 +1704,25 @@ function checkSessionAndExecute($callback)
 {
     global $base_url;
 
-    // Check if user_id is not set or is null/empty
-    if (empty($_SESSION['user_id'])) {
-        // Redirect to login page
+    // Ensure session is started
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    // Check if either `user_id` or `token` is missing
+    if (empty($_SESSION['user_id']) || empty($_SESSION['token'])) {
+        // Unset any existing session variables for safety
+        session_unset();
+        session_destroy();
+
+        // Redirect to the login page
         header("Location: $base_url/login");
         exit();
     }
 
-    // Execute the provided callback function
+    // Execute the provided callback if both are valid
     $callback();
 }
+
+
 

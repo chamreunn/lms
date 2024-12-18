@@ -612,7 +612,7 @@ class HeadOfficeController
                 $notificationProfile = $_SESSION['user_profile'];
                 $notificationLink = ($_SERVER['SERVER_NAME'] === '127.0.0.1')
                     ? 'http://127.0.0.1/elms/headofficepending'
-                    : 'https://leave.iauoffsa.us/elms/pending';
+                    : 'https://leave.iauoffsa.us/elms/headofficepending';
 
                 // Create the in-app notification
                 $notificationModel = new NotificationModel();

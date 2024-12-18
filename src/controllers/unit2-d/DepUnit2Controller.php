@@ -1,9 +1,5 @@
 <?php
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start(); // Start or resume session
-}
-
 require_once 'src/models/unit1-d/DepUnit1Model.php';
 require_once 'src/models/Leavetype.php';
 

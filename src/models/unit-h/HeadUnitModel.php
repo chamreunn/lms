@@ -1746,7 +1746,7 @@ class HeadUnitModel
         return $leadersOnLeave; // Return the final array of leaders and their leave requests
     }
 
-    public function updateHoldApproval($userId, $holdId, $approverId, $action, $comment)
+    public function updateHoldApproval($holdId, $approverId, $action, $comment)
     {
         try {
             // Start transaction if not already started
@@ -1768,7 +1768,7 @@ class HeadUnitModel
             // Update `status` and `comments` in `holds_approvals` if a record exists
             $updateApprovalSql = "UPDATE holds_approvals SET status = ?, comments = ? WHERE hold_id = ? AND approver_id = ?";
             $updateApprovalStmt = $this->pdo->prepare($updateApprovalSql);
-            $updateApprovalStmt->execute([$action, $comment, $holdId, $userId]);
+            $updateApprovalStmt->execute([$action, $comment, $holdId, $approverId]);
 
             // Debugging log for the update
             if ($updateApprovalStmt->rowCount() === 0) {

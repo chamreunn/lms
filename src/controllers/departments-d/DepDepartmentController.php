@@ -534,17 +534,32 @@ class DepDepartmentController
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-            // Get values from form and session
-            $userId = $_SESSION['user_id'];
-            $holdId = $_POST['holdId'];
-            $approverId = $_POST['approverId'];
-            $action = $_POST['status'];
-            $comment = $_POST['comment'];
+            // Extract session and form data
+            $approverId = $_SESSION['user_id'];
+            $approverName = $_SESSION['user_khmer_name'];
             $department = $_SESSION['departmentName'];
 
+            $holdId = $_POST['holdId'];
+            $nextApproverId = $_POST['approverId'];
+            $uId = $_POST['uId'];
+            $action = $_POST['status'];
+            $comment = $_POST['comment'] ?? '';
+
+            // User request details
+            $uName = $_POST['uName'] ?? '';
+            $start_date = $_POST['start_date'] ?? '';
+            $end_date = $_POST['end_date'] ?? '';
+            $duration = $_POST['duration'] ?? '';
+            $reason = $_POST['reason'] ?? '';
+            $actionAt = date('Y-m-d h:i:s A');
+
+            $title = "លិខិតព្យួរការងារ";
+
             try {
-                // Start transaction
-                $this->pdo->beginTransaction();
+                // Ensure a valid connection and start transaction
+                if (!$this->pdo->inTransaction()) {
+                    $this->pdo->beginTransaction();
+                }
 
                 // Create a DepOfficeModel instance and submit approval
                 $leaveApproval = new DepDepartmentModel();
@@ -556,21 +571,63 @@ class DepDepartmentController
                     $managers = 'getEmailLeaderDHU2Api';
                 }
 
-                $leaveApproval->updateHoldApproval($userId, $holdId, $action, $comment);
+                $leaveApproval->updateHoldApproval($approverId, $holdId, $action, $comment);
                 // Recursive manager delegation
-                $leaveApproval->delegateManager($leaveApproval, $userModel, $managers, $holdId, $userId);
+                $leaveApproval->delegateManager($leaveApproval, $userModel, $managers, $holdId, $approverId);
 
-                if ($leaveApproval) {
-                    // Log the error and set error message
-                    $_SESSION['success'] = [
-                        'title' => "លិខិតព្យួរការងារ",
-                        'message' => "អ្នកបាន " . $action . " លើលិខិតព្យួរការងាររួចរាល់។"
-                    ];
-                    header("Location: /elms/depdepartmentpending");
-                    exit();
+                // Send notifications
+                $userModel->sendDocBackToUser($title, $uId, $approverName, $action, $actionAt, $comment);
+                $userModel->sendDocToNextApprover(
+                    $title,
+                    $comment,
+                    $actionAt,
+                    $nextApproverId,
+                    $approverName,
+                    $uName,
+                    $action,
+                    $start_date,
+                    $end_date,
+                    $duration,
+                    $reason
+                );
+
+                // Define notification details
+                $notificationMessageToUser = $approverName . " បាន " . $action . "លើលិខិតព្យួរការងារ";
+                $notificationProfile = $_SESSION['user_profile'];
+                $notificationLink = ($_SERVER['SERVER_NAME'] === '127.0.0.1')
+                    ? 'http://127.0.0.1/elms/depdepartmentpending'
+                    : 'https://leave.iauoffsa.us/elms/depdepartmentpending';
+
+                // Create the in-app notification
+                $notificationModel = new NotificationModel();
+                $notificationModel->createNotification(
+                    $uId,            // Target user ID (requestor)
+                    $title,
+                    $notificationMessageToUser,
+                    $notificationProfile
+                );
+
+                // Notify the next approver
+                $notificationModel->createNotification(
+                    $nextApproverId, // Target user ID (next approver)
+                    $title,
+                    $notificationMessageToUser,
+                    $notificationLink,
+                    $notificationProfile
+                );
+
+                // Commit transaction
+                if ($this->pdo->inTransaction()) {
+                    $this->pdo->commit();
                 }
-                // Commit transaction after successful approval update
-                $this->pdo->commit();
+
+                // Success message
+                $_SESSION['success'] = [
+                    'title' => $title,
+                    'message' => "អ្នកបាន " . htmlspecialchars($action) . " លើលិខិតព្យួរការងាររួចរាល់។"
+                ];
+                header("Location: /elms/depdepartmentpending");
+                exit();
             } catch (Exception $e) {
                 // Rollback transaction in case of error
                 $this->pdo->rollBack();

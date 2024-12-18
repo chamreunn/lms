@@ -1740,3 +1740,95 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Reports -->
+<div class="modal modal-blur fade" id="report" tabindex="-1" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-light mb-0">របាយការណ៍ប្រចាំថ្ងៃ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/elms/adduserreport" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <!-- date  -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold">កាលបរិច្ឆេទ
+                                <span class="text-danger mx-1 fw-bold">*</span>
+                            </label>
+                            <div class="input-icon">
+                                <span class="input-icon-addon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <rect x="4" y="5" width="16" height="16" rx="2"></rect>
+                                        <line x1="16" y1="3" x2="16" y2="7"></line>
+                                        <line x1="8" y1="3" x2="8" y2="7"></line>
+                                        <line x1="4" y1="11" x2="20" y2="11"></line>
+                                        <rect x="8" y="15" width="2" height="2"></rect>
+                                    </svg>
+                                </span>
+                                <!-- Retain the value of start_date -->
+                                <input type="text" autocomplete="off" placeholder="កាលបរិច្ឆេទចាប់ពី"
+                                    class="form-control report-date-picker" name="reportStartDate">
+                            </div>
+                        </div>
+                        <!-- action  -->
+                        <div class="col-12">
+                            <label for="reason" class="form-label fw-bold">សកម្មភាព
+                                <span class="text-danger mx-1 fw-bold">*</span>
+                            </label>
+                            <div class="input-icon">
+                                <!-- Retain the value of the reason textarea -->
+                                <textarea type="text" cols="5" autocomplete="off" class="form-control" required
+                                    name="reportDescription" style="overflow:hidden; resize:none;"></textarea>
+                            </div>
+                        </div>
+                        <!-- notes  -->
+                        <div class="col-12">
+                            <label for="reason" class="form-label fw-bold">ចំណាំ
+                            </label>
+                            <div class="input-icon">
+                                <!-- Retain the value of the reason textarea -->
+                                <textarea type="text" cols="5" autocomplete="off" class="form-control" name="reportNote"
+                                    style="overflow:hidden; resize:none;"></textarea>
+                            </div>
+                        </div>
+                        <!-- document  -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold">ឯកសារភ្ជាប់</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="file" class="form-control" id="reportAttachment"
+                                        name="reportAttachment[]" accept=".pdf,.docx" multiple>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-check">
+                                <input class="form-check-input cursor-pointer" type="checkbox" name="agree" required>
+                                <span class="form-check-label cursor-pointer">ខ្ញុំយល់ព្រម
+                                    និងទទួលស្គាល់លើទិន្នន័យដែលបានបញ្ចូល។<span
+                                        class="text-danger mx-1 fw-bold">*</span></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <div class="w-100">
+                        <div class="row">
+                            <div class="col">
+                                <button type="button" class="btn w-100" data-bs-dismiss="modal">បោះបង់</button>
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-primary w-100">បញ្ជូន</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

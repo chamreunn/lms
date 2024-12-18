@@ -6,7 +6,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
         <div class="navbar navbar-light">
             <div class="container-xl">
                 <ul class="navbar-nav">
-                    <li class="nav-item <?= ($current_page == 'dashboard') ? 'active' : '' ?>">
+                    <li class="nav-item <?= ($current_page == 'dashboard') ? 'active bg-primary-lt rounded' : '' ?>">
                         <a class="nav-link" href="/elms/dashboard">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
@@ -23,8 +23,10 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </span>
                         </a>
                     </li>
+
+                    <!-- leave  -->
                     <li
-                        class="nav-item <?= ($current_page == 'my-leaves' || $current_page == 'view-leave-detail') ? 'active' : '' ?>">
+                        class="nav-item <?= ($current_page == 'my-leaves' || $current_page == 'view-leave-detail') ? 'active bg-primary-lt rounded' : '' ?>">
                         <a class="nav-link" href="/elms/my-leaves">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -45,7 +47,9 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item <?= ($current_page == 'my-attendances') ? 'active' : '' ?>">
+
+                    <!-- attendance  -->
+                    <li class="nav-item <?= ($current_page == 'my-attendances') ? 'active bg-primary-lt rounded' : '' ?>">
                         <a class="nav-link" href="/elms/my-attendances">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -66,9 +70,33 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </span>
                         </a>
                     </li>
+
+                    <!-- routindoc  -->
+                    <li class="nav-item <?= ($current_page == 'routinDocs') ? 'active bg-primary-lt rounded' : '' ?>">
+                        <a class="nav-link" href="/elms/routinDocs">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-file-type-doc">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                    <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />
+                                    <path d="M5 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z" />
+                                    <path d="M20 16.5a1.5 1.5 0 0 0 -3 0v3a1.5 1.5 0 0 0 3 0" />
+                                    <path
+                                        d="M12.5 15a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1 -3 0v-3a1.5 1.5 0 0 1 1.5 -1.5z" />
+                                </svg>
+                            </span>
+                            <span class="nav-link-title">
+                                របាយការណ៍ប្រចាំថ្ងៃ
+                            </span>
+                        </a>
+                    </li>
+
                     <!-- late & mission  -->
                     <li
-                        class="nav-item dropdown <?= ($current_page == 'overtimein' || $current_page == 'overtimeout' || $current_page == 'leaveearly' || $current_page == 'mission') ? 'active' : '' ?>">
+                        class="nav-item dropdown <?= ($current_page == 'overtimein' || $current_page == 'overtimeout' || $current_page == 'leaveearly' || $current_page == 'mission') ? 'active bg-primary-lt rounded' : '' ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
                             data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -163,9 +191,10 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </div>
                         </div>
                     </li>
+
                     <!-- <li hidden -->
                     <li
-                        class="nav-item dropdown <?= in_array($current_page, ['transferout', 'hold', 'resign', 'backwork', 'view&edit-hold', 'view&edit-transferout']) ? 'active' : '' ?>">
+                        class="nav-item dropdown <?= in_array($current_page, ['transferout', 'hold', 'resign', 'backwork', 'view&edit-hold', 'view&edit-transferout']) ? 'active bg-primary-lt rounded' : '' ?>">
                         <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
                             data-bs-auto-close="outside" role="button" aria-expanded="false">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -259,7 +288,9 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                             </div>
                         </div>
                     </li>
-                    <li class="nav-item <?= ($current_page == 'leave-calendar') ? 'active' : '' ?>">
+
+                    <!-- calendar  -->
+                    <li class="nav-item <?= ($current_page == 'leave-calendar') ? 'active bg-primary-lt rounded' : '' ?>">
                         <a class="nav-link" href="/elms/leave-calendar">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -290,7 +321,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                     <!-- late&mission request  -->
                     <?php if (isset($_SESSION['manageUserRequest']) && $_SESSION['manageUserRequest'] == '1'): ?>
                         <li
-                            class="nav-item dropdown <?= in_array($current_page, ['adminall', 'adminpending', 'adminapproved', 'adminrejected', 'admintodaylate', 'adminmissions', 'admintodaymissions', 'adminleaves', 'adminleavetoday']) ? 'active' : '' ?>">
+                            class="nav-item dropdown <?= in_array($current_page, ['adminall', 'adminpending', 'adminapproved', 'adminrejected', 'admintodaylate', 'adminmissions', 'admintodaymissions', 'adminleaves', 'adminleavetoday']) ? 'active bg-primary-lt rounded' : '' ?>">
                             <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
                                 data-bs-auto-close="outside" role="button" aria-expanded="false">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -423,7 +454,7 @@ $current_page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
                     <!-- manage system  -->
                     <?php if (isset($_SESSION['generalManage']) && $_SESSION['generalManage'] == '1'): ?>
                         <li
-                            class="nav-item dropdown <?= in_array($current_page, ['user_index', 'department_index', 'office', 'leavetype', 'roles', 'positions', 'documents', 'holidays', 'ipaddress', 'allqr']) ? 'active' : '' ?>">
+                            class="nav-item dropdown <?= in_array($current_page, ['user_index', 'department_index', 'office', 'leavetype', 'roles', 'positions', 'documents', 'holidays', 'ipaddress', 'allqr']) ? 'active bg-primary-lt rounded' : '' ?>">
                             <a class="nav-link dropdown-toggle" href="#navbar-extra" data-bs-toggle="dropdown"
                                 data-bs-auto-close="outside" role="button" aria-expanded="false">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">

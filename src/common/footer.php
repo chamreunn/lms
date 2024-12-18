@@ -129,6 +129,22 @@
             });
         });
 
+        // Check if elements with class 'report-date-picker' exist before initializing Litepicker
+        const reportDateInputs = document.querySelectorAll('.report-date-picker');
+        reportDateInputs.forEach(input => {
+            new Litepicker({
+                element: input,
+                singleMode: true,
+                format: 'YYYY-MM-DD\T00:00:00',
+                lang: 'kh',
+                maxDate : new Date(),
+                buttonText: {
+                    previousMonth: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="15 6 9 12 15 18" /></svg>`,
+                    nextMonth: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 6 15 12 9 18" /></svg>`,
+                }
+            });
+        });
+
         // Check if elements with class 'leave-picker' exist before initializing Litepicker
         const leaveDateInputs = document.querySelectorAll('.leave-picker');
         leaveDateInputs.forEach(input => {
@@ -855,6 +871,16 @@
             }
         }, 3000); // Delay for 3 seconds to allow geolocation to fetch coordinates
     };
+</script>
+
+<!-- text area auto height  -->
+<script>
+    document.addEventListener('input', function (event) {
+        if (event.target.tagName === 'TEXTAREA') {
+            event.target.style.height = 'auto';
+            event.target.style.height = (event.target.scrollHeight) + 'px';
+        }
+    });
 </script>
 
 </body>
